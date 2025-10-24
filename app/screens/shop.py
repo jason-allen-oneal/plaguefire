@@ -41,7 +41,10 @@ class BaseShopScreen(Screen):
         self.items_for_sale = items_for_sale if items_for_sale is not None else self._generate_default_items()
         self.allowed_actions = allowed_actions or ['buy', 'sell', 'leave']
         self.selected_index = 0
-        self.player_gold = self.app.player.get("gold", 0) if hasattr(self.app, "player") else 0
+        if hasattr(self.app, "player") and isinstance(self.app.player, Player):
+             self.player_gold = self.app.player.gold
+        else:
+             self.player_gold = 0 # Default if no player object yet
         self.current_greeting: str = ""
         
         self.data_changed: bool = False
