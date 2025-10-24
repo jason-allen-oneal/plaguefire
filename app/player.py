@@ -53,6 +53,34 @@ class Player:
         stat_value = self.stats.get(stat_name, 10) # Default to 10 if stat missing
         return (stat_value - 10) // 2
 
+    def _apply_item_effects(self, item_name: str, equipping: bool = True):
+        """Apply or revert item effects on player stats and light radius."""
+        # Torch effects
+        if "Torch" in item_name:
+            if equipping:
+                self.light_radius = 5
+                self.light_duration = 100
+                debug(f"Applied Torch effects: light_radius=5, light_duration=100")
+            else:
+                self.light_radius = self.base_light_radius
+                self.light_duration = 0
+                debug(f"Reverted Torch effects: light_radius={self.base_light_radius}")
+        
+        # Lantern effects (better than torch)
+        elif "Lantern" in item_name:
+            if equipping:
+                self.light_radius = 7
+                self.light_duration = 200
+                debug(f"Applied Lantern effects: light_radius=7, light_duration=200")
+            else:
+                self.light_radius = self.base_light_radius
+                self.light_duration = 0
+                debug(f"Reverted Lantern effects: light_radius={self.base_light_radius}")
+        
+        # Add more item effects as needed
+        # For weapons and armor, stat modifications could be added here
+        # Example: if "Ring of Strength" in item_name: self.stats['STR'] += 2 if equipping else self.stats['STR'] -= 2
+
     def to_dict(self) -> Dict:
         """Converts the Player object back into a dictionary for saving."""
         # --- Make sure position is included even if None ---
@@ -131,8 +159,8 @@ class Player:
             self.inventory.remove(item_name)
             self.equipment[slot] = item_name
             debug(f"Equipped '{item_name}' to {slot} slot.")
-            # --- TODO: Update player stats/light based on item ---
-            # if item_name == "Torch": self.light_radius = 5; self.light_duration = 100
+            # --- Update player stats/light based on item ---
+            self._apply_item_effects(item_name, equipping=True)
             return True
         except ValueError:
              # Should not happen if item_name was checked, but safety first
@@ -150,30 +178,65 @@ class Player:
         self.equipment[slot] = None # Clear the slot
         self.inventory.append(item_name) # Add back to inventory
         debug(f"Unequipped '{item_name}' from {slot} slot. Added to inventory.")
-        # --- TODO: Revert stat/light changes from item ---
-        # if item_name == "Torch": self.light_radius = self.base_light_radius; self.light_duration = 0
+        # --- Revert stat/light changes from item ---
+        self._apply_item_effects(item_name, equipping=False)
         return True
 
 
-    def use_item(self, item_name: str):
-        """Uses a consumable item (placeholder)."""
-        # --- TODO: Implement logic based on item type ---
-        # Check if item is consumable (potion, scroll, food)
-        # Apply effect (heal, buff, identify, satiate)
-        # Remove item from inventory
-        debug(f"Attempting to use '{item_name}' (logic not implemented).")
-        if item_name in self.inventory:
-            if "Potion" in item_name: # Example
-                debug("It's a potion!")
-                # self.inventory.remove(item_name)
-                # Apply effect...
-                pass
-            elif "Scroll" in item_name: # Example
-                debug("It's a scroll!")
-                # self.inventory.remove(item_name)
-                # Apply effect...
-                pass
+    def use_item(self, item_name: str) -> bool:
+        """Uses a consumable item. Returns True if item was used successfully."""
+        if item_name not in self.inventory:
+            debug(f"Cannot use '{item_name}': Not in inventory.")
+            return False
+        
+        used = False
+        
+        # Potions
+        if "Potion of Healing" in item_name:
+            heal_amount = 20  # Standard healing amount
+            actual_heal = self.heal(heal_amount)
+            if actual_heal > 0:
+                debug(f"Used {item_name}: healed {actual_heal} HP")
+                used = True
             else:
-                debug("Not sure how to use this item.")
+                debug(f"Already at full health, cannot use {item_name}")
+                return False
+                
+        elif "Potion of Mana" in item_name:
+            debug(f"Used {item_name} (mana system not implemented)")
+            # When mana system is added, restore mana here
+            used = True
+            
+        # Scrolls
+        elif "Scroll of Identify" in item_name:
+            debug(f"Used {item_name} (identify system not implemented)")
+            # When item identification system is added, identify an item
+            used = True
+            
+        elif "Scroll of Magic Missile" in item_name:
+            debug(f"Used {item_name} (combat spell system not implemented)")
+            # When combat system is added, cast magic missile
+            used = True
+        
+        # Food items
+        elif "Rations" in item_name or "Meal" in item_name:
+            debug(f"Consumed {item_name} (hunger system not implemented)")
+            # When hunger system is added, restore satiation
+            used = True
+            
+        elif "Ale" in item_name or "Mug" in item_name:
+            debug(f"Drank {item_name} (effects not implemented)")
+            # Could add temporary stat effects
+            used = True
+        
+        # Unknown item type
         else:
-            debug("Item not in inventory.")
+            debug(f"Not sure how to use '{item_name}'")
+            return False
+        
+        # Remove item from inventory if successfully used
+        if used:
+            self.inventory.remove(item_name)
+            debug(f"Removed '{item_name}' from inventory after use")
+            
+        return used

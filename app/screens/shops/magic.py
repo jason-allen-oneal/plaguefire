@@ -6,15 +6,27 @@ import random
 
 class MagicShopScreen(BaseShopScreen):
 
+    BINDINGS = [
+        ("up", "cursor_up", "Cursor Up"),
+        ("down", "cursor_down", "Cursor Down"),
+        ("b", "buy_action", "Buy Mode / Buy"),
+        ("s", "sell_action", "Sell Mode / Sell"),
+        ("h", "haggle", "Haggle"),
+        ("i", "identify_action", "Identify Item"),
+        ("l", "leave_shop", "Leave"),
+        ("escape", "leave_shop", "Leave"),
+    ]
+
     def __init__(self, **kwargs):
         super().__init__(
             shop_name="Arcane Curiosities",
             owner_name="Elara Meadowlight",
             catchphrases=["Seeking the arcane?", "Mysteries await.", "Careful with that!"] ,
             items_for_sale=self._generate_magic_inventory(),
-            allowed_actions=['buy', 'sell', 'identify', 'leave'], # Added 'identify'
+            allowed_actions=['buy', 'sell', 'identify', 'leave'],
             **kwargs
         )
+        self.identify_cost = 50
 
     def _generate_magic_inventory(self) -> List[ShopItem]:
         """Generate scrolls, potions, wands."""
@@ -28,7 +40,38 @@ class MagicShopScreen(BaseShopScreen):
             inventory.append(ShopItem(name="Wand of Sparking (5)", cost=200, description="Shoots small sparks."))
         return inventory
 
-    # --- TODO: Override actions specific to the Magic Shop ---
-    # def action_identify(self): # Add a BINDING for 'i'?
-    #     self.notify("Identification not implemented yet.")
-    #     # Add logic to select item from player inv and identify it for a fee
+    # --- Magic Shop-specific actions ---
+    def action_identify_action(self):
+        """Handle the 'I' key to identify an item from player's inventory."""
+        if 'identify' not in self.allowed_actions or not self.app.player:
+            return
+        
+        if not self.app.player.inventory:
+            self.notify("You have no items to identify.", severity="warning")
+            return
+        
+        if self.app.player.gold < self.identify_cost:
+            self.notify(f"Not enough gold. Identification costs {self.identify_cost} gold.", severity="error")
+            return
+        
+        # For now, just identify the first item in inventory
+        # In a full implementation, this would open a menu to select which item
+        item_to_identify = self.app.player.inventory[0] if self.app.player.inventory else None
+        
+        if item_to_identify:
+            self.app.player.gold -= self.identify_cost
+            self.player_gold = self.app.player.gold
+            self.data_changed = True
+            
+            # Since we don't have a full identification system yet,
+            # just provide flavor text
+            self.notify(f"Elara examines '{item_to_identify}' closely... It appears to be a {item_to_identify}! (-{self.identify_cost} gold)")
+            self.app.bell()
+            self._update_display()
+    
+    def _generate_help_text(self) -> str:
+        """Override to add identify action to help text."""
+        base_help = super()._generate_help_text()
+        if 'identify' in self.allowed_actions:
+            return base_help.replace("[L]eave Shop", f"[I]dentify ({self.identify_cost}gp) | [L]eave Shop")
+        return base_help

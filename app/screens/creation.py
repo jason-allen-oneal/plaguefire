@@ -100,7 +100,7 @@ class CharacterCreationScreen(Screen):
                 "inventory": ["Rations (3)", "Torch (5)", "Dagger"],
                 "equipment": {"weapon": "Dagger", "armor": None},
                 "depth": 0, "time": 0, "level": 1,
-                "hp": 10, "max_hp": 10, # TODO: Calculate HP
+                # HP will be calculated by Player.__init__ based on CON modifier
                 "light_radius": 5, "base_light_radius": 1, "light_duration": 0,
             }
             self.app.player = Player(player_data)

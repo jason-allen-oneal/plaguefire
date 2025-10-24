@@ -6,14 +6,24 @@ import random
 
 class TempleScreen(BaseShopScreen):
 
+    BINDINGS = [
+        ("up", "cursor_up", "Cursor Up"),
+        ("down", "cursor_down", "Cursor Down"),
+        ("b", "buy_action", "Buy Mode / Buy"),
+        ("h", "haggle", "Haggle"),
+        ("e", "heal_action", "Heal"),
+        ("l", "leave_shop", "Leave"),
+        ("escape", "leave_shop", "Leave"),
+    ]
+
     def __init__(self, **kwargs):
         super().__init__(
             shop_name="The Sacred Temple",
             owner_name="Sister Elara",
             catchphrases=["May the light guide you.", "Need healing, traveler?", "Blessings upon you."],
             items_for_sale=self._generate_temple_inventory(),
-            # Temple might offer services rather than just selling, customize actions later
-            allowed_actions=['buy', 'heal', 'leave'], # Example: Added 'heal' action
+            # Temple offers healing service in addition to buying
+            allowed_actions=['buy', 'heal', 'leave'],
             **kwargs
         )
 
@@ -27,11 +37,36 @@ class TempleScreen(BaseShopScreen):
         ]
         return inventory
 
-    # --- TODO: Override actions specific to the Temple ---
-    # def action_buy_item(self):
-    #     # Handle buying blessings or potions differently from services?
-    #     super().action_buy_item() # Call base for potions?
-
-    # def action_heal(self): # Add a BINDING for 'h'
-    #    self.notify("Healing not implemented yet.")
-    #    # Add logic to heal player and deduct gold
+    # --- Temple-specific actions ---
+    def action_heal_action(self):
+        """Handle the 'E' key to heal the player."""
+        if 'heal' not in self.allowed_actions or not self.app.player:
+            return
+        
+        heal_cost = 30  # Cost for healing service
+        
+        if self.app.player.hp >= self.app.player.max_hp:
+            self.notify("You are already at full health.", severity="warning")
+            return
+        
+        if self.app.player.gold < heal_cost:
+            self.notify(f"Not enough gold. Healing costs {heal_cost} gold.", severity="error")
+            return
+        
+        # Calculate healing amount (full heal for temple service)
+        heal_amount = self.app.player.max_hp - self.app.player.hp
+        self.app.player.gold -= heal_cost
+        self.player_gold = self.app.player.gold
+        self.app.player.heal(heal_amount)
+        self.data_changed = True
+        
+        self.notify(f"Sister Elara heals you for {heal_amount} HP. (-{heal_cost} gold)")
+        self.app.bell()
+        self._update_display()
+    
+    def _generate_help_text(self) -> str:
+        """Override to add heal action to help text."""
+        base_help = super()._generate_help_text()
+        if 'heal' in self.allowed_actions:
+            return base_help.replace("[L]eave Shop", "[E]Heal Service | [L]eave Shop")
+        return base_help

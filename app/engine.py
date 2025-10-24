@@ -210,6 +210,61 @@ class Engine:
             else: debug(f"Invalid move attempted to {nx},{ny}")
             return False
     
-    # --- TODO: Add methods for other player actions (use item, equip, etc.) ---
-    # def handle_use_item(self, item_index): ...
-    # def handle_equip_item(self, item_index): ...
+    # --- Player action methods ---
+    def handle_use_item(self, item_index: int) -> bool:
+        """Handle using an item from the player's inventory by index."""
+        if not self.player or not self.player.inventory:
+            debug("No player or empty inventory")
+            return False
+        
+        if item_index < 0 or item_index >= len(self.player.inventory):
+            debug(f"Invalid item index: {item_index}")
+            return False
+        
+        item_name = self.player.inventory[item_index]
+        success = self.player.use_item(item_name)
+        
+        if success:
+            debug(f"Successfully used item: {item_name}")
+            # Using an item takes a turn
+            self.player.time += 1
+            self.update_fov()
+        
+        return success
+    
+    def handle_equip_item(self, item_index: int) -> bool:
+        """Handle equipping an item from the player's inventory by index."""
+        if not self.player or not self.player.inventory:
+            debug("No player or empty inventory")
+            return False
+        
+        if item_index < 0 or item_index >= len(self.player.inventory):
+            debug(f"Invalid item index: {item_index}")
+            return False
+        
+        item_name = self.player.inventory[item_index]
+        success = self.player.equip(item_name)
+        
+        if success:
+            debug(f"Successfully equipped item: {item_name}")
+            # Equipping takes a turn
+            self.player.time += 1
+            self.update_fov()
+        
+        return success
+    
+    def handle_unequip_item(self, slot: str) -> bool:
+        """Handle unequipping an item from an equipment slot."""
+        if not self.player:
+            debug("No player")
+            return False
+        
+        success = self.player.unequip(slot)
+        
+        if success:
+            debug(f"Successfully unequipped item from {slot}")
+            # Unequipping takes a turn
+            self.player.time += 1
+            self.update_fov()
+        
+        return success

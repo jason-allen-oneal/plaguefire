@@ -67,6 +67,11 @@ class HUDView(Static):
         if time_str:
             hud_lines.append(f"Time: {time_str}")
 
-        # --- TODO: Add status effects display here ---
+        # --- Status Effects Display ---
+        if player.status_effects:
+            hud_lines.append(separator)
+            hud_lines.append("Status Effects:")
+            for effect in player.status_effects:
+                hud_lines.append(f"  • {effect}")
 
         self.update("\n".join(hud_lines))
