@@ -1,8 +1,12 @@
 # app/engine.py
 
 import random
+import math
 from typing import List, Optional
 from app.player import Player
+from app.entity import Entity
+from app.spawning import spawn_town_npcs, spawn_dungeon_monsters
+from app.item_generation import get_monster_drops
 from app.map_utils.town import get_town_map
 # --- UPDATED: Import both generator types ---
 from app.map_utils.generate import (
@@ -34,7 +38,7 @@ BUILDING_KEY = [
 
 
 class Engine:
-    """Manages the game state, map, player, FOV, and time."""
+    """Manages the game state, map, player, FOV, entities, and time."""
     STATS_ORDER = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] # Keep stat order accessible
 
     @staticmethod
@@ -51,7 +55,7 @@ class Engine:
          debug(f"(Static) Tile '{tile_char}' not found on provided map.")
          return None
 
-    def __init__(self, player: Player, map_override: Optional[MapData] = None, previous_depth: Optional[int] = None):
+    def __init__(self, player: Player, map_override: Optional[MapData] = None, previous_depth: Optional[int] = None, entities_override: Optional[List[Entity]] = None):
         self.player = player
         debug(f"Initializing engine at depth: {self.player.depth}")
 
@@ -106,6 +110,16 @@ class Engine:
 
         # --- UPDATED: Initialize visibility based on actual map size ---
         self.visibility = [[0 for _ in range(self.map_width)] for _ in range(self.map_height)]
+        
+        # --- NEW: Initialize entities ---
+        if entities_override is not None:
+            debug("Using provided entities override.")
+            self.entities = entities_override
+        else:
+            debug("Spawning entities for current depth.")
+            self.entities = self._spawn_entities()
+        
+        debug(f"Engine initialized with {len(self.entities)} entities")
         self.previous_time_of_day = self.get_time_of_day()
         self.update_fov()
 
@@ -114,6 +128,20 @@ class Engine:
         """Determines if it's Day or Night based on player's time."""
         time_in_cycle = self.player.time % 200
         return "Day" if 0 <= time_in_cycle < 100 else "Night"
+    
+    def _spawn_entities(self) -> List[Entity]:
+        """Spawn entities (NPCs or monsters) based on depth."""
+        if self.player.depth == 0:
+            # Town - only NPCs
+            return spawn_town_npcs(self.game_map, self.player.level)
+        else:
+            # Dungeon - monsters
+            return spawn_dungeon_monsters(
+                self.game_map, 
+                self.player.depth, 
+                self.player.level,
+                self.player.stats
+            )
 
     def _generate_map(self, depth: int) -> MapData:
         """Generates a map based on the dungeon depth, with variable size."""
@@ -178,6 +206,19 @@ class Engine:
         px, py = self.player.position; nx, ny = px + dx, py + dy
         walkable_tiles = [FLOOR, STAIRS_DOWN, STAIRS_UP, '1', '2', '3', '4', '5', '6']
         target_tile = self.get_tile_at_coords(nx, ny) # Uses map dimensions
+        
+        # Check if there's an entity at the target position
+        target_entity = self.get_entity_at(nx, ny)
+        if target_entity:
+            # Attack hostile entities, otherwise just report
+            if target_entity.hostile:
+                debug(f"Player attacks {target_entity.name}")
+                self.handle_player_attack(target_entity)
+                self.player.time += 1  # Attacking takes a turn
+                return True
+            else:
+                debug(f"Can't move there - {target_entity.name} is in the way")
+                return False
 
         if target_tile is not None and target_tile in walkable_tiles:
             time_before_move = self.get_time_of_day()
@@ -257,3 +298,169 @@ class Engine:
             self.update_fov()
         
         return success
+    
+    # --- Entity-related methods ---
+    
+    def get_entity_at(self, x: int, y: int) -> Optional[Entity]:
+        """Get entity at specific coordinates."""
+        for entity in self.entities:
+            if entity.position == [x, y]:
+                return entity
+        return None
+    
+    def get_visible_entities(self) -> List[Entity]:
+        """Get all entities that are currently visible to the player."""
+        visible = []
+        for entity in self.entities:
+            ex, ey = entity.position
+            if 0 <= ey < self.map_height and 0 <= ex < self.map_width:
+                if self.visibility[ey][ex] == 2:  # Currently visible
+                    visible.append(entity)
+        return visible
+    
+    def handle_entity_death(self, entity: Entity) -> None:
+        """Handle entity death and item drops."""
+        debug(f"{entity.name} died at position {entity.position}")
+        
+        # Generate drops
+        items, gold = entity.get_drops()
+        
+        # Add gold to player
+        if gold > 0:
+            self.player.gold += gold
+            debug(f"Player gained {gold} gold from {entity.name}")
+        
+        # Add items to player inventory with randomized stats
+        dropped_items = get_monster_drops(entity.name, items)
+        for item in dropped_items:
+            self.player.inventory.append(item)
+            debug(f"Player received {item} from {entity.name}")
+        
+        # Remove entity from the game
+        if entity in self.entities:
+            self.entities.remove(entity)
+    
+    def handle_player_attack(self, target: Entity) -> bool:
+        """Handle player attacking an entity."""
+        # Calculate attack using proper D&D modifier
+        player_attack = (self.player.stats.get('STR', 10) - 10) // 2
+        if self.player.equipment.get('weapon'):
+            # Extract attack bonus from weapon name if it has one
+            weapon = self.player.equipment['weapon']
+            if '(+' in weapon and 'ATK)' in weapon:
+                try:
+                    attack_bonus = int(weapon.split('(+')[1].split(' ATK)')[0])
+                    player_attack += attack_bonus
+                except (ValueError, IndexError):
+                    pass
+        
+        damage = max(1, player_attack - target.defense)
+        debug(f"Player attacks {target.name} for {damage} damage")
+        
+        is_dead = target.take_damage(damage)
+        if is_dead:
+            self.handle_entity_death(target)
+        
+        return is_dead
+    
+    def handle_entity_attack(self, entity: Entity) -> bool:
+        """Handle entity attacking the player."""
+        # Calculate defense using proper D&D modifier
+        player_defense = (self.player.stats.get('CON', 10) - 10) // 2
+        damage = max(1, entity.attack - player_defense)
+        
+        # Apply armor if equipped
+        if self.player.equipment.get('armor'):
+            armor = self.player.equipment['armor']
+            if '(+' in armor and 'DEF)' in armor:
+                try:
+                    defense_bonus = int(armor.split('(+')[1].split(' DEF)')[0])
+                    damage = max(1, damage - defense_bonus)
+                except (ValueError, IndexError):
+                    pass
+        
+        debug(f"{entity.name} attacks player for {damage} damage")
+        is_dead = self.player.take_damage(damage)
+        
+        return is_dead
+    
+    def update_entities(self) -> None:
+        """Update all entities' AI and behavior."""
+        for entity in self.entities[:]:  # Copy list to allow modification during iteration
+            if entity.hp <= 0:
+                continue
+            
+            entity.move_counter += 1
+            
+            # Entities move every other turn
+            if entity.move_counter < 2:
+                continue
+            
+            entity.move_counter = 0
+            ex, ey = entity.position
+            px, py = self.player.position
+            
+            # Calculate distance to player
+            distance = math.sqrt((ex - px) ** 2 + (ey - py) ** 2)
+            
+            # AI behavior based on type
+            if entity.ai_type == "passive":
+                # Don't move or attack unless attacked
+                pass
+            
+            elif entity.ai_type == "wander":
+                # Random wandering
+                dx = random.choice([-1, 0, 1])
+                dy = random.choice([-1, 0, 1])
+                nx, ny = ex + dx, ey + dy
+                
+                # Check if new position is valid
+                if (0 <= ny < self.map_height and 0 <= nx < self.map_width and
+                    self.game_map[ny][nx] == FLOOR and 
+                    not self.get_entity_at(nx, ny) and
+                    [nx, ny] != self.player.position):
+                    entity.position = [nx, ny]
+            
+            elif entity.ai_type == "aggressive":
+                # Chase and attack player if in range
+                if distance <= entity.detection_range:
+                    # Move towards player
+                    if distance <= 1.5:  # Adjacent - attack
+                        debug(f"{entity.name} attacks player!")
+                        self.handle_entity_attack(entity)
+                    else:
+                        # Simple pathfinding - move closer
+                        dx = 0 if px == ex else (1 if px > ex else -1)
+                        dy = 0 if py == ey else (1 if py > ey else -1)
+                        nx, ny = ex + dx, ey + dy
+                        
+                        # Check if new position is valid
+                        if (0 <= ny < self.map_height and 0 <= nx < self.map_width and
+                            self.game_map[ny][nx] == FLOOR and
+                            not self.get_entity_at(nx, ny) and
+                            [nx, ny] != self.player.position):
+                            entity.position = [nx, ny]
+            
+            elif entity.ai_type == "thief":
+                # Follow player and steal if close
+                if distance <= entity.detection_range:
+                    if distance <= 1.5:  # Adjacent - steal or attack
+                        if random.random() < 0.3 and self.player.gold > 0:
+                            # Attempt to steal gold
+                            stolen = min(random.randint(1, 10), self.player.gold)
+                            self.player.gold -= stolen
+                            debug(f"{entity.name} stole {stolen} gold from player!")
+                        else:
+                            # Attack instead
+                            self.handle_entity_attack(entity)
+                    else:
+                        # Move towards player
+                        dx = 0 if px == ex else (1 if px > ex else -1)
+                        dy = 0 if py == ey else (1 if py > ey else -1)
+                        nx, ny = ex + dx, ey + dy
+                        
+                        if (0 <= ny < self.map_height and 0 <= nx < self.map_width and
+                            self.game_map[ny][nx] == FLOOR and
+                            not self.get_entity_at(nx, ny) and
+                            [nx, ny] != self.player.position):
+                            entity.position = [nx, ny]

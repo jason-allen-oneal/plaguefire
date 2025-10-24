@@ -6,6 +6,7 @@ from typing import Dict, List, Any, Optional # Add Optional
 
 # --- UPDATED: Import Player class ---
 from app.player import Player
+from app.entity import Entity
 
 # Import shop screens
 from app.screens.shops.armor import ArmorShopScreen
@@ -52,12 +53,15 @@ class RogueApp(App[None]): # Specify return type for run()
 
     # Cache for dungeon levels {depth: map_data}
     dungeon_levels: Dict[int, MapData] = {}
+    # Cache for entities per level {depth: [entities]}
+    dungeon_entities: Dict[int, List[Entity]] = {}
     # --- Store the Player object instance ---
     player: Optional[Player] = None
 
     def on_mount(self):
         """Called when the app starts."""
         self.dungeon_levels = {} # Clear level cache
+        self.dungeon_entities = {} # Clear entity cache
         self.player = None       # Ensure no player data from previous run
         self.push_screen("title")
 

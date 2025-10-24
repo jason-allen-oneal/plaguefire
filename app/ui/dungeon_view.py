@@ -83,7 +83,15 @@ class DungeonView(Static):
 
                     if visibility_status == 2: # Currently Visible
                         # Check if player is at these MAP coordinates
-                        char = PLAYER if (map_x, map_y) == (px, py) else game_map[map_y][map_x]
+                        if (map_x, map_y) == (px, py):
+                            char = PLAYER
+                        else:
+                            # Check for entities at this position
+                            entity = self.engine.get_entity_at(map_x, map_y)
+                            if entity:
+                                char = entity.char
+                            else:
+                                char = game_map[map_y][map_x]
                         line += char
                     elif visibility_status == 1: # Remembered
                         line += game_map[map_y][map_x] # Show tile

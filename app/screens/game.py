@@ -7,7 +7,7 @@ from app.ui.hud_view import HUDView
 from app.engine import Engine, MapData, BUILDING_KEY # Import MapData if using type hint
 from config import STAIRS_DOWN, STAIRS_UP # Keep config imports needed for actions
 from debugtools import debug, log_exception
-from typing import Optional # Import Optional
+from typing import Optional, List # Import Optional and List
 
 class GameScreen(Screen):
     BINDINGS = [
@@ -49,9 +49,10 @@ class GameScreen(Screen):
              self.app.player = Player(default_player_data) # Create Player object
 
         # --- Create Engine instance, passing the Player object ---
-        # Get map from cache if it exists for the player's current depth
+        # Get map and entities from cache if they exist for the player's current depth
         cached_map = self._get_map(self.app.player.depth)
-        self.engine = Engine(player=self.app.player, map_override=cached_map)
+        cached_entities = self._get_entities(self.app.player.depth)
+        self.engine = Engine(player=self.app.player, map_override=cached_map, entities_override=cached_entities)
 
         # --- Create UI Widgets, passing the engine ---
         with Horizontal(id="layout"):
@@ -77,6 +78,15 @@ class GameScreen(Screen):
         else:
             debug(f"No map found in cache for depth {depth}. Engine will generate.")
             return None
+    
+    def _get_entities(self, depth: int) -> Optional[List]:
+        """Gets entities from app cache or returns None to spawn new ones."""
+        if depth in self.app.dungeon_entities:
+            debug(f"Loading entities for depth {depth} from cache.")
+            return self.app.dungeon_entities[depth]
+        else:
+            debug(f"No entities found in cache for depth {depth}. Engine will spawn.")
+            return None
 
     def _change_level(self, new_depth: int):
         """Handles logic for moving between dungeon levels using the Engine."""
@@ -85,15 +95,17 @@ class GameScreen(Screen):
 
         # --- 1. Store current level in cache (if dungeon) ---
         if current_depth > 0:
-            debug(f"Caching map for depth {current_depth}")
+            debug(f"Caching map and entities for depth {current_depth}")
             self.app.dungeon_levels[current_depth] = self.engine.game_map
+            self.app.dungeon_entities[current_depth] = self.engine.entities
 
         # --- 2. Update player depth ---
         self.app.player.depth = new_depth # Update the player object directly
         # Time is handled by engine, no need to update here unless saving non-engine time
 
-        # --- 3. Get map for new level ---
+        # --- 3. Get map and entities for new level ---
         target_map = self._get_map(new_depth)
+        target_entities = self._get_entities(new_depth)
 
         # --- 4. Invalidate player position (optional but can help Engine logic) ---
         # Set to None so Engine knows to calculate based on stairs
@@ -106,7 +118,8 @@ class GameScreen(Screen):
         self.engine = Engine(
             player=self.app.player,
             map_override=target_map,
-            previous_depth=current_depth # Pass the previous depth
+            previous_depth=current_depth, # Pass the previous depth
+            entities_override=target_entities
         )
 
         # --- 6. Update Widgets ---
@@ -125,6 +138,8 @@ class GameScreen(Screen):
     def _handle_engine_update(self, moved: bool):
         """Updates UI after an engine action."""
         if moved:
+            # Update entities AI when player moves
+            self.engine.update_entities()
             self.dungeon_view.update_map()
             self.hud_view.update_hud()
         else:
