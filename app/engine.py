@@ -1,11 +1,23 @@
 # app/engine.py
 
+from random import random
 from typing import List, Optional
 from app.player import Player
 from app.map_utils.town import get_town_map
-from app.map_utils.generate import generate_cellular_automata_dungeon, find_tile, find_start_pos # Import chosen generator
+# --- UPDATED: Import both generator types ---
+from app.map_utils.generate import (
+    generate_cellular_automata_dungeon,
+    generate_room_corridor_dungeon, # Import new generator
+    find_tile as find_tile_on_map_instance, # Keep alias if needed elsewhere
+    find_start_pos
+)
 from app.map_utils.fov import update_visibility
-from config import MAP_WIDTH, MAP_HEIGHT, WALL, FLOOR, STAIRS_DOWN, STAIRS_UP
+# --- UPDATED: Use viewport dims for fallback pos, add min/max ---
+from config import (
+    WALL, FLOOR, STAIRS_DOWN, STAIRS_UP,
+    VIEWPORT_WIDTH, VIEWPORT_HEIGHT, # Use viewport for fallback center
+    MIN_MAP_WIDTH, MAX_MAP_WIDTH, MIN_MAP_HEIGHT, MAX_MAP_HEIGHT
+)
 from debugtools import debug
 
 MapData = List[List[str]]
@@ -39,11 +51,11 @@ class Engine:
          debug(f"(Static) Tile '{tile_char}' not found on provided map.")
          return None
 
-    def __init__(self, player: Player, map_override: Optional[MapData] = None, previous_depth: Optional[int] = None): # Add previous_depth
+    def __init__(self, player: Player, map_override: Optional[MapData] = None, previous_depth: Optional[int] = None):
         self.player = player
         debug(f"Initializing engine at depth: {self.player.depth}")
 
-        # Use map_override if provided, otherwise generate
+        # --- Map generation/loading ---
         if map_override:
             debug("Using provided map override.")
             self.game_map = map_override
@@ -51,52 +63,51 @@ class Engine:
             debug("No map override provided, generating map.")
             self.game_map = self._generate_map(self.player.depth)
 
+        # --- UPDATED: Use actual map dimensions for validation ---
+        self.map_height = len(self.game_map)
+        self.map_width = len(self.game_map[0]) if self.map_height > 0 else 0
+        debug(f"Map dimensions: {self.map_width}x{self.map_height}")
+
+
         # --- Determine starting position ---
-        default_town_pos = [MAP_WIDTH // 2, 15]
+        default_town_pos = [self.map_width // 2, 15] # Center horizontally on actual map
         position_valid = False
         start_pos = None
 
-        # Check if position was explicitly invalidated (set to None) during level change
-        if self.player.position is None:
+        if self.player.position is None: # Handle invalidated position
             debug("Player position is None, determining new start pos based on stairs.")
-            if self.player.depth == 0: # Came up to town
-                start_pos = default_town_pos
-            elif previous_depth is not None and self.player.depth > previous_depth: # Came down
-                # Find UP stairs on *this* level's map
+            if self.player.depth == 0: start_pos = default_town_pos
+            elif previous_depth is not None and self.player.depth > previous_depth:
                 start_pos = Engine._find_tile_on_map(self.game_map, STAIRS_UP)
-            elif previous_depth is not None and self.player.depth < previous_depth: # Came up
-                # Find DOWN stairs on *this* level's map
+            elif previous_depth is not None and self.player.depth < previous_depth:
                 start_pos = Engine._find_tile_on_map(self.game_map, STAIRS_DOWN)
-
-            # Fallback if stairs weren't found (shouldn't happen with good generation)
             if not start_pos:
-                 debug("Could not find appropriate stairs, using fallback floor tile.")
-                 start_pos = find_start_pos(self.game_map) # Find any floor tile
-
-            self.player.position = start_pos # Set the calculated position
-            position_valid = True # Assume calculated position is valid initially
+                 debug("Could not find stairs, using fallback floor tile.")
+                 start_pos = find_start_pos(self.game_map)
+            self.player.position = start_pos
+            position_valid = True
             debug(f"Calculated start position: {self.player.position}")
 
-        # If position wasn't None initially, check its validity
-        elif self.player.position:
+        elif self.player.position: # Check validity of existing position
              px, py = self.player.position
-             if (0 <= py < MAP_HEIGHT and 0 <= px < MAP_WIDTH and
+             # --- UPDATED: Use actual map dimensions for bounds check ---
+             if (0 <= py < self.map_height and 0 <= px < self.map_width and
                      self.game_map[py][px] != WALL):
                  position_valid = True
                  debug(f"Using valid player position from data: {self.player.position}")
+             else: debug(f"Position {self.player.position} from data is invalid.")
 
-        # --- Final Validation (if initial check failed or calculated pos is somehow bad) ---
+        # --- Final Fallback ---
         if not position_valid:
-             debug(f"Position {self.player.position} still invalid after checks, finding absolute fallback.")
-             # Use town default if town, otherwise find any floor
+             debug(f"Position {self.player.position} still invalid, finding absolute fallback.")
              fallback_pos = default_town_pos if self.player.depth == 0 else find_start_pos(self.game_map)
              self.player.position = fallback_pos
              debug(f"Using absolute fallback start position: {self.player.position}")
 
-
-        self.visibility = [[0 for _ in range(MAP_WIDTH)] for _ in range(MAP_HEIGHT)]
+        # --- UPDATED: Initialize visibility based on actual map size ---
+        self.visibility = [[0 for _ in range(self.map_width)] for _ in range(self.map_height)]
         self.previous_time_of_day = self.get_time_of_day()
-        self.update_fov() # Initial FOV
+        self.update_fov()
 
 
     def get_time_of_day(self) -> str:
@@ -115,79 +126,90 @@ class Engine:
             # --- Call chosen generator from generator.py ---
             return generate_cellular_automata_dungeon()
 
+    def _generate_map(self, depth: int) -> MapData:
+        """Generates a map based on the dungeon depth, with variable size."""
+        if depth == 0:
+            debug("Getting town map.")
+            # Town map size is fixed by its layout definition
+            return get_town_map()
+        else:
+            dungeon_level = (depth // 25)
+            # --- Determine map size (example: larger deeper down) ---
+            width = random.randint(MIN_MAP_WIDTH, MIN(MAX_MAP_WIDTH, 80 + dungeon_level * 5))
+            height = random.randint(MIN_MAP_HEIGHT, MIN(MAX_MAP_HEIGHT, 25 + dungeon_level * 2))
+            debug(f"Generating dungeon level {dungeon_level} (depth {depth}) with size {width}x{height}...")
+
+            # --- Choose generator based on depth ---
+            if depth <= 50: # Example: First 2 levels are room/corridor
+                 debug("Using room/corridor generator.")
+                 return generate_room_corridor_dungeon(map_width=width, map_height=height)
+            else: # Deeper levels are caves
+                 debug("Using cellular automata generator.")
+                 return generate_cellular_automata_dungeon(width=width, height=height)
+
+
     def update_fov(self):
         """Calculates FOV based on depth/time and updates visibility map."""
-        # --- Town Day/Night Logic ---
+        # --- UPDATED: Pass actual map dimensions ---
+        map_h = self.map_height
+        map_w = self.map_width
+
+        # Reset previously visible
+        for y in range(map_h):
+            for x in range(map_w):
+                if self.visibility[y][x] == 2: self.visibility[y][x] = 1
+
         if self.player.depth == 0 and self.get_time_of_day() == "Day":
             debug("Updating FOV: Town Day - Full Visibility")
-            # Make everything visible directly
-            self.visibility = [[2 for _ in range(MAP_WIDTH)] for _ in range(MAP_HEIGHT)]
+            self.visibility = [[2 for _ in range(map_w)] for _ in range(map_h)]
         else:
-            # --- Dungeon OR Town at Night: Use light radius ---
             debug(f"Updating FOV: Radius {self.player.light_radius}")
-            # Call the FOV function from fov.py
+            # Call FOV function (ensure it handles map_width/height correctly if needed)
             self.visibility = update_visibility(
                 current_visibility=self.visibility,
                 player_pos=self.player.position,
-                game_map=self.game_map,
+                game_map=self.game_map, # Pass the actual map
                 radius=self.player.light_radius
             )
-    
+
+    # --- UPDATED: Use map dimensions for bounds checks ---
     def _find_tile(self, tile_char: str) -> List[int] | None:
-        """Finds tile on the instance's current map."""
         return Engine._find_tile_on_map(self.game_map, tile_char)
 
     def get_tile_at_coords(self, x: int, y: int) -> str | None:
-         """Gets the map tile character at given coordinates."""
-         if 0 <= y < MAP_HEIGHT and 0 <= x < MAP_WIDTH:
+         if 0 <= y < self.map_height and 0 <= x < self.map_width:
              return self.game_map[y][x]
          return None
 
-    def get_tile_at_player(self) -> str | None:
-        """Returns the map character the player is currently standing on."""
+    def get_tile_at_player(self) -> str | None: # ... as before ...
         px, py = self.player.position
         return self.get_tile_at_coords(px, py)
 
     def handle_player_move(self, dx: int, dy: int) -> bool:
-        """Attempts to move the player, updates time/light/FOV. Returns True if moved."""
-        px, py = self.player.position
-        nx, ny = px + dx, py + dy
-
+        px, py = self.player.position; nx, ny = px + dx, py + dy
         walkable_tiles = [FLOOR, STAIRS_DOWN, STAIRS_UP, '1', '2', '3', '4', '5', '6']
-        target_tile = self.get_tile_at_coords(nx, ny)
+        target_tile = self.get_tile_at_coords(nx, ny) # Uses map dimensions
 
         if target_tile is not None and target_tile in walkable_tiles:
             time_before_move = self.get_time_of_day()
-
-            # Update position & time (directly on player object)
-            self.player.position = [nx, ny]
-            self.player.time += 1
-
-            # Update Light Source Duration
+            self.player.position = [nx, ny]; self.player.time += 1
             if self.player.light_duration > 0:
                  self.player.light_duration -= 1
                  if self.player.light_duration == 0:
                      debug("Light source expired!")
-                     self.player.light_radius = self.player.base_light_radius # Revert to base
-                     # TODO: Notify player
-
-            # Update FOV based on new position
+                     self.player.light_radius = self.player.base_light_radius
             self.update_fov()
-
-            # Check if time of day changed and force FOV update if needed
             time_after_move = self.get_time_of_day()
             if self.player.depth == 0 and time_before_move != time_after_move:
-                debug(f"Time changed from {time_before_move} to {time_after_move}. Forcing FOV update.")
-                self.update_fov() # Call again for town day/night rule
-
-            debug(f"Player moved to {nx},{ny}. Time: {self.player.time}. Light: {self.player.light_duration}")
-            return True # Moved successfully
+                debug("Time changed, forcing FOV update for town.")
+                self.update_fov()
+            debug(f"Player moved to {nx},{ny}. Time: {self.player.time}.")
+            return True
         else:
-            # Handle bumping into walls or invalid moves
-            if target_tile == WALL: debug("Player bumped into wall.")
+            if target_tile == WALL: debug("Player bumped wall.")
             else: debug(f"Invalid move attempted to {nx},{ny}")
-            return False # Did not move
-
+            return False
+    
     # --- TODO: Add methods for other player actions (use item, equip, etc.) ---
     # def handle_use_item(self, item_index): ...
     # def handle_equip_item(self, item_index): ...

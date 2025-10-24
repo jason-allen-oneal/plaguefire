@@ -1,6 +1,6 @@
-# app/map_utils/town.py
+# app/VIEWPORT_utils/town.py
 
-from config import MAP_WIDTH, MAP_HEIGHT # Import dimensions for validation
+from config import VIEWPORT_WIDTH, VIEWPORT_HEIGHT # Import dimensions for validation
 from typing import List
 # --- Static Town Layout ---
 TOWN_LAYOUT = [
@@ -39,9 +39,9 @@ TOWN_LAYOUT = [
 ]
 
 # Basic validation (runs at import time)
-assert len(TOWN_LAYOUT) == MAP_HEIGHT, f"Town layout height mismatch: {len(TOWN_LAYOUT)} vs {MAP_HEIGHT}"
+assert len(TOWN_LAYOUT) == VIEWPORT_HEIGHT, f"Town layout height mismatch: {len(TOWN_LAYOUT)} vs {VIEWPORT_HEIGHT}"
 for i, row in enumerate(TOWN_LAYOUT):
-    assert len(row) == MAP_WIDTH, f"Town layout row {i} width mismatch: {len(row)} vs {MAP_WIDTH}"
+    assert len(row) == VIEWPORT_WIDTH, f"Town layout row {i} width mismatch: {len(row)} vs {VIEWPORT_WIDTH}"
 
 def get_town_map() -> List[List[str]]:
     """Returns the town map as a list of lists."""

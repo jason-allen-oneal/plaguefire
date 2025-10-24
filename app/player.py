@@ -1,7 +1,7 @@
 # app/player.py
 
 from typing import Dict, List, Optional
-from config import MAP_WIDTH, MAP_HEIGHT # For default position
+from config import VIEWPORT_HEIGHT, VIEWPORT_WIDTH # For default position
 from debugtools import debug # Import debug if used
 
 class Player:
@@ -29,7 +29,7 @@ class Player:
         self.hp: int = data.get("hp", self.max_hp) # Start at full HP if not specified
 
         # --- Position & World State ---
-        self.position: Optional[List[int]] = data.get("position", [MAP_WIDTH // 2, MAP_HEIGHT // 2]) # Position can be None
+        self.position: Optional[List[int]] = data.get("position", [VIEWPORT_WIDTH // 2, VIEWPORT_HEIGHT // 2]) # Position can be None
         self.depth: int = data.get("depth", 0)
         self.time: int = data.get("time", 0)
 
