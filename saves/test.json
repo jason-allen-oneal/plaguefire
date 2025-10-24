@@ -1,0 +1,44 @@
+{
+    "name": "test",
+    "race": "Dwarf",
+    "class": "Fighter",
+    "stats": {
+        "STR": 14,
+        "DEX": 12,
+        "CON": 18,
+        "INT": 12,
+        "WIS": 12,
+        "CHA": 8
+    },
+    "base_stats": {
+        "STR": 14,
+        "DEX": 12,
+        "CON": 16,
+        "INT": 12,
+        "WIS": 12,
+        "CHA": 8
+    },
+    "hp": 10,
+    "max_hp": 10,
+    "level": 1,
+    "gold": 0,
+    "inventory": [
+        "Rations (3)",
+        "Torch (5)",
+        "Dagger",
+        "Leather Armor"
+    ],
+    "equipment": {
+        "weapon": "Dagger",
+        "armor": null
+    },
+    "position": [
+        49,
+        15
+    ],
+    "depth": 0,
+    "time": 962,
+    "base_light_radius": 1,
+    "light_radius": 1,
+    "light_duration": 0
+}
