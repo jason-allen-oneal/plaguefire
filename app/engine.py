@@ -1,6 +1,6 @@
 # app/engine.py
 
-from random import random
+import random
 from typing import List, Optional
 from app.player import Player
 from app.map_utils.town import get_town_map
@@ -116,17 +116,6 @@ class Engine:
         return "Day" if 0 <= time_in_cycle < 100 else "Night"
 
     def _generate_map(self, depth: int) -> MapData:
-        """Generates a map based on the dungeon depth."""
-        if depth == 0:
-            debug("Generating town map...")
-            return get_town_map() # Use function from town.py
-        else:
-            dungeon_level = (depth // 25)
-            debug(f"Generating dungeon map for level {dungeon_level} (depth {depth})...")
-            # --- Call chosen generator from generator.py ---
-            return generate_cellular_automata_dungeon()
-
-    def _generate_map(self, depth: int) -> MapData:
         """Generates a map based on the dungeon depth, with variable size."""
         if depth == 0:
             debug("Getting town map.")
@@ -135,12 +124,12 @@ class Engine:
         else:
             dungeon_level = (depth // 25)
             # --- Determine map size (example: larger deeper down) ---
-            width = random.randint(MIN_MAP_WIDTH, MIN(MAX_MAP_WIDTH, 80 + dungeon_level * 5))
-            height = random.randint(MIN_MAP_HEIGHT, MIN(MAX_MAP_HEIGHT, 25 + dungeon_level * 2))
+            width = random.randint(MIN_MAP_WIDTH, min(MAX_MAP_WIDTH, 80 + dungeon_level * 5))
+            height = random.randint(MIN_MAP_HEIGHT, min(MAX_MAP_HEIGHT, 25 + dungeon_level * 2))
             debug(f"Generating dungeon level {dungeon_level} (depth {depth}) with size {width}x{height}...")
 
             # --- Choose generator based on depth ---
-            if depth <= 50: # Example: First 2 levels are room/corridor
+            if depth <= 375: # First 15 levels (depth 25-375) are room/corridor
                  debug("Using room/corridor generator.")
                  return generate_room_corridor_dungeon(map_width=width, map_height=height)
             else: # Deeper levels are caves
