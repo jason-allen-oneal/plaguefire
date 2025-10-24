@@ -5,24 +5,16 @@ from textual.widgets import Static
 from textual import events
 import random
 from typing import NamedTuple, List, Dict, Optional
-# --- UPDATED: Import Player class ---
 from app.player import Player
-from debugtools import debug # Import debug if needed
-
-
-# --- ShopItem (remove if not imported elsewhere, define items properly later) ---
-# class ShopItem(NamedTuple): name: str; cost: int; description: str = "An item."
-
+from debugtools import debug
 
 class CharacterCreationScreen(Screen):
-    # ... (STATS_ORDER, RACES, CLASSES, STARTING_GOLD remain the same) ...
     STATS_ORDER = ["STR", "DEX", "CON", "INT", "WIS", "CHA"]
     RACES = { "Dwarf": {"CON": 2}, "Elf": {"DEX": 2}, "Human": {"STR": 1, "DEX": 1, "CON": 1, "INT": 1, "WIS": 1, "CHA": 1}, "Halfling": {"DEX": 2}, }
     CLASSES = ["Fighter", "Rogue", "Wizard", "Cleric"]
     STARTING_GOLD = { "Fighter": (5, 4), "Rogue": (4, 4), "Wizard": (4, 4), "Cleric": (5, 4), }
 
     def __init__(self, **kwargs):
-        # ... (init remains largely the same, sets up UI state) ...
         super().__init__(**kwargs)
         self.character_name = ""
         self.race_names = list(self.RACES.keys())
@@ -33,9 +25,10 @@ class CharacterCreationScreen(Screen):
         self.total_stats = {}
         self.update_total_stats()
 
-    # ... (compose, roll_stats, update_total_stats, reroll_stats, roll_starting_gold remain the same) ...
-    def compose(self): # ... as before ...
-        yield Static(self.render_shop_text(), id="creation_text", markup=False) # Changed render func name? Check original
+    # --- UPDATED: Correct method call ---
+    def compose(self):
+        yield Static(self.render_text(), id="creation_text", markup=False) # Use render_text()
+
     def roll_stats(self):
         stats = {}
         for stat in self.STATS_ORDER:
@@ -63,9 +56,7 @@ class CharacterCreationScreen(Screen):
         num_dice, die_type = self.STARTING_GOLD[class_name]
         return sum(random.randint(1, die_type) for _ in range(num_dice)) * 10
 
-    # --- REMOVED: save_character method ---
-
-    # ... (render_text, refresh_display remain the same) ...
+    # --- This is the correct rendering method ---
     def render_text(self):
         race = self.race_names[self.current_race]
         cls = self.class_names[self.current_class]
@@ -84,7 +75,12 @@ class CharacterCreationScreen(Screen):
         )
 
     def refresh_display(self):
-        self.query_one("#creation_text").update(self.render_text())
+        # --- Make sure query_one is called correctly ---
+        try:
+            widget = self.query_one("#creation_text", Static)
+            widget.update(self.render_text())
+        except Exception as e:
+            debug(f"Error refreshing creation display: {e}")
 
 
     async def on_key(self, event: events.Key):
@@ -97,30 +93,22 @@ class CharacterCreationScreen(Screen):
             name = self.character_name.strip() or "Hero"
             class_name = self.class_names[self.current_class]
             race_name = self.race_names[self.current_race]
-
-            # --- UPDATED: Create Player data dictionary ---
             player_data = {
                 "name": name, "race": race_name, "class": class_name,
                 "stats": self.total_stats, "base_stats": self.base_stats,
                 "gold": self.roll_starting_gold(class_name),
-                "inventory": ["Rations (3)", "Torch (5)", "Dagger"], # Basic starting items
+                "inventory": ["Rations (3)", "Torch (5)", "Dagger"],
                 "equipment": {"weapon": "Dagger", "armor": None},
                 "depth": 0, "time": 0, "level": 1,
-                "hp": 10, "max_hp": 10, # TODO: Calculate HP based on CON/Class
-                # "position": will be set by Engine based on depth
-                "light_radius": 5, "base_light_radius": 1, "light_duration": 0, # Initial light values
+                "hp": 10, "max_hp": 10, # TODO: Calculate HP
+                "light_radius": 5, "base_light_radius": 1, "light_duration": 0,
             }
-
-            # --- UPDATED: Create Player object and assign to app ---
             self.app.player = Player(player_data)
-
-            # Save the newly created character
             self.app.save_character()
             self.app.notify(f"{self.app.player.name} created and saved.")
             self.app.push_screen("dungeon")
             return
 
-        # ... (rest of key handling for name input, arrows, 'r' remain the same) ...
         elif key == "backspace": self.character_name = self.character_name[:-1]
         elif len(key) == 1 and key.isprintable(): self.character_name += key
         elif key.lower() == "r": self.reroll_stats()
@@ -131,4 +119,4 @@ class CharacterCreationScreen(Screen):
         elif key == "up": self.current_class = (self.current_class - 1) % len(self.class_names)
         elif key == "down": self.current_class = (self.current_class + 1) % len(self.class_names)
 
-        self.refresh_display() # Make sure this function exists and works
+        self.refresh_display()

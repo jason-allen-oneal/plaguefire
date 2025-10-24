@@ -1,0 +1,43 @@
+{
+    "name": "jason",
+    "race": "Human",
+    "class": "Fighter",
+    "stats": {
+        "STR": 12,
+        "DEX": 15,
+        "CON": 10,
+        "INT": 17,
+        "WIS": 15,
+        "CHA": 14
+    },
+    "base_stats": {
+        "STR": 11,
+        "DEX": 14,
+        "CON": 9,
+        "INT": 16,
+        "WIS": 14,
+        "CHA": 13
+    },
+    "hp": 10,
+    "max_hp": 10,
+    "level": 1,
+    "gold": 120,
+    "inventory": [
+        "Rations (3)",
+        "Torch (5)",
+        "Dagger"
+    ],
+    "equipment": {
+        "weapon": "Dagger",
+        "armor": null
+    },
+    "position": [
+        49,
+        16
+    ],
+    "depth": 0,
+    "time": 0,
+    "base_light_radius": 1,
+    "light_radius": 5,
+    "light_duration": 0
+}
