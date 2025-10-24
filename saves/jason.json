@@ -21,9 +21,8 @@
     "hp": 10,
     "max_hp": 10,
     "level": 1,
-    "gold": 20,
+    "gold": 25,
     "inventory": [
-        "Rations (3)",
         "Torch (5)",
         "Dagger",
         "Leather Armor"
@@ -40,5 +39,6 @@
     "time": 47,
     "base_light_radius": 1,
     "light_radius": 5,
-    "light_duration": 0
+    "light_duration": 0,
+    "status_effects": []
 }
