@@ -138,7 +138,7 @@ class Player:
         # --- Basic Slot Determination (Needs proper item system) ---
         slot = None
         # Simple check based on common names
-        if "Sword" in item_name or "Dagger" in item_name or "Mace" in item_name or "Bow" in item_name:
+        if "Sword" in item_name or "Dagger" in item_name or "Mace" in item_name or "Bow" in item_name or "Torch" in item_name or "Lantern" in item_name:
             slot = "weapon"
         elif "Armor" in item_name or "Mail" in item_name or "Shield" in item_name:
             slot = "armor"
