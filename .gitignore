@@ -39,6 +39,7 @@ __textual_devtools__/
 # Debug logs
 *.log
 *.traceback
+logs/
 
 # Local configuration or saved games
 *.sav
