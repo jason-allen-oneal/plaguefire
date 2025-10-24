@@ -1,7 +1,7 @@
 # app/spawning.py
 
 import random
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from app.entity import (
     Entity, create_mercenary, create_drunk, create_rogue,
     create_rat, create_goblin, create_orc, create_troll, create_dragon
@@ -150,7 +150,7 @@ def spawn_dungeon_monsters(
     return entities
 
 
-def get_spawn_position(map_data: List[List[str]], avoid_positions: List[List[int]] = None) -> List[int] | None:
+def get_spawn_position(map_data: List[List[str]], avoid_positions: List[List[int]] = None) -> Optional[List[int]]:
     """Find a random floor position for spawning, optionally avoiding certain positions."""
     floor_tiles = []
     for y in range(len(map_data)):

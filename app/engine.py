@@ -1,6 +1,7 @@
 # app/engine.py
 
 import random
+import math
 from typing import List, Optional
 from app.player import Player
 from app.entity import Entity
@@ -330,7 +331,6 @@ class Engine:
             debug(f"Player gained {gold} gold from {entity.name}")
         
         # Add items to player inventory with randomized stats
-        from app.item_generation import get_monster_drops
         dropped_items = get_monster_drops(entity.name, items)
         for item in dropped_items:
             self.player.inventory.append(item)
@@ -342,8 +342,8 @@ class Engine:
     
     def handle_player_attack(self, target: Entity) -> bool:
         """Handle player attacking an entity."""
-        # Simple combat calculation
-        player_attack = self.player.stats.get('STR', 10) // 2
+        # Calculate attack using proper D&D modifier
+        player_attack = (self.player.stats.get('STR', 10) - 10) // 2
         if self.player.equipment.get('weapon'):
             # Extract attack bonus from weapon name if it has one
             weapon = self.player.equipment['weapon']
@@ -365,7 +365,9 @@ class Engine:
     
     def handle_entity_attack(self, entity: Entity) -> bool:
         """Handle entity attacking the player."""
-        damage = max(1, entity.attack - self.player.stats.get('CON', 10) // 2)
+        # Calculate defense using proper D&D modifier
+        player_defense = (self.player.stats.get('CON', 10) - 10) // 2
+        damage = max(1, entity.attack - player_defense)
         
         # Apply armor if equipped
         if self.player.equipment.get('armor'):
@@ -384,8 +386,6 @@ class Engine:
     
     def update_entities(self) -> None:
         """Update all entities' AI and behavior."""
-        import math
-        
         for entity in self.entities[:]:  # Copy list to allow modification during iteration
             if entity.hp <= 0:
                 continue
