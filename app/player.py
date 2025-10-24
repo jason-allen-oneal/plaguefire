@@ -135,12 +135,17 @@ class Player:
             debug(f"Cannot equip '{item_name}': Not in inventory.")
             return False
 
-        # --- Basic Slot Determination (Needs proper item system) ---
+        # --- Item type categorization ---
+        WEAPON_KEYWORDS = ["Sword", "Dagger", "Mace", "Bow", "Torch", "Lantern", "Axe", "Spear"]
+        ARMOR_KEYWORDS = ["Armor", "Mail", "Shield", "Helm", "Boots", "Gloves"]
+        
+        # --- Basic Slot Determination ---
         slot = None
-        # Simple check based on common names
-        if "Sword" in item_name or "Dagger" in item_name or "Mace" in item_name or "Bow" in item_name or "Torch" in item_name or "Lantern" in item_name:
+        # Check for weapon keywords
+        if any(keyword in item_name for keyword in WEAPON_KEYWORDS):
             slot = "weapon"
-        elif "Armor" in item_name or "Mail" in item_name or "Shield" in item_name:
+        # Check for armor keywords
+        elif any(keyword in item_name for keyword in ARMOR_KEYWORDS):
             slot = "armor"
         # Add checks for rings, amulets, etc. later
 
