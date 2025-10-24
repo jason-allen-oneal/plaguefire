@@ -8,6 +8,11 @@ class Player:
     """Represents the player character."""
 
     STATS_ORDER = ["STR", "DEX", "CON", "INT", "WIS", "CHA"]
+    
+    # --- Item type categorization for equipment system ---
+    WEAPON_KEYWORDS = ["Sword", "Dagger", "Mace", "Bow", "Axe", "Spear"]
+    LIGHT_SOURCE_KEYWORDS = ["Torch", "Lantern"]
+    ARMOR_KEYWORDS = ["Armor", "Mail", "Shield", "Helm", "Boots", "Gloves"]
 
     def __init__(self, data: Dict):
         """Initializes Player from a dictionary (e.g., loaded from save)."""
@@ -135,17 +140,16 @@ class Player:
             debug(f"Cannot equip '{item_name}': Not in inventory.")
             return False
 
-        # --- Item type categorization ---
-        WEAPON_KEYWORDS = ["Sword", "Dagger", "Mace", "Bow", "Torch", "Lantern", "Axe", "Spear"]
-        ARMOR_KEYWORDS = ["Armor", "Mail", "Shield", "Helm", "Boots", "Gloves"]
-        
         # --- Basic Slot Determination ---
         slot = None
         # Check for weapon keywords
-        if any(keyword in item_name for keyword in WEAPON_KEYWORDS):
+        if any(keyword in item_name for keyword in self.WEAPON_KEYWORDS):
+            slot = "weapon"
+        # Check for light source keywords (also go in weapon slot)
+        elif any(keyword in item_name for keyword in self.LIGHT_SOURCE_KEYWORDS):
             slot = "weapon"
         # Check for armor keywords
-        elif any(keyword in item_name for keyword in ARMOR_KEYWORDS):
+        elif any(keyword in item_name for keyword in self.ARMOR_KEYWORDS):
             slot = "armor"
         # Add checks for rings, amulets, etc. later
 
