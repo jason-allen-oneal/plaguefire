@@ -1,2 +1,0 @@
-1. character creation crashes
-2. reimplement entering shops
