@@ -7,7 +7,7 @@ from debugtools import debug
 import os
 import json
 import glob
-from app.player import Player
+from app.core.player import Player
 
 class ContinueScreen(Screen):
     """Screen to select a saved character to continue."""

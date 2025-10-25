@@ -5,7 +5,7 @@ from textual.widgets import Static
 from textual import events
 import random
 from typing import NamedTuple, List, Dict, Optional
-from app.player import Player
+from app.core.player import Player
 from debugtools import debug
 
 class CharacterCreationScreen(Screen):

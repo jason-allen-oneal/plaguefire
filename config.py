@@ -18,6 +18,8 @@ FLOOR = "."
 PLAYER = "@"
 STAIRS_DOWN = ">"
 STAIRS_UP = "<"
+DOOR_CLOSED = "+"
+DOOR_OPEN = "/"
 
 # --- Window Size (Adjust if needed based on VIEWPORT + HUD) ---
 WINDOW_COLS = 130   # e.g., 98 viewport + 30 hud + padding

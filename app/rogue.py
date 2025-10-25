@@ -5,8 +5,8 @@ import json
 from typing import Dict, List, Any, Optional # Add Optional
 
 # --- UPDATED: Import Player class ---
-from app.player import Player
-from app.entity import Entity
+from app.core.player import Player
+from app.core.entity import Entity
 
 # Import shop screens
 from app.screens.shops.armor import ArmorShopScreen
@@ -33,6 +33,7 @@ MapData = List[List[str]]
 
 class RogueApp(App[None]): # Specify return type for run()
     CSS = CSS
+    color_system = "truecolor"
     SAVE_DIR = "saves"
 
     SCREENS = {

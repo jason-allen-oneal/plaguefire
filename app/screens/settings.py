@@ -2,10 +2,18 @@
 
 from textual.screen import Screen
 from textual.widgets import Static
+from textual.containers import Vertical
 
 
 class SettingsScreen(Screen):
-    """Stub for the game settings screen."""
+    """Game settings screen with centered layout and subtle color accents."""
+    color_system = "truecolor"
+    DEFAULT_CSS = """
+Screen {
+    color: white;
+    background: #0a0618;
+}
+"""
 
     BINDINGS = [
         ("t", "toggle_sound", "Toggle Sound"),
@@ -15,25 +23,36 @@ class SettingsScreen(Screen):
     ]
 
     def compose(self):
-        yield Static(
-            "\n=== SETTINGS ===\n"
-            "[T]oggle Sound: OFF\n"
-            "[D]ifficulty: Normal\n"
-            "[C]olor Mode: Classic\n"
-            "\n[ESC] Return to Title\n"
+        # --- Colored title ---
+        header = Static("[chartreuse1]=== SETTINGS ===[/chartreuse1]", markup=True)
+        header.styles.text_align = "center"
+
+        # --- Settings options with literal [T], [D], [C], [ESC] shown as text ---
+        settings_text = Static(
+            "[white][T]oggle Sound:[/white] [grey70]OFF[/grey70]\n"
+            "[white][D]ifficulty:[/white] [grey70]Normal[/grey70]\n"
+            "[white][C]olor Mode:[/white] [grey70]Classic[/grey70]\n"
+            "\n[bright_black][ESC] Return to Title[/bright_black]",
+            markup=True,
         )
+        settings_text.styles.text_align = "center"
+
+        # --- Container ---
+        layout = Vertical(header, settings_text, id="settings_layout")
+        layout.styles.align_horizontal = "center"
+        layout.styles.align_vertical = "middle"
+        layout.styles.content_align = ("center", "middle")
+
+        yield layout
 
     def action_toggle_sound(self):
-        # Placeholder for sound toggle logic
-        self.notify("Sound toggled (not implemented).")
+        self.notify("[bright_yellow]Sound toggled (not implemented).[/bright_yellow]", timeout=2)
 
     def action_cycle_difficulty(self):
-        # Placeholder for difficulty cycling
-        self.notify("Difficulty changed (not implemented).")
+        self.notify("[bright_yellow]Difficulty changed (not implemented).[/bright_yellow]", timeout=2)
 
     def action_color_mode(self):
-        # Placeholder for color mode switching
-        self.notify("Color mode changed (not implemented).")
+        self.notify("[bright_yellow]Color mode changed (not implemented).[/bright_yellow]", timeout=2)
 
     def action_back_to_title(self):
         self.app.pop_screen()

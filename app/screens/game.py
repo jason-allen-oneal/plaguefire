@@ -4,8 +4,8 @@ from textual.screen import Screen
 from textual.containers import Horizontal
 from app.ui.dungeon_view import DungeonView
 from app.ui.hud_view import HUDView
-from app.engine import Engine, MapData, BUILDING_KEY # Import MapData if using type hint
-from config import STAIRS_DOWN, STAIRS_UP # Keep config imports needed for actions
+from app.core.engine import Engine, MapData, BUILDING_KEY # Import MapData if using type hint
+from config import FLOOR, WALL, STAIRS_DOWN, STAIRS_UP, DOOR_CLOSED, DOOR_OPEN # Keep config imports needed for actions
 from debugtools import debug, log_exception
 from typing import Optional, List # Import Optional and List
 
@@ -35,6 +35,11 @@ class GameScreen(Screen):
     dungeon_view: DungeonView
     hud_view: HUDView
 
+    def __init__(self):
+        super().__init__()
+        self._awaiting_look_direction = False
+        self.markup = True
+
     def compose(self):
         """Create child widgets for the game screen."""
         debug("Composing GameScreen...")
@@ -45,14 +50,14 @@ class GameScreen(Screen):
              default_player_data = { "name": "Default", "stats": {}, "depth": 0, "time": 0, "level": 1,
                                      "hp": 10, "max_hp": 10, "gold": 0, "equipment": {} }
              # Import Player class here or ensure it's imported globally
-             from app.player import Player
+             from app.core.player import Player
              self.app.player = Player(default_player_data) # Create Player object
 
         # --- Create Engine instance, passing the Player object ---
         # Get map and entities from cache if they exist for the player's current depth
         cached_map = self._get_map(self.app.player.depth)
         cached_entities = self._get_entities(self.app.player.depth)
-        self.engine = Engine(player=self.app.player, map_override=cached_map, entities_override=cached_entities)
+        self.engine = Engine(app=self.app, player=self.app.player, map_override=cached_map, entities_override=cached_entities)
 
         # --- Create UI Widgets, passing the engine ---
         with Horizontal(id="layout"):
@@ -116,6 +121,7 @@ class GameScreen(Screen):
 
         # --- 5. Re-initialize Engine state, passing previous depth ---
         self.engine = Engine(
+            app=self.app,
             player=self.app.player,
             map_override=target_map,
             previous_depth=current_depth, # Pass the previous depth
@@ -147,21 +153,86 @@ class GameScreen(Screen):
 
 
     # --- UPDATED: Actions call Engine methods ---
-    def action_move_up(self): self._handle_engine_update(self.engine.handle_player_move(0, -1))
-    def action_move_down(self): self._handle_engine_update(self.engine.handle_player_move(0, 1))
-    def action_move_left(self): self._handle_engine_update(self.engine.handle_player_move(-1, 0))
-    def action_move_right(self): self._handle_engine_update(self.engine.handle_player_move(1, 0))
+    def action_move_up(self): self._attempt_directional_action(0, -1)
+    def action_move_down(self): self._attempt_directional_action(0, 1)
+    def action_move_left(self): self._attempt_directional_action(-1, 0)
+    def action_move_right(self): self._attempt_directional_action(1, 0)
 
     # --- Placeholder Actions (Call engine later) ---
-    def action_equip_item(self): self.notify("Equip (not implemented)."); debug("Action: Equip")
-    def action_use_item(self): self.notify("Use (not implemented)."); debug("Action: Use")
-    def action_take_off_item(self): self.notify("Take Off (not implemented)."); debug("Action: Take Off")
-    def action_quaff_potion(self): self.notify("Quaff (not implemented)."); debug("Action: Quaff")
-    def action_eat_food(self): self.notify("Eat (not implemented)."); debug("Action: Eat")
-    def action_look_around(self): self.notify("Look (not implemented)."); debug("Action: Look")
-    def action_open_door(self): self.notify("Open (not implemented)."); debug("Action: Open")
-    def action_close_door(self): self.notify("Close (not implemented)."); debug("Action: Close")
-    def action_dig_wall(self): self.notify("Dig (not implemented)."); debug("Action: Dig")
+    def action_equip_item(self):
+        if self._equip_first_available():
+            debug("Action: Equip succeeded")
+        else:
+            self.notify("You have nothing suitable to equip.")
+            debug("Action: Equip failed")
+
+    def action_use_item(self):
+        if self._use_inventory_item(lambda _: True, verb="use"):
+            debug("Action: Use succeeded")
+        else:
+            self.notify("You have nothing you can use right now.")
+            debug("Action: Use failed")
+
+    def action_take_off_item(self):
+        removed = False
+        player = self.engine.player
+        for slot in ("weapon", "armor"):
+            if player.equipment.get(slot) and player.unequip(slot):
+                removed = True
+        if removed:
+            self.notify("You remove your gear.")
+            self._refresh_ui()
+            debug("Action: Take Off succeeded")
+        else:
+            self.notify("You're not wearing anything to remove.")
+            debug("Action: Take Off failed")
+
+    def action_quaff_potion(self):
+        if self._use_inventory_item(lambda item: "Potion" in item, verb="quaff"):
+            debug("Action: Quaff succeeded")
+        else:
+            self.notify("You have no potions to drink.")
+            debug("Action: Quaff failed")
+
+    def action_eat_food(self):
+        food_keywords = ("Food", "Ration", "Mushroom", "Jerky", "Waybread", "Meal")
+        if self._use_inventory_item(lambda item: any(keyword in item for keyword in food_keywords), verb="eat"):
+            debug("Action: Eat succeeded")
+        else:
+            self.notify("You have nothing edible.")
+            debug("Action: Eat failed")
+
+    def action_look_around(self):
+        self._awaiting_look_direction = True
+        self.notify("Look which direction? Use the arrow keys.")
+        debug("Look mode activated; awaiting direction input.")
+
+    def action_open_door(self):
+        if self.engine.open_adjacent_door():
+            self.notify("You open the nearby door.")
+            self.dungeon_view.update_map()
+            debug("Action: Open door succeeded")
+        else:
+            self.notify("There is no closed door next to you.")
+            debug("Action: Open door failed")
+
+    def action_close_door(self):
+        if self.engine.close_adjacent_door():
+            self.notify("You close the nearby door.")
+            self.dungeon_view.update_map()
+            debug("Action: Close door succeeded")
+        else:
+            self.notify("There is no open door to close.")
+            debug("Action: Close door failed")
+
+    def action_dig_wall(self):
+        if self.engine.dig_adjacent_wall():
+            self.notify("You carve through the stone.")
+            self.dungeon_view.update_map()
+            debug("Action: Dig succeeded")
+        else:
+            self.notify("No wall nearby to dig through.")
+            debug("Action: Dig failed")
 
     # --- Interact Action (Uses Engine method) ---
     def action_interact(self):
@@ -211,3 +282,74 @@ class GameScreen(Screen):
         # Optional: Save to file immediately on pause
         # self.app.save_character()
         self.app.push_screen("pause_menu")
+
+    # --- Helper methods ---
+    def _refresh_ui(self):
+        self.hud_view.update_hud()
+        self.dungeon_view.update_map()
+
+    def _attempt_directional_action(self, dx: int, dy: int):
+        if self._awaiting_look_direction:
+            self._describe_direction(dx, dy)
+        else:
+            self._handle_engine_update(self.engine.handle_player_move(dx, dy))
+
+    def _equip_first_available(self) -> bool:
+        player = self.engine.player
+        for item in list(player.inventory):
+            if player.equip(item):
+                self.notify(f"You equip {item}.")
+                self._refresh_ui()
+                return True
+        return False
+
+    def _use_inventory_item(self, predicate, verb: str) -> bool:
+        player = self.engine.player
+        for item in list(player.inventory):
+            if predicate(item) and player.use_item(item):
+                self.notify(f"You {verb} {item}.")
+                self._refresh_ui()
+                return True
+        return False
+
+    DIRECTION_NAMES = {
+        (0, -1): "north",
+        (0, 1): "south",
+        (-1, 0): "west",
+        (1, 0): "east",
+    }
+
+    def _describe_direction(self, dx: int, dy: int):
+        self._awaiting_look_direction = False
+        direction = self.DIRECTION_NAMES.get((dx, dy), "that way")
+        px, py = self.engine.player.position
+        description = None
+        for step in range(1, 9):
+            tx, ty = px + dx * step, py + dy * step
+            tile = self.engine.get_tile_at_coords(tx, ty)
+            if tile is None:
+                description = f"Nothing but darkness to the {direction}."
+                break
+            entity = self.engine.get_entity_at(tx, ty)
+            if entity:
+                description = f"You see {entity.name} about {step} tiles to the {direction}."
+                break
+            tile_desc = self._describe_tile(tile)
+            if tile_desc:
+                description = f"{tile_desc} lies {step} tiles to the {direction}."
+                break
+        if description is None:
+            description = f"You see nothing of interest to the {direction}."
+        self.notify(description)
+        debug(f"Look direction {direction}: {description}")
+
+    @staticmethod
+    def _describe_tile(tile_char: str) -> str | None:
+        mapping = {
+            WALL: "A wall",
+            STAIRS_DOWN: "Stairs leading down",
+            STAIRS_UP: "Stairs leading up",
+            DOOR_CLOSED: "A closed door",
+            DOOR_OPEN: "An open doorway",
+        }
+        return mapping.get(tile_char)

@@ -7,7 +7,7 @@ from debugtools import debug
 import random
 from typing import NamedTuple, List, Optional, TYPE_CHECKING, Tuple
 # Import Player for type hinting
-from app.player import Player
+from app.core.player import Player
 
 # Type hint for App
 if TYPE_CHECKING:

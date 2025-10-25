@@ -3,30 +3,37 @@
     "race": "Dwarf",
     "class": "Fighter",
     "stats": {
-        "STR": 14,
-        "DEX": 12,
-        "CON": 18,
-        "INT": 12,
-        "WIS": 12,
-        "CHA": 8
+        "STR": 15,
+        "DEX": 13,
+        "CON": 16,
+        "INT": 15,
+        "WIS": 15,
+        "CHA": 9
     },
     "base_stats": {
-        "STR": 14,
-        "DEX": 12,
-        "CON": 16,
-        "INT": 12,
-        "WIS": 12,
-        "CHA": 8
+        "STR": 15,
+        "DEX": 13,
+        "CON": 14,
+        "INT": 15,
+        "WIS": 15,
+        "CHA": 9
     },
-    "hp": 10,
-    "max_hp": 10,
-    "level": 1,
-    "gold": 0,
+    "hp": 18,
+    "max_hp": 49,
+    "mana": 18,
+    "max_mana": 18,
+    "level": 5,
+    "xp": 1950,
+    "next_level_xp": 14000,
+    "gold": 279,
     "inventory": [
         "Rations (3)",
         "Torch (5)",
         "Dagger",
-        "Leather Armor"
+        "Gold Coins",
+        "Gold Coins",
+        "Gold Coins",
+        "Hard Leather Armor"
     ],
     "equipment": {
         "weapon": "Dagger",
@@ -37,8 +44,9 @@
         15
     ],
     "depth": 0,
-    "time": 962,
+    "time": 1384,
     "base_light_radius": 1,
-    "light_radius": 1,
-    "light_duration": 0
+    "light_radius": 5,
+    "light_duration": 0,
+    "status_effects": []
 }

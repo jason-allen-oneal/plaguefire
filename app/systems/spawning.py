@@ -2,7 +2,7 @@
 
 import random
 from typing import List, Tuple, Optional
-from app.entity import (
+from app.core.entity import (
     Entity, create_mercenary, create_drunk, create_rogue,
     create_rat, create_goblin, create_orc, create_troll, create_dragon
 )
