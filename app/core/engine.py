@@ -192,6 +192,20 @@ class Engine:
         if self.player.depth == 0 and self.get_time_of_day() == "Day":
             debug("Updating FOV: Town Day - Full Visibility")
             self.visibility = [[2 for _ in range(map_w)] for _ in range(map_h)]
+        elif self.player.depth == 0 and self.get_time_of_day() == "Night":
+            # Town at night: walls stay visible (remembered from day), but use limited radius for other tiles
+            debug(f"Updating FOV: Town Night - Radius {self.player.light_radius}")
+            self.visibility = update_visibility(
+                current_visibility=self.visibility,
+                player_pos=self.player.position,
+                game_map=self.game_map,
+                radius=self.player.light_radius
+            )
+            # Ensure all walls remain visible at night in town
+            for y in range(map_h):
+                for x in range(map_w):
+                    if self.game_map[y][x] == WALL and self.visibility[y][x] == 0:
+                        self.visibility[y][x] = 1  # Mark walls as remembered
         else:
             debug(f"Updating FOV: Radius {self.player.light_radius}")
             # Call FOV function (ensure it handles map_width/height correctly if needed)
@@ -243,7 +257,7 @@ class Engine:
                      if self.player.light_duration == 0:
                          debug("Light source expired!")
                          self.player.light_radius = self.player.base_light_radius
-                         self.app.notify("Your light source has expired!", severity="warning") # Use app reference
+                         self.log_event("Your light source has expired!")
 
                 # Note: FOV/Time updates are now in _end_player_turn
                 # Check for Day/Night change FOV update *before* ending turn
@@ -253,7 +267,6 @@ class Engine:
                     self.update_fov() # Force immediate update
 
                 debug(f"Player moved to {nx},{ny}. Light: {self.player.light_duration}")
-                self.log_event(f"You move to ({nx},{ny}).")
                 action_taken = True
             else: # Bumped wall or non-hostile
                 if target_tile == WALL: debug("Player bumped wall.")
@@ -274,10 +287,10 @@ class Engine:
         success, message = self.player.use_item(item_name) # Assuming use_item returns (bool, str)
         if success:
             debug(f"Used item: {item_name}. {message}")
-            self.app.notify(message)
+            self.log_event(message)
             self._end_player_turn()
             return True
-        else: debug(f"Failed use: {item_name}. {message}"); self.app.notify(message, severity="warning"); return False
+        else: debug(f"Failed use: {item_name}. {message}"); self.log_event(message); return False
 
     def handle_equip_item(self, item_index: int) -> bool:
         if not self.player or not self.player.inventory: return False
@@ -286,20 +299,20 @@ class Engine:
         success, message = self.player.equip(item_name) # Assuming equip returns (bool, str)
         if success:
             debug(f"Equipped: {item_name}. {message}")
-            self.app.notify(message)
+            self.log_event(message)
             self._end_player_turn()
             return True
-        else: debug(f"Failed equip: {item_name}. {message}"); self.app.notify(message, severity="warning"); return False
+        else: debug(f"Failed equip: {item_name}. {message}"); self.log_event(message); return False
 
     def handle_unequip_item(self, slot: str) -> bool:
         if not self.player: return False
         success, message = self.player.unequip(slot) # Assuming unequip returns (bool, str)
         if success:
             debug(f"Unequipped from {slot}. {message}")
-            self.app.notify(message)
+            self.log_event(message)
             self._end_player_turn()
             return True
-        else: debug(f"Failed unequip: {slot}. {message}"); self.app.notify(message, severity="warning"); return False
+        else: debug(f"Failed unequip: {slot}. {message}"); self.log_event(message); return False
     
     # --- Entity-related methods ---
     
@@ -326,10 +339,6 @@ class Engine:
         xp_reward = self._calculate_xp_reward(entity)
         if xp_reward > 0:
             self.player.gain_xp(xp_reward)
-            try:
-                self.app.notify(f"You gain {xp_reward} XP.")
-            except Exception:
-                debug(f"XP Notification failed for {xp_reward} XP.")
             self.log_event(f"You gain {xp_reward} XP.")
 
         item_ids, gold = entity.get_drops() # Get potential drops from entity method
@@ -338,7 +347,7 @@ class Engine:
         if gold > 0:
             self.player.gold += gold
             debug(f"Player found {gold} gold.")
-            self.app.notify(f"You find {gold} gold.")
+            self.log_event(f"You find {gold} gold.")
 
         # Add items to inventory
         for item_id in item_ids:
@@ -347,7 +356,7 @@ class Engine:
                  item_name = template.get("name", item_id)
                  self.player.inventory.append(item_name) # Add name for now
                  debug(f"Player found: {item_name}")
-                 self.app.notify(f"You find a {item_name}.")
+                 self.log_event(f"You find a {item_name}.")
              else:
                  debug(f"Warning: Unknown item ID '{item_id}' dropped by {entity.name}")
 

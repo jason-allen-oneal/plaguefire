@@ -205,11 +205,11 @@ class Player:
             return True # Player is dead
         return False # Player survived
 
-    def equip(self, item_name: str) -> bool:
-        """Equips an item from inventory. Returns True if successful."""
+    def equip(self, item_name: str) -> tuple[bool, str]:
+        """Equips an item from inventory. Returns (success, message)."""
         if item_name not in self.inventory:
             debug(f"Cannot equip '{item_name}': Not in inventory.")
-            return False
+            return False, f"Cannot equip '{item_name}': Not in inventory."
 
         # --- Basic Slot Determination ---
         slot = None
@@ -226,7 +226,7 @@ class Player:
 
         if slot is None:
             debug(f"Cannot equip '{item_name}': Unknown equipment slot.")
-            return False # Not an equippable item type known by this basic logic
+            return False, f"Cannot equip '{item_name}': Unknown equipment type."
 
         # --- Unequip current item in that slot ---
         currently_equipped = self.equipment.get(slot)
@@ -241,35 +241,36 @@ class Player:
             debug(f"Equipped '{item_name}' to {slot} slot.")
             # --- Update player stats/light based on item ---
             self._apply_item_effects(item_name, equipping=True)
-            return True
+            return True, f"Equipped {item_name}."
         except ValueError:
              # Should not happen if item_name was checked, but safety first
              debug(f"Error removing '{item_name}' from inventory during equip.")
-             return False
+             return False, f"Error equipping {item_name}."
 
 
-    def unequip(self, slot: str) -> bool:
-        """Unequips an item from a slot. Returns True if successful."""
+    def unequip(self, slot: str) -> tuple[bool, str]:
+        """Unequips an item from a slot. Returns (success, message)."""
         item_name = self.equipment.get(slot)
         if not item_name:
             debug(f"Cannot unequip: Nothing in '{slot}' slot.")
-            return False
+            return False, f"Nothing equipped in {slot} slot."
 
         self.equipment[slot] = None # Clear the slot
         self.inventory.append(item_name) # Add back to inventory
         debug(f"Unequipped '{item_name}' from {slot} slot. Added to inventory.")
         # --- Revert stat/light changes from item ---
         self._apply_item_effects(item_name, equipping=False)
-        return True
+        return True, f"Unequipped {item_name}."
 
 
-    def use_item(self, item_name: str) -> bool:
-        """Uses a consumable item. Returns True if item was used successfully."""
+    def use_item(self, item_name: str) -> tuple[bool, str]:
+        """Uses a consumable item. Returns (success, message)."""
         if item_name not in self.inventory:
             debug(f"Cannot use '{item_name}': Not in inventory.")
-            return False
+            return False, f"Cannot use '{item_name}': Not in inventory."
         
         used = False
+        message = ""
         
         # Potions
         if "Potion of Healing" in item_name:
@@ -278,9 +279,10 @@ class Player:
             if actual_heal > 0:
                 debug(f"Used {item_name}: healed {actual_heal} HP")
                 used = True
+                message = f"You heal {actual_heal} HP."
             else:
                 debug(f"Already at full health, cannot use {item_name}")
-                return False
+                return False, "Already at full health."
                 
         elif "Potion of Mana" in item_name:
             mana_restore = 20
@@ -288,40 +290,45 @@ class Player:
             if restored > 0:
                 debug(f"Used {item_name}: restored {restored} mana")
                 used = True
+                message = f"You restore {restored} mana."
             else:
                 debug(f"Mana already full; cannot use {item_name}")
-                return False
+                return False, "Mana already full."
             
         # Scrolls
         elif "Scroll of Identify" in item_name:
             debug(f"Used {item_name} (identify system not implemented)")
             # When item identification system is added, identify an item
             used = True
+            message = f"You read the {item_name}."
             
         elif "Scroll of Magic Missile" in item_name:
             debug(f"Used {item_name} (combat spell system not implemented)")
             # When combat system is added, cast magic missile
             used = True
+            message = f"You cast Magic Missile!"
         
         # Food items
         elif "Rations" in item_name or "Meal" in item_name:
             debug(f"Consumed {item_name} (hunger system not implemented)")
             # When hunger system is added, restore satiation
             used = True
+            message = f"You eat the {item_name}."
             
         elif "Ale" in item_name or "Mug" in item_name:
             debug(f"Drank {item_name} (effects not implemented)")
             # Could add temporary stat effects
             used = True
+            message = f"You drink the {item_name}."
         
         # Unknown item type
         else:
             debug(f"Not sure how to use '{item_name}'")
-            return False
+            return False, f"You don't know how to use {item_name}."
         
         # Remove item from inventory if successfully used
         if used:
             self.inventory.remove(item_name)
             debug(f"Removed '{item_name}' from inventory after use")
             
-        return used
+        return used, message

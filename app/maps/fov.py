@@ -9,7 +9,7 @@ VisibilityData = List[List[int]]
 def line_of_sight(game_map: MapData, x0: int, y0: int, x1: int, y1: int) -> bool:
     """
     Check if there's a clear line of sight between two points using Bresenham's algorithm.
-    Returns True if the path is clear (no walls blocking), False otherwise.
+    Returns True if the target can be seen (including if it's a wall), False if blocked by a wall before reaching target.
     """
     # Bresenham's line algorithm
     dx = abs(x1 - x0)
@@ -23,14 +23,15 @@ def line_of_sight(game_map: MapData, x0: int, y0: int, x1: int, y1: int) -> bool
     map_width = len(game_map[0]) if map_height > 0 else 0
     
     while True:
-        # Check if current position is a wall (blocking)
-        if 0 <= y < map_height and 0 <= x < map_width:
-            if game_map[y][x] == '#':  # Wall character
-                return False
-        
-        # Reached the target
+        # Reached the target - it's visible
         if x == x1 and y == y1:
-            break
+            return True
+        
+        # Check if current position is a wall (blocking vision beyond)
+        # But don't check the starting position
+        if (x != x0 or y != y0) and 0 <= y < map_height and 0 <= x < map_width:
+            if game_map[y][x] == '#':  # Wall character blocks vision beyond it
+                return False
         
         e2 = 2 * err
         if e2 > -dy:
