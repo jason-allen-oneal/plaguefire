@@ -491,23 +491,42 @@ class Engine:
     
     def handle_player_attack(self, target: Entity) -> bool:
         """Handle player attacking an entity."""
-        # Calculate attack using proper D&D modifier
-        player_attack = (self.player.stats.get('STR', 10) - 10) // 2
-        if self.player.equipment.get('weapon'):
-            # Extract attack bonus from weapon name if it has one
-            weapon = self.player.equipment['weapon']
-            if '(+' in weapon and 'ATK)' in weapon:
-                try:
-                    attack_bonus = int(weapon.split('(+')[1].split(' ATK)')[0])
-                    player_attack += attack_bonus
-                except (ValueError, IndexError):
-                    pass
+        # Calculate base attack using STR modifier
+        str_modifier = (self.player.stats.get('STR', 10) - 10) // 2
         
-        damage = max(1, player_attack - target.defense)
-        debug(f"Player attacks {target.name} for {damage} damage")
-        self.log_event(f"You hit {target.name} for {damage} dmg.")
+        # Base damage starts with STR modifier
+        base_damage = max(1, str_modifier + 1)  # At least 1 damage
+        
+        # Add weapon damage if equipped
+        weapon_damage = 0
+        if self.player.equipment.get('weapon'):
+            weapon_name = self.player.equipment['weapon']
+            # Try to look up weapon data
+            from app.data.loader import get_item_template_by_name
+            weapon_template = get_item_template_by_name(weapon_name)
+            if weapon_template and 'damage' in weapon_template:
+                # Parse damage dice (e.g., "1d8", "2d4")
+                damage_str = weapon_template['damage']
+                try:
+                    import random
+                    if 'd' in damage_str:
+                        num_dice, die_size = damage_str.split('d')
+                        num_dice = int(num_dice)
+                        die_size = int(die_size)
+                        weapon_damage = sum(random.randint(1, die_size) for _ in range(num_dice))
+                    else:
+                        weapon_damage = int(damage_str)
+                except (ValueError, AttributeError):
+                    debug(f"Could not parse weapon damage: {damage_str}")
+                    weapon_damage = 2  # Default weapon damage
+        
+        # Total damage = base + weapon - target defense
+        total_damage = max(1, base_damage + weapon_damage - target.defense)
+        
+        debug(f"Player attacks {target.name}: STR={str_modifier}, weapon={weapon_damage}, vs DEF={target.defense} = {total_damage} damage")
+        self.log_event(f"You hit {target.name} for {total_damage} dmg.")
 
-        is_dead = target.take_damage(damage)
+        is_dead = target.take_damage(total_damage)
         if is_dead:
             self.handle_entity_death(target)
             self.log_event(f"{target.name} is defeated!")
@@ -522,21 +541,27 @@ class Engine:
     
     def handle_entity_attack(self, entity: Entity) -> bool:
         """Handle entity attacking the player."""
-        # Calculate defense using proper D&D modifier
-        player_defense = (self.player.stats.get('CON', 10) - 10) // 2
-        damage = max(1, entity.attack - player_defense)
+        # Calculate base defense using CON modifier
+        con_modifier = (self.player.stats.get('CON', 10) - 10) // 2
         
-        # Apply armor if equipped
+        # Base defense from CON
+        base_defense = con_modifier
+        
+        # Add armor defense if equipped
+        armor_defense = 0
         if self.player.equipment.get('armor'):
-            armor = self.player.equipment['armor']
-            if '(+' in armor and 'DEF)' in armor:
-                try:
-                    defense_bonus = int(armor.split('(+')[1].split(' DEF)')[0])
-                    damage = max(1, damage - defense_bonus)
-                except (ValueError, IndexError):
-                    pass
+            armor_name = self.player.equipment['armor']
+            # Try to look up armor data
+            from app.data.loader import get_item_template_by_name
+            armor_template = get_item_template_by_name(armor_name)
+            if armor_template and 'defense_bonus' in armor_template:
+                armor_defense = armor_template['defense_bonus']
         
-        debug(f"{entity.name} attacks player for {damage} damage")
+        # Calculate damage: entity attack - (player defense + armor)
+        total_defense = base_defense + armor_defense
+        damage = max(1, entity.attack - total_defense)
+        
+        debug(f"{entity.name} attacks player: ATK={entity.attack} vs DEF={total_defense} (CON={con_modifier}, armor={armor_defense}) = {damage} damage")
         self.log_event(f"{entity.name} hits you for {damage} dmg.")
         is_dead = self.player.take_damage(damage)
         if is_dead:
