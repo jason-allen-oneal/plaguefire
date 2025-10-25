@@ -314,6 +314,88 @@ class Engine:
             return True
         else: debug(f"Failed unequip: {slot}. {message}"); self.log_event(message); return False
     
+    def handle_cast_spell(self, spell_id: str, target_entity: Optional[Entity] = None) -> bool:
+        """Handle player casting a spell."""
+        if not self.player:
+            return False
+        
+        success, message, spell_data = self.player.cast_spell(spell_id)
+        if not success:
+            debug(f"Failed to cast {spell_id}: {message}")
+            self.log_event(message)
+            return False
+        
+        # Log the spell casting
+        self.log_event(message)
+        
+        # Apply spell effects based on type
+        if spell_data:
+            spell_type = spell_data.get('type', 'unknown')
+            
+            if spell_type == 'attack':
+                # Attack spells need a target
+                if target_entity:
+                    import random
+                    damage_str = spell_data.get('damage', '1d6')
+                    if 'd' in damage_str:
+                        num_dice, die_size = damage_str.split('d')
+                        damage = sum(random.randint(1, int(die_size)) for _ in range(int(num_dice)))
+                    else:
+                        damage = int(damage_str)
+                    
+                    debug(f"Spell {spell_id} hits {target_entity.name} for {damage} damage")
+                    self.log_event(f"{target_entity.name} takes {damage} spell damage!")
+                    
+                    is_dead = target_entity.take_damage(damage)
+                    if is_dead:
+                        self.handle_entity_death(target_entity)
+                        self.log_event(f"{target_entity.name} is defeated!")
+                else:
+                    self.log_event("The spell fizzles without a target.")
+                    
+            elif spell_type == 'light':
+                # Light spell increases player's light radius temporarily
+                radius = spell_data.get('radius', 3)
+                duration = spell_data.get('duration', 50)
+                self.player.light_radius = max(self.player.light_radius, radius)
+                self.player.light_duration = max(self.player.light_duration, duration)
+                self.update_fov()
+                debug(f"Light spell cast: radius={radius}, duration={duration}")
+                
+            elif spell_type == 'detection':
+                # Detection spells reveal entities
+                visible_entities = self.get_visible_entities()
+                if visible_entities:
+                    entity_names = ', '.join([e.name for e in visible_entities[:3]])
+                    self.log_event(f"You sense: {entity_names}")
+                else:
+                    self.log_event("You sense nothing nearby.")
+                    
+            elif spell_type == 'teleport':
+                # Teleport spell moves player to a random location
+                max_range = spell_data.get('range', 10)
+                import random
+                px, py = self.player.position
+                
+                # Try to find a valid teleport location
+                for _ in range(20):  # Try up to 20 times
+                    dx = random.randint(-max_range, max_range)
+                    dy = random.randint(-max_range, max_range)
+                    nx, ny = px + dx, py + dy
+                    
+                    if (0 <= ny < self.map_height and 0 <= nx < self.map_width and
+                        self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny)):
+                        self.player.position = [nx, ny]
+                        self.log_event(f"You teleport to a new location!")
+                        self.update_fov()
+                        break
+                else:
+                    self.log_event("The teleport spell fails!")
+        
+        # Casting a spell takes a turn
+        self._end_player_turn()
+        return True
+    
     # --- Entity-related methods ---
     
     def get_entity_at(self, x: int, y: int) -> Optional[Entity]:

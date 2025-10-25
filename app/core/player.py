@@ -56,6 +56,9 @@ class Player:
 
         # --- UPDATED: Status Effects ---
         self.status_effects: List[str] = data.get("status_effects", [])
+        
+        # --- Spell System ---
+        self.known_spells: List[str] = data.get("known_spells", [])
 
     XP_THRESHOLDS = {
         1: 300, 2: 900, 3: 2700, 4: 6500, 5: 14000,
@@ -159,6 +162,7 @@ class Player:
             "light_radius": self.light_radius,
             "light_duration": self.light_duration,
             "status_effects": self.status_effects,
+            "known_spells": self.known_spells,
         }
         return save_data
 
@@ -192,6 +196,78 @@ class Player:
         self.mana -= amount
         debug(f"{self.name} spends {amount} mana ({self.mana}/{self.max_mana})")
         return True
+    
+    def cast_spell(self, spell_id: str) -> tuple[bool, str, Optional[Dict]]:
+        """
+        Attempts to cast a spell. Returns (success, message, spell_data).
+        spell_data contains information needed by the engine to apply effects.
+        """
+        if spell_id not in self.known_spells:
+            return False, f"You don't know the spell '{spell_id}'.", None
+        
+        # Define spell costs and effects
+        SPELL_DEFINITIONS = {
+            # Mage spells
+            'magic_missile': {'cost': 3, 'damage': '2d6', 'type': 'attack', 'range': 8},
+            'detect_monsters': {'cost': 2, 'type': 'detection', 'range': 20},
+            'phase_door': {'cost': 4, 'type': 'teleport', 'range': 5},
+            'light': {'cost': 2, 'type': 'light', 'radius': 3, 'duration': 50},
+            'fire_bolt': {'cost': 5, 'damage': '4d6', 'type': 'attack', 'range': 10},
+            'sleep_monster': {'cost': 5, 'type': 'sleep', 'range': 8},
+            'teleport': {'cost': 10, 'type': 'teleport', 'range': 100},
+            'lightning_bolt': {'cost': 8, 'damage': '6d6', 'type': 'attack', 'range': 12},
+            
+            # Cleric spells
+            'detect_evil': {'cost': 2, 'type': 'detection', 'range': 20},
+            'cure_light_wounds': {'cost': 3, 'heal': '2d8', 'type': 'heal'},
+            'cure_serious_wounds': {'cost': 6, 'heal': '4d8', 'type': 'heal'},
+            'protection_evil': {'cost': 5, 'type': 'buff', 'duration': 100},
+            'bless': {'cost': 4, 'type': 'buff', 'duration': 50},
+            'remove_fear': {'cost': 3, 'type': 'buff'},
+            'dispel_undead': {'cost': 8, 'damage': '8d6', 'type': 'attack', 'range': 8, 'target': 'undead'},
+            'remove_curse': {'cost': 6, 'type': 'cure'},
+        }
+        
+        spell_def = SPELL_DEFINITIONS.get(spell_id)
+        if not spell_def:
+            return False, f"Spell '{spell_id}' is not implemented yet.", None
+        
+        # Check mana cost
+        cost = spell_def.get('cost', 0)
+        if not self.spend_mana(cost):
+            return False, f"Not enough mana to cast {spell_id} (need {cost}).", None
+        
+        # Return success with spell data for engine to process
+        spell_type = spell_def.get('type', 'unknown')
+        message = ""
+        
+        if spell_type == 'heal':
+            # Healing spells - apply immediately
+            import random
+            heal_str = spell_def.get('heal', '1d8')
+            if 'd' in heal_str:
+                num_dice, die_size = heal_str.split('d')
+                heal_amount = sum(random.randint(1, int(die_size)) for _ in range(int(num_dice)))
+            else:
+                heal_amount = int(heal_str)
+            
+            actual_heal = self.heal(heal_amount)
+            message = f"You cast {spell_id} and heal {actual_heal} HP!"
+            spell_def['actual_heal'] = actual_heal
+        elif spell_type == 'attack':
+            message = f"You cast {spell_id}!"
+        elif spell_type == 'detection':
+            message = f"You cast {spell_id} and sense your surroundings!"
+        elif spell_type == 'teleport':
+            message = f"You cast {spell_id}!"
+        elif spell_type == 'light':
+            message = f"You cast {spell_id} and create light!"
+        elif spell_type == 'buff':
+            message = f"You cast {spell_id}!"
+        else:
+            message = f"You cast {spell_id}!"
+        
+        return True, message, spell_def
 
     def take_damage(self, amount: int) -> bool:
         """Reduces player HP by amount. Returns True if HP <= 0 (dead)."""
@@ -271,6 +347,30 @@ class Player:
         
         used = False
         message = ""
+        
+        # Check if it's a book - try to learn spells from it
+        from app.data.loader import get_item_template_by_name
+        item_template = get_item_template_by_name(item_name)
+        
+        if item_template and item_template.get('type') == 'book':
+            # This is a spellbook - learn spells from it
+            spells = item_template.get('spells', [])
+            if not spells:
+                return False, "This book contains no spells."
+            
+            new_spells = []
+            for spell in spells:
+                if spell not in self.known_spells:
+                    self.known_spells.append(spell)
+                    new_spells.append(spell)
+            
+            if new_spells:
+                spell_names = ', '.join(new_spells)
+                debug(f"Learned spells from {item_name}: {spell_names}")
+                # Don't consume the book - keep it for reference
+                return True, f"You learn: {spell_names}"
+            else:
+                return False, "You already know all spells in this book."
         
         # Potions
         if "Potion of Healing" in item_name:
