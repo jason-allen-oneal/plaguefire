@@ -192,6 +192,20 @@ class Engine:
         if self.player.depth == 0 and self.get_time_of_day() == "Day":
             debug("Updating FOV: Town Day - Full Visibility")
             self.visibility = [[2 for _ in range(map_w)] for _ in range(map_h)]
+        elif self.player.depth == 0 and self.get_time_of_day() == "Night":
+            # Town at night: walls stay visible (remembered from day), but use limited radius for other tiles
+            debug(f"Updating FOV: Town Night - Radius {self.player.light_radius}")
+            self.visibility = update_visibility(
+                current_visibility=self.visibility,
+                player_pos=self.player.position,
+                game_map=self.game_map,
+                radius=self.player.light_radius
+            )
+            # Ensure all walls remain visible at night in town
+            for y in range(map_h):
+                for x in range(map_w):
+                    if self.game_map[y][x] == WALL and self.visibility[y][x] == 0:
+                        self.visibility[y][x] = 1  # Mark walls as remembered
         else:
             debug(f"Updating FOV: Radius {self.player.light_radius}")
             # Call FOV function (ensure it handles map_width/height correctly if needed)
@@ -243,7 +257,7 @@ class Engine:
                      if self.player.light_duration == 0:
                          debug("Light source expired!")
                          self.player.light_radius = self.player.base_light_radius
-                         self.app.notify("Your light source has expired!", severity="warning") # Use app reference
+                         self.log_event("Your light source has expired!")
 
                 # Note: FOV/Time updates are now in _end_player_turn
                 # Check for Day/Night change FOV update *before* ending turn
@@ -253,7 +267,6 @@ class Engine:
                     self.update_fov() # Force immediate update
 
                 debug(f"Player moved to {nx},{ny}. Light: {self.player.light_duration}")
-                self.log_event(f"You move to ({nx},{ny}).")
                 action_taken = True
             else: # Bumped wall or non-hostile
                 if target_tile == WALL: debug("Player bumped wall.")
@@ -274,10 +287,10 @@ class Engine:
         success, message = self.player.use_item(item_name) # Assuming use_item returns (bool, str)
         if success:
             debug(f"Used item: {item_name}. {message}")
-            self.app.notify(message)
+            self.log_event(message)
             self._end_player_turn()
             return True
-        else: debug(f"Failed use: {item_name}. {message}"); self.app.notify(message, severity="warning"); return False
+        else: debug(f"Failed use: {item_name}. {message}"); self.log_event(message); return False
 
     def handle_equip_item(self, item_index: int) -> bool:
         if not self.player or not self.player.inventory: return False
@@ -286,20 +299,102 @@ class Engine:
         success, message = self.player.equip(item_name) # Assuming equip returns (bool, str)
         if success:
             debug(f"Equipped: {item_name}. {message}")
-            self.app.notify(message)
+            self.log_event(message)
             self._end_player_turn()
             return True
-        else: debug(f"Failed equip: {item_name}. {message}"); self.app.notify(message, severity="warning"); return False
+        else: debug(f"Failed equip: {item_name}. {message}"); self.log_event(message); return False
 
     def handle_unequip_item(self, slot: str) -> bool:
         if not self.player: return False
         success, message = self.player.unequip(slot) # Assuming unequip returns (bool, str)
         if success:
             debug(f"Unequipped from {slot}. {message}")
-            self.app.notify(message)
+            self.log_event(message)
             self._end_player_turn()
             return True
-        else: debug(f"Failed unequip: {slot}. {message}"); self.app.notify(message, severity="warning"); return False
+        else: debug(f"Failed unequip: {slot}. {message}"); self.log_event(message); return False
+    
+    def handle_cast_spell(self, spell_id: str, target_entity: Optional[Entity] = None) -> bool:
+        """Handle player casting a spell."""
+        if not self.player:
+            return False
+        
+        success, message, spell_data = self.player.cast_spell(spell_id)
+        if not success:
+            debug(f"Failed to cast {spell_id}: {message}")
+            self.log_event(message)
+            return False
+        
+        # Log the spell casting
+        self.log_event(message)
+        
+        # Apply spell effects based on type
+        if spell_data:
+            spell_type = spell_data.get('type', 'unknown')
+            
+            if spell_type == 'attack':
+                # Attack spells need a target
+                if target_entity:
+                    import random
+                    damage_str = spell_data.get('damage', '1d6')
+                    if 'd' in damage_str:
+                        num_dice, die_size = damage_str.split('d')
+                        damage = sum(random.randint(1, int(die_size)) for _ in range(int(num_dice)))
+                    else:
+                        damage = int(damage_str)
+                    
+                    debug(f"Spell {spell_id} hits {target_entity.name} for {damage} damage")
+                    self.log_event(f"{target_entity.name} takes {damage} spell damage!")
+                    
+                    is_dead = target_entity.take_damage(damage)
+                    if is_dead:
+                        self.handle_entity_death(target_entity)
+                        self.log_event(f"{target_entity.name} is defeated!")
+                else:
+                    self.log_event("The spell fizzles without a target.")
+                    
+            elif spell_type == 'light':
+                # Light spell increases player's light radius temporarily
+                radius = spell_data.get('radius', 3)
+                duration = spell_data.get('duration', 50)
+                self.player.light_radius = max(self.player.light_radius, radius)
+                self.player.light_duration = max(self.player.light_duration, duration)
+                self.update_fov()
+                debug(f"Light spell cast: radius={radius}, duration={duration}")
+                
+            elif spell_type == 'detection':
+                # Detection spells reveal entities
+                visible_entities = self.get_visible_entities()
+                if visible_entities:
+                    entity_names = ', '.join([e.name for e in visible_entities[:3]])
+                    self.log_event(f"You sense: {entity_names}")
+                else:
+                    self.log_event("You sense nothing nearby.")
+                    
+            elif spell_type == 'teleport':
+                # Teleport spell moves player to a random location
+                max_range = spell_data.get('range', 10)
+                import random
+                px, py = self.player.position
+                
+                # Try to find a valid teleport location
+                for _ in range(20):  # Try up to 20 times
+                    dx = random.randint(-max_range, max_range)
+                    dy = random.randint(-max_range, max_range)
+                    nx, ny = px + dx, py + dy
+                    
+                    if (0 <= ny < self.map_height and 0 <= nx < self.map_width and
+                        self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny)):
+                        self.player.position = [nx, ny]
+                        self.log_event(f"You teleport to a new location!")
+                        self.update_fov()
+                        break
+                else:
+                    self.log_event("The teleport spell fails!")
+        
+        # Casting a spell takes a turn
+        self._end_player_turn()
+        return True
     
     # --- Entity-related methods ---
     
@@ -326,10 +421,6 @@ class Engine:
         xp_reward = self._calculate_xp_reward(entity)
         if xp_reward > 0:
             self.player.gain_xp(xp_reward)
-            try:
-                self.app.notify(f"You gain {xp_reward} XP.")
-            except Exception:
-                debug(f"XP Notification failed for {xp_reward} XP.")
             self.log_event(f"You gain {xp_reward} XP.")
 
         item_ids, gold = entity.get_drops() # Get potential drops from entity method
@@ -338,7 +429,7 @@ class Engine:
         if gold > 0:
             self.player.gold += gold
             debug(f"Player found {gold} gold.")
-            self.app.notify(f"You find {gold} gold.")
+            self.log_event(f"You find {gold} gold.")
 
         # Add items to inventory
         for item_id in item_ids:
@@ -347,7 +438,7 @@ class Engine:
                  item_name = template.get("name", item_id)
                  self.player.inventory.append(item_name) # Add name for now
                  debug(f"Player found: {item_name}")
-                 self.app.notify(f"You find a {item_name}.")
+                 self.log_event(f"You find a {item_name}.")
              else:
                  debug(f"Warning: Unknown item ID '{item_id}' dropped by {entity.name}")
 
@@ -481,24 +572,71 @@ class Engine:
         return False
     
     def handle_player_attack(self, target: Entity) -> bool:
-        """Handle player attacking an entity."""
-        # Calculate attack using proper D&D modifier
-        player_attack = (self.player.stats.get('STR', 10) - 10) // 2
-        if self.player.equipment.get('weapon'):
-            # Extract attack bonus from weapon name if it has one
-            weapon = self.player.equipment['weapon']
-            if '(+' in weapon and 'ATK)' in weapon:
-                try:
-                    attack_bonus = int(weapon.split('(+')[1].split(' ATK)')[0])
-                    player_attack += attack_bonus
-                except (ValueError, IndexError):
-                    pass
+        """Handle player attacking an entity using D&D 5e-style mechanics."""
+        import random
         
-        damage = max(1, player_attack - target.defense)
-        debug(f"Player attacks {target.name} for {damage} damage")
-        self.log_event(f"You hit {target.name} for {damage} dmg.")
+        # D&D 5e: Attack roll = d20 + ability modifier + proficiency bonus
+        str_modifier = (self.player.stats.get('STR', 10) - 10) // 2
+        proficiency_bonus = 2 + (self.player.level - 1) // 4  # D&D 5e proficiency progression
+        
+        attack_roll = random.randint(1, 20)
+        attack_total = attack_roll + str_modifier + proficiency_bonus
+        
+        # Target AC = 10 + defense (simplified from D&D 5e)
+        target_ac = 10 + target.defense
+        
+        # Critical hit on natural 20, auto-miss on natural 1
+        if attack_roll == 1:
+            debug(f"Player critical miss vs {target.name}")
+            self.log_event(f"You miss {target.name} badly!")
+            return False
+        elif attack_roll == 20:
+            debug(f"Player critical hit vs {target.name}!")
+            # Critical hits deal double damage dice
+            is_crit = True
+        elif attack_total >= target_ac:
+            is_crit = False
+        else:
+            debug(f"Player miss: {attack_total} vs AC {target_ac}")
+            self.log_event(f"You miss {target.name}.")
+            return False
+        
+        # Calculate damage: ability modifier + weapon dice
+        weapon_damage = 0
+        if self.player.equipment.get('weapon'):
+            weapon_name = self.player.equipment['weapon']
+            from app.data.loader import get_item_template_by_name
+            weapon_template = get_item_template_by_name(weapon_name)
+            if weapon_template and 'damage' in weapon_template:
+                damage_str = weapon_template['damage']
+                try:
+                    if 'd' in damage_str:
+                        num_dice, die_size = damage_str.split('d')
+                        num_dice = int(num_dice)
+                        die_size = int(die_size)
+                        # Double dice on critical hit
+                        if is_crit:
+                            num_dice *= 2
+                        weapon_damage = sum(random.randint(1, die_size) for _ in range(num_dice))
+                    else:
+                        weapon_damage = int(damage_str)
+                        if is_crit:
+                            weapon_damage *= 2
+                except (ValueError, AttributeError):
+                    debug(f"Could not parse weapon damage: {damage_str}")
+                    weapon_damage = 2
+        
+        # D&D 5e: damage = weapon dice + ability modifier (only once, even on crit)
+        total_damage = max(1, weapon_damage + str_modifier)
+        
+        if is_crit:
+            debug(f"Player critical hit {target.name}: weapon={weapon_damage}, STR={str_modifier} = {total_damage} damage")
+            self.log_event(f"Critical hit! You strike {target.name} for {total_damage} dmg!")
+        else:
+            debug(f"Player hit {target.name}: weapon={weapon_damage}, STR={str_modifier} = {total_damage} damage")
+            self.log_event(f"You hit {target.name} for {total_damage} dmg.")
 
-        is_dead = target.take_damage(damage)
+        is_dead = target.take_damage(total_damage)
         if is_dead:
             self.handle_entity_death(target)
             self.log_event(f"{target.name} is defeated!")
@@ -512,23 +650,58 @@ class Engine:
         return is_dead
     
     def handle_entity_attack(self, entity: Entity) -> bool:
-        """Handle entity attacking the player."""
-        # Calculate defense using proper D&D modifier
-        player_defense = (self.player.stats.get('CON', 10) - 10) // 2
-        damage = max(1, entity.attack - player_defense)
+        """Handle entity attacking the player using D&D 5e-style mechanics."""
+        import random
         
-        # Apply armor if equipped
+        # D&D 5e: Attack roll = d20 + attack modifier
+        # Entity attack stat represents their attack bonus
+        attack_roll = random.randint(1, 20)
+        attack_total = attack_roll + entity.attack
+        
+        # Player AC = 10 + DEX modifier + armor bonus
+        dex_modifier = (self.player.stats.get('DEX', 10) - 10) // 2
+        
+        # Base AC from DEX
+        player_ac = 10 + dex_modifier
+        
+        # Add armor AC bonus if equipped
         if self.player.equipment.get('armor'):
-            armor = self.player.equipment['armor']
-            if '(+' in armor and 'DEF)' in armor:
-                try:
-                    defense_bonus = int(armor.split('(+')[1].split(' DEF)')[0])
-                    damage = max(1, damage - defense_bonus)
-                except (ValueError, IndexError):
-                    pass
+            armor_name = self.player.equipment['armor']
+            from app.data.loader import get_item_template_by_name
+            armor_template = get_item_template_by_name(armor_name)
+            if armor_template and 'defense_bonus' in armor_template:
+                player_ac += armor_template['defense_bonus']
         
-        debug(f"{entity.name} attacks player for {damage} damage")
-        self.log_event(f"{entity.name} hits you for {damage} dmg.")
+        # Critical hit on natural 20, auto-miss on natural 1
+        if attack_roll == 1:
+            debug(f"{entity.name} critical miss vs player")
+            self.log_event(f"{entity.name} misses you!")
+            return False
+        elif attack_roll == 20:
+            debug(f"{entity.name} critical hit vs player!")
+            is_crit = True
+        elif attack_total >= player_ac:
+            is_crit = False
+        else:
+            debug(f"{entity.name} miss: {attack_total} vs AC {player_ac}")
+            self.log_event(f"{entity.name} misses you.")
+            return False
+        
+        # D&D 5e: Monster damage is typically a fixed die roll
+        # We'll use the entity's base attack as a damage modifier
+        base_damage = max(1, entity.attack // 2)  # Convert attack bonus to damage
+        if is_crit:
+            base_damage *= 2
+        
+        damage = base_damage
+        
+        if is_crit:
+            debug(f"{entity.name} critical hit player: {damage} damage")
+            self.log_event(f"Critical hit! {entity.name} strikes you for {damage} dmg!")
+        else:
+            debug(f"{entity.name} hits player: {damage} damage")
+            self.log_event(f"{entity.name} hits you for {damage} dmg.")
+        
         is_dead = self.player.take_damage(damage)
         if is_dead:
             self.log_event("You have been slain!")

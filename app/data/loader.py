@@ -6,7 +6,7 @@ from typing import Dict, List, Any, Optional
 from debugtools import debug, log_exception
 
 DATA_DIR = "data"
-ENTITY_FILE = os.path.join(DATA_DIR, "entities.json")
+ENTITY_FILE = os.path.join(DATA_DIR, "monsters.json")
 ITEM_FILE = os.path.join(DATA_DIR, "items.json")
 
 # Global dictionaries to hold loaded data
