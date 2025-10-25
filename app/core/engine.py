@@ -572,41 +572,69 @@ class Engine:
         return False
     
     def handle_player_attack(self, target: Entity) -> bool:
-        """Handle player attacking an entity."""
-        # Calculate base attack using STR modifier
+        """Handle player attacking an entity using D&D 5e-style mechanics."""
+        import random
+        
+        # D&D 5e: Attack roll = d20 + ability modifier + proficiency bonus
         str_modifier = (self.player.stats.get('STR', 10) - 10) // 2
+        proficiency_bonus = 2 + (self.player.level - 1) // 4  # D&D 5e proficiency progression
         
-        # Base damage starts with STR modifier
-        base_damage = max(1, str_modifier + 1)  # At least 1 damage
+        attack_roll = random.randint(1, 20)
+        attack_total = attack_roll + str_modifier + proficiency_bonus
         
-        # Add weapon damage if equipped
+        # Target AC = 10 + defense (simplified from D&D 5e)
+        target_ac = 10 + target.defense
+        
+        # Critical hit on natural 20, auto-miss on natural 1
+        if attack_roll == 1:
+            debug(f"Player critical miss vs {target.name}")
+            self.log_event(f"You miss {target.name} badly!")
+            return False
+        elif attack_roll == 20:
+            debug(f"Player critical hit vs {target.name}!")
+            # Critical hits deal double damage dice
+            is_crit = True
+        elif attack_total >= target_ac:
+            is_crit = False
+        else:
+            debug(f"Player miss: {attack_total} vs AC {target_ac}")
+            self.log_event(f"You miss {target.name}.")
+            return False
+        
+        # Calculate damage: ability modifier + weapon dice
         weapon_damage = 0
         if self.player.equipment.get('weapon'):
             weapon_name = self.player.equipment['weapon']
-            # Try to look up weapon data
             from app.data.loader import get_item_template_by_name
             weapon_template = get_item_template_by_name(weapon_name)
             if weapon_template and 'damage' in weapon_template:
-                # Parse damage dice (e.g., "1d8", "2d4")
                 damage_str = weapon_template['damage']
                 try:
-                    import random
                     if 'd' in damage_str:
                         num_dice, die_size = damage_str.split('d')
                         num_dice = int(num_dice)
                         die_size = int(die_size)
+                        # Double dice on critical hit
+                        if is_crit:
+                            num_dice *= 2
                         weapon_damage = sum(random.randint(1, die_size) for _ in range(num_dice))
                     else:
                         weapon_damage = int(damage_str)
+                        if is_crit:
+                            weapon_damage *= 2
                 except (ValueError, AttributeError):
                     debug(f"Could not parse weapon damage: {damage_str}")
-                    weapon_damage = 2  # Default weapon damage
+                    weapon_damage = 2
         
-        # Total damage = base + weapon - target defense
-        total_damage = max(1, base_damage + weapon_damage - target.defense)
+        # D&D 5e: damage = weapon dice + ability modifier (only once, even on crit)
+        total_damage = max(1, weapon_damage + str_modifier)
         
-        debug(f"Player attacks {target.name}: STR={str_modifier}, weapon={weapon_damage}, vs DEF={target.defense} = {total_damage} damage")
-        self.log_event(f"You hit {target.name} for {total_damage} dmg.")
+        if is_crit:
+            debug(f"Player critical hit {target.name}: weapon={weapon_damage}, STR={str_modifier} = {total_damage} damage")
+            self.log_event(f"Critical hit! You strike {target.name} for {total_damage} dmg!")
+        else:
+            debug(f"Player hit {target.name}: weapon={weapon_damage}, STR={str_modifier} = {total_damage} damage")
+            self.log_event(f"You hit {target.name} for {total_damage} dmg.")
 
         is_dead = target.take_damage(total_damage)
         if is_dead:
@@ -622,29 +650,58 @@ class Engine:
         return is_dead
     
     def handle_entity_attack(self, entity: Entity) -> bool:
-        """Handle entity attacking the player."""
-        # Calculate base defense using CON modifier
-        con_modifier = (self.player.stats.get('CON', 10) - 10) // 2
+        """Handle entity attacking the player using D&D 5e-style mechanics."""
+        import random
         
-        # Base defense from CON
-        base_defense = con_modifier
+        # D&D 5e: Attack roll = d20 + attack modifier
+        # Entity attack stat represents their attack bonus
+        attack_roll = random.randint(1, 20)
+        attack_total = attack_roll + entity.attack
         
-        # Add armor defense if equipped
-        armor_defense = 0
+        # Player AC = 10 + DEX modifier + armor bonus
+        dex_modifier = (self.player.stats.get('DEX', 10) - 10) // 2
+        
+        # Base AC from DEX
+        player_ac = 10 + dex_modifier
+        
+        # Add armor AC bonus if equipped
         if self.player.equipment.get('armor'):
             armor_name = self.player.equipment['armor']
-            # Try to look up armor data
             from app.data.loader import get_item_template_by_name
             armor_template = get_item_template_by_name(armor_name)
             if armor_template and 'defense_bonus' in armor_template:
-                armor_defense = armor_template['defense_bonus']
+                player_ac += armor_template['defense_bonus']
         
-        # Calculate damage: entity attack - (player defense + armor)
-        total_defense = base_defense + armor_defense
-        damage = max(1, entity.attack - total_defense)
+        # Critical hit on natural 20, auto-miss on natural 1
+        if attack_roll == 1:
+            debug(f"{entity.name} critical miss vs player")
+            self.log_event(f"{entity.name} misses you!")
+            return False
+        elif attack_roll == 20:
+            debug(f"{entity.name} critical hit vs player!")
+            is_crit = True
+        elif attack_total >= player_ac:
+            is_crit = False
+        else:
+            debug(f"{entity.name} miss: {attack_total} vs AC {player_ac}")
+            self.log_event(f"{entity.name} misses you.")
+            return False
         
-        debug(f"{entity.name} attacks player: ATK={entity.attack} vs DEF={total_defense} (CON={con_modifier}, armor={armor_defense}) = {damage} damage")
-        self.log_event(f"{entity.name} hits you for {damage} dmg.")
+        # D&D 5e: Monster damage is typically a fixed die roll
+        # We'll use the entity's base attack as a damage modifier
+        base_damage = max(1, entity.attack // 2)  # Convert attack bonus to damage
+        if is_crit:
+            base_damage *= 2
+        
+        damage = base_damage
+        
+        if is_crit:
+            debug(f"{entity.name} critical hit player: {damage} damage")
+            self.log_event(f"Critical hit! {entity.name} strikes you for {damage} dmg!")
+        else:
+            debug(f"{entity.name} hits player: {damage} damage")
+            self.log_event(f"{entity.name} hits you for {damage} dmg.")
+        
         is_dead = self.player.take_damage(damage)
         if is_dead:
             self.log_event("You have been slain!")

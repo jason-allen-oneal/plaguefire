@@ -196,8 +196,8 @@
     "depth": 150
   },
   {
-    "id": "BALROG",
-    "name": "The Balrog",
+    "id": "INFERNAL_LORD",
+    "name": "Infernal Lord",
     "char": "B",
     "hp_base": 300,
     "hp_per_level": 20,
@@ -5102,8 +5102,8 @@
     "depth": 200
   },
   {
-    "id": "UMBER_HULK",
-    "name": "Umber Hulk",
+    "id": "TUNNELING_HORROR",
+    "name": "Tunneling Horror",
     "char": "U",
     "hp_base": 60,
     "hp_per_level": 9,
@@ -5117,7 +5117,7 @@
     "gold_min_mult": 30,
     "gold_max_mult": 80,
     "drops": {
-      "UMBER_HULK_EYE": 15
+      "TUNNELING_HORROR_CLAW": 15
     },
     "depth": 425
   },
