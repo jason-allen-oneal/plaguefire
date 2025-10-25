@@ -1097,8 +1097,8 @@
     "depth": 150
   },
   {
-    "id": "CUBE_GELATINOUS",
-    "name": "Gelatinous Cube",
+    "id": "OOZE_ACIDIC",
+    "name": "Acidic Ooze",
     "char": "C",
     "hp_base": 30,
     "hp_per_level": 5,
@@ -5122,8 +5122,8 @@
     "depth": 425
   },
   {
-    "id": "URUK_HAI_ORC",
-    "name": "Uruk-Hai Orc",
+    "id": "ORC_ELITE_WARRIOR",
+    "name": "Elite Orc Warrior",
     "char": "o",
     "hp_base": 12,
     "hp_per_level": 3,
