@@ -217,8 +217,66 @@ class Engine:
         # --- Use item logic --- (omitted for brevity, keep your existing logic)
          if not (0 <= item_index < len(self.player.inventory)): return False
          item_name = self.player.inventory[item_index]
-         # success, message = self.player.use_item(item_name) # Assuming method exists
-         success, message = False, f"Using {item_name} not implemented." # Placeholder
+         
+         # Check if it's a scroll
+         if "Scroll" in item_name:
+             success, message, spell_data = self.player.use_scroll(item_name)
+             self.log_event(message)
+             
+             if success and spell_data:
+                 # Remove scroll from inventory
+                 self.player.inventory.pop(item_index)
+                 
+                 # Apply spell effects (similar to cast_spell but without target selection for now)
+                 effect_type = spell_data.get('effect_type', 'unknown')
+                 spell_name = spell_data.get('name', 'the spell')
+                 
+                 if effect_type == 'light':
+                     radius = spell_data.get('radius', 3)
+                     duration = spell_data.get('duration', 50)
+                     self.player.light_radius = max(self.player.light_radius, radius)
+                     self.player.light_duration = max(self.player.light_duration, duration)
+                     self.update_fov()
+                 elif effect_type == 'detect':
+                     self._handle_detection_spell(spell_data)
+                 elif effect_type == 'teleport':
+                     max_range = spell_data.get('range', 10)
+                     if max_range > 1000:
+                         self.log_event("You begin to recall...")
+                     else:
+                         self._handle_teleport_spell(max_range)
+                 elif effect_type == 'heal':
+                     heal_amount = spell_data.get('heal_amount', 0)
+                     if heal_amount > 0:
+                         amount_healed = self.player.heal(heal_amount)
+                         self.log_event(f"You feel better. (+{amount_healed} HP)")
+                 elif effect_type == 'buff':
+                     status = spell_data.get('status', 'Buffed')
+                     duration = spell_data.get('duration', 20)
+                     self.player.status_manager.add_effect(status, duration)
+                     self.log_event(f"You feel {spell_data.get('description', 'different')}.")
+                 elif effect_type == 'cleanse':
+                     status_to_remove = spell_data.get('status', 'Cursed')
+                     if self.player.status_manager.remove_effect(status_to_remove):
+                         self.log_event(f"The {status_to_remove} effect is removed!")
+                     else:
+                         self.log_event(f"Nothing happens.")
+                 # Note: attack and debuff scrolls would need target selection
+                 
+                 self._end_player_turn()
+                 return True
+             elif success:
+                 # Scroll used but no spell data (custom effect scrolls)
+                 self.player.inventory.pop(item_index)
+                 self._end_player_turn()
+                 return True
+             else:
+                 # Scroll failed (shouldn't happen normally)
+                 self._end_player_turn()
+                 return False
+         
+         # Placeholder for other items
+         success, message = False, f"Using {item_name} not implemented."
          if success: self.log_event(message); self._end_player_turn(); return True
          else: self.log_event(message); return False
 

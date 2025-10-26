@@ -724,3 +724,50 @@ class Player:
         
         return True, f"You cast {spell_name}!", spell_data
 
+    def use_scroll(self, scroll_name: str) -> Tuple[bool, str, Optional[Dict]]:
+        """
+        Use a scroll to cast a spell without mana cost or failure chance.
+        
+        Args:
+            scroll_name: Name of the scroll item
+            
+        Returns:
+            (success, message, spell_data) - similar to cast_spell
+        """
+        # Map scroll names to spell IDs
+        scroll_to_spell_map = {
+            "Scroll of Identify": "identify",
+            "Scroll of Magic Missile": "magic_missile",
+            "Scroll of Blessing": "bless",
+            "Scroll of Light": "light",
+            "Scroll of Darkness": None,  # Custom effect, not a spell
+            "Scroll of Phase Door": "phase_door",
+            "Scroll of Teleport": "teleport",
+            "Scroll of Word of Recall": "word_of_recall",
+            "Scroll of Detect Monsters": "detect_monsters",
+            "Scroll of Detect Traps": "detect_traps",
+            "Scroll of Remove Curse": "remove_curse",
+        }
+        
+        spell_id = scroll_to_spell_map.get(scroll_name)
+        
+        if spell_id is None:
+            # Scroll has a custom effect, not a spell
+            return False, f"The {scroll_name} crumbles but nothing happens.", None
+        
+        # Check if scroll maps to a valid spell
+        data_loader = GameData()
+        spell_data = data_loader.get_spell(spell_id)
+        
+        if not spell_data:
+            return False, f"The {scroll_name} crumbles but nothing happens.", None
+        
+        spell_name = spell_data.get("name", "a spell")
+        
+        # Scrolls always succeed (no failure chance) and don't cost mana
+        # Grant minimal XP for using scroll (less than casting)
+        xp_gain = 1
+        self.gain_xp(xp_gain)
+        
+        return True, f"You read the {scroll_name}! {spell_name} activates!", spell_data
+
