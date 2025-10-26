@@ -296,26 +296,50 @@ class Engine:
              self._end_player_turn()
              return True
          
-         # Placeholder for other items
-         success, message = False, f"Using {item_name} not implemented."
-         if success: self.log_event(message); self._end_player_turn(); return True
-         else: self.log_event(message); return False
+         # Check if it's a potion
+         if "Potion" in item_name:
+             success = self._use_potion(item_name)
+             if success:
+                 self.player.inventory.pop(item_index)
+                 self._end_player_turn()
+                 return True
+             else:
+                 return False
+         
+         # Check if it's food
+         if "Food" in item_name or "Ration" in item_name:
+             success = self._use_food(item_name)
+             if success:
+                 self.player.inventory.pop(item_index)
+                 self._end_player_turn()
+                 return True
+             else:
+                 return False
+         
+         # Unknown/unimplemented item type
+         self.log_event(f"You can't use {item_name} that way.")
+         return False
 
     def handle_equip_item(self, item_index: int) -> bool:
-        # --- Equip item logic --- (omitted for brevity, keep your existing logic)
-        if not (0 <= item_index < len(self.player.inventory)): return False
+        """Equip an item from inventory."""
+        if not (0 <= item_index < len(self.player.inventory)): 
+            return False
         item_name = self.player.inventory[item_index]
-        # success, message = self.player.equip(item_name) # Assuming method exists
-        success, message = False, f"Equipping {item_name} not implemented." # Placeholder
-        if success: self.log_event(message); self._end_player_turn(); return True
-        else: self.log_event(message); return False
+        success = self.player.equip(item_name)
+        if success: 
+            self._end_player_turn()
+            return True
+        else: 
+            return False
 
     def handle_unequip_item(self, slot: str) -> bool:
-        # --- Unequip item logic --- (omitted for brevity, keep your existing logic)
-        # success, message = self.player.unequip(slot) # Assuming method exists
-        success, message = False, f"Unequipping {slot} not implemented." # Placeholder
-        if success: self.log_event(message); self._end_player_turn(); return True
-        else: self.log_event(message); return False
+        """Unequip an item from equipment slot."""
+        success = self.player.unequip(slot)
+        if success: 
+            self._end_player_turn()
+            return True
+        else: 
+            return False
 
     def handle_cast_spell(self, spell_id: str, target_entity: Optional[Entity] = None) -> bool:
         # --- Cast spell logic --- (omitted for brevity, keep your existing logic)
@@ -377,8 +401,17 @@ class Engine:
             elif effect_type == 'detect': self._handle_detection_spell(spell_data)
             elif effect_type == 'teleport':
                 max_range = spell_data.get('range', 10)
-                if max_range > 1000: self.log_event("You begin to recall...") # Word of Recall placeholder
-                else: self._handle_teleport_spell(max_range)
+                if max_range > 1000:
+                    # Word of Recall - teleport to town
+                    if self.player.depth > 0:
+                        self.log_event("You begin to recall to the surface...")
+                        # In a full implementation, this would trigger a map change to town
+                        # For now, just provide feedback
+                        self.log_event("The spell completes, but the magic fades. (Return to stairs to exit)")
+                    else:
+                        self.log_event("You are already in town!")
+                else:
+                    self._handle_teleport_spell(max_range)
             elif effect_type == 'heal':
                 heal_amount = spell_data.get('heal_amount', 0)
                 if heal_amount > 0: amount_healed = self.player.heal(heal_amount); self.log_event(f"You feel better. (+{amount_healed} HP)")
@@ -435,6 +468,181 @@ class Engine:
                 self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny)):
                 self.player.position = [nx, ny]; self.log_event("Phase through space!"); self.update_fov(); return
         self.log_event("Teleport fails!")
+
+    def _use_potion(self, potion_name: str) -> bool:
+        """Handle potion consumption with various effects."""
+        data_loader = GameData()
+        item_data = data_loader.get_item_by_name(potion_name)
+        
+        if not item_data:
+            self.log_event(f"Unknown potion: {potion_name}")
+            return False
+        
+        effect = item_data.get('effect')
+        if not effect or not isinstance(effect, list) or len(effect) == 0:
+            self.log_event(f"You drink {potion_name}. Nothing happens.")
+            return True
+        
+        effect_type = effect[0]
+        
+        # Healing potions
+        if effect_type == 'heal':
+            heal_amount = effect[1] if len(effect) > 1 else 10
+            amount_healed = self.player.heal(heal_amount)
+            self.log_event(f"You drink {potion_name}. (+{amount_healed} HP)")
+            return True
+        
+        # Mana restoration
+        elif effect_type == 'restore_mana':
+            mana_amount = effect[1] if len(effect) > 1 else 20
+            amount_restored = self.player.restore_mana(mana_amount)
+            self.log_event(f"You drink {potion_name}. (+{amount_restored} mana)")
+            return True
+        
+        # Status effects (negative)
+        elif effect_type == 'status':
+            status_name = effect[1] if len(effect) > 1 else 'Unknown'
+            duration = effect[2] if len(effect) > 2 else 10
+            self.player.status_manager.add_effect(status_name.capitalize(), duration)
+            self.log_event(f"You drink {potion_name}. You feel {status_name}!")
+            return True
+        
+        # Buffs (positive effects)
+        elif effect_type == 'buff':
+            if len(effect) >= 3:
+                # Stat buff: ['buff', 'CHA', bonus, duration]
+                stat_name = effect[1]
+                bonus = effect[2] if len(effect) > 2 else 1
+                duration = effect[3] if len(effect) > 3 else 30
+                buff_name = f"{stat_name}_buff"
+                self.player.status_manager.add_effect(buff_name, duration)
+                self.log_event(f"You drink {potion_name}. You feel enhanced!")
+            else:
+                # Named buff: ['buff', 'bold', duration]
+                buff_name = effect[1] if len(effect) > 1 else 'Buffed'
+                duration = effect[2] if len(effect) > 2 else 30
+                self.player.status_manager.add_effect(buff_name.capitalize(), duration)
+                self.log_event(f"You drink {potion_name}. You feel {buff_name}!")
+            return True
+        
+        # Debuffs
+        elif effect_type == 'debuff':
+            debuff_name = effect[1] if len(effect) > 1 else 'Weakened'
+            duration = effect[3] if len(effect) > 3 else 20
+            self.player.status_manager.add_effect(debuff_name.capitalize(), duration)
+            self.log_event(f"You drink {potion_name}. You feel {debuff_name}!")
+            return True
+        
+        # Permanent stat increases
+        elif effect_type == 'perm_stat_increase':
+            stat_name = effect[1] if len(effect) > 1 else 'STR'
+            increase = effect[2] if len(effect) > 2 else 1
+            if stat_name in self.player.stats:
+                self.player.stats[stat_name] += increase
+                self.log_event(f"You drink {potion_name}. Your {stat_name} increases!")
+            return True
+        
+        # Temporary stat drain
+        elif effect_type == 'temp_stat_drain':
+            stat_name = effect[1] if len(effect) > 1 else 'STR'
+            drain = effect[2] if len(effect) > 2 else 1
+            duration = effect[3] if len(effect) > 3 else 50
+            debuff_name = f"{stat_name}_drain"
+            self.player.status_manager.add_effect(debuff_name, duration)
+            self.log_event(f"You drink {potion_name}. Your {stat_name} feels drained!")
+            return True
+        
+        # Restore stat (removes drain)
+        elif effect_type == 'restore_stat':
+            stat_name = effect[1] if len(effect) > 1 else 'STR'
+            # Remove any stat drain effects
+            debuff_name = f"{stat_name}_drain"
+            if self.player.status_manager.remove_effect(debuff_name):
+                self.log_event(f"You drink {potion_name}. Your {stat_name} is restored!")
+            else:
+                self.log_event(f"You drink {potion_name}. Nothing happens.")
+            return True
+        
+        # Cure status condition
+        elif effect_type == 'cure_status':
+            status_to_cure = effect[1] if len(effect) > 1 else 'poisoned'
+            if self.player.status_manager.remove_effect(status_to_cure.capitalize()):
+                self.log_event(f"You drink {potion_name}. The {status_to_cure} is cured!")
+            else:
+                self.log_event(f"You drink {potion_name}. Nothing happens.")
+            return True
+        
+        # Experience gain/loss
+        elif effect_type == 'gain_xp':
+            xp_amount = effect[1] if len(effect) > 1 else 100
+            self.player.gain_xp(xp_amount)
+            self.log_event(f"You drink {potion_name}. You gain knowledge! (+{xp_amount} XP)")
+            return True
+        
+        elif effect_type == 'lose_xp':
+            xp_loss = effect[1] if len(effect) > 1 else 50
+            self.player.xp = max(0, self.player.xp - xp_loss)
+            self.log_event(f"You drink {potion_name}. You feel less experienced! (-{xp_loss} XP)")
+            return True
+        
+        # Satiation (food value)
+        elif effect_type == 'satiate':
+            # This would affect a hunger system if implemented
+            satiate_value = effect[1] if len(effect) > 1 else 10
+            if satiate_value > 0:
+                self.log_event(f"You drink {potion_name}. Refreshing!")
+            else:
+                self.log_event(f"You drink {potion_name}. It makes you thirsty!")
+            return True
+        
+        # Special effects
+        elif effect_type == 'restore_level':
+            # Restore drained experience levels (placeholder)
+            self.log_event(f"You drink {potion_name}. Your life force is restored!")
+            return True
+        
+        elif effect_type == 'slow_poison':
+            # Slow poison effect
+            if self.player.status_manager.has_effect('Poisoned'):
+                self.log_event(f"You drink {potion_name}. The poison slows down.")
+            else:
+                self.log_event(f"You drink {potion_name}. Nothing happens.")
+            return True
+        
+        # Unknown effect
+        else:
+            self.log_event(f"You drink {potion_name}. Strange sensations!")
+            return True
+    
+    def _use_food(self, food_name: str) -> bool:
+        """Handle food consumption."""
+        data_loader = GameData()
+        item_data = data_loader.get_item_by_name(food_name)
+        
+        if not item_data:
+            self.log_event(f"Unknown food: {food_name}")
+            return False
+        
+        # Food primarily restores satiation and may have minor healing
+        effect = item_data.get('effect')
+        if effect and isinstance(effect, list) and len(effect) > 0:
+            effect_type = effect[0]
+            
+            if effect_type == 'satiate':
+                satiate_value = effect[1] if len(effect) > 1 else 50
+                self.log_event(f"You eat {food_name}. That was satisfying!")
+                return True
+            
+            elif effect_type == 'heal':
+                heal_amount = effect[1] if len(effect) > 1 else 5
+                amount_healed = self.player.heal(heal_amount)
+                self.log_event(f"You eat {food_name}. (+{amount_healed} HP)")
+                return True
+        
+        # Default food behavior
+        self.log_event(f"You eat {food_name}. Tasty!")
+        return True
+
 
     def get_entity_at(self, x: int, y: int) -> Optional[Entity]:
         # --- Get entity logic --- (omitted for brevity, keep your existing logic)
