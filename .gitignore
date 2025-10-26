@@ -48,6 +48,7 @@ logs/
 *.tmp
 savegames/
 sessions/
+saves/
 
 # Byte-compiled files
 *.pyc

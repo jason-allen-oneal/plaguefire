@@ -1,10 +1,10 @@
-# Rogue - A Terminal-based Roguelike RPG
+# Plaguefire - A Terminal-based Roguelike RPG
 
 A classic roguelike dungeon crawler built with Python and Textual, featuring procedurally generated dungeons, strategic combat, magic systems, and character progression.
 
 ## Overview
 
-Rogue is a traditional roguelike game where players explore procedurally generated dungeons, battle monsters, collect loot, and develop their character through multiple classes and spell systems. The game features a rich terminal-based UI built with Textual, offering both classic ASCII aesthetics and modern interface elements.
+Plaguefire is a traditional roguelike game where players explore procedurally generated dungeons, battle monsters, collect loot, and develop their character through multiple classes and spell systems. The game features a rich terminal-based UI built with Textual, offering both classic ASCII aesthetics and modern interface elements.
 
 ## Features
 
@@ -182,12 +182,3 @@ Built with:
 - [Textual](https://textual.textualize.io/) - Terminal UI framework
 - [Rich](https://rich.readthedocs.io/) - Terminal formatting
 - [Pygame](https://www.pygame.org/) - Sound effects
-
-## Changelog
-
-### Current Version
-- Restructured project with modular lib/ directory
-- Implemented confusion status effect on spell failure
-- Comprehensive inline documentation
-- Enhanced testing coverage
-- Improved code organization and maintainability
