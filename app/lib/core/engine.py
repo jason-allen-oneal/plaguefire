@@ -401,8 +401,17 @@ class Engine:
             elif effect_type == 'detect': self._handle_detection_spell(spell_data)
             elif effect_type == 'teleport':
                 max_range = spell_data.get('range', 10)
-                if max_range > 1000: self.log_event("You begin to recall...") # Word of Recall placeholder
-                else: self._handle_teleport_spell(max_range)
+                if max_range > 1000:
+                    # Word of Recall - teleport to town
+                    if self.player.depth > 0:
+                        self.log_event("You begin to recall to the surface...")
+                        # In a full implementation, this would trigger a map change to town
+                        # For now, just provide feedback
+                        self.log_event("The spell completes, but the magic fades. (Return to stairs to exit)")
+                    else:
+                        self.log_event("You are already in town!")
+                else: 
+                    self._handle_teleport_spell(max_range)
             elif effect_type == 'heal':
                 heal_amount = spell_data.get('heal_amount', 0)
                 if heal_amount > 0: amount_healed = self.player.heal(heal_amount); self.log_event(f"You feel better. (+{amount_healed} HP)")
