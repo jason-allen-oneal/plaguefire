@@ -20,6 +20,7 @@ class GameScreen(Screen):
         ("t", "take_off_item", "Take Off"),
         ("q", "quaff_potion", "Quaff"),
         ("E", "eat_food", "Eat"),
+        ("m", "cast_spell", "Cast Spell"),
         ("l", "look_around", "Look"),
         ("o", "open_door", "Open"),
         ("c", "close_door", "Close"),
@@ -166,6 +167,24 @@ class GameScreen(Screen):
             self.notify("No player data available.", severity="warning")
             return
         self.app.push_screen("inventory")
+
+    def action_cast_spell(self):
+        """Open the spell casting screen."""
+        if not getattr(self.app, "player", None):
+            self.notify("No player data available.", severity="warning")
+            return
+        
+        # Check if player has mana stat (i.e., can cast spells)
+        if not self.app.player.mana_stat:
+            self.notify("Warriors cannot cast spells!", severity="warning")
+            return
+        
+        # Check if player knows any spells
+        if not self.app.player.known_spells:
+            self.notify("You don't know any spells yet.", severity="info")
+            return
+        
+        self.app.push_screen("cast_spell")
 
     def action_equip_item(self):
         if self._equip_first_available():

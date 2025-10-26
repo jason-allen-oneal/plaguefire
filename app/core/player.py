@@ -548,7 +548,7 @@ class Player:
             # --- Check for spells BEFORE applying other level up benefits ---
             if self._check_for_new_spells(self.level):
                  new_spells_available = True # Flag that choices are pending
-            self._on_level_up_stats() # Apply stat/hp/mana gains
+            self._on_level_up() # Apply stat/hp/mana gains
             leveled_up = True
 
         if leveled_up: debug(f"{self.name} reached level {self.level}!")
@@ -583,9 +583,9 @@ class Player:
         self._check_for_new_spells(self.level)
 
     # --- RENAMED & UPDATED: Populates choices instead of auto-learning ---
-    def _check_for_new_spells(self, check_level: int):
-        """Finds spells available at check_level and adds them to spells_available_to_learn."""
-        if not self.mana_stat: return # Warriors don't learn spells
+    def _check_for_new_spells(self, check_level: int) -> bool:
+        """Finds spells available at check_level and adds them to spells_available_to_learn. Returns True if new spells were added."""
+        if not self.mana_stat: return False # Warriors don't learn spells
             
         data_loader = GameData()
         newly_available = []
@@ -601,8 +601,8 @@ class Player:
         if newly_available:
             self.spells_available_to_learn.extend(newly_available)
             debug(f"Level {check_level}! Spells available to learn: {', '.join(newly_available)}")
-            # The game engine/UI will need to check self.spells_available_to_learn
-            # and present the choice to the player.
+            return True
+        return False
 
     def _get_modifier(self, stat_name: str) -> int:
         score = self.stats.get(stat_name, 10)
