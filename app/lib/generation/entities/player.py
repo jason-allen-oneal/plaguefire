@@ -486,8 +486,17 @@ class Player:
         self.next_level_xp: int = data.get("next_level_xp", self._xp_threshold_for_level(self.level))
         self.gold: int = data.get("gold", generated_profile["starting_gold"] if generated_profile else 0)
 
-        self.inventory: List[str] = data.get("inventory", [])
-        self.equipment: Dict[str, Optional[str]] = data.get("equipment", {"weapon": None, "armor": None})
+        self.inventory_manager: InventoryManager = InventoryManager.from_dict(data.get("inventory_manager", {}))
+
+        # For backward compatibility, populate inventory manager from old format if needed
+        if not data.get("inventory_manager") and "inventory" in data:
+            for item_name in data.get("inventory", []):
+                self.inventory_manager.add_item(item_name)
+            for slot, item_name in data.get("equipment", {}).items():
+                if item_name:
+                    # This is a bit tricky as we need to create an instance to equip
+                    # This part of the logic will need to be more robust
+                    pass
 
         race_def = get_race_definition(self.race)
         con_modifier = self._get_modifier("CON")
@@ -674,39 +683,25 @@ class Player:
         Returns:
             True if successfully equipped
         """
-        if item_name not in self.inventory:
+        # Find the instance in the inventory manager
+        instances = self.inventory_manager.get_instances_by_name(item_name)
+        if not instances:
             debug(f"Cannot equip {item_name} - not in inventory")
             return False
         
-        # Determine slot from item data
-        data_loader = GameData()
-        item_data = data_loader.get_item_by_name(item_name)
-        if not item_data:
-            debug(f"Cannot equip {item_name} - item not found in database")
-            return False
+        instance_to_equip = instances[0]
         
-        slot = item_data.get("slot")
-        if not slot:
-            debug(f"Cannot equip {item_name} - item has no equipment slot")
-            return False
+        # Use the inventory manager to equip the instance
+        success, message = self.inventory_manager.equip_instance(instance_to_equip.instance_id)
         
-        # Unequip current item in slot if any
-        if self.equipment.get(slot):
-            self.unequip(slot)
-        
-        # Move item from inventory to equipment
-        self.inventory.remove(item_name)
-        self.equipment[slot] = item_name
-        
-        # Apply item effects
-        self._apply_item_effects(item_name, equipping=True)
-        
-        # Check if cursed (player immediately knows when they equip it)
-        if self.is_item_cursed(item_name):
-            debug(f"You feel a weight settle on you as you equip {item_name}...")
-        
-        debug(f"Equipped {item_name} in {slot} slot")
-        return True
+        if success:
+            # Apply item effects
+            self._apply_item_effects(item_name, equipping=True)
+            debug(f"Equipped {item_name} in {instance_to_equip.slot} slot")
+        else:
+            debug(message)
+
+        return success
     
     def unequip(self, slot: str) -> bool:
         """
@@ -719,30 +714,17 @@ class Player:
         Returns:
             True if successfully unequipped
         """
-        item_name = self.equipment.get(slot)
-        if not item_name:
-            debug(f"No item equipped in {slot} slot")
-            return False
+        success, message = self.inventory_manager.unequip_slot(slot)
         
-        # Check if item is cursed
-        if self.is_item_cursed(item_name):
-            debug(f"Cannot unequip {item_name} - it's cursed! You need Remove Curse.")
-            return False
-        
-        # Check if inventory has space
-        if len(self.inventory) >= 22:
-            debug(f"Cannot unequip {item_name} - inventory is full")
-            return False
-        
-        # Move item from equipment to inventory
-        self.equipment[slot] = None
-        self.inventory.append(item_name)
-        
-        # Remove item effects
-        self._apply_item_effects(item_name, equipping=False)
-        
-        debug(f"Unequipped {item_name} from {slot} slot")
-        return True
+        if success:
+            # Remove item effects
+            item_name = message.split(" ")[-1] # A bit hacky, but works for now
+            self._apply_item_effects(item_name, equipping=False)
+            debug(f"Unequipped {item_name} from {slot} slot")
+        else:
+            debug(message)
+
+        return success
 
     def remove_curse_from_equipment(self) -> List[str]:
         """
@@ -774,7 +756,8 @@ class Player:
             "history": self.history, "social_class": self.social_class, "height": self.height, "weight": self.weight,
             "abilities": self.abilities, "hp": self.hp, "max_hp": self.max_hp, "mana": self.mana, "max_mana": self.max_mana,
             "level": self.level, "xp": self.xp, "next_level_xp": self.next_level_xp, "gold": self.gold,
-            "inventory": self.inventory, "equipment": self.equipment, "position": self.position, "depth": self.depth,
+            "inventory_manager": self.inventory_manager.to_dict(),
+            "position": self.position, "depth": self.depth,
             "deepest_depth": self.deepest_depth,  # Save deepest depth visited
             "time": self.time, "base_light_radius": self.base_light_radius, "light_radius": self.light_radius,
             "light_duration": self.light_duration, 

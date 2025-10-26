@@ -26,7 +26,7 @@ STAIRS_UP = "<"
 DOOR_CLOSED = "+"
 DOOR_OPEN = "/"
 SECRET_DOOR = "H"  # Hidden secret door (looks like wall)
-SECRET_DOOR_FOUND = "s"  # Revealed secret door
+SECRET_DOOR_FOUND = "+"  # Revealed secret door
 
 # --- Mining Tile Characters ---
 QUARTZ_VEIN = "%"  # Richest mineral vein
