@@ -638,6 +638,130 @@ class Player:
             else:
                 self.light_radius = self.base_light_radius
                 self.light_duration = 0
+    
+    def is_item_cursed(self, item_name: str) -> bool:
+        """
+        Check if an item is cursed.
+        
+        Args:
+            item_name: Name of the item to check
+            
+        Returns:
+            True if the item is cursed
+        """
+        data_loader = GameData()
+        item_data = data_loader.get_item_by_name(item_name)
+        if not item_data:
+            return False
+        
+        effect = item_data.get("effect")
+        if effect and isinstance(effect, list) and len(effect) > 0:
+            return effect[0] == "cursed"
+        return False
+    
+    def equip(self, item_name: str) -> bool:
+        """
+        Equip an item from inventory.
+        Determines slot based on item type and moves item to equipment.
+        Cursed items are immediately recognized when equipped.
+        
+        Args:
+            item_name: Name of the item to equip
+            
+        Returns:
+            True if successfully equipped
+        """
+        if item_name not in self.inventory:
+            debug(f"Cannot equip {item_name} - not in inventory")
+            return False
+        
+        # Determine slot from item data
+        data_loader = GameData()
+        item_data = data_loader.get_item_by_name(item_name)
+        if not item_data:
+            debug(f"Cannot equip {item_name} - item not found in database")
+            return False
+        
+        slot = item_data.get("slot")
+        if not slot:
+            debug(f"Cannot equip {item_name} - item has no equipment slot")
+            return False
+        
+        # Unequip current item in slot if any
+        if self.equipment.get(slot):
+            self.unequip(slot)
+        
+        # Move item from inventory to equipment
+        self.inventory.remove(item_name)
+        self.equipment[slot] = item_name
+        
+        # Apply item effects
+        self._apply_item_effects(item_name, equipping=True)
+        
+        # Check if cursed (player immediately knows when they equip it)
+        if self.is_item_cursed(item_name):
+            debug(f"You feel a weight settle on you as you equip {item_name}...")
+        
+        debug(f"Equipped {item_name} in {slot} slot")
+        return True
+    
+    def unequip(self, slot: str) -> bool:
+        """
+        Unequip an item from an equipment slot.
+        Cursed items cannot be unequipped without remove curse.
+        
+        Args:
+            slot: Equipment slot to unequip from
+            
+        Returns:
+            True if successfully unequipped
+        """
+        item_name = self.equipment.get(slot)
+        if not item_name:
+            debug(f"No item equipped in {slot} slot")
+            return False
+        
+        # Check if item is cursed
+        if self.is_item_cursed(item_name):
+            debug(f"Cannot unequip {item_name} - it's cursed! You need Remove Curse.")
+            return False
+        
+        # Check if inventory has space
+        if len(self.inventory) >= 22:
+            debug(f"Cannot unequip {item_name} - inventory is full")
+            return False
+        
+        # Move item from equipment to inventory
+        self.equipment[slot] = None
+        self.inventory.append(item_name)
+        
+        # Remove item effects
+        self._apply_item_effects(item_name, equipping=False)
+        
+        debug(f"Unequipped {item_name} from {slot} slot")
+        return True
+
+    def remove_curse_from_equipment(self) -> List[str]:
+        """
+        Remove curses from all equipped items.
+        Returns list of items that were uncursed.
+        
+        Returns:
+            List of item names that had curses removed
+        """
+        uncursed = []
+        # Note: In a full implementation, we'd track which specific instances
+        # are cursed. For now, we just identify cursed items in equipment.
+        for slot, item_name in self.equipment.items():
+            if item_name and self.is_item_cursed(item_name):
+                uncursed.append(item_name)
+        
+        # In a real implementation, we'd mark these items as no longer cursed
+        # For now, this just identifies them
+        if uncursed:
+            debug(f"Remove Curse affects: {', '.join(uncursed)}")
+        
+        return uncursed
 
     def to_dict(self) -> Dict:
         # --- UPDATED: Save active status effects ---
