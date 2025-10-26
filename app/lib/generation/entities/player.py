@@ -638,6 +638,130 @@ class Player:
             else:
                 self.light_radius = self.base_light_radius
                 self.light_duration = 0
+    
+    def is_item_cursed(self, item_name: str) -> bool:
+        """
+        Check if an item is cursed.
+        
+        Args:
+            item_name: Name of the item to check
+            
+        Returns:
+            True if the item is cursed
+        """
+        data_loader = GameData()
+        item_data = data_loader.get_item_by_name(item_name)
+        if not item_data:
+            return False
+        
+        effect = item_data.get("effect")
+        if effect and isinstance(effect, list) and len(effect) > 0:
+            return effect[0] == "cursed"
+        return False
+    
+    def equip(self, item_name: str) -> bool:
+        """
+        Equip an item from inventory.
+        Determines slot based on item type and moves item to equipment.
+        Cursed items are immediately recognized when equipped.
+        
+        Args:
+            item_name: Name of the item to equip
+            
+        Returns:
+            True if successfully equipped
+        """
+        if item_name not in self.inventory:
+            debug(f"Cannot equip {item_name} - not in inventory")
+            return False
+        
+        # Determine slot from item data
+        data_loader = GameData()
+        item_data = data_loader.get_item_by_name(item_name)
+        if not item_data:
+            debug(f"Cannot equip {item_name} - item not found in database")
+            return False
+        
+        slot = item_data.get("slot")
+        if not slot:
+            debug(f"Cannot equip {item_name} - item has no equipment slot")
+            return False
+        
+        # Unequip current item in slot if any
+        if self.equipment.get(slot):
+            self.unequip(slot)
+        
+        # Move item from inventory to equipment
+        self.inventory.remove(item_name)
+        self.equipment[slot] = item_name
+        
+        # Apply item effects
+        self._apply_item_effects(item_name, equipping=True)
+        
+        # Check if cursed (player immediately knows when they equip it)
+        if self.is_item_cursed(item_name):
+            debug(f"You feel a weight settle on you as you equip {item_name}...")
+        
+        debug(f"Equipped {item_name} in {slot} slot")
+        return True
+    
+    def unequip(self, slot: str) -> bool:
+        """
+        Unequip an item from an equipment slot.
+        Cursed items cannot be unequipped without remove curse.
+        
+        Args:
+            slot: Equipment slot to unequip from
+            
+        Returns:
+            True if successfully unequipped
+        """
+        item_name = self.equipment.get(slot)
+        if not item_name:
+            debug(f"No item equipped in {slot} slot")
+            return False
+        
+        # Check if item is cursed
+        if self.is_item_cursed(item_name):
+            debug(f"Cannot unequip {item_name} - it's cursed! You need Remove Curse.")
+            return False
+        
+        # Check if inventory has space
+        if len(self.inventory) >= 22:
+            debug(f"Cannot unequip {item_name} - inventory is full")
+            return False
+        
+        # Move item from equipment to inventory
+        self.equipment[slot] = None
+        self.inventory.append(item_name)
+        
+        # Remove item effects
+        self._apply_item_effects(item_name, equipping=False)
+        
+        debug(f"Unequipped {item_name} from {slot} slot")
+        return True
+
+    def remove_curse_from_equipment(self) -> List[str]:
+        """
+        Remove curses from all equipped items.
+        Returns list of items that were uncursed.
+        
+        Returns:
+            List of item names that had curses removed
+        """
+        uncursed = []
+        # Note: In a full implementation, we'd track which specific instances
+        # are cursed. For now, we just identify cursed items in equipment.
+        for slot, item_name in self.equipment.items():
+            if item_name and self.is_item_cursed(item_name):
+                uncursed.append(item_name)
+        
+        # In a real implementation, we'd mark these items as no longer cursed
+        # For now, this just identifies them
+        if uncursed:
+            debug(f"Remove Curse affects: {', '.join(uncursed)}")
+        
+        return uncursed
 
     def to_dict(self) -> Dict:
         # --- UPDATED: Save active status effects ---
@@ -678,6 +802,34 @@ class Player:
         if self.hp <= 0:
             self.hp = 0; debug(f"{self.name} has died."); return True
         return False
+    
+    def can_pickup_item(self, item_name: str) -> Tuple[bool, str]:
+        """
+        Check if player can pick up an item.
+        Enforces inventory limit (22 different items) and weight limit.
+        
+        Args:
+            item_name: Name of the item to pick up
+            
+        Returns:
+            (can_pickup, reason) - True if can pickup, False with reason if not
+        """
+        # Check inventory limit (22 different items, Moria standard)
+        if len(self.inventory) >= 22:
+            return False, "Your backpack is full (22 item limit)."
+        
+        # Check weight limit
+        data_loader = GameData()
+        item_data = data_loader.get_item_by_name(item_name)
+        if item_data:
+            item_weight = item_data.get("weight", 10)
+            new_weight = self.get_current_weight() + item_weight
+            capacity = self.get_carrying_capacity()
+            
+            if new_weight > capacity:
+                return False, f"That item would put you over your weight limit ({new_weight}/{capacity})."
+        
+        return True, ""
 
     def spend_mana(self, amount: int) -> bool:
         if amount <= 0: return True
@@ -846,3 +998,98 @@ class Player:
         message = " ".join(messages)
         
         return success, newly_learned, message
+
+    def get_carrying_capacity(self) -> int:
+        """
+        Calculate carrying capacity in pounds * 10 based on STR stat.
+        Follows Moria formula: base 3000 + STR * 100.
+        
+        Returns:
+            Maximum weight player can carry without penalty (in pounds * 10)
+        """
+        str_stat = self.stats.get("STR", 10)
+        return 3000 + (str_stat * 100)
+    
+    def get_current_weight(self) -> int:
+        """
+        Calculate total weight of inventory and equipped items.
+        
+        Returns:
+            Current carried weight (in pounds * 10)
+        """
+        data_loader = GameData()
+        total_weight = 0
+        
+        # Weight of inventory items
+        for item_name in self.inventory:
+            item_data = data_loader.get_item_by_name(item_name)
+            if item_data:
+                total_weight += item_data.get("weight", 10)
+        
+        # Weight of equipped items
+        for slot, item_name in self.equipment.items():
+            if item_name:
+                item_data = data_loader.get_item_by_name(item_name)
+                if item_data:
+                    total_weight += item_data.get("weight", 10)
+        
+        return total_weight
+    
+    def is_overweight(self) -> bool:
+        """Check if player is carrying more than their capacity."""
+        return self.get_current_weight() > self.get_carrying_capacity()
+    
+    def get_item_inscription(self, item_name: str) -> str:
+        """
+        Get automatic inscription for an item following Moria conventions.
+        Returns inscriptions like "damned", "empty", "tried", or "magik".
+        
+        Args:
+            item_name: Name of the item to inscribe
+            
+        Returns:
+            Inscription string or empty if no inscription
+        """
+        data_loader = GameData()
+        item_data = data_loader.get_item_by_name(item_name)
+        if not item_data:
+            return ""
+        
+        inscriptions = []
+        
+        # Check if cursed
+        effect = item_data.get("effect")
+        if effect and isinstance(effect, list) and len(effect) > 0:
+            if effect[0] == "cursed":
+                inscriptions.append("damned")
+        
+        # Check if wand/staff is empty (has charges)
+        item_type = item_data.get("type", "")
+        if item_type in ["wand", "staff"]:
+            # Would need to track individual item charges - for now just show structure
+            # In full implementation, track charges per item instance
+            pass
+        
+        # High-level characters notice magic items
+        if self.level >= 5:
+            # Check if item has magical properties
+            if any(key in item_data for key in ["effect", "stat_bonus", "defense_bonus", "damage_bonus"]):
+                if "cursed" not in str(item_data.get("effect", "")):
+                    inscriptions.append("magik")
+        
+        return " ".join(inscriptions) if inscriptions else ""
+    
+    def get_inscribed_item_name(self, item_name: str) -> str:
+        """
+        Get item name with inscription if applicable.
+        
+        Args:
+            item_name: Base item name
+            
+        Returns:
+            Item name with inscription in format "Item Name {inscription}"
+        """
+        inscription = self.get_item_inscription(item_name)
+        if inscription:
+            return f"{item_name} {{{inscription}}}"
+        return item_name

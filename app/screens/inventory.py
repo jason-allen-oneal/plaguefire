@@ -48,24 +48,45 @@ class InventoryScreen(Screen):
         if not player:
             body = "No player data available."
         else:
+            # Get weight information
+            current_weight = player.get_current_weight()
+            capacity = player.get_carrying_capacity()
+            weight_display = f"{current_weight/10:.1f} lbs / {capacity/10:.1f} lbs"
+            overweight = " [OVERWEIGHT!]" if player.is_overweight() else ""
+            
             header = f"{player.name} — Level {player.level} — Gold: {player.gold}"
+            weight_line = f"Weight: {weight_display}{overweight}"
+            
+            # Show equipment with inscriptions
+            weapon = player.equipment.get('weapon')
+            armor = player.equipment.get('armor')
             equipment_lines = [
-                f"Wielding: {player.equipment.get('weapon') or 'Nothing'}",
-                f"Wearing:  {player.equipment.get('armor') or 'Nothing'}",
+                f"Wielding: {player.get_inscribed_item_name(weapon) if weapon else 'Nothing'}",
+                f"Wearing:  {player.get_inscribed_item_name(armor) if armor else 'Nothing'}",
             ]
+            
+            # Show inventory with inscriptions
             inventory = player.inventory or []
             if inventory:
-                item_lines = [f"{idx + 1}. {item}" for idx, item in enumerate(inventory)]
+                item_lines = [
+                    f"{idx + 1}. {player.get_inscribed_item_name(item)}" 
+                    for idx, item in enumerate(inventory)
+                ]
             else:
                 item_lines = ["(Inventory is empty)"]
+            
+            # Show inventory count
+            inv_count = f"Inventory: {len(inventory)}/22 items"
 
             body = "\n".join(
                 [
                     header,
+                    weight_line,
                     "",
                     "Equipment:",
                     *equipment_lines,
                     "",
+                    inv_count,
                     "Items:",
                     *item_lines,
                 ]
