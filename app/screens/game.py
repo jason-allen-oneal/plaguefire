@@ -757,7 +757,8 @@ class GameScreen(Screen):
     
     def action_show_map_reduced(self):
         """Show reduced size map."""
-        self.notify("Show reduced map: Not yet implemented.", severity="info")
+        from app.screens.reduced_map import ReducedMapScreen
+        self.app.push_screen(ReducedMapScreen(engine=self.engine))
         debug("Action: Show reduced map")
     
     def action_rest(self):
@@ -775,7 +776,8 @@ class GameScreen(Screen):
     
     def action_view_scores(self):
         """View high scores/scoreboard."""
-        self.notify("View scores: Not yet implemented.", severity="info")
+        from app.screens.view_scores import ViewScoresScreen
+        self.app.push_screen(ViewScoresScreen())
         debug("Action: View scores")
     
     def action_settings(self):
