@@ -262,3 +262,134 @@ def _has_adjacent_floor(dungeon: MapData, x: int, y: int, map_width: int, map_he
     horizontal_bridge = floor_w and floor_e
     vertical_bridge = floor_n and floor_s
     return horizontal_bridge or vertical_bridge
+
+
+def add_mineral_veins(dungeon: MapData, depth: int) -> MapData:
+    """
+    Add quartz and magma veins to the dungeon walls.
+    
+    Veins are clusters of special wall tiles that can be mined for treasure.
+    Higher depths have more veins.
+    
+    Args:
+        dungeon: The dungeon map
+        depth: Current dungeon depth (affects vein density)
+    
+    Returns:
+        Modified dungeon map with veins
+    """
+    from config import QUARTZ_VEIN, MAGMA_VEIN
+    
+    if depth == 0:  # No veins in town
+        return dungeon
+    
+    map_height = len(dungeon)
+    map_width = len(dungeon[0]) if map_height > 0 else 0
+    
+    # Calculate number of veins based on depth and map size
+    # More veins at deeper levels
+    base_veins = max(3, depth // 2)
+    map_scale = (map_width * map_height) / (100 * 65)  # Normalized to default map size
+    num_quartz = int(base_veins * map_scale * random.uniform(0.8, 1.2))
+    num_magma = int(base_veins * map_scale * random.uniform(1.0, 1.5))
+    
+    debug(f"Adding mineral veins: {num_quartz} quartz, {num_magma} magma")
+    
+    # Place quartz veins (richer)
+    for _ in range(num_quartz):
+        _place_vein(dungeon, QUARTZ_VEIN, map_width, map_height, cluster_size=(3, 6))
+    
+    # Place magma veins (more common)
+    for _ in range(num_magma):
+        _place_vein(dungeon, MAGMA_VEIN, map_width, map_height, cluster_size=(4, 8))
+    
+    return dungeon
+
+
+def _place_vein(
+    dungeon: MapData,
+    vein_type: str,
+    map_width: int,
+    map_height: int,
+    cluster_size: Tuple[int, int] = (3, 6)
+) -> None:
+    """
+    Place a vein cluster in the dungeon.
+    
+    Args:
+        dungeon: The dungeon map
+        vein_type: Type of vein to place (QUARTZ_VEIN or MAGMA_VEIN)
+        map_width: Map width
+        map_height: Map height
+        cluster_size: Tuple of (min, max) tiles in cluster
+    """
+    # Find a random wall position
+    attempts = 0
+    max_attempts = 100
+    
+    while attempts < max_attempts:
+        x = random.randint(1, map_width - 2)
+        y = random.randint(1, map_height - 2)
+        
+        if dungeon[y][x] == WALL:
+            # Found a wall, place vein cluster here
+            size = random.randint(cluster_size[0], cluster_size[1])
+            _grow_vein_cluster(dungeon, vein_type, x, y, size, map_width, map_height)
+            return
+        
+        attempts += 1
+
+
+def _grow_vein_cluster(
+    dungeon: MapData,
+    vein_type: str,
+    start_x: int,
+    start_y: int,
+    size: int,
+    map_width: int,
+    map_height: int
+) -> None:
+    """
+    Grow a vein cluster from a starting position.
+    
+    Uses a random walk to create organic-looking vein patterns.
+    
+    Args:
+        dungeon: The dungeon map
+        vein_type: Type of vein
+        start_x: Starting X position
+        start_y: Starting Y position
+        size: Number of tiles to place
+        map_width: Map width
+        map_height: Map height
+    """
+    dungeon[start_y][start_x] = vein_type
+    placed = 1
+    current_x, current_y = start_x, start_y
+    
+    directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+    
+    while placed < size:
+        # Randomly walk to adjacent wall
+        random.shuffle(directions)
+        moved = False
+        
+        for dx, dy in directions:
+            new_x = current_x + dx
+            new_y = current_y + dy
+            
+            # Check bounds
+            if not (0 < new_x < map_width - 1 and 0 < new_y < map_height - 1):
+                continue
+            
+            # Only place on walls
+            if dungeon[new_y][new_x] == WALL:
+                dungeon[new_y][new_x] = vein_type
+                current_x, current_y = new_x, new_y
+                placed += 1
+                moved = True
+                break
+        
+        if not moved:
+            # Can't grow further, stop
+            break
