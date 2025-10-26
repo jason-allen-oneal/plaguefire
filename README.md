@@ -16,6 +16,9 @@ Plaguefire is a traditional roguelike game where players explore procedurally ge
 - **Magic System**: Learn and cast spells, use scrolls, and read spellbooks to expand your magical repertoire
 - **Status Effects**: Manage buffs and debuffs including Blessed, Hasted, Confused, Cursed, and more
 - **Item System**: Collect weapons, armor, potions, scrolls, and magical items with diverse effects
+- **Weight System**: Manage inventory weight based on STR stat (up to 22 different items)
+- **Cursed Items**: Be wary of cursed items that can't be removed without Remove Curse
+- **Automatic Inscriptions**: Items display {damned}, {magik}, and other helpful inscriptions
 - **Town Hub**: Visit shops for weapons, armor, magic items, and services at the temple and tavern
 
 ### Technical Features
@@ -190,3 +193,16 @@ Built with:
 - [Textual](https://textual.textualize.io/) - Terminal UI framework
 - [Rich](https://rich.readthedocs.io/) - Terminal formatting
 - [Pygame](https://www.pygame.org/) - Sound effects
+
+### Moria-Style Object System
+
+Plaguefire faithfully implements classic Moria/Angband object mechanics:
+
+- **Weight System**: Carrying capacity based on STR stat using formula: 3000 + (STR × 100)
+- **Inventory Limit**: Maximum 22 different items in backpack
+- **Automatic Inscriptions**: Items display helpful inscriptions like {damned} for cursed items and {magik} for magical items detected by high-level characters
+- **Cursed Items**: Cannot remove cursed equipment until Remove Curse is cast
+- **341+ Items**: Comprehensive item database including weapons, armor, potions, scrolls, wands, staves, books, and more
+
+For complete details on object mechanics, see [docs/MORIA_MECHANICS.md](docs/MORIA_MECHANICS.md).
+
