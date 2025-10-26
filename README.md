@@ -10,15 +10,18 @@ Plaguefire is a traditional roguelike game where players explore procedurally ge
 
 ### Core Gameplay
 - **Procedurally Generated Dungeons**: Each playthrough offers unique dungeon layouts with varying room types, corridors, and secrets
+- **Mining System**: Dig through quartz and magma veins with picks and shovels to find treasure
+- **Chest Interactions**: Pick locks, disarm traps, or force open chests for loot
 - **Strategic Turn-Based Combat**: Engage enemies using positioning, terrain, and tactical decision-making
 - **Character Classes**: Choose from Warrior, Mage, Priest, Rogue, Ranger, and Paladin, each with unique abilities
 - **Race Selection**: Play as Human, Half-Elf, Elf, Halfling, Gnome, Dwarf, Half-Orc, or Half-Troll
 - **Magic System**: Learn and cast spells, use scrolls, and read spellbooks to expand your magical repertoire
 - **Status Effects**: Manage buffs and debuffs including Blessed, Hasted, Confused, Cursed, and more
 - **Item System**: Collect weapons, armor, potions, scrolls, and magical items with diverse effects
+- **Item Instances**: Wands and staves track charges, showing {empty} when depleted
 - **Weight System**: Manage inventory weight based on STR stat (up to 22 different items)
 - **Cursed Items**: Be wary of cursed items that can't be removed without Remove Curse
-- **Automatic Inscriptions**: Items display {damned}, {magik}, and other helpful inscriptions
+- **Automatic Inscriptions**: Items display {damned}, {magik}, {empty}, {tried}, and other helpful inscriptions
 - **Town Hub**: Visit shops for weapons, armor, magic items, and services at the temple and tavern
 
 ### Technical Features
@@ -200,9 +203,16 @@ Plaguefire faithfully implements classic Moria/Angband object mechanics:
 
 - **Weight System**: Carrying capacity based on STR stat. Example: STR 16 = 460 lbs capacity (formula: [3000 + STR × 100] / 10)
 - **Inventory Limit**: Maximum 22 different items in backpack
-- **Automatic Inscriptions**: Items display helpful inscriptions like {damned} for cursed items and {magik} for magical items detected by high-level characters
+- **Item Instances**: Each wand/staff tracks charges individually with {empty} inscription when depleted
+- **Automatic Inscriptions**: Items display helpful inscriptions:
+  - `{damned}` for cursed items
+  - `{magik}` for magical items (detected by high-level characters)
+  - `{empty}` for depleted wands/staves
+  - `{tried}` for unidentified items that have been used
 - **Cursed Items**: Cannot remove cursed equipment until Remove Curse is cast
+- **Mining System**: Dig through quartz veins (%) and magma veins (~) with picks and shovels for gems and treasure
+- **Chest System**: Locked and trapped chests with multiple interaction options (pick lock, disarm trap, force open)
 - **341+ Items**: Comprehensive item database including weapons, armor, potions, scrolls, wands, staves, books, and more
 
-For complete details on object mechanics, see [docs/MORIA_MECHANICS.md](docs/MORIA_MECHANICS.md).
+For complete details on object mechanics, see [docs/MORIA_MECHANICS.md](docs/MORIA_MECHANICS.md) and [EXTREME_REFACTORS.md](EXTREME_REFACTORS.md).
 
