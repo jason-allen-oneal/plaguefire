@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Tuple
 
 # --- Added Imports ---
 from app.lib.core.data_loader import GameData
+from app.lib.core.inventory_manager import InventoryManager
 from app.lib.generation.core.status_effects import StatusEffectManager
 from config import VIEWPORT_HEIGHT, VIEWPORT_WIDTH
 from debugtools import debug
@@ -545,6 +546,16 @@ class Player:
         9: 64000, 10: 85000, 11: 100000, 12: 120000, 13: 140000, 14: 165000, 15: 195000,
         16: 225000, 17: 265000, 18: 305000, 19: 355000, 20: 0,
     }
+
+    @property
+    def inventory(self) -> List[str]:
+        """Get inventory as list of item names (backward compatibility)."""
+        return self.inventory_manager.get_legacy_inventory()
+    
+    @property
+    def equipment(self) -> Dict[str, Optional[str]]:
+        """Get equipment as dict of item names (backward compatibility)."""
+        return self.inventory_manager.get_legacy_equipment()
 
     def _xp_threshold_for_level(self, level: int) -> int:
         if level >= 20: return 0
