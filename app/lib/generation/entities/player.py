@@ -678,6 +678,34 @@ class Player:
         if self.hp <= 0:
             self.hp = 0; debug(f"{self.name} has died."); return True
         return False
+    
+    def can_pickup_item(self, item_name: str) -> Tuple[bool, str]:
+        """
+        Check if player can pick up an item.
+        Enforces inventory limit (22 different items) and weight limit.
+        
+        Args:
+            item_name: Name of the item to pick up
+            
+        Returns:
+            (can_pickup, reason) - True if can pickup, False with reason if not
+        """
+        # Check inventory limit (22 different items, Moria standard)
+        if len(self.inventory) >= 22:
+            return False, "Your backpack is full (22 item limit)."
+        
+        # Check weight limit
+        data_loader = GameData()
+        item_data = data_loader.get_item_by_name(item_name)
+        if item_data:
+            item_weight = item_data.get("weight", 10)
+            new_weight = self.get_current_weight() + item_weight
+            capacity = self.get_carrying_capacity()
+            
+            if new_weight > capacity:
+                return False, f"That item would put you over your weight limit ({new_weight}/{capacity})."
+        
+        return True, ""
 
     def spend_mana(self, amount: int) -> bool:
         if amount <= 0: return True
@@ -846,3 +874,98 @@ class Player:
         message = " ".join(messages)
         
         return success, newly_learned, message
+
+    def get_carrying_capacity(self) -> int:
+        """
+        Calculate carrying capacity in pounds * 10 based on STR stat.
+        Follows Moria formula: base 3000 + STR * 100.
+        
+        Returns:
+            Maximum weight player can carry without penalty (in pounds * 10)
+        """
+        str_stat = self.stats.get("STR", 10)
+        return 3000 + (str_stat * 100)
+    
+    def get_current_weight(self) -> int:
+        """
+        Calculate total weight of inventory and equipped items.
+        
+        Returns:
+            Current carried weight (in pounds * 10)
+        """
+        data_loader = GameData()
+        total_weight = 0
+        
+        # Weight of inventory items
+        for item_name in self.inventory:
+            item_data = data_loader.get_item_by_name(item_name)
+            if item_data:
+                total_weight += item_data.get("weight", 10)
+        
+        # Weight of equipped items
+        for slot, item_name in self.equipment.items():
+            if item_name:
+                item_data = data_loader.get_item_by_name(item_name)
+                if item_data:
+                    total_weight += item_data.get("weight", 10)
+        
+        return total_weight
+    
+    def is_overweight(self) -> bool:
+        """Check if player is carrying more than their capacity."""
+        return self.get_current_weight() > self.get_carrying_capacity()
+    
+    def get_item_inscription(self, item_name: str) -> str:
+        """
+        Get automatic inscription for an item following Moria conventions.
+        Returns inscriptions like "damned", "empty", "tried", or "magik".
+        
+        Args:
+            item_name: Name of the item to inscribe
+            
+        Returns:
+            Inscription string or empty if no inscription
+        """
+        data_loader = GameData()
+        item_data = data_loader.get_item_by_name(item_name)
+        if not item_data:
+            return ""
+        
+        inscriptions = []
+        
+        # Check if cursed
+        effect = item_data.get("effect")
+        if effect and isinstance(effect, list) and len(effect) > 0:
+            if effect[0] == "cursed":
+                inscriptions.append("damned")
+        
+        # Check if wand/staff is empty (has charges)
+        item_type = item_data.get("type", "")
+        if item_type in ["wand", "staff"]:
+            # Would need to track individual item charges - for now just show structure
+            # In full implementation, track charges per item instance
+            pass
+        
+        # High-level characters notice magic items
+        if self.level >= 5:
+            # Check if item has magical properties
+            if any(key in item_data for key in ["effect", "stat_bonus", "defense_bonus", "damage_bonus"]):
+                if "cursed" not in str(item_data.get("effect", "")):
+                    inscriptions.append("magik")
+        
+        return " ".join(inscriptions) if inscriptions else ""
+    
+    def get_inscribed_item_name(self, item_name: str) -> str:
+        """
+        Get item name with inscription if applicable.
+        
+        Args:
+            item_name: Base item name
+            
+        Returns:
+            Item name with inscription in format "Item Name {inscription}"
+        """
+        inscription = self.get_item_inscription(item_name)
+        if inscription:
+            return f"{item_name} {{{inscription}}}"
+        return item_name

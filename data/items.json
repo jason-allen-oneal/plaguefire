@@ -9,7 +9,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 2
     },
     "AMULET_CHARISMA": {
       "name": "Amulet of Charisma",
@@ -25,7 +26,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 2
     },
     "AMULET_DOOM": {
       "name": "Amulet of DOOM",
@@ -40,7 +42,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 2
     },
     "AMULET_RESIST_ACID": {
       "name": "Amulet of Resist Acid",
@@ -56,7 +59,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 2
     },
     "AMULET_SEARCHING": {
       "name": "Amulet of Searching",
@@ -70,7 +74,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 2
     },
     "AMULET_SLOW_DIGESTION": {
       "name": "Amulet of Slow Digestion",
@@ -84,7 +89,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 2
     },
     "AMULET_TELEPORTATION": {
       "name": "Amulet of Teleportation",
@@ -98,7 +104,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 2
     },
     "AMULET_THE_MAGI": {
       "name": "Amulet of The Magi",
@@ -114,7 +121,8 @@
       "rarity_depth": {
         "min": 700,
         "max": 1300
-      }
+      },
+      "weight": 2
     },
     "AMULET_WISDOM": {
       "name": "Amulet of Wisdom",
@@ -130,7 +138,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 2
     }
   },
   "ARMOR": {
@@ -144,7 +153,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 20
     },
     "BOOTS_SOFT_LEATHER": {
       "name": "Pair of Soft Leather Boots",
@@ -156,7 +166,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 20
     },
     "BRIGANDINE_METAL": {
       "name": "Metal Brigandine Armor",
@@ -168,7 +179,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 20
     },
     "CHAIN_MAIL": {
       "name": "Chain Mail",
@@ -180,7 +192,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 140
     },
     "CHAIN_MAIL_AUGMENTED": {
       "name": "Augmented Chain Mail",
@@ -192,7 +205,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 140
     },
     "CHAIN_MAIL_BAR": {
       "name": "Bar Chain Mail",
@@ -204,7 +218,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 140
     },
     "CHAIN_MAIL_DOUBLE": {
       "name": "Double Chain Mail",
@@ -216,7 +231,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 140
     },
     "CHAIN_MAIL_RUSTY": {
       "name": "Rusty Chain Mail",
@@ -228,7 +244,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 140
     },
     "CLOAK": {
       "name": "Cloak",
@@ -240,7 +257,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 20
     },
     "CROWN_GOLDEN": {
       "name": "Golden Crown",
@@ -252,7 +270,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 20
     },
     "CROWN_JEWELED": {
       "name": "Jewel-Encrusted Crown",
@@ -264,7 +283,8 @@
       "rarity_depth": {
         "min": 700,
         "max": 1300
-      }
+      },
+      "weight": 20
     },
     "CROWN_SILVER": {
       "name": "Silver Crown",
@@ -276,7 +296,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 20
     },
     "FILTHY_RAGS": {
       "name": "some filthy rags",
@@ -288,7 +309,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 20
     },
     "GAUNTLETS": {
       "name": "Set of Gauntlets",
@@ -300,7 +322,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 20
     },
     "GLOVES_LEATHER": {
       "name": "Set of Leather Gloves",
@@ -312,7 +335,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 20
     },
     "HELM_IRON": {
       "name": "Iron Helm",
@@ -324,7 +348,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 20
     },
     "HELM_STEEL": {
       "name": "Steel Helm",
@@ -336,7 +361,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 20
     },
     "LAMELLAR_METAL": {
       "name": "Metal Lamellar Armor",
@@ -348,7 +374,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 20
     },
     "LAMINATED_ARMOR": {
       "name": "Laminated Armor",
@@ -360,7 +387,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 20
     },
     "LEATHER_ARMOR_HARD": {
       "name": "Hard Leather Armor",
@@ -372,7 +400,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 20
     },
     "LEATHER_ARMOR_SOFT": {
       "name": "Soft Leather Armor",
@@ -384,7 +413,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 20
     },
     "LEATHER_CAP_HARD": {
       "name": "Hard Leather Cap",
@@ -396,7 +426,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 20
     },
     "LEATHER_CAP_SOFT": {
       "name": "Soft Leather Cap",
@@ -408,7 +439,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 20
     },
     "METAL_CAP": {
       "name": "Metal Cap",
@@ -420,7 +452,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 20
     },
     "PLATE_ARMOR_FULL": {
       "name": "Full Plate Armor",
@@ -432,7 +465,8 @@
       "rarity_depth": {
         "min": 700,
         "max": 1300
-      }
+      },
+      "weight": 200
     },
     "PLATE_ARMOR_PARTIAL": {
       "name": "Partial Plate Armor",
@@ -444,7 +478,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 200
     },
     "PLATE_ARMOR_RIBBED": {
       "name": "Ribbed Plate Armor",
@@ -456,7 +491,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 200
     },
     "RING_MAIL_HARD": {
       "name": "Hard Leather Ring Mail",
@@ -468,7 +504,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 20
     },
     "RING_MAIL_SOFT": {
       "name": "Soft Leather Ring Mail",
@@ -480,7 +517,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 20
     },
     "ROBE": {
       "name": "Robe",
@@ -492,7 +530,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 20
     },
     "SCALE_MAIL_LEATHER": {
       "name": "Leather Scale Mail",
@@ -504,7 +543,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 120
     },
     "SCALE_MAIL_METAL": {
       "name": "Metal Scale Mail",
@@ -516,7 +556,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 120
     },
     "SHIELD_LEATHER_LARGE": {
       "name": "Large Leather Shield",
@@ -528,7 +569,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 20
     },
     "SHIELD_LEATHER_MEDIUM": {
       "name": "Medium Leather Shield",
@@ -540,7 +582,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 20
     },
     "SHIELD_LEATHER_SMALL": {
       "name": "Small Leather Shield",
@@ -552,7 +595,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 20
     },
     "SHIELD_METAL_LARGE": {
       "name": "Large Metal Shield",
@@ -564,7 +608,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 20
     },
     "SHIELD_METAL_MEDIUM": {
       "name": "Medium Metal Shield",
@@ -576,7 +621,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 20
     },
     "SHIELD_METAL_SMALL": {
       "name": "Small Metal Shield",
@@ -588,7 +634,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 20
     },
     "SHOES_SOFT_LEATHER": {
       "name": "Pair of Soft Leather Shoes",
@@ -600,7 +647,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 20
     },
     "STUDDED_LEATHER_HARD": {
       "name": "Hard Studded Leather",
@@ -612,7 +660,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 20
     },
     "STUDDED_LEATHER_SOFT": {
       "name": "Soft Studded Leather",
@@ -624,7 +673,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 20
     },
     "WOVEN_CORD_ARMOR": {
       "name": "Woven Cord Armor",
@@ -636,7 +686,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 20
     }
   },
   "BOOKS": {
@@ -652,7 +703,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "BOOK_CLERIC_CHANTS": {
       "name": "Chants and Blessings",
@@ -666,7 +718,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 30
     },
     "BOOK_CLERIC_EXORCISM": {
       "name": "Exorcism and Dispelling",
@@ -680,7 +733,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 30
     },
     "BOOK_CLERIC_WISDOM": {
       "name": "Words of Wisdom",
@@ -694,7 +748,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 30
     },
     "BOOK_MAGE_1": {
       "name": "Magik I",
@@ -708,7 +763,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 30
     },
     "BOOK_MAGE_2": {
       "name": "Magik II",
@@ -722,7 +778,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 30
     },
     "BOOK_MAGE_BEGINNERS": {
       "name": "Beginners-Magik",
@@ -736,7 +793,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "BOOK_MAGE_POWER": {
       "name": "The Mages Guide to Power",
@@ -750,7 +808,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 30
     }
   },
   "COINS": {
@@ -762,7 +821,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 0
     },
     "GOLD_COINS": {
       "name": "Gold Coins",
@@ -772,7 +832,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 0
     },
     "MITHRIL_COINS": {
       "name": "Mithril Coins",
@@ -782,7 +843,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 0
     },
     "SILVER_COINS": {
       "name": "Silver Coins",
@@ -792,7 +854,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 0
     }
   },
   "FOOD": {
@@ -808,7 +871,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "FOOD_BISCUIT": {
       "name": "Hard Biscuit",
@@ -822,7 +886,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "FOOD_JERKY": {
       "name": "Strip of Beef Jerky",
@@ -836,7 +901,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "FOOD_MUSH": {
       "name": "Pint of fine grade mush",
@@ -850,7 +916,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "FOOD_RATION": {
       "name": "Ration of Food",
@@ -864,7 +931,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "FOOD_SLIME_MOLD": {
       "name": "Slime Mold",
@@ -878,7 +946,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "FOOD_WAYBREAD": {
       "name": "Piece of Elvish Waybread",
@@ -892,7 +961,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "FOOD_WINE": {
       "name": "Pint of Fine Wine",
@@ -906,7 +976,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "MUSHROOM_BLINDNESS": {
       "name": "Mushroom of Blindness",
@@ -921,7 +992,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "MUSHROOM_CONFUSION": {
       "name": "Mushroom of Confusion",
@@ -936,7 +1008,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "MUSHROOM_CURE_BLINDNESS": {
       "name": "Mushroom of Cure Blindness",
@@ -950,7 +1023,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "MUSHROOM_CURE_CONFUSION": {
       "name": "Mushroom of Cure Confusion",
@@ -964,7 +1038,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "MUSHROOM_CURE_PARANOIA": {
       "name": "Mushroom of Cure Paranoia",
@@ -978,7 +1053,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "MUSHROOM_CURE_POISON": {
       "name": "Mushroom of Cure Poison",
@@ -992,7 +1068,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 3
     },
     "MUSHROOM_CURE_SERIOUS": {
       "name": "Mushroom of Cure Serious Wounds",
@@ -1006,7 +1083,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 3
     },
     "MUSHROOM_FIRST_AID": {
       "name": "Mushroom of First-Aid",
@@ -1020,7 +1098,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "MUSHROOM_HALLUCINATION": {
       "name": "Mushroom of Hallucination",
@@ -1035,7 +1114,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "MUSHROOM_HALLUCINATIONS": {
       "name": "Mushroom of Hallucinations",
@@ -1050,7 +1130,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "MUSHROOM_LIGHT_CURES": {
       "name": "Mushroom of Light Cures",
@@ -1064,7 +1145,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 2
     },
     "MUSHROOM_MINOR_CURES": {
       "name": "Mushroom of Minor Cures",
@@ -1078,7 +1160,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "MUSHROOM_PARANOIA": {
       "name": "Mushroom of Paranoia",
@@ -1093,7 +1176,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "MUSHROOM_POISON": {
       "name": "Mushroom of Poison",
@@ -1108,7 +1192,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "MUSHROOM_RESTORE_CON": {
       "name": "Mushroom of Restore Constitution",
@@ -1122,7 +1207,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 3
     },
     "MUSHROOM_RESTORING": {
       "name": "Mushroom of Restoring",
@@ -1136,7 +1222,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 3
     },
     "MUSHROOM_UNHEALTH": {
       "name": "Mushroom of Unhealth",
@@ -1150,7 +1237,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     },
     "MUSHROOM_WEAKNESS": {
       "name": "Mushroom of Weakness",
@@ -1165,7 +1253,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 3
     }
   },
   "GEMS": {
@@ -1177,7 +1266,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 1
     },
     "GEM_EMERALD": {
       "name": "emerald",
@@ -1187,7 +1277,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 1
     },
     "GEM_GARNET": {
       "name": "garnet",
@@ -1197,7 +1288,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 1
     },
     "GEM_OPAL": {
       "name": "opal",
@@ -1207,7 +1299,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 1
     },
     "GEM_RUBY": {
       "name": "ruby",
@@ -1217,7 +1310,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 1
     },
     "GEM_SAPPHIRE": {
       "name": "sapphire",
@@ -1227,7 +1321,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 1
     }
   },
   "MISC": {
@@ -1239,7 +1334,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 10
     },
     "BOTTLE_EMPTY": {
       "name": "empty bottle",
@@ -1249,7 +1345,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 10
     },
     "CHEST_IRON_LARGE": {
       "name": "Large iron chest",
@@ -1260,7 +1357,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 200
     },
     "CHEST_IRON_SMALL": {
       "name": "Small iron chest",
@@ -1271,7 +1369,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 100
     },
     "CHEST_RUINED": {
       "name": "ruined chest",
@@ -1282,7 +1381,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 150
     },
     "CHEST_STEEL_LARGE": {
       "name": "Large steel chest",
@@ -1293,7 +1393,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 200
     },
     "CHEST_STEEL_SMALL": {
       "name": "Small steel chest",
@@ -1304,7 +1405,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 100
     },
     "CHEST_WOODEN_LARGE": {
       "name": "Large wooden chest",
@@ -1315,7 +1417,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 200
     },
     "CHEST_WOODEN_SMALL": {
       "name": "Small wooden chest",
@@ -1326,7 +1429,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 100
     },
     "FLASK_OIL": {
       "name": "Flask of oil",
@@ -1336,7 +1440,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 10
     },
     "LANTERN_BRASS": {
       "name": "Brass Lantern",
@@ -1352,7 +1457,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 50
     },
     "RUBBLE": {
       "name": "some rubble",
@@ -1363,7 +1469,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 10
     },
     "SHARDS_POTTERY": {
       "name": "some shards of pottery",
@@ -1373,7 +1480,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 10
     },
     "SKELETON_CENTIPEDE": {
       "name": "Giant Centipede Skeleton",
@@ -1384,7 +1492,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 10
     },
     "SKELETON_DWARF": {
       "name": "Dwarf Skeleton",
@@ -1395,7 +1504,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 10
     },
     "SKELETON_ELF": {
       "name": "Elf Skeleton",
@@ -1406,7 +1516,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 10
     },
     "SKELETON_GNOME": {
       "name": "Gnome Skeleton",
@@ -1417,7 +1528,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 10
     },
     "SKELETON_HUMAN": {
       "name": "Human Skeleton",
@@ -1428,7 +1540,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 10
     },
     "SKELETON_RAT": {
       "name": "Rat Skeleton",
@@ -1439,7 +1552,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 10
     },
     "SPIKE_IRON": {
       "name": "Iron Spike",
@@ -1450,7 +1564,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 10
     },
     "STICK_BROKEN": {
       "name": "broken stick",
@@ -1460,7 +1575,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 10
     },
     "TEETH_BROKEN": {
       "name": "broken set of teeth",
@@ -1470,7 +1586,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 10
     },
     "TORCH": {
       "name": "Wooden Torch",
@@ -1486,7 +1603,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 30
     }
   },
   "POTIONS": {
@@ -1502,7 +1620,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 4
     },
     "POTION_BLINDNESS": {
       "name": "Potion of Blindness",
@@ -1517,7 +1636,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 4
     },
     "POTION_BOLDNESS": {
       "name": "Potion of Boldness",
@@ -1532,7 +1652,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 4
     },
     "POTION_CHARISMA": {
       "name": "Potion of Charisma",
@@ -1548,7 +1669,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 4
     },
     "POTION_CONFUSION": {
       "name": "Potion of Confusion",
@@ -1563,7 +1685,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 4
     },
     "POTION_CURE_CRITICAL": {
       "name": "Potion of Cure Critical Wounds",
@@ -1577,7 +1700,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 4
     },
     "POTION_CURE_LIGHT": {
       "name": "Potion of Cure Light Wounds",
@@ -1591,7 +1715,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 2
     },
     "POTION_CURE_SERIOUS": {
       "name": "Potion of Cure Serious Wounds",
@@ -1605,7 +1730,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 4
     },
     "POTION_DETECT_INVISIBLE": {
       "name": "Potion of Detect Invisible",
@@ -1620,7 +1746,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 4
     },
     "POTION_GAIN_CON": {
       "name": "Potion of Gain Constitution",
@@ -1635,7 +1762,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 4
     },
     "POTION_GAIN_DEX": {
       "name": "Potion of Gain Dexterity",
@@ -1650,7 +1778,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 4
     },
     "POTION_GAIN_EXPERIENCE": {
       "name": "Potion of Gain Experience",
@@ -1664,7 +1793,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 4
     },
     "POTION_GAIN_INT": {
       "name": "Potion of Gain Intelligence",
@@ -1679,7 +1809,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 4
     },
     "POTION_GAIN_STR": {
       "name": "Potion of Gain Strength",
@@ -1694,7 +1825,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 4
     },
     "POTION_GAIN_WIS": {
       "name": "Potion of Gain Wisdom",
@@ -1709,7 +1841,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 4
     },
     "POTION_HASTE_SELF": {
       "name": "Potion of Haste Self",
@@ -1725,7 +1858,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 4
     },
     "POTION_HEALING": {
       "name": "Potion of Healing",
@@ -1739,7 +1873,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 4
     },
     "POTION_HEROISM": {
       "name": "Potion of Heroism",
@@ -1754,7 +1889,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 4
     },
     "POTION_INFRAVISION": {
       "name": "Potion of Infra-Vision",
@@ -1769,7 +1905,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 4
     },
     "POTION_INVULNERABILITY": {
       "name": "Potion of Invulnerability",
@@ -1784,7 +1921,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 4
     },
     "POTION_LOSE_EXPERIENCE": {
       "name": "Potion of Lose Experience",
@@ -1798,7 +1936,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 4
     },
     "POTION_LOSE_INT": {
       "name": "Potion of Lose Intelligence",
@@ -1814,7 +1953,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 4
     },
     "POTION_LOSE_WIS": {
       "name": "Potion of Lose Wisdom",
@@ -1830,7 +1970,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 4
     },
     "POTION_NEUTRALIZE_POISON": {
       "name": "Potion of Neutralize Poison",
@@ -1844,7 +1985,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 4
     },
     "POTION_POISON": {
       "name": "Potion of Poison",
@@ -1859,7 +2001,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 4
     },
     "POTION_RESIST_COLD": {
       "name": "Potion of Resist Cold",
@@ -1874,7 +2017,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 4
     },
     "POTION_RESIST_HEAT": {
       "name": "Potion of Resist Heat",
@@ -1889,7 +2033,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 4
     },
     "POTION_RESTORE_CHA": {
       "name": "Potion of Restore Charisma",
@@ -1903,7 +2048,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 4
     },
     "POTION_RESTORE_CON": {
       "name": "Potion of Restore Constitution",
@@ -1917,7 +2063,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 4
     },
     "POTION_RESTORE_DEX": {
       "name": "Potion of Restore Dexterity",
@@ -1931,7 +2078,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 4
     },
     "POTION_RESTORE_INT": {
       "name": "Potion of Restore Intelligence",
@@ -1945,7 +2093,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 4
     },
     "POTION_RESTORE_LIFE": {
       "name": "Potion of Restore Life Levels",
@@ -1958,7 +2107,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 4
     },
     "POTION_RESTORE_MANA": {
       "name": "Potion of Restore Mana",
@@ -1972,7 +2122,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 4
     },
     "POTION_RESTORE_STR": {
       "name": "Potion of Restore Strength",
@@ -1986,7 +2137,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 4
     },
     "POTION_RESTORE_WIS": {
       "name": "Potion of Restore Wisdom",
@@ -2000,7 +2152,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 4
     },
     "POTION_SALT_WATER": {
       "name": "Potion of Salt Water",
@@ -2014,7 +2167,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 4
     },
     "POTION_SLEEP": {
       "name": "Potion of Sleep",
@@ -2029,7 +2183,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 4
     },
     "POTION_SLIME_MOLD_JUICE": {
       "name": "Potion of Slime Mold Juice",
@@ -2043,7 +2198,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 4
     },
     "POTION_SLOWNESS": {
       "name": "Potion of Slowness",
@@ -2059,7 +2215,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 4
     },
     "POTION_SLOW_POISON": {
       "name": "Potion of Slow Poison",
@@ -2072,7 +2229,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 4
     },
     "POTION_SUPER_HEROISM": {
       "name": "Potion of Super Heroism",
@@ -2087,7 +2245,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 4
     },
     "POTION_UGLINESS": {
       "name": "Potion of Ugliness",
@@ -2103,7 +2262,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 4
     },
     "POTION_WATER": {
       "name": "Potion of Water",
@@ -2117,7 +2277,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 4
     },
     "POTION_WEAKNESS": {
       "name": "Potion of Weakness",
@@ -2133,7 +2294,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 4
     }
   },
   "RINGS": {
@@ -2146,7 +2308,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 1
     },
     "RING_AGGRAVATE_MONSTER": {
       "name": "Ring of Aggravate Monster",
@@ -2160,7 +2323,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 1
     },
     "RING_FEATHER_FALLING": {
       "name": "Ring of Feather Falling",
@@ -2174,7 +2338,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 1
     },
     "RING_GAIN_CON": {
       "name": "Ring of Gain Constitution",
@@ -2190,7 +2355,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 1
     },
     "RING_GAIN_DEX": {
       "name": "Ring of Gain Dexterity",
@@ -2206,7 +2372,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 1
     },
     "RING_GAIN_INT": {
       "name": "Ring of Gain Intelligence",
@@ -2222,7 +2389,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 1
     },
     "RING_GAIN_STR": {
       "name": "Ring of Gain Strength",
@@ -2238,7 +2406,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 1
     },
     "RING_INCREASE_DAMAGE": {
       "name": "Ring of Increase Damage",
@@ -2253,7 +2422,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 1
     },
     "RING_INCREASE_TO_HIT": {
       "name": "Ring of Increase To-Hit",
@@ -2268,7 +2438,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 1
     },
     "RING_LORDLY_PROT_ACID": {
       "name": "Ring of Lordly Protection (ACID)",
@@ -2284,7 +2455,8 @@
       "rarity_depth": {
         "min": 700,
         "max": 1300
-      }
+      },
+      "weight": 1
     },
     "RING_LORDLY_PROT_COLD": {
       "name": "Ring of Lordly Protection (COLD)",
@@ -2300,7 +2472,8 @@
       "rarity_depth": {
         "min": 700,
         "max": 1300
-      }
+      },
+      "weight": 1
     },
     "RING_LORDLY_PROT_FIRE": {
       "name": "Ring of Lordly Protection (FIRE)",
@@ -2316,7 +2489,8 @@
       "rarity_depth": {
         "min": 700,
         "max": 1300
-      }
+      },
+      "weight": 1
     },
     "RING_PROTECTION": {
       "name": "Ring of Protection",
@@ -2331,7 +2505,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 1
     },
     "RING_RESIST_COLD": {
       "name": "Ring of Resist Cold",
@@ -2347,7 +2522,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 1
     },
     "RING_RESIST_FIRE": {
       "name": "Ring of Resist Fire",
@@ -2363,7 +2539,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 1
     },
     "RING_SEARCHING": {
       "name": "Ring of Searching",
@@ -2377,7 +2554,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 1
     },
     "RING_SEE_INVISIBLE": {
       "name": "Ring of See Invisible",
@@ -2391,7 +2569,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 1
     },
     "RING_SLAYING": {
       "name": "Ring of Slaying",
@@ -2406,7 +2585,8 @@
       "rarity_depth": {
         "min": 700,
         "max": 1300
-      }
+      },
+      "weight": 1
     },
     "RING_SLOW_DIGESTION": {
       "name": "Ring of Slow Digestion",
@@ -2420,7 +2600,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 1
     },
     "RING_SPEED": {
       "name": "Ring of Speed",
@@ -2435,7 +2616,8 @@
       "rarity_depth": {
         "min": 700,
         "max": 1300
-      }
+      },
+      "weight": 1
     },
     "RING_STUPIDITY": {
       "name": "Ring of Stupidity",
@@ -2451,7 +2633,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 1
     },
     "RING_SUSTAIN_CHA": {
       "name": "Ring of Sustain Charisma",
@@ -2466,7 +2649,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 1
     },
     "RING_SUSTAIN_CON": {
       "name": "Ring of Sustain Constitution",
@@ -2481,7 +2665,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 1
     },
     "RING_SUSTAIN_DEX": {
       "name": "Ring of Sustain Dexterity",
@@ -2496,7 +2681,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 1
     },
     "RING_SUSTAIN_INT": {
       "name": "Ring of Sustain Intelligence",
@@ -2511,7 +2697,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 1
     },
     "RING_SUSTAIN_STR": {
       "name": "Ring of Sustain Strength",
@@ -2526,7 +2713,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 1
     },
     "RING_SUSTAIN_WIS": {
       "name": "Ring of Sustain Wisdom",
@@ -2541,7 +2729,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 1
     },
     "RING_TELEPORTATION": {
       "name": "Ring of Teleportation",
@@ -2555,7 +2744,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 1
     },
     "RING_WEAKNESS": {
       "name": "Ring of Weakness",
@@ -2571,7 +2761,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 1
     },
     "RING_WOE": {
       "name": "Ring of WOE",
@@ -2586,7 +2777,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 1
     }
   },
   "SCROLLS": {
@@ -2601,7 +2793,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_BLESSING": {
       "name": "Scroll of Blessing",
@@ -2615,7 +2808,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_CREATE_FOOD": {
       "name": "Scroll of Create Food",
@@ -2628,7 +2822,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_CURSE_ARMOR": {
       "name": "Scroll of Curse Armor",
@@ -2641,7 +2836,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 5
     },
     "SCROLL_CURSE_WEAPON": {
       "name": "Scroll of Curse Weapon",
@@ -2654,7 +2850,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 5
     },
     "SCROLL_DARKNESS": {
       "name": "Scroll of Darkness",
@@ -2668,7 +2865,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_DESTRUCTION_STAR": {
       "name": "Scroll of *Destruction*",
@@ -2681,7 +2879,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 5
     },
     "SCROLL_DETECT_INVISIBLE": {
       "name": "Scroll of Detect Invisible",
@@ -2695,7 +2894,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_DISPEL_UNDEAD": {
       "name": "Scroll of Dispel Undead",
@@ -2709,7 +2909,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 5
     },
     "SCROLL_DOOR_CREATION": {
       "name": "Scroll of Door Creation",
@@ -2722,7 +2923,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_DOOR_STAIR_LOCATION": {
       "name": "Scroll of Door/Stair Location",
@@ -2735,7 +2937,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_ENCHANT_ARMOR": {
       "name": "Scroll of Enchant Armor",
@@ -2748,7 +2951,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 5
     },
     "SCROLL_ENCHANT_ARMOR_STAR": {
       "name": "Scroll of *Enchant Armor*",
@@ -2762,7 +2966,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 5
     },
     "SCROLL_ENCHANT_WEAPON_STAR": {
       "name": "Scroll of *Enchant Weapon*",
@@ -2776,7 +2981,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 5
     },
     "SCROLL_ENCHANT_WEAPON_TO_DAM": {
       "name": "Scroll of Enchant Weapon To-Dam",
@@ -2789,7 +2995,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 5
     },
     "SCROLL_ENCHANT_WEAPON_TO_HIT": {
       "name": "Scroll of Enchant Weapon To-Hit",
@@ -2802,7 +3009,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 5
     },
     "SCROLL_GENOCIDE": {
       "name": "Scroll of Genocide",
@@ -2815,7 +3023,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 5
     },
     "SCROLL_HOLY_CHANT": {
       "name": "Scroll of Holy Chant",
@@ -2829,7 +3038,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 5
     },
     "SCROLL_HOLY_PRAYER": {
       "name": "Scroll of Holy Prayer",
@@ -2843,7 +3053,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 5
     },
     "SCROLL_IDENTIFY": {
       "name": "Scroll of Identify",
@@ -2856,7 +3067,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_LIGHT": {
       "name": "Scroll of Light",
@@ -2870,7 +3082,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 3
     },
     "SCROLL_MAGIC_MAPPING": {
       "name": "Scroll of Magic Mapping",
@@ -2883,7 +3096,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 5
     },
     "SCROLL_MASS_GENOCIDE": {
       "name": "Scroll of Mass Genocide",
@@ -2896,7 +3110,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 5
     },
     "SCROLL_MONSTER_CONFUSION": {
       "name": "Scroll of Monster Confusion",
@@ -2909,7 +3124,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_OBJECT_DETECTION": {
       "name": "Scroll of Object Detection",
@@ -2922,7 +3138,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_PHASE_DOOR": {
       "name": "Scroll of Phase Door",
@@ -2935,7 +3152,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_PROTECTION_FROM_EVIL": {
       "name": "Scroll of Protection from Evil",
@@ -2949,7 +3167,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 5
     },
     "SCROLL_RECHARGING": {
       "name": "Scroll of Recharging",
@@ -2962,7 +3181,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 5
     },
     "SCROLL_REMOVE_CURSE": {
       "name": "Scroll of Remove Curse",
@@ -2975,7 +3195,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 5
     },
     "SCROLL_RUNE_OF_PROTECTION": {
       "name": "Scroll of Rune of Protection",
@@ -2988,7 +3209,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 5
     },
     "SCROLL_SLEEP_MONSTER": {
       "name": "Scroll of Sleep Monster",
@@ -3001,7 +3223,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_SUMMON_MONSTER": {
       "name": "Scroll of Summon Monster",
@@ -3014,7 +3237,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_SUMMON_UNDEAD": {
       "name": "Scroll of Summon Undead",
@@ -3027,7 +3251,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 5
     },
     "SCROLL_TELEPORT": {
       "name": "Scroll of Teleport",
@@ -3040,7 +3265,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_TELEPORT_LEVEL": {
       "name": "Scroll of Teleport Level",
@@ -3053,7 +3279,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 5
     },
     "SCROLL_TRAP_CREATION": {
       "name": "Scroll of Trap Creation",
@@ -3066,7 +3293,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_TRAP_DETECTION": {
       "name": "Scroll of Trap Detection",
@@ -3079,7 +3307,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_TRAP_DOOR_DESTRUCTION": {
       "name": "Scroll of Trap/Door Destruction",
@@ -3092,7 +3321,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_TREASURE_DETECTION": {
       "name": "Scroll of Treasure Detection",
@@ -3105,7 +3335,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 5
     },
     "SCROLL_WORD_OF_RECALL": {
       "name": "Scroll of Word-of-Recall",
@@ -3118,7 +3349,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 5
     }
   },
   "WANDS_STAVES": {
@@ -3138,7 +3370,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 35
     },
     "STAFF_CURING": {
       "name": "Staff of Curing",
@@ -3159,7 +3392,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 50
     },
     "STAFF_DARKNESS": {
       "name": "Staff of Darkness",
@@ -3177,7 +3411,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 50
     },
     "STAFF_DESTRUCTION_STAR": {
       "name": "Staff of *Destruction*",
@@ -3194,7 +3429,8 @@
       "rarity_depth": {
         "min": 700,
         "max": 1300
-      }
+      },
+      "weight": 50
     },
     "STAFF_DETECT_EVIL": {
       "name": "Staff of Detect Evil",
@@ -3212,7 +3448,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 50
     },
     "STAFF_DETECT_INVISIBLE": {
       "name": "Staff of Detect Invisible",
@@ -3230,7 +3467,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 50
     },
     "STAFF_DISPEL_EVIL": {
       "name": "Staff of Dispel Evil",
@@ -3248,7 +3486,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 50
     },
     "STAFF_DOOR_STAIR_LOCATION": {
       "name": "Staff of Door/Stair Location",
@@ -3265,7 +3504,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 50
     },
     "STAFF_EARTHQUAKES": {
       "name": "Staff of Earthquakes",
@@ -3282,7 +3522,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 50
     },
     "STAFF_HASTE_MONSTERS": {
       "name": "Staff of Haste Monsters",
@@ -3299,7 +3540,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 50
     },
     "STAFF_LIGHT": {
       "name": "Staff of Light",
@@ -3317,7 +3559,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 35
     },
     "STAFF_MASS_POLYMORPH": {
       "name": "Staff of Mass Polymorph",
@@ -3334,7 +3577,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 50
     },
     "STAFF_OBJECT_LOCATION": {
       "name": "Staff of Object Location",
@@ -3351,7 +3595,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 50
     },
     "STAFF_REMOVE_CURSE": {
       "name": "Staff of Remove Curse",
@@ -3368,7 +3613,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 50
     },
     "STAFF_SLEEP_MONSTERS": {
       "name": "Staff of Sleep Monsters",
@@ -3386,7 +3632,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 50
     },
     "STAFF_SLOWNESS": {
       "name": "Staff of Slowness",
@@ -3404,7 +3651,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 50
     },
     "STAFF_SLOW_MONSTERS": {
       "name": "Staff of Slow Monsters",
@@ -3422,7 +3670,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 50
     },
     "STAFF_SPEED": {
       "name": "Staff of Speed",
@@ -3440,7 +3689,8 @@
       "rarity_depth": {
         "min": 400,
         "max": 800
-      }
+      },
+      "weight": 50
     },
     "STAFF_STARLIGHT": {
       "name": "Staff of Starlight",
@@ -3459,7 +3709,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 50
     },
     "STAFF_SUMMONING": {
       "name": "Staff of Summoning",
@@ -3476,7 +3727,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 50
     },
     "STAFF_TELEPORTATION": {
       "name": "Staff of Teleportation",
@@ -3493,7 +3745,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 50
     },
     "STAFF_TRAP_LOCATION": {
       "name": "Staff of Trap Location",
@@ -3510,7 +3763,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 50
     },
     "STAFF_TREASURE_LOCATION": {
       "name": "Staff of Treasure Location",
@@ -3527,7 +3781,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 50
     },
     "WAND_ACID_BALLS": {
       "name": "Wand of Acid Balls",
@@ -3547,7 +3802,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 10
     },
     "WAND_CLONE_MONSTER": {
       "name": "Wand of Clone Monster",
@@ -3564,7 +3820,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 10
     },
     "WAND_COLD_BALLS": {
       "name": "Wand of Cold Balls",
@@ -3584,7 +3841,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 10
     },
     "WAND_CONFUSE_MONSTER": {
       "name": "Wand of Confuse Monster",
@@ -3602,7 +3860,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 10
     },
     "WAND_DISARMING": {
       "name": "Wand of Disarming",
@@ -3619,7 +3878,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 10
     },
     "WAND_DRAIN_LIFE": {
       "name": "Wand of Drain Life",
@@ -3637,7 +3897,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 10
     },
     "WAND_FIRE_BALLS": {
       "name": "Wand of Fire Balls",
@@ -3657,7 +3918,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 10
     },
     "WAND_FIRE_BOLTS": {
       "name": "Wand of Fire Bolts",
@@ -3676,7 +3938,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 10
     },
     "WAND_FROST_BOLTS": {
       "name": "Wand of Frost Bolts",
@@ -3695,7 +3958,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 10
     },
     "WAND_HASTE_MONSTER": {
       "name": "Wand of Haste Monster",
@@ -3712,7 +3976,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 10
     },
     "WAND_HEAL_MONSTER": {
       "name": "Wand of Heal Monster",
@@ -3730,7 +3995,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 10
     },
     "WAND_LIGHT": {
       "name": "Wand of Light",
@@ -3748,7 +4014,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 7
     },
     "WAND_LIGHTNING_BALLS": {
       "name": "Wand of Lightning Balls",
@@ -3768,7 +4035,8 @@
       "rarity_depth": {
         "min": 250,
         "max": 500
-      }
+      },
+      "weight": 7
     },
     "WAND_LIGHTNING_BOLTS": {
       "name": "Wand of Lightning Bolts",
@@ -3787,7 +4055,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 7
     },
     "WAND_MAGIC_MISSILE": {
       "name": "Wand of Magic Missile",
@@ -3806,7 +4075,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 10
     },
     "WAND_POLYMORPH": {
       "name": "Wand of Polymorph",
@@ -3823,7 +4093,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 10
     },
     "WAND_SLEEP_MONSTER": {
       "name": "Wand of Sleep Monster",
@@ -3841,7 +4112,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 10
     },
     "WAND_SLOW_MONSTER": {
       "name": "Wand of Slow Monster",
@@ -3859,7 +4131,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 10
     },
     "WAND_STINKING_CLOUD": {
       "name": "Wand of Stinking Cloud",
@@ -3880,7 +4153,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 10
     },
     "WAND_STONE_TO_MUD": {
       "name": "Wand of Stone-to-Mud",
@@ -3897,7 +4171,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 10
     },
     "WAND_TELEPORT_AWAY": {
       "name": "Wand of Teleport Away",
@@ -3914,7 +4189,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 10
     },
     "WAND_TRAP_DOOR_DESTRUCTION": {
       "name": "Wand of Trap/Door Destruction",
@@ -3931,7 +4207,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 10
     },
     "WAND_WALL_BUILDING": {
       "name": "Wand of Wall Building",
@@ -3948,7 +4225,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 10
     },
     "WAND_WONDER": {
       "name": "Wand of Wonder",
@@ -3965,7 +4243,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 10
     }
   },
   "WEAPONS": {
@@ -3978,7 +4257,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 1
     },
     "AWL_PIKE": {
       "name": "Awl-Pike",
@@ -3990,7 +4270,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "BACKSWORD": {
       "name": "Backsword",
@@ -4002,7 +4283,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "BALL_AND_CHAIN": {
       "name": "Ball and Chain",
@@ -4014,7 +4296,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 140
     },
     "BASTARD_SWORD": {
       "name": "Bastard Sword",
@@ -4026,7 +4309,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 30
     },
     "BATTLE_AXE_BALESTARIUS": {
       "name": "Battle Axe (Balestarius)",
@@ -4038,7 +4322,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 30
     },
     "BATTLE_AXE_EUROPEAN": {
       "name": "Battle Axe (European)",
@@ -4050,7 +4335,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 30
     },
     "BEAKED_AXE": {
       "name": "Beaked Axe",
@@ -4062,7 +4348,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "BOLT": {
       "name": "Bolt",
@@ -4073,7 +4360,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 1
     },
     "BOW_COMPOSITE": {
       "name": "Composite Bow",
@@ -4085,7 +4373,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 30
     },
     "BOW_LONG": {
       "name": "Long Bow",
@@ -4097,7 +4386,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 30
     },
     "BOW_SHORT": {
       "name": "Short Bow",
@@ -4109,7 +4399,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "BROADSWORD": {
       "name": "Broadsword",
@@ -4121,7 +4412,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 30
     },
     "BROAD_AXE": {
       "name": "Broad Axe",
@@ -4133,7 +4425,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "CAT_O_NINE_TAILS": {
       "name": "Cat-O-Nine Tails",
@@ -4145,7 +4438,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 30
     },
     "CLUB_WOODEN": {
       "name": "Wooden Club",
@@ -4157,7 +4451,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 30
     },
     "CROSSBOW_HEAVY": {
       "name": "Heavy Crossbow",
@@ -4170,7 +4465,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 45
     },
     "CROSSBOW_LIGHT": {
       "name": "Light Crossbow",
@@ -4182,7 +4478,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 21
     },
     "CUTLASS": {
       "name": "Cutlass",
@@ -4194,7 +4491,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "DAGGER_BODKIN": {
       "name": "Dagger (Bodkin)",
@@ -4206,7 +4504,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 12
     },
     "DAGGER_BROKEN": {
       "name": "Broken dagger",
@@ -4218,7 +4517,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 30
     },
     "DAGGER_MAIN_GAUCHE": {
       "name": "Dagger (Main Gauche)",
@@ -4230,7 +4530,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 12
     },
     "DAGGER_MISERICORDE": {
       "name": "Dagger (Misericorde)",
@@ -4242,7 +4543,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 12
     },
     "DAGGER_STILETTO": {
       "name": "Dagger (Stiletto)",
@@ -4254,7 +4556,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 12
     },
     "EXECUTIONERS_SWORD": {
       "name": "Executioner's Sword",
@@ -4266,7 +4569,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 30
     },
     "FAUCHARD": {
       "name": "Fauchard",
@@ -4278,7 +4582,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "FLAIL": {
       "name": "Flail",
@@ -4290,7 +4595,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "FOIL": {
       "name": "Foil",
@@ -4302,7 +4608,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "GLAIVE": {
       "name": "Glaive",
@@ -4314,7 +4621,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "HALBERD": {
       "name": "Halberd",
@@ -4326,7 +4634,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "JAVELIN": {
       "name": "Javelin",
@@ -4338,7 +4647,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 30
     },
     "KATANA": {
       "name": "Katana",
@@ -4350,7 +4660,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 30
     },
     "LANCE": {
       "name": "Lance",
@@ -4362,7 +4673,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 30
     },
     "LONGSWORD": {
       "name": "Longsword",
@@ -4374,7 +4686,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "LUCERNE_HAMMER": {
       "name": "Lucerne Hammer",
@@ -4386,7 +4699,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "MACE": {
       "name": "Mace",
@@ -4398,7 +4712,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "MACE_LEAD_FILLED": {
       "name": "Mace (Lead-filled)",
@@ -4410,7 +4725,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "MORNINGSTAR": {
       "name": "Morningstar",
@@ -4422,7 +4738,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "PEBBLE_ROUNDED": {
       "name": "Rounded Pebble",
@@ -4433,7 +4750,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 1
     },
     "PICK": {
       "name": "Pick",
@@ -4445,7 +4763,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 30
     },
     "PICK_DWARVEN": {
       "name": "Dwarven Pick",
@@ -4457,7 +4776,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "PICK_ORCISH": {
       "name": "Orcish Pick",
@@ -4469,7 +4789,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "PIKE": {
       "name": "Pike",
@@ -4481,7 +4802,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "RAPIER": {
       "name": "Rapier",
@@ -4493,7 +4815,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "SABRE": {
       "name": "Sabre",
@@ -4505,7 +4828,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "SHOT_IRON": {
       "name": "Iron Shot",
@@ -4516,7 +4840,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 1
     },
     "SHOVEL": {
       "name": "Shovel",
@@ -4528,7 +4853,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 30
     },
     "SHOVEL_DWARVEN": {
       "name": "Dwarven Shovel",
@@ -4540,7 +4866,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 30
     },
     "SHOVEL_GNOMISH": {
       "name": "Gnomish Shovel",
@@ -4552,7 +4879,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 30
     },
     "SLING": {
       "name": "Sling",
@@ -4564,7 +4892,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 30
     },
     "SMALL_SWORD": {
       "name": "Small Sword",
@@ -4576,7 +4905,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "SPEAR": {
       "name": "Spear",
@@ -4588,7 +4918,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 30
     },
     "SWORD_BROKEN": {
       "name": "Broken sword",
@@ -4600,7 +4931,8 @@
       "rarity_depth": {
         "min": 0,
         "max": 75
-      }
+      },
+      "weight": 30
     },
     "THRUSTING_SWORD_BASELARD": {
       "name": "Thrusting Sword (Baselard)",
@@ -4612,7 +4944,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "THRUSTING_SWORD_BILBO": {
       "name": "Thrusting Sword (Bilbo)",
@@ -4624,7 +4957,8 @@
       "rarity_depth": {
         "min": 50,
         "max": 150
-      }
+      },
+      "weight": 30
     },
     "TWO_HANDED_GREAT_FLAIL": {
       "name": "Two-Handed Great Flail",
@@ -4636,7 +4970,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 150
     },
     "TWO_HANDED_SWORD_CLAYMORE": {
       "name": "Two-Handed Sword (Claymore)",
@@ -4648,7 +4983,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 150
     },
     "TWO_HANDED_SWORD_ESPADON": {
       "name": "Two-Handed Sword (Espadon)",
@@ -4660,7 +4996,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 150
     },
     "TWO_HANDED_SWORD_FLAMBERGE": {
       "name": "Two-Handed Sword (Flamberge)",
@@ -4672,7 +5009,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 150
     },
     "TWO_HANDED_SWORD_NO_DACHI": {
       "name": "Two-Handed Sword (No-Dachi)",
@@ -4684,7 +5022,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 150
     },
     "TWO_HANDED_SWORD_ZWEIHANDER": {
       "name": "Two-Handed Sword (Zweihander)",
@@ -4696,7 +5035,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 150
     },
     "WAR_HAMMER": {
       "name": "War Hammer",
@@ -4708,7 +5048,8 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
-      }
+      },
+      "weight": 30
     }
   }
 }
