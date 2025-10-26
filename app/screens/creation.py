@@ -442,7 +442,7 @@ class CharacterCreationScreen(Screen):
             "abilities": profile.get("abilities"),
             "gold": profile.get("starting_gold", 100),
             # --- Use chosen spells if available, otherwise empty list ---
-            "known_spells": self.chosen_starter_spells if self.creation_step == "spell_select" else [],
+            "known_spells": self.chosen_starter_spells if self.chosen_starter_spells else [],
             # Standard starting gear
             "inventory": ["Rations (3)", "Torch (5)", "Dagger"],
             "equipment": {"weapon": "Dagger", "armor": None},
