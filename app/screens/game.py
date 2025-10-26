@@ -380,8 +380,7 @@ class GameScreen(Screen):
     def _handle_engine_update(self, moved: bool):
         """Updates UI after an engine action."""
         if moved:
-            # Update entities AI when player moves
-            self.engine.update_entities()
+            # Engine already advanced entities during the action; just refresh the UI.
             self.dungeon_view.update_map()
             self.hud_view.update_hud()
         else:
@@ -741,13 +740,14 @@ class GameScreen(Screen):
     def action_rest(self):
         """Rest for a period."""
         self.notify("Resting...", timeout=2)
-        # Could implement actual resting mechanics here
-        self._handle_engine_update(True)
+        action_taken = self.engine.pass_turn("You rest to recover." )
+        self._handle_engine_update(action_taken)
         debug("Action: Rest")
     
     def action_wait(self):
         """Wait/do nothing for a turn."""
-        self._handle_engine_update(True)
+        action_taken = self.engine.pass_turn("You wait.")
+        self._handle_engine_update(action_taken)
         debug("Action: Wait")
     
     def action_view_scores(self):

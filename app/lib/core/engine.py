@@ -213,6 +213,13 @@ class Engine:
         if action_taken: self._end_player_turn()
         return action_taken
 
+    def pass_turn(self, log_message: str | None = None) -> bool:
+        """Advance the game state without moving the player."""
+        if log_message:
+            self.log_event(log_message)
+        self._end_player_turn()
+        return True
+
     def handle_use_item(self, item_index: int) -> bool:
         # --- Use item logic --- (omitted for brevity, keep your existing logic)
          if not (0 <= item_index < len(self.player.inventory)): return False
@@ -675,4 +682,3 @@ class Engine:
             for x in range(self.map_width):
                 if self.game_map[y][x] == SECRET_DOOR_FOUND: found.append([x, y])
         return found
-

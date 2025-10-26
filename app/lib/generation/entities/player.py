@@ -715,7 +715,8 @@ class Player:
         debug(f"Cast {spell_name}: BaseFail({base_failure}) - StatMod({stat_modifier}*3) - LvlDiff({self.level - min_level}) = {failure_chance}%")
 
         if random.randint(1, 100) <= failure_chance:
-            self.status_effects.add_effect("Confused", duration=3)
+            # Apply failure side-effects via the status manager so durations persist correctly
+            self.status_manager.add_effect("Confused", duration=3)
             return False, f"You failed to cast {spell_name}!", None
 
         xp_gain = max(1, min_level)
@@ -845,4 +846,3 @@ class Player:
         message = " ".join(messages)
         
         return success, newly_learned, message
-

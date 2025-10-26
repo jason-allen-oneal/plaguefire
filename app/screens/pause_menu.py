@@ -1,0 +1,37 @@
+# app/screens/pause_menu.py
+
+from textual.containers import Vertical
+from textual.screen import Screen
+from textual.widgets import Static
+from debugtools import debug
+
+
+class PauseMenuScreen(Screen):
+    """Simple pause menu with resume/save/quit options."""
+
+    BINDINGS = [
+        ("escape", "resume", "Resume Game"),
+        ("r", "resume", "Resume Game"),
+        ("s", "save", "Save Game"),
+        ("q", "quit_to_title", "Quit to Title"),
+    ]
+
+    def compose(self):
+        with Vertical(id="pause-menu", classes="dialog"):
+            yield Static("[chartreuse1]=== Game Paused ===[/chartreuse1]", markup=True)
+            yield Static("[white]R[/white] Resume    [white]S[/white] Save    [white]Q[/white] Quit to Title", markup=True)
+
+    def action_resume(self):
+        debug("PauseMenu: resume")
+        self.app.pop_screen()
+
+    def action_save(self):
+        debug("PauseMenu: save")
+        self.app.save_character()
+        self.notify("Game saved.")
+
+    def action_quit_to_title(self):
+        debug("PauseMenu: quit to title")
+        self.app.save_character()
+        self.app.pop_screen()
+        self.app.push_screen("title")

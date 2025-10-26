@@ -1,5 +1,6 @@
 # app/maps/utils.py
 
+import random
 from typing import List, Optional
 from config import FLOOR, STAIRS_UP, STAIRS_DOWN
 from debugtools import debug
@@ -19,7 +20,9 @@ def find_random_floor(map_data: List[List[str]]) -> Optional[List[int]]:
     height = len(map_data)
     width = len(map_data[0]) if height > 0 else 0
     floor_tiles = [[x, y] for y in range(1, height-1) for x in range(1, width-1) if map_data[y][x] == FLOOR]
-    return floor_tiles[0] if floor_tiles else None
+    if not floor_tiles:
+        return None
+    return random.choice(floor_tiles)
 
 
 def find_start_pos(map_data: List[List[str]]) -> List[int]:

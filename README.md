@@ -164,6 +164,14 @@ The game follows a modular architecture:
 - **Generation**: Procedural content generation for dungeons, entities, and items
 - **Data Loader**: JSON-based data system for easy content modification
 
+## Functionality Highlights
+
+- **Dual Command Schemes**: Switch between classic Moria-style numeric commands and roguelike `hjkl` bindings at runtime via the settings menu or `K` toggle.
+- **Persistent World State**: Each dungeon depth caches its generated layout and entities, allowing you to revisit floors without regeneration and to resume from save files stored under `saves/`.
+- **Dynamic Field of View**: The engine recalculates visibility every turn with support for day/night cycles in town, light sources that burn out, and search mode for revealing secret doors.
+- **Rich Magic Flow**: Character creation surfaces class-specific starter spells, level-ups queue new spells to learn, and two dedicated Textual screens handle learning and casting with letter shortcuts plus targeting UI.
+- **Town Economy & Shops**: Distinct shop screens share a base implementation that supports buying, selling, and haggling, with specialized actions (e.g., the magic shop’s identification service) and flavor text per proprietor.
+
 ## Contributing
 
 Contributions are welcome! Please ensure:
