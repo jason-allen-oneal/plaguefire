@@ -7,7 +7,7 @@ from textual.widgets import Header, Footer, Static
 from rich.text import Text
 from typing import TYPE_CHECKING, List, Optional, Callable
 from debugtools import debug
-from app.core.entity import Entity
+from app.lib.generation.entities.entity import Entity
 import string
 
 if TYPE_CHECKING:

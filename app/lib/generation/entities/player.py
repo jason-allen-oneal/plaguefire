@@ -6,8 +6,8 @@ import random
 from typing import Dict, List, Optional, Tuple
 
 # --- Added Imports ---
-from app.core.data_loader import GameData
-from app.systems.status_effects import StatusEffectManager
+from app.lib.core.data_loader import GameData
+from app.lib.generation.core.status_effects import StatusEffectManager
 from config import VIEWPORT_HEIGHT, VIEWPORT_WIDTH
 from debugtools import debug
 
@@ -715,7 +715,7 @@ class Player:
         debug(f"Cast {spell_name}: BaseFail({base_failure}) - StatMod({stat_modifier}*3) - LvlDiff({self.level - min_level}) = {failure_chance}%")
 
         if random.randint(1, 100) <= failure_chance:
-            # TODO: Add confusion status effect here
+            self.status_effects.add_effect("Confused", duration=3)
             return False, f"You failed to cast {spell_name}!", None
 
         xp_gain = max(1, min_level)

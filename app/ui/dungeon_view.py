@@ -14,7 +14,7 @@ from typing import TYPE_CHECKING, List
 from debugtools import log_exception, debug
 
 if TYPE_CHECKING:
-    from app.core.engine import Engine
+    from app.lib.core.engine import Engine
 
 MapData = List[List[str]]
 VisibilityData = List[List[int]]

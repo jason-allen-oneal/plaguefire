@@ -3,17 +3,17 @@
 import random
 import math
 from typing import Dict, List, Optional, TYPE_CHECKING
-from app.core.player import Player
-from app.core.entity import Entity
-from app.core.data_loader import GameData
-from app.maps.town import get_town_map
-from app.maps.generate import (
+from app.lib.generation.entities.player import Player
+from app.lib.generation.entities.entity import Entity
+from app.lib.core.data_loader import GameData
+from app.lib.generation.maps.town import get_town_map
+from app.lib.generation.maps.generate import (
     generate_cellular_automata_dungeon,
     generate_room_corridor_dungeon
 )
-from app.maps.utils import find_tile, find_start_pos
-from app.systems.spawning import spawn_entities_for_depth
-from app.maps.fov import update_visibility
+from app.lib.generation.maps.utils import find_tile, find_start_pos
+from app.lib.generation.core.spawning import spawn_entities_for_depth
+from app.lib.generation.maps.fov import update_visibility
 from config import (
     WALL, FLOOR, STAIRS_DOWN, STAIRS_UP,
     DOOR_CLOSED, DOOR_OPEN, SECRET_DOOR, SECRET_DOOR_FOUND,

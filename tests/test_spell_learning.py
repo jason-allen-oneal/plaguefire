@@ -7,8 +7,8 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.core.player import Player
-from app.core.data_loader import GameData
+from app.lib.generation.entities.player import Player
+from app.lib.core.data_loader import GameData
 
 
 def test_starter_spell_selection():

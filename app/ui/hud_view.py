@@ -7,8 +7,8 @@ from typing import TYPE_CHECKING
 # Use TYPE_CHECKING to avoid circular import for type hinting
 if TYPE_CHECKING:
     # Assuming these paths are correct based on your file
-    from app.core.engine import Engine
-    from app.core.player import Player
+    from app.lib.core.engine import Engine
+    from app.lib.generation.entities.player import Player
 
 
 class HUDView(Static):
