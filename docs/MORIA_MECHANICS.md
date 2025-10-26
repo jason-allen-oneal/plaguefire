@@ -25,6 +25,7 @@ Carrying Capacity = 3000 + (STR × 100)  [in pounds × 10]
 - `is_overweight()` method checks if over capacity
 - ✅ **Movement speed penalty when overweight** - Implemented in Player class
 - ✅ **Weight limit checking on pickup** - Engine checks `can_pickup_item()` before adding items
+- ✅ **Overweight warnings** - Player receives periodic warnings when burdened
 
 **Implementation:**
 ```python
@@ -32,10 +33,12 @@ Carrying Capacity = 3000 + (STR × 100)  [in pounds × 10]
 def get_speed_modifier(self) -> float:
     """Returns movement speed multiplier based on encumbrance (1.0 = normal, >1.0 = slower)"""
     # Progressive penalty: 10% excess = 1.1x, 20% = 1.2x, max 2.0x at 100% excess
-```
 
-**Pending:**
-- Speed penalty needs to be applied in game engine's movement system (currently calculated but not used)
+# In Engine class
+# Warns player every 50 turns when overweight
+if self.player.is_overweight():
+    self.log_event(f"You are burdened by your load ({slowdown_pct}% slower).")
+```
 
 ### Automatic Inscriptions
 

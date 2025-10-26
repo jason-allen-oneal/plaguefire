@@ -119,6 +119,10 @@ class Engine:
         self.recall_turns = 20  # Number of turns before recall activates
         self.recall_target_depth = None
         
+        # Overweight warning tracking
+        self.last_overweight_warning = 0
+        self.overweight_warning_interval = 50  # Warn every 50 turns when overweight
+        
         self.update_fov()
 
     def get_time_of_day(self) -> str:
@@ -243,6 +247,16 @@ class Engine:
                 self.log_event(f"Recall in {remaining} turns...")
             elif self.recall_timer >= self.recall_turns:
                 self._execute_recall()
+        
+        # Check for overweight penalty and warn player
+        if self.player.is_overweight():
+            turns_since_warning = self.player.time - self.last_overweight_warning
+            if turns_since_warning >= self.overweight_warning_interval:
+                speed_mod = self.player.get_speed_modifier()
+                if speed_mod > 1.0:
+                    slowdown_pct = int((speed_mod - 1.0) * 100)
+                    self.log_event(f"You are burdened by your load ({slowdown_pct}% slower).")
+                    self.last_overweight_warning = self.player.time
         
         if self.searching:
             self.search_timer += 1
