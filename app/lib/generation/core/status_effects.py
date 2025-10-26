@@ -62,6 +62,11 @@ class StatusEffectManager:
             "stat_modifiers": {"attack": -3, "defense": -3},
             "description": "Cursed by dark magic",
         },
+        "Confused": {
+            "behavior": "confused",  # Random movement/actions
+            "stat_modifiers": {"attack": -2},
+            "description": "Confused and disoriented",
+        },
     }
     
     def __init__(self):
