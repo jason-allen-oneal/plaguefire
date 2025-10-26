@@ -4764,7 +4764,8 @@
         "min": 0,
         "max": 75
       },
-      "weight": 30
+      "weight": 30,
+      "digging_bonus": 2
     },
     "PICK_DWARVEN": {
       "name": "Dwarven Pick",
@@ -4777,7 +4778,8 @@
         "min": 50,
         "max": 150
       },
-      "weight": 30
+      "weight": 30,
+      "digging_bonus": 4
     },
     "PICK_ORCISH": {
       "name": "Orcish Pick",
@@ -4790,7 +4792,8 @@
         "min": 50,
         "max": 150
       },
-      "weight": 30
+      "weight": 30,
+      "digging_bonus": 3
     },
     "PIKE": {
       "name": "Pike",
@@ -4854,7 +4857,8 @@
         "min": 0,
         "max": 75
       },
-      "weight": 30
+      "weight": 30,
+      "digging_bonus": 1
     },
     "SHOVEL_DWARVEN": {
       "name": "Dwarven Shovel",
@@ -4867,7 +4871,8 @@
         "min": 0,
         "max": 75
       },
-      "weight": 30
+      "weight": 30,
+      "digging_bonus": 3
     },
     "SHOVEL_GNOMISH": {
       "name": "Gnomish Shovel",
@@ -4880,7 +4885,8 @@
         "min": 0,
         "max": 75
       },
-      "weight": 30
+      "weight": 30,
+      "digging_bonus": 2
     },
     "SLING": {
       "name": "Sling",

@@ -28,6 +28,11 @@ DOOR_OPEN = "/"
 SECRET_DOOR = "H"  # Hidden secret door (looks like wall)
 SECRET_DOOR_FOUND = "s"  # Revealed secret door
 
+# --- Mining Tile Characters ---
+QUARTZ_VEIN = "%"  # Richest mineral vein
+MAGMA_VEIN = "~"   # Magma vein with some treasure
+GRANITE = "#"      # Granite rock (same as wall but mineable)
+
 # --- Window Size (Adjust if needed based on VIEWPORT + HUD) ---
 WINDOW_COLS = 130   # e.g., 98 viewport + 30 hud + padding
 WINDOW_ROWS = 34    # e.g., 32 viewport + padding
