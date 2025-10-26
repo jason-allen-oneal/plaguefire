@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Tuple
 
 # --- Added Imports ---
 from app.core.data_loader import GameData
+from app.systems.status_effects import StatusEffectManager
 from config import VIEWPORT_HEIGHT, VIEWPORT_WIDTH
 from debugtools import debug
 
@@ -511,6 +512,12 @@ class Player:
         self.light_duration: int = data.get("light_duration", 0)
 
         self.status_effects: List[str] = data.get("status_effects", [])
+        # Initialize status effect manager
+        self.status_manager = StatusEffectManager()
+        # Restore active effects from save data
+        for effect_name in self.status_effects:
+            # Default duration when loading from save (will be managed by system)
+            self.status_manager.add_effect(effect_name, duration=10)
 
         self.known_spells: List[str] = data.get("known_spells", []) # Load if exists
         # --- List to track spells available to learn (for level up) ---
@@ -633,7 +640,7 @@ class Player:
                 self.light_duration = 0
 
     def to_dict(self) -> Dict:
-        # --- UPDATED: Save spells_available_to_learn ---
+        # --- UPDATED: Save active status effects ---
         data = {
             "name": self.name, "race": self.race, "class": self.class_, "sex": self.sex,
             "stats": self.stats, "base_stats": self.base_stats, "stat_percentiles": self.stat_percentiles,
@@ -642,7 +649,8 @@ class Player:
             "level": self.level, "xp": self.xp, "next_level_xp": self.next_level_xp, "gold": self.gold,
             "inventory": self.inventory, "equipment": self.equipment, "position": self.position, "depth": self.depth,
             "time": self.time, "base_light_radius": self.base_light_radius, "light_radius": self.light_radius,
-            "light_duration": self.light_duration, "status_effects": self.status_effects,
+            "light_duration": self.light_duration, 
+            "status_effects": self.status_manager.get_active_effects_display(),  # Save active effects
             "known_spells": self.known_spells,
             "spells_available_to_learn": self.spells_available_to_learn, # Save pending choices
         }
