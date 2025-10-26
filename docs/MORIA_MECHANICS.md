@@ -23,10 +23,19 @@ Carrying Capacity = 3000 + (STR × 100)  [in pounds × 10]
 - Player class tracks current weight and capacity
 - Inventory screen displays weight: "Current / Capacity"
 - `is_overweight()` method checks if over capacity
+- ✅ **Movement speed penalty when overweight** - Implemented in Player class
+- ✅ **Weight limit checking on pickup** - Engine checks `can_pickup_item()` before adding items
+
+**Implementation:**
+```python
+# In Player class
+def get_speed_modifier(self) -> float:
+    """Returns movement speed multiplier based on encumbrance (1.0 = normal, >1.0 = slower)"""
+    # Progressive penalty: 10% excess = 1.1x, 20% = 1.2x, max 2.0x at 100% excess
+```
 
 **Pending:**
-- Movement speed penalty when overweight (needs game engine integration)
-- Prompt before picking up items that would exceed weight limit
+- Speed penalty needs to be applied in game engine's movement system (currently calculated but not used)
 
 ### Automatic Inscriptions
 
@@ -80,20 +89,31 @@ def remove_curse_from_equipment(self) -> List[str]
 - ✅ Effect: `["recall"]`
 - ✅ Base cost: 300 gold
 - ✅ Rarity depth: 100-300
+- ✅ **Delayed teleport mechanic fully implemented**
 
 **Mechanics (as per guidelines):**
 - In dungeon: Teleports character back to town (depth 0)
 - In town: Teleports character to deepest previously visited dungeon level
 - Delayed activation: "You begin to recall..." (not instant)
+- **20-turn countdown** with progress messages every 5 turns
+- Player tracks `deepest_depth` for recall from town
 
 **Code Reference:**
 ```python
 # In engine.py
-if spell_effect_type == "recall":
-    self.log_event("You begin to recall...")
+def activate_recall(self):
+    """Activate Word of Recall with 20-turn delay"""
+    # Sets recall_active, recall_timer, and recall_target_depth
+    
+def _execute_recall(self):
+    """Execute teleport after delay"""
+    # Triggers depth change through app.change_depth()
+
+# In Player class
+self.deepest_depth: int  # Tracks deepest dungeon level visited
 ```
 
-**Status:** Basic framework exists, needs full implementation of delayed teleport mechanic.
+**Status:** ✅ Fully implemented with delayed activation and depth tracking.
 
 ## Mining
 
