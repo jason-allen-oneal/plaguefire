@@ -64,4 +64,14 @@ CSS = """
     padding: 2;
 }
 
+/* Styles for target selector */
+#target-list {
+    padding: 1 2;
+    height: auto;
+}
+
+.target-option-text {
+    padding: 0 1;
+}
+
 """

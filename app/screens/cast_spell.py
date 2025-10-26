@@ -123,28 +123,32 @@ class CastSpellScreen(Screen):
             requires_target = spell_data.get("requires_target", False) if spell_data else False
             
             if requires_target:
-                # For now, target the nearest visible hostile entity
-                # In a full implementation, this would open a targeting UI
+                # Open target selection UI
                 engine = game_screen.engine
                 visible_enemies = [e for e in engine.get_visible_entities() if e.hostile]
                 
                 if not visible_enemies:
-                    engine.log_event("No valid target in sight!")
+                    engine.log_event("No valid targets in sight!")
                     self.app.pop_screen()
                     return
                 
-                # Target the closest enemy
-                px, py = self.player.position
-                target = min(visible_enemies, 
-                           key=lambda e: abs(e.position[0] - px) + abs(e.position[1] - py))
+                # Define callback for when target is selected
+                def on_target_selected(target):
+                    if target:
+                        game_screen.engine.handle_cast_spell(spell_id, target)
+                    else:
+                        engine.log_event("Spell cancelled.")
                 
-                # Cast the spell with target
-                game_screen.engine.handle_cast_spell(spell_id, target)
+                # Import and instantiate target selector
+                from app.screens.target_selector import TargetSelectorScreen
+                target_screen = TargetSelectorScreen(targets=visible_enemies, callback=on_target_selected)
+                
+                # Close spell menu and open target selector
+                self.app.pop_screen()
+                self.app.push_screen(target_screen)
             else:
                 # Cast the spell without target
                 game_screen.engine.handle_cast_spell(spell_id)
-            
-            # Close the spell menu and refresh the game view
-            self.app.pop_screen()
+                self.app.pop_screen()
         else:
             debug(f"Invalid letter selection: {letter}")
