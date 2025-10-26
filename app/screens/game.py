@@ -694,7 +694,8 @@ class GameScreen(Screen):
     
     def action_wear_wield(self):
         """Wear or wield an item."""
-        self.notify("Wear/wield: Not yet implemented.", severity="info")
+        from app.screens.wear_wield import WearWieldScreen
+        self.app.push_screen(WearWieldScreen())
         debug("Action: Wear/wield")
     
     def action_exchange_weapon(self):
@@ -764,7 +765,8 @@ class GameScreen(Screen):
     
     def action_inscribe(self):
         """Inscribe an object."""
-        self.notify("Inscribe: Not yet implemented.", severity="info")
+        from app.screens.inscribe import InscribeScreen
+        self.app.push_screen(InscribeScreen())
         debug("Action: Inscribe")
     
     def action_identify_char(self):

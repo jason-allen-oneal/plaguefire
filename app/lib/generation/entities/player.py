@@ -523,6 +523,8 @@ class Player:
         self.known_spells: List[str] = data.get("known_spells", []) # Load if exists
         # --- List to track spells available to learn (for level up) ---
         self.spells_available_to_learn: List[str] = data.get("spells_available_to_learn", [])
+        # --- Dictionary to track custom inscriptions on items ---
+        self.custom_inscriptions: Dict[str, str] = data.get("custom_inscriptions", {})
         
         # Note: Starting spells should be provided via character creation, not auto-learned
         if self.known_spells:
@@ -1116,7 +1118,46 @@ class Player:
         Returns:
             Item name with inscription in format "Item Name {inscription}"
         """
-        inscription = self.get_item_inscription(item_name)
-        if inscription:
-            return f"{item_name} {{{inscription}}}"
+        inscriptions = []
+        
+        # Add automatic inscriptions
+        auto_inscription = self.get_item_inscription(item_name)
+        if auto_inscription:
+            inscriptions.append(auto_inscription)
+        
+        # Add custom inscription if exists
+        custom_inscription = self.custom_inscriptions.get(item_name)
+        if custom_inscription:
+            inscriptions.append(custom_inscription)
+        
+        if inscriptions:
+            return f"{item_name} {{{', '.join(inscriptions)}}}"
         return item_name
+    
+    def set_custom_inscription(self, item_name: str, inscription: str) -> bool:
+        """
+        Set a custom inscription on an item.
+        
+        Args:
+            item_name: Name of the item to inscribe
+            inscription: Custom inscription text
+            
+        Returns:
+            True if successfully inscribed
+        """
+        # Check if item exists in inventory or equipment
+        if item_name not in self.inventory and item_name not in self.equipment.values():
+            debug(f"Cannot inscribe {item_name} - not found")
+            return False
+        
+        # Set or update the custom inscription
+        if inscription.strip():
+            self.custom_inscriptions[item_name] = inscription.strip()
+            debug(f"Inscribed {item_name} with: {inscription.strip()}")
+        else:
+            # Remove inscription if empty
+            if item_name in self.custom_inscriptions:
+                del self.custom_inscriptions[item_name]
+                debug(f"Removed inscription from {item_name}")
+        
+        return True
