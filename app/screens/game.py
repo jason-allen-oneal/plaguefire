@@ -37,7 +37,6 @@ class GameScreen(Screen):
 
     def __init__(self):
         super().__init__()
-        self._awaiting_look_direction = False
         self._awaiting_direction = None  # Store what action is awaiting direction
         self.markup = True
     
@@ -576,7 +575,7 @@ class GameScreen(Screen):
     }
 
     def _describe_direction(self, dx: int, dy: int):
-        self._awaiting_look_direction = False
+        """Describe what's visible in a given direction."""
         direction = self.DIRECTION_NAMES.get((dx, dy), "that way")
         px, py = self.engine.player.position
         description = None
@@ -719,7 +718,7 @@ class GameScreen(Screen):
             return
         
         # Check if player can learn spells
-        if not self.app.player.mana_stat:
+        if not getattr(self.app.player, 'mana_stat', None):
             self.notify("You cannot learn spells!", severity="warning")
             return
         
@@ -792,9 +791,9 @@ class GameScreen(Screen):
         """Show help/command reference."""
         mode = self.app.get_command_mode()
         if mode == "original":
-            help_text = "Original Commands: a=aim wand, b=browse, c=close, d=drop, e=equipment, i=inventory, m=magic, o=open, s=search, <=up stairs, >=down stairs"
+            help_text = "Original Commands: a=aim wand, b=browse, c=close, d=drop, e=equipment, i=inventory, m=cast spell, o=open, s=search, <=up stairs, >=down stairs"
         else:
-            help_text = "Roguelike Commands: hjkl=move, c=close, d=drop, e=equipment, i=inventory, m=magic, o=open, s=search, <=up stairs, >=down stairs"
+            help_text = "Roguelike Commands: hjkl=move, c=close, d=drop, e=equipment, i=inventory, m=cast spell, o=open, s=search, <=up stairs, >=down stairs"
         self.notify(help_text, timeout=10)
         debug("Action: Help")
     
