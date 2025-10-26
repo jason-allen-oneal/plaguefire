@@ -198,7 +198,7 @@ Built with:
 
 Plaguefire faithfully implements classic Moria/Angband object mechanics:
 
-- **Weight System**: Carrying capacity based on STR stat using formula: 3000 + (STR × 100)
+- **Weight System**: Carrying capacity based on STR stat. Example: STR 16 = 460 lbs capacity (formula: [3000 + STR × 100] / 10)
 - **Inventory Limit**: Maximum 22 different items in backpack
 - **Automatic Inscriptions**: Items display helpful inscriptions like {damned} for cursed items and {magik} for magical items detected by high-level characters
 - **Cursed Items**: Cannot remove cursed equipment until Remove Curse is cast
