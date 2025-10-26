@@ -275,6 +275,20 @@ class Engine:
                  self._end_player_turn()
                  return False
          
+         # Check if it's a spell book
+         if "Handbook" in item_name or "Magik" in item_name or "Chants" in item_name or "book" in item_name.lower():
+             success, learned_spells, message = self.player.read_spellbook(item_name)
+             self.log_event(message)
+             
+             if success:
+                 # Keep the book in inventory (can be referenced later)
+                 # Or remove if you want single-use books:
+                 # self.player.inventory.pop(item_index)
+                 pass
+             
+             self._end_player_turn()
+             return True
+         
          # Placeholder for other items
          success, message = False, f"Using {item_name} not implemented."
          if success: self.log_event(message); self._end_player_turn(); return True

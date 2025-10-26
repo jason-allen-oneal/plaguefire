@@ -771,3 +771,78 @@ class Player:
         
         return True, f"You read the {scroll_name}! {spell_name} activates!", spell_data
 
+    def read_spellbook(self, book_name: str) -> Tuple[bool, List[str], str]:
+        """
+        Read a spell book to learn spells it contains.
+        
+        Args:
+            book_name: Name of the spell book item
+            
+        Returns:
+            (success, newly_learned_spells, message)
+        """
+        # Map book names to spell lists (this should ideally come from item data)
+        book_spells_map = {
+            "Beginners Handbook": ["detect_evil", "cure_light_wounds"],
+            "Beginners-Magik": ["magic_missile", "detect_monsters"],
+            "Magik I": ["phase_door", "light"],
+            "Magik II": ["fire_bolt", "sleep_monster"],
+        }
+        
+        spell_ids = book_spells_map.get(book_name, [])
+        
+        if not spell_ids:
+            return False, [], f"The {book_name} is written in an unknown language."
+        
+        # Check if any spells can be learned
+        data_loader = GameData()
+        newly_learned = []
+        already_known = []
+        cannot_learn = []
+        
+        for spell_id in spell_ids:
+            spell_data = data_loader.get_spell(spell_id)
+            
+            if not spell_data:
+                continue
+            
+            # Check if already known
+            if spell_id in self.known_spells:
+                already_known.append(spell_data.get("name", spell_id))
+                continue
+            
+            # Check if player's class can learn this spell
+            if self.class_ not in spell_data.get("classes", {}):
+                cannot_learn.append(spell_data.get("name", spell_id))
+                continue
+            
+            # Check if player meets level requirement
+            spell_class_info = spell_data["classes"][self.class_]
+            min_level = spell_class_info.get("min_level", 1)
+            
+            if self.level < min_level:
+                cannot_learn.append(f"{spell_data.get('name', spell_id)} (requires level {min_level})")
+                continue
+            
+            # Learn the spell!
+            self.known_spells.append(spell_id)
+            newly_learned.append(spell_data.get("name", spell_id))
+            debug(f"Learned {spell_id} from {book_name}")
+        
+        # Build message
+        messages = []
+        if newly_learned:
+            messages.append(f"You learned: {', '.join(newly_learned)}!")
+        if already_known:
+            messages.append(f"Already known: {', '.join(already_known)}")
+        if cannot_learn:
+            messages.append(f"Cannot learn: {', '.join(cannot_learn)}")
+        
+        if not messages:
+            messages.append("The book contains no useful spells.")
+        
+        success = len(newly_learned) > 0
+        message = " ".join(messages)
+        
+        return success, newly_learned, message
+
