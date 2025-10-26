@@ -1,13 +1,13 @@
-# app/map_utils/generate.py
+# app/maps/generate.py
 
 import random
-from typing import List, Optional, Tuple # Added Tuple
-# --- UPDATED: Import viewport and min/max dimensions ---
+from typing import List, Optional, Tuple
 from config import (
-    WALL, FLOOR, STAIRS_DOWN, STAIRS_UP,
+    WALL, FLOOR, STAIRS_DOWN, STAIRS_UP, SECRET_DOOR,
     MIN_MAP_WIDTH, MAX_MAP_WIDTH, MIN_MAP_HEIGHT, MAX_MAP_HEIGHT
 )
 from debugtools import debug
+from .utils import find_tile, find_random_floor, find_start_pos
 
 MapData = List[List[str]] # Type alias
 
@@ -29,43 +29,26 @@ class Rect:
         return (self.x1 <= other.x2 + 1 and self.x2 >= other.x1 - 1 and
                 self.y1 <= other.y2 + 1 and self.y2 >= other.y1 - 1)
 
-
-# --- Tile Finding (remains mostly the same) ---
-def find_tile(map_data: MapData, tile_char: str) -> List[int] | None:
-     """Finds the coordinates [x, y] of the first occurrence of tile_char."""
-     for y in range(len(map_data)):
-         for x in range(len(map_data[y])):
-             if map_data[y][x] == tile_char:
-                 return [x, y]
-     return None
-
-def find_random_floor(grid: MapData) -> List[int] | None:
-    """Finds random coordinates [x,y] of a floor tile within map boundaries."""
-    height = len(grid)
-    width = len(grid[0]) if height > 0 else 0
-    floor_tiles = [[x,y] for y in range(1, height-1) for x in range(1, width-1) if grid[y][x]==FLOOR]
-    return random.choice(floor_tiles) if floor_tiles else None
-
-def find_start_pos(map_data: MapData) -> List[int]:
-    """Finds a valid FLOOR tile to place the player (fallback)."""
-    pos = find_tile(map_data, FLOOR)
-    if pos: return pos
-    height = len(map_data)
-    width = len(map_data[0]) if height > 0 else 0
-    debug("CRITICAL WARNING: No floor tiles found? Placing player at center.")
-    return [width // 2, height // 2] # Use actual map dimensions
-
-
-# --- Generation Algorithms ---
-
-# --- NEW: Room and Corridor Generator ---
 def generate_room_corridor_dungeon(
         map_width: int, map_height: int,
-        max_rooms: int = 15,
+        max_rooms: int = None,
         room_min_size: int = 6, room_max_size: int = 10,
     ) -> MapData:
     """Generates a dungeon with rooms and connecting corridors."""
     debug(f"Generating room/corridor dungeon ({map_width}x{map_height})...")
+    
+    # Adjust parameters based on map size
+    if max_rooms is None:
+        # Scale room count with map size
+        max_rooms = min(50, max(15, (map_width * map_height) // 400))
+    
+    # Scale room sizes for larger maps
+    if map_width > 200 or map_height > 100:
+        room_min_size = max(8, room_min_size)
+        room_max_size = min(20, max(12, room_max_size))
+    
+    debug(f"Room parameters: max_rooms={max_rooms}, room_size={room_min_size}-{room_max_size}")
+    
     dungeon = [[WALL for _ in range(map_width)] for _ in range(map_height)]
     rooms: List[Rect] = []
 
@@ -134,6 +117,9 @@ def generate_room_corridor_dungeon(
         down_pos = find_random_floor(dungeon)
         if down_pos and down_pos != up_pos: dungeon[down_pos[1]][down_pos[0]] = STAIRS_DOWN
 
+    # Place secret doors
+    _place_secret_doors(dungeon, rooms, map_width, map_height)
+
     return dungeon
 
 
@@ -141,13 +127,21 @@ def generate_room_corridor_dungeon(
 def generate_cellular_automata_dungeon(
         width: int, # Use passed width
         height: int, # Use passed height
-        iterations: int = 4,
+        iterations: int = None,
         birth_limit: int = 4,
         death_limit: int = 3,
         initial_wall_chance: float = 0.45
     ) -> MapData:
     """Generates a cave-like map using Cellular Automata."""
     debug(f"Generating CA dungeon ({width}x{height})...")
+    
+    # Adjust iterations for larger maps
+    if iterations is None:
+        # More iterations for larger maps to ensure good cave formation
+        iterations = min(8, max(4, (width + height) // 50))
+    
+    debug(f"CA parameters: iterations={iterations}, birth_limit={birth_limit}, death_limit={death_limit}")
+    
     grid = [[WALL if random.random() < initial_wall_chance else FLOOR
              for _ in range(width)] for _ in range(height)]
     # Ensure border is Wall
@@ -175,4 +169,96 @@ def generate_cellular_automata_dungeon(
     if down_pos: grid[down_pos[1]][down_pos[0]] = STAIRS_DOWN
     else: debug("CA: Could not place stairs down!");
 
+    # Place secret doors
+    _place_secret_doors(grid, None, width, height)
+
     return grid
+
+
+def _place_secret_doors(dungeon: MapData, rooms: List[Rect], map_width: int, map_height: int):
+    """Place secret doors in the dungeon. For room-based dungeons, place them in room walls."""
+    if rooms:
+        # Room-based dungeon: place secret doors in room walls
+        secret_doors_placed = 0
+        max_secret_doors = min(3, len(rooms) // 2)  # 1-3 secret doors based on room count
+        
+        for room in rooms:
+            if secret_doors_placed >= max_secret_doors:
+                break
+                
+            # Try to place a secret door in each room wall
+            for wall_side in ['north', 'south', 'east', 'west']:
+                if secret_doors_placed >= max_secret_doors:
+                    break
+                    
+                if random.random() < 0.2:  # 20% chance per wall
+                    door_pos = _find_secret_door_position(dungeon, room, wall_side, map_width, map_height)
+                    if door_pos:
+                        x, y = door_pos
+                        # Double-check this is actually a wall before placing
+                        if dungeon[y][x] == WALL:
+                            dungeon[y][x] = SECRET_DOOR
+                            secret_doors_placed += 1
+                            debug(f"Placed secret door at ({x},{y}) in {wall_side} wall")
+    else:
+        # Cave-based dungeon: place secret doors randomly in walls
+        secret_doors_placed = 0
+        max_secret_doors = random.randint(2, 5)
+        
+        attempts = 0
+        while secret_doors_placed < max_secret_doors and attempts < 100:
+            attempts += 1
+            x = random.randint(1, map_width - 2)
+            y = random.randint(1, map_height - 2)
+            
+            # Check if this is a wall with floor adjacent
+            if (dungeon[y][x] == WALL and 
+                _has_adjacent_floor(dungeon, x, y, map_width, map_height)):
+                dungeon[y][x] = SECRET_DOOR
+                secret_doors_placed += 1
+                debug(f"Placed secret door at ({x},{y}) in cave")
+
+
+def _find_secret_door_position(dungeon: MapData, room: Rect, wall_side: str, map_width: int, map_height: int) -> Optional[Tuple[int, int]]:
+    """Find a suitable position for a secret door in a room wall."""
+    if wall_side == 'north':
+        # Top wall - look for wall tiles that could be secret doors
+        for x in range(room.x1 + 1, room.x2 - 1):
+            if (x > 0 and x < map_width - 1 and room.y1 > 0 and
+                dungeon[room.y1][x] == WALL and _has_adjacent_floor(dungeon, x, room.y1, map_width, map_height)):
+                return (x, room.y1)
+    elif wall_side == 'south':
+        # Bottom wall
+        for x in range(room.x1 + 1, room.x2 - 1):
+            if (x > 0 and x < map_width - 1 and room.y2 < map_height - 1 and
+                dungeon[room.y2][x] == WALL and _has_adjacent_floor(dungeon, x, room.y2, map_width, map_height)):
+                return (x, room.y2)
+    elif wall_side == 'east':
+        # Right wall
+        for y in range(room.y1 + 1, room.y2 - 1):
+            if (y > 0 and y < map_height - 1 and room.x2 < map_width - 1 and
+                dungeon[y][room.x2] == WALL and _has_adjacent_floor(dungeon, room.x2, y, map_width, map_height)):
+                return (room.x2, y)
+    elif wall_side == 'west':
+        # Left wall
+        for y in range(room.y1 + 1, room.y2 - 1):
+            if (y > 0 and y < map_height - 1 and room.x1 > 0 and
+                dungeon[y][room.x1] == WALL and _has_adjacent_floor(dungeon, room.x1, y, map_width, map_height)):
+                return (room.x1, y)
+    
+    return None
+
+
+def _has_adjacent_floor(dungeon: MapData, x: int, y: int, map_width: int, map_height: int) -> bool:
+    """Check if a wall position bridges two walkable areas (room/corridor)."""
+    # Track floor presence on each axis-aligned side
+    floor_w = x > 0 and dungeon[y][x - 1] == FLOOR
+    floor_e = x < map_width - 1 and dungeon[y][x + 1] == FLOOR
+    floor_n = y > 0 and dungeon[y - 1][x] == FLOOR
+    floor_s = y < map_height - 1 and dungeon[y + 1][x] == FLOOR
+
+    # Valid secret doors should connect opposite tiles (room <-> corridor).
+    # Allow either horizontal or vertical bridges.
+    horizontal_bridge = floor_w and floor_e
+    vertical_bridge = floor_n and floor_s
+    return horizontal_bridge or vertical_bridge

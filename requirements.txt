@@ -1,6 +1,7 @@
 # === Core Framework ===
 textual==0.77.0
 rich==14.2.0
+pygame==2.6.1
 
 # === Parsing & Rendering (Textual dependencies) ===
 markdown-it-py==4.0.0

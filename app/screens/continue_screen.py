@@ -3,6 +3,7 @@
 from textual.screen import Screen
 from textual.widgets import Static
 from textual import events
+from rich.text import Text
 from debugtools import debug
 import os
 import json
@@ -31,13 +32,13 @@ class ContinueScreen(Screen):
         """Called when the screen is mounted."""
         debug("Mounting ContinueScreen...")
         self._load_save_files()
-        self.query_one("#save_list").update(self._render_save_list())
+        self.query_one("#save_list").update(Text.from_markup(self._render_save_list()))
 
     def compose(self):
         """Create child widgets for the screen."""
-        yield Static("=== LOAD CHARACTER ===", id="continue_title")
-        yield Static("Loading saves...", id="save_list") # Placeholder
-        yield Static("\n[↑/↓] Select  [Enter] Load  [Esc] Back")
+        yield Static(Text.from_markup("[chartreuse1]=== LOAD CHARACTER ===[/chartreuse1]"), id="continue_title")
+        yield Static(Text.from_markup("[yellow1]Loading saves...[/yellow1]"), id="save_list") # Placeholder
+        yield Static(Text.from_markup("\n[↑/↓] Select  [Enter] Load  [Esc] Back"))
 
     # --- Helper Methods ---
 
@@ -75,14 +76,14 @@ class ContinueScreen(Screen):
         lines = []
         for index, name in enumerate(self.character_names):
             if index == self.selected_index:
-                lines.append(f"> {name} <") # Highlight selected
+                lines.append(f"[chartreuse1]>[/chartreuse1] [bright_white]{name}[/bright_white] [chartreuse1]<[/chartreuse1]") # Highlight selected
             else:
-                lines.append(f"  {name}")
+                lines.append(f"  [gray42]{name}[/gray42]")
         return "\n" + "\n".join(lines) + "\n"
 
     def _update_list_display(self):
         """Refreshes the displayed list of saves."""
-        self.query_one("#save_list").update(self._render_save_list())
+        self.query_one("#save_list").update(Text.from_markup(self._render_save_list()))
 
     # --- Actions ---
 

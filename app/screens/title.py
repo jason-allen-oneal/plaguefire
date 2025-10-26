@@ -16,6 +16,9 @@ class TitleScreen(Screen):
 
     def on_mount(self):
         debug("Mounting TitleScreen...")
+        self.app.sound.play_music("title.mp3")
+        self.app.sound.play_sfx("title")
+
 
     def compose(self):
         # --- Green flame gradient banner ---

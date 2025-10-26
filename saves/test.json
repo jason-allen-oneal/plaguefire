@@ -40,13 +40,14 @@
         "armor": null
     },
     "position": [
-        49,
-        15
+        27,
+        13
     ],
-    "depth": 0,
-    "time": 1384,
+    "depth": 25,
+    "time": 1407,
     "base_light_radius": 1,
     "light_radius": 5,
     "light_duration": 0,
-    "status_effects": []
+    "status_effects": [],
+    "known_spells": []
 }

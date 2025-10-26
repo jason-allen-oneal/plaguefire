@@ -1,163 +1,119 @@
-# app/spawning.py
+# app/systems/spawning.py
 
 import random
-from typing import List, Tuple, Optional
-from app.core.entity import (
-    Entity, create_mercenary, create_drunk, create_rogue,
-    create_rat, create_goblin, create_orc, create_troll, create_dragon
-)
-from debugtools import debug
-from config import FLOOR
+from typing import List, Optional, Dict
+from app.core.entity import Entity
+from app.core.data_loader import GameData
+from debugtools import debug, log_exception
+from config import FLOOR, STAIRS_UP, STAIRS_DOWN
 
 
-def spawn_town_npcs(map_data: List[List[str]], player_level: int = 1) -> List[Entity]:
-    """Spawn NPCs for the town (depth 0). No monsters allowed."""
-    entities = []
-    
-    # Find all floor tiles
+def find_floor_tiles(map_data: List[List[str]], avoid_positions: List[List[int]] = None) -> List[List[int]]:
+    """Find all floor tiles in a map, optionally avoiding certain positions."""
     floor_tiles = []
-    for y in range(len(map_data)):
-        for x in range(len(map_data[y])):
-            if map_data[y][x] == FLOOR:
-                floor_tiles.append([x, y])
+    avoid_set = set(tuple(pos) for pos in (avoid_positions or []))
     
-    if not floor_tiles:
-        debug("No floor tiles found for NPC spawning in town")
-        return entities
-    
-    # Calculate number of NPCs to spawn (based on map size)
-    num_npcs = len(floor_tiles) // 100  # About 1 NPC per 100 floor tiles
-    num_npcs = max(3, min(num_npcs, 15))  # Between 3 and 15 NPCs
-    
-    # Spawn different types of town NPCs
-    mercenaries = num_npcs // 3
-    drunks = num_npcs // 3
-    rogues = num_npcs - mercenaries - drunks
-    
-    debug(f"Spawning {num_npcs} town NPCs: {mercenaries} mercenaries, {drunks} drunks, {rogues} rogues")
-    
-    # Spawn mercenaries
-    for _ in range(mercenaries):
-        if floor_tiles:
-            pos = random.choice(floor_tiles)
-            floor_tiles.remove(pos)
-            entities.append(create_mercenary(pos, player_level))
-    
-    # Spawn drunks
-    for _ in range(drunks):
-        if floor_tiles:
-            pos = random.choice(floor_tiles)
-            floor_tiles.remove(pos)
-            entities.append(create_drunk(pos))
-    
-    # Spawn rogues
-    for _ in range(rogues):
-        if floor_tiles:
-            pos = random.choice(floor_tiles)
-            floor_tiles.remove(pos)
-            entities.append(create_rogue(pos, player_level))
-    
-    return entities
-
-
-def spawn_dungeon_monsters(
-    map_data: List[List[str]], 
-    depth: int, 
-    player_level: int = 1,
-    player_stats: dict = None
-) -> List[Entity]:
-    """
-    Spawn monsters for dungeon levels based on depth and player stats.
-    Higher depths and stronger players spawn more difficult monsters.
-    """
-    entities = []
-    
-    # Find all floor tiles
-    floor_tiles = []
-    for y in range(len(map_data)):
-        for x in range(len(map_data[y])):
-            if map_data[y][x] == FLOOR:
-                floor_tiles.append([x, y])
-    
-    if not floor_tiles:
-        debug("No floor tiles found for monster spawning in dungeon")
-        return entities
-    
-    # Calculate difficulty based on depth and player stats
-    dungeon_level = depth // 25  # Depth 25-49 = level 1, 50-74 = level 2, etc.
-    
-    # Adjust for player power if stats provided
-    player_power = player_level
-    if player_stats:
-        # Calculate average stat modifier
-        avg_stat = sum(player_stats.values()) / len(player_stats) if player_stats else 10
-        stat_modifier = (avg_stat - 10) // 2
-        player_power += stat_modifier
-    
-    effective_difficulty = max(1, (dungeon_level + player_power) // 2)
-    
-    # Calculate number of monsters (increases with depth)
-    num_monsters = len(floor_tiles) // 50  # About 1 monster per 50 floor tiles
-    num_monsters = max(3, min(num_monsters, 25))  # Between 3 and 25 monsters
-    
-    debug(f"Spawning {num_monsters} monsters at depth {depth} (difficulty {effective_difficulty})")
-    
-    # Determine monster distribution based on difficulty
-    for _ in range(num_monsters):
-        if not floor_tiles:
-            break
-            
-        pos = random.choice(floor_tiles)
-        floor_tiles.remove(pos)
-        
-        # Choose monster type based on difficulty
-        roll = random.random()
-        
-        if effective_difficulty <= 2:
-            # Early levels: mostly rats and goblins
-            if roll < 0.6:
-                entities.append(create_rat(pos, depth))
-            elif roll < 0.9:
-                entities.append(create_goblin(pos, depth))
-            else:
-                entities.append(create_orc(pos, depth))
-                
-        elif effective_difficulty <= 5:
-            # Mid levels: goblins, orcs, some trolls
-            if roll < 0.4:
-                entities.append(create_goblin(pos, depth))
-            elif roll < 0.8:
-                entities.append(create_orc(pos, depth))
-            else:
-                entities.append(create_troll(pos, depth))
-                
-        elif effective_difficulty <= 10:
-            # Deep levels: orcs, trolls, rare dragons
-            if roll < 0.3:
-                entities.append(create_orc(pos, depth))
-            elif roll < 0.8:
-                entities.append(create_troll(pos, depth))
-            else:
-                entities.append(create_dragon(pos, depth))
-                
-        else:
-            # Very deep: trolls and dragons
-            if roll < 0.5:
-                entities.append(create_troll(pos, depth))
-            else:
-                entities.append(create_dragon(pos, depth))
-    
-    return entities
-
-
-def get_spawn_position(map_data: List[List[str]], avoid_positions: List[List[int]] = None) -> Optional[List[int]]:
-    """Find a random floor position for spawning, optionally avoiding certain positions."""
-    floor_tiles = []
     for y in range(len(map_data)):
         for x in range(len(map_data[y])):
             if map_data[y][x] == FLOOR:
                 pos = [x, y]
-                if avoid_positions is None or pos not in avoid_positions:
+                if tuple(pos) not in avoid_set:
                     floor_tiles.append(pos)
     
+    return floor_tiles
+
+
+def get_spawn_position(map_data: List[List[str]], avoid_positions: List[List[int]] = None) -> Optional[List[int]]:
+    """Find a random floor position for spawning, optionally avoiding certain positions."""
+    floor_tiles = find_floor_tiles(map_data, avoid_positions)
     return random.choice(floor_tiles) if floor_tiles else None
+
+
+def _calculate_spawn_probability(template: Dict, depth: int) -> float:
+    """Calculate spawn probability for a template at a given depth."""
+    spawn_data = template.get("spawn_chance", {})
+    base = spawn_data.get("base")
+    per_depth = spawn_data.get("per_depth", 0)
+    if base is None:
+        # Default to guaranteed spawn if no spawn data provided
+        return 100.0
+    native_depth = template.get("depth", depth)
+    deviation = abs(depth - native_depth)
+    chance = base + (deviation * per_depth)
+    return max(0.0, min(100.0, chance))
+
+
+def spawn_entities_for_depth(
+    map_data: List[List[str]], 
+    depth: int, 
+    player_position: List[int] = None
+) -> List[Entity]:
+    """
+    Unified entity spawning system that works for both town and dungeon.
+    Uses data-driven approach with templates from GameData.
+    """
+    entities: List[Entity] = []
+    
+    # Find valid spawn locations (avoid player position and stairs)
+    avoid_positions = [player_position] if player_position else []
+    spawnable_area = find_floor_tiles(map_data, avoid_positions)
+    
+    # Remove stairs from spawnable area
+    spawnable_area = [
+        pos for pos in spawnable_area 
+        if map_data[pos[1]][pos[0]] not in [STAIRS_UP, STAIRS_DOWN]
+    ]
+    
+    if not spawnable_area:
+        debug("Warning: No valid spawn locations found.")
+        return entities
+
+    # Calculate spawn parameters
+    dungeon_level = max(1, depth // 25) if depth > 0 else 1
+    target_depth = max(0, depth)
+    
+    game_data = GameData()
+
+    if depth == 0:
+        # Town spawning
+        num_entities = random.randint(4, 8)
+        entity_pool = [
+            template for template in game_data.get_entities_for_depth(0)
+            if template.get("depth", 0) == 0
+        ]
+    else:
+        # Dungeon spawning
+        num_entities = random.randint(5, 10 + dungeon_level)
+        entity_pool = [
+            template for template in game_data.get_entities_for_depth(target_depth)
+            if template.get("hostile", False)
+        ]
+
+    if not entity_pool:
+        debug(f"Warning: No valid entity templates found for depth {target_depth}")
+        return entities
+
+    debug(f"Attempting to spawn {num_entities} entities from pool: {[e['id'] for e in entity_pool]}")
+
+    max_attempts = num_entities * 5
+    attempts = 0
+
+    while spawnable_area and len(entities) < num_entities and attempts < max_attempts:
+        attempts += 1
+        template = random.choice(entity_pool)
+        chance = _calculate_spawn_probability(template, target_depth)
+        roll = random.uniform(0, 100)
+        if roll > chance or chance <= 0:
+            continue
+
+        spawn_pos = random.choice(spawnable_area)
+        spawnable_area.remove(spawn_pos)
+
+        try:
+            entity = Entity(template_id=template['id'], level_or_depth=target_depth, position=spawn_pos)
+            entities.append(entity)
+            debug(f"Spawned {entity.name} ({entity.template_id}) at {spawn_pos} | chance {chance:.1f}% (roll {roll:.1f})")
+        except Exception as e:
+            log_exception(f"Error creating entity from template {template.get('id','N/A')}: {e}")
+
+    return entities

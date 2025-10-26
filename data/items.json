@@ -5,7 +5,11 @@
       "type": "amulet",
       "slot": "amulet",
       "base_cost": 150,
-      "description": "A decorative amulet."
+      "description": "A decorative amulet.",
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "AMULET_CHARISMA": {
       "name": "Amulet of Charisma",
@@ -17,7 +21,11 @@
         "stat_bonus",
         "CHA",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "AMULET_DOOM": {
       "name": "Amulet of DOOM",
@@ -28,7 +36,11 @@
       "effect": [
         "cursed",
         "doom"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "AMULET_RESIST_ACID": {
       "name": "Amulet of Resist Acid",
@@ -40,7 +52,11 @@
         "resistance",
         "acid",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "AMULET_SEARCHING": {
       "name": "Amulet of Searching",
@@ -50,7 +66,11 @@
       "description": "Aids in finding secrets.",
       "effect": [
         "searching"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "AMULET_SLOW_DIGESTION": {
       "name": "Amulet of Slow Digestion",
@@ -60,7 +80,11 @@
       "description": "Lessens hunger.",
       "effect": [
         "slow_digestion"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "AMULET_TELEPORTATION": {
       "name": "Amulet of Teleportation",
@@ -70,7 +94,11 @@
       "description": "Causes random blinking.",
       "effect": [
         "teleportitis"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "AMULET_THE_MAGI": {
       "name": "Amulet of The Magi",
@@ -82,7 +110,11 @@
         "stat_bonus",
         "INT",
         2
-      ]
+      ],
+      "rarity_depth": {
+        "min": 700,
+        "max": 1300
+      }
     },
     "AMULET_WISDOM": {
       "name": "Amulet of Wisdom",
@@ -94,7 +126,11 @@
         "stat_bonus",
         "WIS",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     }
   },
   "ARMOR": {
@@ -104,7 +140,11 @@
       "slot": "armor",
       "base_cost": 30,
       "description": "Sturdy boots.",
-      "defense_bonus": 1
+      "defense_bonus": 1,
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "BOOTS_SOFT_LEATHER": {
       "name": "Pair of Soft Leather Boots",
@@ -112,7 +152,11 @@
       "slot": "armor",
       "base_cost": 15,
       "description": "Comfortable boots.",
-      "defense_bonus": 0
+      "defense_bonus": 0,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "BRIGANDINE_METAL": {
       "name": "Metal Brigandine Armor",
@@ -120,7 +164,11 @@
       "slot": "armor",
       "base_cost": 500,
       "description": "Plates riveted inside cloth/leather.",
-      "defense_bonus": 6
+      "defense_bonus": 6,
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "CHAIN_MAIL": {
       "name": "Chain Mail",
@@ -128,7 +176,11 @@
       "slot": "armor",
       "base_cost": 250,
       "description": "Standard metal ring mail.",
-      "defense_bonus": 3
+      "defense_bonus": 3,
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "CHAIN_MAIL_AUGMENTED": {
       "name": "Augmented Chain Mail",
@@ -136,7 +188,11 @@
       "slot": "armor",
       "base_cost": 300,
       "description": "Reinforced chain mail.",
-      "defense_bonus": 4
+      "defense_bonus": 4,
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "CHAIN_MAIL_BAR": {
       "name": "Bar Chain Mail",
@@ -144,7 +200,11 @@
       "slot": "armor",
       "base_cost": 280,
       "description": "Chain mail with metal bars.",
-      "defense_bonus": 4
+      "defense_bonus": 4,
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "CHAIN_MAIL_DOUBLE": {
       "name": "Double Chain Mail",
@@ -152,7 +212,11 @@
       "slot": "armor",
       "base_cost": 350,
       "description": "Heavy, double-layered chain.",
-      "defense_bonus": 5
+      "defense_bonus": 5,
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "CHAIN_MAIL_RUSTY": {
       "name": "Rusty Chain Mail",
@@ -160,7 +224,11 @@
       "slot": "armor",
       "base_cost": 50,
       "description": "Poor quality chain mail.",
-      "defense_bonus": 2
+      "defense_bonus": 2,
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "CLOAK": {
       "name": "Cloak",
@@ -168,7 +236,11 @@
       "slot": "armor",
       "base_cost": 10,
       "description": "Provides minimal protection.",
-      "defense_bonus": 0
+      "defense_bonus": 0,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "CROWN_GOLDEN": {
       "name": "Golden Crown",
@@ -176,7 +248,11 @@
       "slot": "armor",
       "base_cost": 500,
       "description": "A crown of gold.",
-      "defense_bonus": 0
+      "defense_bonus": 0,
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "CROWN_JEWELED": {
       "name": "Jewel-Encrusted Crown",
@@ -184,7 +260,11 @@
       "slot": "armor",
       "base_cost": 2000,
       "description": "A valuable crown.",
-      "defense_bonus": 1
+      "defense_bonus": 1,
+      "rarity_depth": {
+        "min": 700,
+        "max": 1300
+      }
     },
     "CROWN_SILVER": {
       "name": "Silver Crown",
@@ -192,7 +272,11 @@
       "slot": "armor",
       "base_cost": 250,
       "description": "A crown of silver.",
-      "defense_bonus": 0
+      "defense_bonus": 0,
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "FILTHY_RAGS": {
       "name": "some filthy rags",
@@ -200,7 +284,11 @@
       "slot": "armor",
       "base_cost": 1,
       "description": "Barely counts as clothing.",
-      "defense_bonus": 0
+      "defense_bonus": 0,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "GAUNTLETS": {
       "name": "Set of Gauntlets",
@@ -208,7 +296,11 @@
       "slot": "armor",
       "base_cost": 80,
       "description": "Metal hand protection.",
-      "defense_bonus": 1
+      "defense_bonus": 1,
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "GLOVES_LEATHER": {
       "name": "Set of Leather Gloves",
@@ -216,7 +308,11 @@
       "slot": "armor",
       "base_cost": 10,
       "description": "Basic hand coverings.",
-      "defense_bonus": 0
+      "defense_bonus": 0,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "HELM_IRON": {
       "name": "Iron Helm",
@@ -224,7 +320,11 @@
       "slot": "armor",
       "base_cost": 100,
       "description": "A sturdy iron helmet.",
-      "defense_bonus": 2
+      "defense_bonus": 2,
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "HELM_STEEL": {
       "name": "Steel Helm",
@@ -232,7 +332,11 @@
       "slot": "armor",
       "base_cost": 150,
       "description": "A strong steel helmet.",
-      "defense_bonus": 3
+      "defense_bonus": 3,
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "LAMELLAR_METAL": {
       "name": "Metal Lamellar Armor",
@@ -240,7 +344,11 @@
       "slot": "armor",
       "base_cost": 450,
       "description": "Small plates laced together.",
-      "defense_bonus": 5
+      "defense_bonus": 5,
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "LAMINATED_ARMOR": {
       "name": "Laminated Armor",
@@ -248,7 +356,11 @@
       "slot": "armor",
       "base_cost": 400,
       "description": "Overlapping plates.",
-      "defense_bonus": 5
+      "defense_bonus": 5,
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "LEATHER_ARMOR_HARD": {
       "name": "Hard Leather Armor",
@@ -256,7 +368,11 @@
       "slot": "armor",
       "base_cost": 150,
       "description": "Stiffened leather.",
-      "defense_bonus": 2
+      "defense_bonus": 2,
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "LEATHER_ARMOR_SOFT": {
       "name": "Soft Leather Armor",
@@ -264,7 +380,11 @@
       "slot": "armor",
       "base_cost": 80,
       "description": "Flexible leather.",
-      "defense_bonus": 1
+      "defense_bonus": 1,
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "LEATHER_CAP_HARD": {
       "name": "Hard Leather Cap",
@@ -272,7 +392,11 @@
       "slot": "armor",
       "base_cost": 20,
       "description": "Basic head protection.",
-      "defense_bonus": 1
+      "defense_bonus": 1,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "LEATHER_CAP_SOFT": {
       "name": "Soft Leather Cap",
@@ -280,7 +404,11 @@
       "slot": "armor",
       "base_cost": 10,
       "description": "Simple leather cap.",
-      "defense_bonus": 0
+      "defense_bonus": 0,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "METAL_CAP": {
       "name": "Metal Cap",
@@ -288,7 +416,11 @@
       "slot": "armor",
       "base_cost": 60,
       "description": "Basic metal head protection.",
-      "defense_bonus": 1
+      "defense_bonus": 1,
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "PLATE_ARMOR_FULL": {
       "name": "Full Plate Armor",
@@ -296,7 +428,11 @@
       "slot": "armor",
       "base_cost": 1500,
       "description": "Excellent protection, very heavy.",
-      "defense_bonus": 8
+      "defense_bonus": 8,
+      "rarity_depth": {
+        "min": 700,
+        "max": 1300
+      }
     },
     "PLATE_ARMOR_PARTIAL": {
       "name": "Partial Plate Armor",
@@ -304,7 +440,11 @@
       "slot": "armor",
       "base_cost": 800,
       "description": "Plate covering vital areas.",
-      "defense_bonus": 7
+      "defense_bonus": 7,
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "PLATE_ARMOR_RIBBED": {
       "name": "Ribbed Plate Armor",
@@ -312,7 +452,11 @@
       "slot": "armor",
       "base_cost": 1000,
       "description": "Reinforced plate armor.",
-      "defense_bonus": 7
+      "defense_bonus": 7,
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "RING_MAIL_HARD": {
       "name": "Hard Leather Ring Mail",
@@ -320,7 +464,11 @@
       "slot": "armor",
       "base_cost": 180,
       "description": "Hard leather with rings.",
-      "defense_bonus": 3
+      "defense_bonus": 3,
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "RING_MAIL_SOFT": {
       "name": "Soft Leather Ring Mail",
@@ -328,7 +476,11 @@
       "slot": "armor",
       "base_cost": 120,
       "description": "Soft leather with rings.",
-      "defense_bonus": 2
+      "defense_bonus": 2,
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "ROBE": {
       "name": "Robe",
@@ -336,7 +488,11 @@
       "slot": "armor",
       "base_cost": 15,
       "description": "Simple cloth robe.",
-      "defense_bonus": 0
+      "defense_bonus": 0,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SCALE_MAIL_LEATHER": {
       "name": "Leather Scale Mail",
@@ -344,7 +500,11 @@
       "slot": "armor",
       "base_cost": 220,
       "description": "Leather scales on backing.",
-      "defense_bonus": 3
+      "defense_bonus": 3,
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "SCALE_MAIL_METAL": {
       "name": "Metal Scale Mail",
@@ -352,7 +512,11 @@
       "slot": "armor",
       "base_cost": 300,
       "description": "Metal scales on backing.",
-      "defense_bonus": 4
+      "defense_bonus": 4,
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "SHIELD_LEATHER_LARGE": {
       "name": "Large Leather Shield",
@@ -360,7 +524,11 @@
       "slot": "shield",
       "base_cost": 40,
       "description": "A large shield made of hide.",
-      "defense_bonus": 2
+      "defense_bonus": 2,
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SHIELD_LEATHER_MEDIUM": {
       "name": "Medium Leather Shield",
@@ -368,7 +536,11 @@
       "slot": "shield",
       "base_cost": 30,
       "description": "A medium shield.",
-      "defense_bonus": 1
+      "defense_bonus": 1,
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SHIELD_LEATHER_SMALL": {
       "name": "Small Leather Shield",
@@ -376,7 +548,11 @@
       "slot": "shield",
       "base_cost": 20,
       "description": "A small buckler.",
-      "defense_bonus": 1
+      "defense_bonus": 1,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SHIELD_METAL_LARGE": {
       "name": "Large Metal Shield",
@@ -384,7 +560,11 @@
       "slot": "shield",
       "base_cost": 100,
       "description": "A large metal shield.",
-      "defense_bonus": 3
+      "defense_bonus": 3,
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SHIELD_METAL_MEDIUM": {
       "name": "Medium Metal Shield",
@@ -392,7 +572,11 @@
       "slot": "shield",
       "base_cost": 80,
       "description": "A medium metal shield.",
-      "defense_bonus": 2
+      "defense_bonus": 2,
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SHIELD_METAL_SMALL": {
       "name": "Small Metal Shield",
@@ -400,7 +584,11 @@
       "slot": "shield",
       "base_cost": 60,
       "description": "A small metal buckler.",
-      "defense_bonus": 1
+      "defense_bonus": 1,
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SHOES_SOFT_LEATHER": {
       "name": "Pair of Soft Leather Shoes",
@@ -408,7 +596,11 @@
       "slot": "armor",
       "base_cost": 10,
       "description": "Simple shoes.",
-      "defense_bonus": 0
+      "defense_bonus": 0,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "STUDDED_LEATHER_HARD": {
       "name": "Hard Studded Leather",
@@ -416,7 +608,11 @@
       "slot": "armor",
       "base_cost": 200,
       "description": "Hard leather with studs.",
-      "defense_bonus": 3
+      "defense_bonus": 3,
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "STUDDED_LEATHER_SOFT": {
       "name": "Soft Studded Leather",
@@ -424,7 +620,11 @@
       "slot": "armor",
       "base_cost": 150,
       "description": "Soft leather with studs.",
-      "defense_bonus": 2
+      "defense_bonus": 2,
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WOVEN_CORD_ARMOR": {
       "name": "Woven Cord Armor",
@@ -432,7 +632,11 @@
       "slot": "armor",
       "base_cost": 60,
       "description": "Armor made from tough cord.",
-      "defense_bonus": 1
+      "defense_bonus": 1,
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     }
   },
   "BOOKS": {
@@ -444,7 +648,11 @@
       "spells": [
         "detect_evil",
         "cure_light_wounds"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "BOOK_CLERIC_CHANTS": {
       "name": "Chants and Blessings",
@@ -454,7 +662,11 @@
       "spells": [
         "cure_serious_wounds",
         "protection_evil"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "BOOK_CLERIC_EXORCISM": {
       "name": "Exorcism and Dispelling",
@@ -464,7 +676,11 @@
       "spells": [
         "dispel_undead",
         "remove_curse"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "BOOK_CLERIC_WISDOM": {
       "name": "Words of Wisdom",
@@ -474,7 +690,11 @@
       "spells": [
         "bless",
         "remove_fear"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "BOOK_MAGE_1": {
       "name": "Magik I",
@@ -484,7 +704,11 @@
       "spells": [
         "phase_door",
         "light"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "BOOK_MAGE_2": {
       "name": "Magik II",
@@ -494,7 +718,11 @@
       "spells": [
         "fire_bolt",
         "sleep_monster"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "BOOK_MAGE_BEGINNERS": {
       "name": "Beginners-Magik",
@@ -504,7 +732,11 @@
       "spells": [
         "magic_missile",
         "detect_monsters"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "BOOK_MAGE_POWER": {
       "name": "The Mages Guide to Power",
@@ -514,7 +746,11 @@
       "spells": [
         "teleport",
         "lightning_bolt"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     }
   },
   "COINS": {
@@ -522,25 +758,41 @@
       "name": "Copper Coins",
       "type": "currency",
       "base_cost": 1,
-      "description": "A handful of copper coins."
+      "description": "A handful of copper coins.",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "GOLD_COINS": {
       "name": "Gold Coins",
       "type": "currency",
       "base_cost": 20,
-      "description": "A pouch filled with shining gold coins."
+      "description": "A pouch filled with shining gold coins.",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "MITHRIL_COINS": {
       "name": "Mithril Coins",
       "type": "currency",
       "base_cost": 100,
-      "description": "Rare coins minted from mithril."
+      "description": "Rare coins minted from mithril.",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SILVER_COINS": {
       "name": "Silver Coins",
       "type": "currency",
       "base_cost": 5,
-      "description": "A stash of silver coins."
+      "description": "A stash of silver coins.",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     }
   },
   "FOOD": {
@@ -552,7 +804,11 @@
       "effect": [
         "satiate",
         50
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "FOOD_BISCUIT": {
       "name": "Hard Biscuit",
@@ -562,7 +818,11 @@
       "effect": [
         "satiate",
         100
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "FOOD_JERKY": {
       "name": "Strip of Beef Jerky",
@@ -572,7 +832,11 @@
       "effect": [
         "satiate",
         150
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "FOOD_MUSH": {
       "name": "Pint of fine grade mush",
@@ -582,7 +846,11 @@
       "effect": [
         "satiate",
         80
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "FOOD_RATION": {
       "name": "Ration of Food",
@@ -592,7 +860,11 @@
       "effect": [
         "satiate",
         200
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "FOOD_SLIME_MOLD": {
       "name": "Slime Mold",
@@ -602,7 +874,11 @@
       "effect": [
         "satiate",
         30
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "FOOD_WAYBREAD": {
       "name": "Piece of Elvish Waybread",
@@ -612,7 +888,11 @@
       "effect": [
         "satiate",
         500
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "FOOD_WINE": {
       "name": "Pint of Fine Wine",
@@ -622,7 +902,11 @@
       "effect": [
         "satiate",
         60
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "MUSHROOM_BLINDNESS": {
       "name": "Mushroom of Blindness",
@@ -633,7 +917,11 @@
         "status",
         "blind",
         20
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "MUSHROOM_CONFUSION": {
       "name": "Mushroom of Confusion",
@@ -644,7 +932,11 @@
         "status",
         "confused",
         15
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "MUSHROOM_CURE_BLINDNESS": {
       "name": "Mushroom of Cure Blindness",
@@ -654,7 +946,11 @@
       "effect": [
         "cure_status",
         "blind"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "MUSHROOM_CURE_CONFUSION": {
       "name": "Mushroom of Cure Confusion",
@@ -664,7 +960,11 @@
       "effect": [
         "cure_status",
         "confused"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "MUSHROOM_CURE_PARANOIA": {
       "name": "Mushroom of Cure Paranoia",
@@ -674,7 +974,11 @@
       "effect": [
         "cure_status",
         "paranoid"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "MUSHROOM_CURE_POISON": {
       "name": "Mushroom of Cure Poison",
@@ -684,7 +988,11 @@
       "effect": [
         "cure_status",
         "poisoned"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "MUSHROOM_CURE_SERIOUS": {
       "name": "Mushroom of Cure Serious Wounds",
@@ -694,7 +1002,11 @@
       "effect": [
         "heal",
         25
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "MUSHROOM_FIRST_AID": {
       "name": "Mushroom of First-Aid",
@@ -704,7 +1016,11 @@
       "effect": [
         "heal",
         8
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "MUSHROOM_HALLUCINATION": {
       "name": "Mushroom of Hallucination",
@@ -715,7 +1031,11 @@
         "status",
         "hallucinating",
         30
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "MUSHROOM_HALLUCINATIONS": {
       "name": "Mushroom of Hallucinations",
@@ -726,7 +1046,11 @@
         "status",
         "hallucinating",
         50
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "MUSHROOM_LIGHT_CURES": {
       "name": "Mushroom of Light Cures",
@@ -736,7 +1060,11 @@
       "effect": [
         "heal",
         5
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "MUSHROOM_MINOR_CURES": {
       "name": "Mushroom of Minor Cures",
@@ -746,7 +1074,11 @@
       "effect": [
         "heal",
         3
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "MUSHROOM_PARANOIA": {
       "name": "Mushroom of Paranoia",
@@ -757,7 +1089,11 @@
         "status",
         "paranoid",
         20
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "MUSHROOM_POISON": {
       "name": "Mushroom of Poison",
@@ -768,7 +1104,11 @@
         "status",
         "poisoned",
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "MUSHROOM_RESTORE_CON": {
       "name": "Mushroom of Restore Constitution",
@@ -778,7 +1118,11 @@
       "effect": [
         "restore_stat",
         "CON"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "MUSHROOM_RESTORING": {
       "name": "Mushroom of Restoring",
@@ -788,7 +1132,11 @@
       "effect": [
         "restore_stat",
         "random"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "MUSHROOM_UNHEALTH": {
       "name": "Mushroom of Unhealth",
@@ -798,7 +1146,11 @@
       "effect": [
         "damage",
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "MUSHROOM_WEAKNESS": {
       "name": "Mushroom of Weakness",
@@ -809,7 +1161,11 @@
         "drain_stat",
         "STR",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     }
   },
   "GEMS": {
@@ -817,37 +1173,61 @@
       "name": "diamond",
       "type": "gem",
       "base_cost": 1000,
-      "description": "A sparkling diamond."
+      "description": "A sparkling diamond.",
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "GEM_EMERALD": {
       "name": "emerald",
       "type": "gem",
       "base_cost": 750,
-      "description": "A green emerald."
+      "description": "A green emerald.",
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "GEM_GARNET": {
       "name": "garnet",
       "type": "gem",
       "base_cost": 100,
-      "description": "A red garnet."
+      "description": "A red garnet.",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "GEM_OPAL": {
       "name": "opal",
       "type": "gem",
       "base_cost": 400,
-      "description": "An iridescent opal."
+      "description": "An iridescent opal.",
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "GEM_RUBY": {
       "name": "ruby",
       "type": "gem",
       "base_cost": 800,
-      "description": "A red ruby."
+      "description": "A red ruby.",
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "GEM_SAPPHIRE": {
       "name": "sapphire",
       "type": "gem",
       "base_cost": 700,
-      "description": "A blue sapphire."
+      "description": "A blue sapphire.",
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     }
   },
   "MISC": {
@@ -855,68 +1235,108 @@
       "name": "large broken bone",
       "type": "misc",
       "base_cost": 0,
-      "description": "A large bone fragment."
+      "description": "A large bone fragment.",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "BOTTLE_EMPTY": {
       "name": "empty bottle",
       "type": "misc",
       "base_cost": 1,
-      "description": "An empty glass bottle."
+      "description": "An empty glass bottle.",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "CHEST_IRON_LARGE": {
       "name": "Large iron chest",
       "type": "misc",
       "base_cost": 0,
       "description": "A locked chest.",
-      "container": true
+      "container": true,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "CHEST_IRON_SMALL": {
       "name": "Small iron chest",
       "type": "misc",
       "base_cost": 0,
       "description": "A locked chest.",
-      "container": true
+      "container": true,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "CHEST_RUINED": {
       "name": "ruined chest",
       "type": "misc",
       "base_cost": 0,
       "description": "A broken chest.",
-      "container": true
+      "container": true,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "CHEST_STEEL_LARGE": {
       "name": "Large steel chest",
       "type": "misc",
       "base_cost": 0,
       "description": "A locked chest.",
-      "container": true
+      "container": true,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "CHEST_STEEL_SMALL": {
       "name": "Small steel chest",
       "type": "misc",
       "base_cost": 0,
       "description": "A locked chest.",
-      "container": true
+      "container": true,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "CHEST_WOODEN_LARGE": {
       "name": "Large wooden chest",
       "type": "misc",
       "base_cost": 0,
       "description": "A locked chest.",
-      "container": true
+      "container": true,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "CHEST_WOODEN_SMALL": {
       "name": "Small wooden chest",
       "type": "misc",
       "base_cost": 0,
       "description": "A locked chest.",
-      "container": true
+      "container": true,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "FLASK_OIL": {
       "name": "Flask of oil",
       "type": "misc",
       "base_cost": 10,
-      "description": "Flammable oil."
+      "description": "Flammable oil.",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "LANTERN_BRASS": {
       "name": "Brass Lantern",
@@ -928,81 +1348,129 @@
         "light_source",
         7,
         300
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "RUBBLE": {
       "name": "some rubble",
       "type": "misc",
       "base_cost": 0,
       "description": "Pile of rocks.",
-      "obstacle": true
+      "obstacle": true,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SHARDS_POTTERY": {
       "name": "some shards of pottery",
       "type": "misc",
       "base_cost": 0,
-      "description": "Broken clay."
+      "description": "Broken clay.",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SKELETON_CENTIPEDE": {
       "name": "Giant Centipede Skeleton",
       "type": "misc",
       "base_cost": 0,
       "description": "Remains.",
-      "corpse": true
+      "corpse": true,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SKELETON_DWARF": {
       "name": "Dwarf Skeleton",
       "type": "misc",
       "base_cost": 0,
       "description": "Remains.",
-      "corpse": true
+      "corpse": true,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SKELETON_ELF": {
       "name": "Elf Skeleton",
       "type": "misc",
       "base_cost": 0,
       "description": "Remains.",
-      "corpse": true
+      "corpse": true,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SKELETON_GNOME": {
       "name": "Gnome Skeleton",
       "type": "misc",
       "base_cost": 0,
       "description": "Remains.",
-      "corpse": true
+      "corpse": true,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SKELETON_HUMAN": {
       "name": "Human Skeleton",
       "type": "misc",
       "base_cost": 0,
       "description": "Remains.",
-      "corpse": true
+      "corpse": true,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SKELETON_RAT": {
       "name": "Rat Skeleton",
       "type": "misc",
       "base_cost": 0,
       "description": "Remains.",
-      "corpse": true
+      "corpse": true,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SPIKE_IRON": {
       "name": "Iron Spike",
       "type": "misc",
       "base_cost": 5,
       "description": "Can be used to wedge doors.",
-      "damage": "1d1"
+      "damage": "1d1",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "STICK_BROKEN": {
       "name": "broken stick",
       "type": "misc",
       "base_cost": 0,
-      "description": "A piece of wood."
+      "description": "A piece of wood.",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "TEETH_BROKEN": {
       "name": "broken set of teeth",
       "type": "misc",
       "base_cost": 0,
-      "description": "Someone's teeth."
+      "description": "Someone's teeth.",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "TORCH": {
       "name": "Wooden Torch",
@@ -1014,7 +1482,11 @@
         "light_source",
         5,
         100
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     }
   },
   "POTIONS": {
@@ -1026,7 +1498,11 @@
       "effect": [
         "satiate",
         20
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "POTION_BLINDNESS": {
       "name": "Potion of Blindness",
@@ -1037,7 +1513,11 @@
         "status",
         "blind",
         20
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "POTION_BOLDNESS": {
       "name": "Potion of Boldness",
@@ -1048,7 +1528,11 @@
         "buff",
         "bold",
         30
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "POTION_CHARISMA": {
       "name": "Potion of Charisma",
@@ -1060,7 +1544,11 @@
         "CHA",
         2,
         50
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "POTION_CONFUSION": {
       "name": "Potion of Confusion",
@@ -1071,7 +1559,11 @@
         "status",
         "confused",
         15
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "POTION_CURE_CRITICAL": {
       "name": "Potion of Cure Critical Wounds",
@@ -1081,7 +1573,11 @@
       "effect": [
         "heal",
         40
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "POTION_CURE_LIGHT": {
       "name": "Potion of Cure Light Wounds",
@@ -1091,7 +1587,11 @@
       "effect": [
         "heal",
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "POTION_CURE_SERIOUS": {
       "name": "Potion of Cure Serious Wounds",
@@ -1101,7 +1601,11 @@
       "effect": [
         "heal",
         25
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "POTION_DETECT_INVISIBLE": {
       "name": "Potion of Detect Invisible",
@@ -1112,7 +1616,11 @@
         "buff",
         "see_invisible",
         30
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "POTION_GAIN_CON": {
       "name": "Potion of Gain Constitution",
@@ -1123,7 +1631,11 @@
         "perm_stat_increase",
         "CON",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "POTION_GAIN_DEX": {
       "name": "Potion of Gain Dexterity",
@@ -1134,7 +1646,11 @@
         "perm_stat_increase",
         "DEX",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "POTION_GAIN_EXPERIENCE": {
       "name": "Potion of Gain Experience",
@@ -1144,7 +1660,11 @@
       "effect": [
         "gain_xp",
         100
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "POTION_GAIN_INT": {
       "name": "Potion of Gain Intelligence",
@@ -1155,7 +1675,11 @@
         "perm_stat_increase",
         "INT",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "POTION_GAIN_STR": {
       "name": "Potion of Gain Strength",
@@ -1166,7 +1690,11 @@
         "perm_stat_increase",
         "STR",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "POTION_GAIN_WIS": {
       "name": "Potion of Gain Wisdom",
@@ -1177,7 +1705,11 @@
         "perm_stat_increase",
         "WIS",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "POTION_HASTE_SELF": {
       "name": "Potion of Haste Self",
@@ -1189,7 +1721,11 @@
         "speed",
         1,
         20
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "POTION_HEALING": {
       "name": "Potion of Healing",
@@ -1199,7 +1735,11 @@
       "effect": [
         "heal",
         20
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "POTION_HEROISM": {
       "name": "Potion of Heroism",
@@ -1210,7 +1750,11 @@
         "buff",
         "heroism",
         30
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "POTION_INFRAVISION": {
       "name": "Potion of Infra-Vision",
@@ -1221,7 +1765,11 @@
         "buff",
         "infravision",
         40
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "POTION_INVULNERABILITY": {
       "name": "Potion of Invulnerability",
@@ -1232,7 +1780,11 @@
         "buff",
         "invulnerable",
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "POTION_LOSE_EXPERIENCE": {
       "name": "Potion of Lose Experience",
@@ -1242,7 +1794,11 @@
       "effect": [
         "lose_xp",
         50
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "POTION_LOSE_INT": {
       "name": "Potion of Lose Intelligence",
@@ -1254,7 +1810,11 @@
         "INT",
         1,
         50
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "POTION_LOSE_WIS": {
       "name": "Potion of Lose Wisdom",
@@ -1266,7 +1826,11 @@
         "WIS",
         1,
         50
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "POTION_NEUTRALIZE_POISON": {
       "name": "Potion of Neutralize Poison",
@@ -1276,7 +1840,11 @@
       "effect": [
         "cure_status",
         "poisoned"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "POTION_POISON": {
       "name": "Potion of Poison",
@@ -1287,7 +1855,11 @@
         "status",
         "poisoned",
         15
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "POTION_RESIST_COLD": {
       "name": "Potion of Resist Cold",
@@ -1298,7 +1870,11 @@
         "buff",
         "resist_cold",
         30
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "POTION_RESIST_HEAT": {
       "name": "Potion of Resist Heat",
@@ -1309,7 +1885,11 @@
         "buff",
         "resist_fire",
         30
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "POTION_RESTORE_CHA": {
       "name": "Potion of Restore Charisma",
@@ -1319,7 +1899,11 @@
       "effect": [
         "restore_stat",
         "CHA"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "POTION_RESTORE_CON": {
       "name": "Potion of Restore Constitution",
@@ -1329,7 +1913,11 @@
       "effect": [
         "restore_stat",
         "CON"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "POTION_RESTORE_DEX": {
       "name": "Potion of Restore Dexterity",
@@ -1339,7 +1927,11 @@
       "effect": [
         "restore_stat",
         "DEX"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "POTION_RESTORE_INT": {
       "name": "Potion of Restore Intelligence",
@@ -1349,7 +1941,11 @@
       "effect": [
         "restore_stat",
         "INT"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "POTION_RESTORE_LIFE": {
       "name": "Potion of Restore Life Levels",
@@ -1358,7 +1954,11 @@
       "description": "Restores drained experience levels.",
       "effect": [
         "restore_level"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "POTION_RESTORE_MANA": {
       "name": "Potion of Restore Mana",
@@ -1368,7 +1968,11 @@
       "effect": [
         "restore_mana",
         20
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "POTION_RESTORE_STR": {
       "name": "Potion of Restore Strength",
@@ -1378,7 +1982,11 @@
       "effect": [
         "restore_stat",
         "STR"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "POTION_RESTORE_WIS": {
       "name": "Potion of Restore Wisdom",
@@ -1388,7 +1996,11 @@
       "effect": [
         "restore_stat",
         "WIS"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "POTION_SALT_WATER": {
       "name": "Potion of Salt Water",
@@ -1398,7 +2010,11 @@
       "effect": [
         "satiate",
         -50
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "POTION_SLEEP": {
       "name": "Potion of Sleep",
@@ -1409,7 +2025,11 @@
         "status",
         "asleep",
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "POTION_SLIME_MOLD_JUICE": {
       "name": "Potion of Slime Mold Juice",
@@ -1419,7 +2039,11 @@
       "effect": [
         "satiate",
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "POTION_SLOWNESS": {
       "name": "Potion of Slowness",
@@ -1431,7 +2055,11 @@
         "speed",
         -1,
         20
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "POTION_SLOW_POISON": {
       "name": "Potion of Slow Poison",
@@ -1440,7 +2068,11 @@
       "description": "Slows poison's effect.",
       "effect": [
         "slow_poison"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "POTION_SUPER_HEROISM": {
       "name": "Potion of Super Heroism",
@@ -1451,7 +2083,11 @@
         "buff",
         "super_heroism",
         20
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "POTION_UGLINESS": {
       "name": "Potion of Ugliness",
@@ -1463,7 +2099,11 @@
         "CHA",
         1,
         50
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "POTION_WATER": {
       "name": "Potion of Water",
@@ -1473,7 +2113,11 @@
       "effect": [
         "satiate",
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "POTION_WEAKNESS": {
       "name": "Potion of Weakness",
@@ -1485,7 +2129,11 @@
         "STR",
         1,
         50
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     }
   },
   "RINGS": {
@@ -1494,7 +2142,11 @@
       "type": "ring",
       "slot": "ring",
       "base_cost": 100,
-      "description": "Looks nice."
+      "description": "Looks nice.",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "RING_AGGRAVATE_MONSTER": {
       "name": "Ring of Aggravate Monster",
@@ -1504,7 +2156,11 @@
       "description": "Makes monsters angry.",
       "effect": [
         "aggravate"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "RING_FEATHER_FALLING": {
       "name": "Ring of Feather Falling",
@@ -1514,7 +2170,11 @@
       "description": "Slows your descent.",
       "effect": [
         "feather_fall"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "RING_GAIN_CON": {
       "name": "Ring of Gain Constitution",
@@ -1526,7 +2186,11 @@
         "stat_bonus",
         "CON",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "RING_GAIN_DEX": {
       "name": "Ring of Gain Dexterity",
@@ -1538,7 +2202,11 @@
         "stat_bonus",
         "DEX",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "RING_GAIN_INT": {
       "name": "Ring of Gain Intelligence",
@@ -1550,7 +2218,11 @@
         "stat_bonus",
         "INT",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "RING_GAIN_STR": {
       "name": "Ring of Gain Strength",
@@ -1562,7 +2234,11 @@
         "stat_bonus",
         "STR",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "RING_INCREASE_DAMAGE": {
       "name": "Ring of Increase Damage",
@@ -1573,7 +2249,11 @@
       "effect": [
         "damage_bonus",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "RING_INCREASE_TO_HIT": {
       "name": "Ring of Increase To-Hit",
@@ -1584,7 +2264,11 @@
       "effect": [
         "to_hit_bonus",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "RING_LORDLY_PROT_ACID": {
       "name": "Ring of Lordly Protection (ACID)",
@@ -1596,7 +2280,11 @@
         "resistance",
         "acid",
         3
-      ]
+      ],
+      "rarity_depth": {
+        "min": 700,
+        "max": 1300
+      }
     },
     "RING_LORDLY_PROT_COLD": {
       "name": "Ring of Lordly Protection (COLD)",
@@ -1608,7 +2296,11 @@
         "resistance",
         "cold",
         3
-      ]
+      ],
+      "rarity_depth": {
+        "min": 700,
+        "max": 1300
+      }
     },
     "RING_LORDLY_PROT_FIRE": {
       "name": "Ring of Lordly Protection (FIRE)",
@@ -1620,7 +2312,11 @@
         "resistance",
         "fire",
         3
-      ]
+      ],
+      "rarity_depth": {
+        "min": 700,
+        "max": 1300
+      }
     },
     "RING_PROTECTION": {
       "name": "Ring of Protection",
@@ -1631,7 +2327,11 @@
       "effect": [
         "defense_bonus",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "RING_RESIST_COLD": {
       "name": "Ring of Resist Cold",
@@ -1643,7 +2343,11 @@
         "resistance",
         "cold",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "RING_RESIST_FIRE": {
       "name": "Ring of Resist Fire",
@@ -1655,7 +2359,11 @@
         "resistance",
         "fire",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "RING_SEARCHING": {
       "name": "Ring of Searching",
@@ -1665,7 +2373,11 @@
       "description": "Helps find secrets.",
       "effect": [
         "searching"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "RING_SEE_INVISIBLE": {
       "name": "Ring of See Invisible",
@@ -1675,7 +2387,11 @@
       "description": "Reveals unseen things.",
       "effect": [
         "see_invisible"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "RING_SLAYING": {
       "name": "Ring of Slaying",
@@ -1686,7 +2402,11 @@
       "effect": [
         "slaying_bonus",
         2
-      ]
+      ],
+      "rarity_depth": {
+        "min": 700,
+        "max": 1300
+      }
     },
     "RING_SLOW_DIGESTION": {
       "name": "Ring of Slow Digestion",
@@ -1696,7 +2416,11 @@
       "description": "Reduces hunger.",
       "effect": [
         "slow_digestion"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "RING_SPEED": {
       "name": "Ring of Speed",
@@ -1707,7 +2431,11 @@
       "effect": [
         "speed",
         1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 700,
+        "max": 1300
+      }
     },
     "RING_STUPIDITY": {
       "name": "Ring of Stupidity",
@@ -1719,7 +2447,11 @@
         "stat_bonus",
         "INT",
         -1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "RING_SUSTAIN_CHA": {
       "name": "Ring of Sustain Charisma",
@@ -1730,7 +2462,11 @@
       "effect": [
         "sustain_stat",
         "CHA"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "RING_SUSTAIN_CON": {
       "name": "Ring of Sustain Constitution",
@@ -1741,7 +2477,11 @@
       "effect": [
         "sustain_stat",
         "CON"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "RING_SUSTAIN_DEX": {
       "name": "Ring of Sustain Dexterity",
@@ -1752,7 +2492,11 @@
       "effect": [
         "sustain_stat",
         "DEX"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "RING_SUSTAIN_INT": {
       "name": "Ring of Sustain Intelligence",
@@ -1763,7 +2507,11 @@
       "effect": [
         "sustain_stat",
         "INT"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "RING_SUSTAIN_STR": {
       "name": "Ring of Sustain Strength",
@@ -1774,7 +2522,11 @@
       "effect": [
         "sustain_stat",
         "STR"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "RING_SUSTAIN_WIS": {
       "name": "Ring of Sustain Wisdom",
@@ -1785,7 +2537,11 @@
       "effect": [
         "sustain_stat",
         "WIS"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "RING_TELEPORTATION": {
       "name": "Ring of Teleportation",
@@ -1795,7 +2551,11 @@
       "description": "Uncontrolled blinking.",
       "effect": [
         "teleportitis"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "RING_WEAKNESS": {
       "name": "Ring of Weakness",
@@ -1807,7 +2567,11 @@
         "stat_bonus",
         "STR",
         -1
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "RING_WOE": {
       "name": "Ring of WOE",
@@ -1818,7 +2582,11 @@
       "effect": [
         "cursed",
         "woe"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     }
   },
   "SCROLLS": {
@@ -1829,7 +2597,11 @@
       "description": "Angers nearby creatures.",
       "effect": [
         "aggravate"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_BLESSING": {
       "name": "Scroll of Blessing",
@@ -1839,7 +2611,11 @@
       "effect": [
         "bless",
         20
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_CREATE_FOOD": {
       "name": "Scroll of Create Food",
@@ -1848,7 +2624,11 @@
       "description": "Creates magical rations.",
       "effect": [
         "create_food"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_CURSE_ARMOR": {
       "name": "Scroll of Curse Armor",
@@ -1857,7 +2637,11 @@
       "description": "Curses equipped armor.",
       "effect": [
         "curse_armor"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SCROLL_CURSE_WEAPON": {
       "name": "Scroll of Curse Weapon",
@@ -1866,7 +2650,11 @@
       "description": "Curses equipped weapon.",
       "effect": [
         "curse_weapon"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SCROLL_DARKNESS": {
       "name": "Scroll of Darkness",
@@ -1876,7 +2664,11 @@
       "effect": [
         "darkness",
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_DESTRUCTION_STAR": {
       "name": "Scroll of *Destruction*",
@@ -1885,7 +2677,11 @@
       "description": "Highly destructive magic.",
       "effect": [
         "destruction"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "SCROLL_DETECT_INVISIBLE": {
       "name": "Scroll of Detect Invisible",
@@ -1895,7 +2691,11 @@
       "effect": [
         "detect_invisible",
         25
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_DISPEL_UNDEAD": {
       "name": "Scroll of Dispel Undead",
@@ -1905,7 +2705,11 @@
       "effect": [
         "dispel_undead",
         30
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "SCROLL_DOOR_CREATION": {
       "name": "Scroll of Door Creation",
@@ -1914,7 +2718,11 @@
       "description": "Creates a door in a wall.",
       "effect": [
         "create_door"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_DOOR_STAIR_LOCATION": {
       "name": "Scroll of Door/Stair Location",
@@ -1923,7 +2731,11 @@
       "description": "Reveals nearby doors and stairs.",
       "effect": [
         "detect_doors_stairs"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_ENCHANT_ARMOR": {
       "name": "Scroll of Enchant Armor",
@@ -1932,7 +2744,11 @@
       "description": "Improves armor.",
       "effect": [
         "enchant_armor"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "SCROLL_ENCHANT_ARMOR_STAR": {
       "name": "Scroll of *Enchant Armor*",
@@ -1942,7 +2758,11 @@
       "effect": [
         "identify_all",
         "enchant_armor"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "SCROLL_ENCHANT_WEAPON_STAR": {
       "name": "Scroll of *Enchant Weapon*",
@@ -1952,7 +2772,11 @@
       "effect": [
         "identify_all",
         "enchant_weapon"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "SCROLL_ENCHANT_WEAPON_TO_DAM": {
       "name": "Scroll of Enchant Weapon To-Dam",
@@ -1961,7 +2785,11 @@
       "description": "Improves weapon damage.",
       "effect": [
         "enchant_weapon_dam"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "SCROLL_ENCHANT_WEAPON_TO_HIT": {
       "name": "Scroll of Enchant Weapon To-Hit",
@@ -1970,7 +2798,11 @@
       "description": "Improves weapon accuracy.",
       "effect": [
         "enchant_weapon_hit"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "SCROLL_GENOCIDE": {
       "name": "Scroll of Genocide",
@@ -1979,7 +2811,11 @@
       "description": "Eliminates a type of monster.",
       "effect": [
         "genocide"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "SCROLL_HOLY_CHANT": {
       "name": "Scroll of Holy Chant",
@@ -1989,7 +2825,11 @@
       "effect": [
         "bless",
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "SCROLL_HOLY_PRAYER": {
       "name": "Scroll of Holy Prayer",
@@ -1999,7 +2839,11 @@
       "effect": [
         "bless",
         30
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "SCROLL_IDENTIFY": {
       "name": "Scroll of Identify",
@@ -2008,7 +2852,11 @@
       "description": "Reveals an item's properties.",
       "effect": [
         "identify"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_LIGHT": {
       "name": "Scroll of Light",
@@ -2018,7 +2866,11 @@
       "effect": [
         "light",
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_MAGIC_MAPPING": {
       "name": "Scroll of Magic Mapping",
@@ -2027,7 +2879,11 @@
       "description": "Reveals the current level layout.",
       "effect": [
         "magic_mapping"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "SCROLL_MASS_GENOCIDE": {
       "name": "Scroll of Mass Genocide",
@@ -2036,7 +2892,11 @@
       "description": "Eliminates many monsters.",
       "effect": [
         "mass_genocide"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "SCROLL_MONSTER_CONFUSION": {
       "name": "Scroll of Monster Confusion",
@@ -2045,7 +2905,11 @@
       "description": "Confuses nearby monsters.",
       "effect": [
         "confuse_monsters"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_OBJECT_DETECTION": {
       "name": "Scroll of Object Detection",
@@ -2054,7 +2918,11 @@
       "description": "Reveals nearby items.",
       "effect": [
         "detect_objects"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_PHASE_DOOR": {
       "name": "Scroll of Phase Door",
@@ -2063,7 +2931,11 @@
       "description": "Short range teleport.",
       "effect": [
         "phase_door"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_PROTECTION_FROM_EVIL": {
       "name": "Scroll of Protection from Evil",
@@ -2073,7 +2945,11 @@
       "effect": [
         "protection_evil",
         50
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "SCROLL_RECHARGING": {
       "name": "Scroll of Recharging",
@@ -2082,7 +2958,11 @@
       "description": "Restores charges to wands/staves.",
       "effect": [
         "recharging"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "SCROLL_REMOVE_CURSE": {
       "name": "Scroll of Remove Curse",
@@ -2091,7 +2971,11 @@
       "description": "Lifts curses from items.",
       "effect": [
         "remove_curse"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "SCROLL_RUNE_OF_PROTECTION": {
       "name": "Scroll of Rune of Protection",
@@ -2100,7 +2984,11 @@
       "description": "Creates a protective ward.",
       "effect": [
         "rune_protection"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "SCROLL_SLEEP_MONSTER": {
       "name": "Scroll of Sleep Monster",
@@ -2109,7 +2997,11 @@
       "description": "Puts nearby monsters to sleep.",
       "effect": [
         "sleep_monsters"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_SUMMON_MONSTER": {
       "name": "Scroll of Summon Monster",
@@ -2118,7 +3010,11 @@
       "description": "Summons a random creature.",
       "effect": [
         "summon_monster"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_SUMMON_UNDEAD": {
       "name": "Scroll of Summon Undead",
@@ -2127,7 +3023,11 @@
       "description": "Summons an undead creature.",
       "effect": [
         "summon_undead"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "SCROLL_TELEPORT": {
       "name": "Scroll of Teleport",
@@ -2136,7 +3036,11 @@
       "description": "Randomly teleports you.",
       "effect": [
         "teleport"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_TELEPORT_LEVEL": {
       "name": "Scroll of Teleport Level",
@@ -2145,7 +3049,11 @@
       "description": "Teleports you to another level.",
       "effect": [
         "teleport_level"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "SCROLL_TRAP_CREATION": {
       "name": "Scroll of Trap Creation",
@@ -2154,7 +3062,11 @@
       "description": "Creates random traps.",
       "effect": [
         "create_traps"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_TRAP_DETECTION": {
       "name": "Scroll of Trap Detection",
@@ -2163,7 +3075,11 @@
       "description": "Reveals nearby traps.",
       "effect": [
         "detect_traps"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_TRAP_DOOR_DESTRUCTION": {
       "name": "Scroll of Trap/Door Destruction",
@@ -2172,7 +3088,11 @@
       "description": "Destroys adjacent traps/doors.",
       "effect": [
         "destroy_traps_doors"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_TREASURE_DETECTION": {
       "name": "Scroll of Treasure Detection",
@@ -2181,7 +3101,11 @@
       "description": "Reveals nearby treasure.",
       "effect": [
         "detect_treasure"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SCROLL_WORD_OF_RECALL": {
       "name": "Scroll of Word-of-Recall",
@@ -2190,7 +3114,11 @@
       "description": "Teleports you to town (depth 0).",
       "effect": [
         "recall"
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     }
   },
   "WANDS_STAVES": {
@@ -2206,7 +3134,11 @@
       "charges": [
         10,
         20
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "STAFF_CURING": {
       "name": "Staff of Curing",
@@ -2223,7 +3155,11 @@
       "charges": [
         8,
         16
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "STAFF_DARKNESS": {
       "name": "Staff of Darkness",
@@ -2237,7 +3173,11 @@
       "charges": [
         7,
         14
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "STAFF_DESTRUCTION_STAR": {
       "name": "Staff of *Destruction*",
@@ -2250,7 +3190,11 @@
       "charges": [
         1,
         3
-      ]
+      ],
+      "rarity_depth": {
+        "min": 700,
+        "max": 1300
+      }
     },
     "STAFF_DETECT_EVIL": {
       "name": "Staff of Detect Evil",
@@ -2264,7 +3208,11 @@
       "charges": [
         10,
         20
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "STAFF_DETECT_INVISIBLE": {
       "name": "Staff of Detect Invisible",
@@ -2278,7 +3226,11 @@
       "charges": [
         9,
         18
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "STAFF_DISPEL_EVIL": {
       "name": "Staff of Dispel Evil",
@@ -2292,7 +3244,11 @@
       "charges": [
         6,
         12
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "STAFF_DOOR_STAIR_LOCATION": {
       "name": "Staff of Door/Stair Location",
@@ -2305,7 +3261,11 @@
       "charges": [
         10,
         20
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "STAFF_EARTHQUAKES": {
       "name": "Staff of Earthquakes",
@@ -2318,7 +3278,11 @@
       "charges": [
         3,
         7
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "STAFF_HASTE_MONSTERS": {
       "name": "Staff of Haste Monsters",
@@ -2331,7 +3295,11 @@
       "charges": [
         5,
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "STAFF_LIGHT": {
       "name": "Staff of Light",
@@ -2345,7 +3313,11 @@
       "charges": [
         15,
         25
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "STAFF_MASS_POLYMORPH": {
       "name": "Staff of Mass Polymorph",
@@ -2358,7 +3330,11 @@
       "charges": [
         3,
         6
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "STAFF_OBJECT_LOCATION": {
       "name": "Staff of Object Location",
@@ -2371,7 +3347,11 @@
       "charges": [
         10,
         20
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "STAFF_REMOVE_CURSE": {
       "name": "Staff of Remove Curse",
@@ -2384,7 +3364,11 @@
       "charges": [
         7,
         14
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "STAFF_SLEEP_MONSTERS": {
       "name": "Staff of Sleep Monsters",
@@ -2398,7 +3382,11 @@
       "charges": [
         6,
         12
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "STAFF_SLOWNESS": {
       "name": "Staff of Slowness",
@@ -2412,7 +3400,11 @@
       "charges": [
         7,
         14
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "STAFF_SLOW_MONSTERS": {
       "name": "Staff of Slow Monsters",
@@ -2426,7 +3418,11 @@
       "charges": [
         6,
         12
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "STAFF_SPEED": {
       "name": "Staff of Speed",
@@ -2440,7 +3436,11 @@
       "charges": [
         5,
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      }
     },
     "STAFF_STARLIGHT": {
       "name": "Staff of Starlight",
@@ -2455,7 +3455,11 @@
       "charges": [
         6,
         12
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "STAFF_SUMMONING": {
       "name": "Staff of Summoning",
@@ -2468,7 +3472,11 @@
       "charges": [
         4,
         8
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "STAFF_TELEPORTATION": {
       "name": "Staff of Teleportation",
@@ -2481,7 +3489,11 @@
       "charges": [
         7,
         14
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "STAFF_TRAP_LOCATION": {
       "name": "Staff of Trap Location",
@@ -2494,7 +3506,11 @@
       "charges": [
         10,
         20
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "STAFF_TREASURE_LOCATION": {
       "name": "Staff of Treasure Location",
@@ -2507,7 +3523,11 @@
       "charges": [
         10,
         20
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAND_ACID_BALLS": {
       "name": "Wand of Acid Balls",
@@ -2523,7 +3543,11 @@
       "charges": [
         5,
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAND_CLONE_MONSTER": {
       "name": "Wand of Clone Monster",
@@ -2536,7 +3560,11 @@
       "charges": [
         3,
         7
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "WAND_COLD_BALLS": {
       "name": "Wand of Cold Balls",
@@ -2552,7 +3580,11 @@
       "charges": [
         5,
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAND_CONFUSE_MONSTER": {
       "name": "Wand of Confuse Monster",
@@ -2566,7 +3598,11 @@
       "charges": [
         6,
         12
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAND_DISARMING": {
       "name": "Wand of Disarming",
@@ -2579,7 +3615,11 @@
       "charges": [
         4,
         8
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "WAND_DRAIN_LIFE": {
       "name": "Wand of Drain Life",
@@ -2593,7 +3633,11 @@
       "charges": [
         3,
         6
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "WAND_FIRE_BALLS": {
       "name": "Wand of Fire Balls",
@@ -2609,7 +3653,11 @@
       "charges": [
         5,
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAND_FIRE_BOLTS": {
       "name": "Wand of Fire Bolts",
@@ -2624,7 +3672,11 @@
       "charges": [
         8,
         15
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAND_FROST_BOLTS": {
       "name": "Wand of Frost Bolts",
@@ -2639,7 +3691,11 @@
       "charges": [
         8,
         15
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAND_HASTE_MONSTER": {
       "name": "Wand of Haste Monster",
@@ -2652,7 +3708,11 @@
       "charges": [
         5,
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "WAND_HEAL_MONSTER": {
       "name": "Wand of Heal Monster",
@@ -2666,7 +3726,11 @@
       "charges": [
         5,
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "WAND_LIGHT": {
       "name": "Wand of Light",
@@ -2680,7 +3744,11 @@
       "charges": [
         10,
         20
-      ]
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "WAND_LIGHTNING_BALLS": {
       "name": "Wand of Lightning Balls",
@@ -2696,7 +3764,11 @@
       "charges": [
         4,
         9
-      ]
+      ],
+      "rarity_depth": {
+        "min": 250,
+        "max": 500
+      }
     },
     "WAND_LIGHTNING_BOLTS": {
       "name": "Wand of Lightning Bolts",
@@ -2711,7 +3783,11 @@
       "charges": [
         6,
         13
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAND_MAGIC_MISSILE": {
       "name": "Wand of Magic Missile",
@@ -2726,7 +3802,11 @@
       "charges": [
         8,
         16
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAND_POLYMORPH": {
       "name": "Wand of Polymorph",
@@ -2739,7 +3819,11 @@
       "charges": [
         4,
         8
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAND_SLEEP_MONSTER": {
       "name": "Wand of Sleep Monster",
@@ -2753,7 +3837,11 @@
       "charges": [
         6,
         12
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAND_SLOW_MONSTER": {
       "name": "Wand of Slow Monster",
@@ -2767,7 +3855,11 @@
       "charges": [
         6,
         12
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAND_STINKING_CLOUD": {
       "name": "Wand of Stinking Cloud",
@@ -2784,7 +3876,11 @@
       "charges": [
         5,
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAND_STONE_TO_MUD": {
       "name": "Wand of Stone-to-Mud",
@@ -2797,7 +3893,11 @@
       "charges": [
         4,
         9
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAND_TELEPORT_AWAY": {
       "name": "Wand of Teleport Away",
@@ -2810,7 +3910,11 @@
       "charges": [
         5,
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAND_TRAP_DOOR_DESTRUCTION": {
       "name": "Wand of Trap/Door Destruction",
@@ -2823,7 +3927,11 @@
       "charges": [
         6,
         11
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAND_WALL_BUILDING": {
       "name": "Wand of Wall Building",
@@ -2836,7 +3944,11 @@
       "charges": [
         5,
         10
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAND_WONDER": {
       "name": "Wand of Wonder",
@@ -2849,7 +3961,11 @@
       "charges": [
         8,
         15
-      ]
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     }
   },
   "WEAPONS": {
@@ -2858,7 +3974,11 @@
       "type": "missile",
       "base_cost": 1,
       "description": "Ammunition for bows.",
-      "damage": "1d4"
+      "damage": "1d4",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "AWL_PIKE": {
       "name": "Awl-Pike",
@@ -2866,7 +3986,11 @@
       "slot": "weapon",
       "base_cost": 60,
       "description": "A long polearm.",
-      "damage": "1d8"
+      "damage": "1d8",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "BACKSWORD": {
       "name": "Backsword",
@@ -2874,7 +3998,11 @@
       "slot": "weapon",
       "base_cost": 80,
       "description": "A single-edged sword.",
-      "damage": "1d9"
+      "damage": "1d9",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "BALL_AND_CHAIN": {
       "name": "Ball and Chain",
@@ -2882,7 +4010,11 @@
       "slot": "weapon",
       "base_cost": 40,
       "description": "Clumsy but heavy.",
-      "damage": "2d4"
+      "damage": "2d4",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "BASTARD_SWORD": {
       "name": "Bastard Sword",
@@ -2890,7 +4022,11 @@
       "slot": "weapon",
       "base_cost": 150,
       "description": "Can be used one or two-handed.",
-      "damage": "3d4"
+      "damage": "3d4",
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "BATTLE_AXE_BALESTARIUS": {
       "name": "Battle Axe (Balestarius)",
@@ -2898,7 +4034,11 @@
       "slot": "weapon",
       "base_cost": 130,
       "description": "A large battle axe.",
-      "damage": "2d8"
+      "damage": "2d8",
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "BATTLE_AXE_EUROPEAN": {
       "name": "Battle Axe (European)",
@@ -2906,7 +4046,11 @@
       "slot": "weapon",
       "base_cost": 110,
       "description": "A standard battle axe.",
-      "damage": "3d4"
+      "damage": "3d4",
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "BEAKED_AXE": {
       "name": "Beaked Axe",
@@ -2914,14 +4058,22 @@
       "slot": "weapon",
       "base_cost": 80,
       "description": "An axe with a spike.",
-      "damage": "2d6"
+      "damage": "2d6",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "BOLT": {
       "name": "Bolt",
       "type": "missile",
       "base_cost": 1,
       "description": "Ammunition for crossbows.",
-      "damage": "1d5"
+      "damage": "1d5",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "BOW_COMPOSITE": {
       "name": "Composite Bow",
@@ -2929,7 +4081,11 @@
       "slot": "weapon",
       "base_cost": 200,
       "description": "A powerful bow.",
-      "damage_bonus": 3
+      "damage_bonus": 3,
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "BOW_LONG": {
       "name": "Long Bow",
@@ -2937,7 +4093,11 @@
       "slot": "weapon",
       "base_cost": 150,
       "description": "A large, powerful bow.",
-      "damage_bonus": 2
+      "damage_bonus": 2,
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "BOW_SHORT": {
       "name": "Short Bow",
@@ -2945,7 +4105,11 @@
       "slot": "weapon",
       "base_cost": 100,
       "description": "A small, quick bow.",
-      "damage_bonus": 1
+      "damage_bonus": 1,
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "BROADSWORD": {
       "name": "Broadsword",
@@ -2953,7 +4117,11 @@
       "slot": "weapon",
       "base_cost": 180,
       "description": "A wide-bladed sword.",
-      "damage": "3d6"
+      "damage": "3d6",
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "BROAD_AXE": {
       "name": "Broad Axe",
@@ -2961,7 +4129,11 @@
       "slot": "weapon",
       "base_cost": 90,
       "description": "A wide-bladed axe.",
-      "damage": "2d6"
+      "damage": "2d6",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "CAT_O_NINE_TAILS": {
       "name": "Cat-O-Nine Tails",
@@ -2969,7 +4141,11 @@
       "slot": "weapon",
       "base_cost": 15,
       "description": "A multi-tailed whip.",
-      "damage": "1d4"
+      "damage": "1d4",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "CLUB_WOODEN": {
       "name": "Wooden Club",
@@ -2977,7 +4153,11 @@
       "slot": "weapon",
       "base_cost": 5,
       "description": "A simple wooden club.",
-      "damage": "1d3"
+      "damage": "1d3",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "CROSSBOW_HEAVY": {
       "name": "Heavy Crossbow",
@@ -2986,7 +4166,11 @@
       "base_cost": 180,
       "description": "Slow but powerful.",
       "damage_bonus": 4,
-      "damage": "1d1"
+      "damage": "1d1",
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "CROSSBOW_LIGHT": {
       "name": "Light Crossbow",
@@ -2994,7 +4178,11 @@
       "slot": "weapon",
       "base_cost": 120,
       "description": "Easier to load.",
-      "damage_bonus": 2
+      "damage_bonus": 2,
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "CUTLASS": {
       "name": "Cutlass",
@@ -3002,7 +4190,11 @@
       "slot": "weapon",
       "base_cost": 60,
       "description": "A curved naval sword.",
-      "damage": "1d7"
+      "damage": "1d7",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "DAGGER_BODKIN": {
       "name": "Dagger (Bodkin)",
@@ -3010,7 +4202,11 @@
       "slot": "weapon",
       "base_cost": 20,
       "description": "A sharp-pointed dagger.",
-      "damage": "1d4"
+      "damage": "1d4",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "DAGGER_BROKEN": {
       "name": "Broken dagger",
@@ -3018,7 +4214,11 @@
       "slot": "weapon",
       "base_cost": 1,
       "description": "Almost useless.",
-      "damage": "1d1"
+      "damage": "1d1",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "DAGGER_MAIN_GAUCHE": {
       "name": "Dagger (Main Gauche)",
@@ -3026,7 +4226,11 @@
       "slot": "weapon",
       "base_cost": 30,
       "description": "A parrying dagger.",
-      "damage": "1d5"
+      "damage": "1d5",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "DAGGER_MISERICORDE": {
       "name": "Dagger (Misericorde)",
@@ -3034,7 +4238,11 @@
       "slot": "weapon",
       "base_cost": 25,
       "description": "Used for finishing blows.",
-      "damage": "1d4"
+      "damage": "1d4",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "DAGGER_STILETTO": {
       "name": "Dagger (Stiletto)",
@@ -3042,7 +4250,11 @@
       "slot": "weapon",
       "base_cost": 25,
       "description": "A thin piercing dagger.",
-      "damage": "1d4"
+      "damage": "1d4",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "EXECUTIONERS_SWORD": {
       "name": "Executioner's Sword",
@@ -3050,7 +4262,11 @@
       "slot": "weapon",
       "base_cost": 250,
       "description": "Large and heavy.",
-      "damage": "4d5"
+      "damage": "4d5",
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "FAUCHARD": {
       "name": "Fauchard",
@@ -3058,7 +4274,11 @@
       "slot": "weapon",
       "base_cost": 85,
       "description": "A curved polearm.",
-      "damage": "1d10"
+      "damage": "1d10",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "FLAIL": {
       "name": "Flail",
@@ -3066,7 +4286,11 @@
       "slot": "weapon",
       "base_cost": 70,
       "description": "A spiked ball on a chain.",
-      "damage": "2d6"
+      "damage": "2d6",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "FOIL": {
       "name": "Foil",
@@ -3074,7 +4298,11 @@
       "slot": "weapon",
       "base_cost": 40,
       "description": "A light fencing sword.",
-      "damage": "1d5"
+      "damage": "1d5",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "GLAIVE": {
       "name": "Glaive",
@@ -3082,7 +4310,11 @@
       "slot": "weapon",
       "base_cost": 75,
       "description": "A polearm with a single-edged blade.",
-      "damage": "2d6"
+      "damage": "2d6",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "HALBERD": {
       "name": "Halberd",
@@ -3090,7 +4322,11 @@
       "slot": "weapon",
       "base_cost": 100,
       "description": "A versatile polearm.",
-      "damage": "3d4"
+      "damage": "3d4",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "JAVELIN": {
       "name": "Javelin",
@@ -3098,7 +4334,11 @@
       "slot": "weapon",
       "base_cost": 10,
       "description": "A light throwing spear.",
-      "damage": "1d4"
+      "damage": "1d4",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "KATANA": {
       "name": "Katana",
@@ -3106,7 +4346,11 @@
       "slot": "weapon",
       "base_cost": 160,
       "description": "A curved single-edged sword.",
-      "damage": "3d4"
+      "damage": "3d4",
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "LANCE": {
       "name": "Lance",
@@ -3114,7 +4358,11 @@
       "slot": "weapon",
       "base_cost": 120,
       "description": "Used from horseback (or maybe just long).",
-      "damage": "2d8"
+      "damage": "2d8",
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "LONGSWORD": {
       "name": "Longsword",
@@ -3122,7 +4370,11 @@
       "slot": "weapon",
       "base_cost": 100,
       "description": "A standard long sword.",
-      "damage": "1d10"
+      "damage": "1d10",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "LUCERNE_HAMMER": {
       "name": "Lucerne Hammer",
@@ -3130,7 +4382,11 @@
       "slot": "weapon",
       "base_cost": 95,
       "description": "A polearm with hammer and spike.",
-      "damage": "2d5"
+      "damage": "2d5",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "MACE": {
       "name": "Mace",
@@ -3138,7 +4394,11 @@
       "slot": "weapon",
       "base_cost": 50,
       "description": "A blunt weapon.",
-      "damage": "2d4"
+      "damage": "2d4",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "MACE_LEAD_FILLED": {
       "name": "Mace (Lead-filled)",
@@ -3146,7 +4406,11 @@
       "slot": "weapon",
       "base_cost": 80,
       "description": "A heavy mace.",
-      "damage": "3d4"
+      "damage": "3d4",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "MORNINGSTAR": {
       "name": "Morningstar",
@@ -3154,14 +4418,22 @@
       "slot": "weapon",
       "base_cost": 90,
       "description": "A spiked mace.",
-      "damage": "2d6"
+      "damage": "2d6",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "PEBBLE_ROUNDED": {
       "name": "Rounded Pebble",
       "type": "missile",
       "base_cost": 0,
       "description": "Ammunition for slings.",
-      "damage": "1d2"
+      "damage": "1d2",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "PICK": {
       "name": "Pick",
@@ -3169,7 +4441,11 @@
       "slot": "weapon",
       "base_cost": 20,
       "description": "Used for mining or fighting.",
-      "damage": "1d3"
+      "damage": "1d3",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "PICK_DWARVEN": {
       "name": "Dwarven Pick",
@@ -3177,7 +4453,11 @@
       "slot": "weapon",
       "base_cost": 30,
       "description": "A sturdy pickaxe.",
-      "damage": "1d4"
+      "damage": "1d4",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "PICK_ORCISH": {
       "name": "Orcish Pick",
@@ -3185,7 +4465,11 @@
       "slot": "weapon",
       "base_cost": 25,
       "description": "A crudely made pickaxe.",
-      "damage": "1d3"
+      "damage": "1d3",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "PIKE": {
       "name": "Pike",
@@ -3193,7 +4477,11 @@
       "slot": "weapon",
       "base_cost": 65,
       "description": "A very long spear.",
-      "damage": "2d5"
+      "damage": "2d5",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "RAPIER": {
       "name": "Rapier",
@@ -3201,7 +4489,11 @@
       "slot": "weapon",
       "base_cost": 50,
       "description": "A slender thrusting sword.",
-      "damage": "1d6"
+      "damage": "1d6",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SABRE": {
       "name": "Sabre",
@@ -3209,14 +4501,22 @@
       "slot": "weapon",
       "base_cost": 65,
       "description": "A curved slashing sword.",
-      "damage": "1d7"
+      "damage": "1d7",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SHOT_IRON": {
       "name": "Iron Shot",
       "type": "missile",
       "base_cost": 2,
       "description": "Ammunition for slings.",
-      "damage": "1d3"
+      "damage": "1d3",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SHOVEL": {
       "name": "Shovel",
@@ -3224,7 +4524,11 @@
       "slot": "weapon",
       "base_cost": 10,
       "description": "Used for digging.",
-      "damage": "1d2"
+      "damage": "1d2",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SHOVEL_DWARVEN": {
       "name": "Dwarven Shovel",
@@ -3232,7 +4536,11 @@
       "slot": "weapon",
       "base_cost": 20,
       "description": "A sturdy shovel.",
-      "damage": "1d3"
+      "damage": "1d3",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SHOVEL_GNOMISH": {
       "name": "Gnomish Shovel",
@@ -3240,7 +4548,11 @@
       "slot": "weapon",
       "base_cost": 15,
       "description": "A small shovel.",
-      "damage": "1d2"
+      "damage": "1d2",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SLING": {
       "name": "Sling",
@@ -3248,7 +4560,11 @@
       "slot": "weapon",
       "base_cost": 5,
       "description": "Hurls stones.",
-      "damage_bonus": 0
+      "damage_bonus": 0,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SMALL_SWORD": {
       "name": "Small Sword",
@@ -3256,7 +4572,11 @@
       "slot": "weapon",
       "base_cost": 45,
       "description": "A light thrusting sword.",
-      "damage": "1d6"
+      "damage": "1d6",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "SPEAR": {
       "name": "Spear",
@@ -3264,7 +4584,11 @@
       "slot": "weapon",
       "base_cost": 20,
       "description": "A basic polearm.",
-      "damage": "1d6"
+      "damage": "1d6",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "SWORD_BROKEN": {
       "name": "Broken sword",
@@ -3272,7 +4596,11 @@
       "slot": "weapon",
       "base_cost": 1,
       "description": "A shard of metal.",
-      "damage": "1d1"
+      "damage": "1d1",
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      }
     },
     "THRUSTING_SWORD_BASELARD": {
       "name": "Thrusting Sword (Baselard)",
@@ -3280,7 +4608,11 @@
       "slot": "weapon",
       "base_cost": 70,
       "description": "A type of short sword.",
-      "damage": "1d7"
+      "damage": "1d7",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "THRUSTING_SWORD_BILBO": {
       "name": "Thrusting Sword (Bilbo)",
@@ -3288,7 +4620,11 @@
       "slot": "weapon",
       "base_cost": 55,
       "description": "A cut-and-thrust sword.",
-      "damage": "1d6"
+      "damage": "1d6",
+      "rarity_depth": {
+        "min": 50,
+        "max": 150
+      }
     },
     "TWO_HANDED_GREAT_FLAIL": {
       "name": "Two-Handed Great Flail",
@@ -3296,7 +4632,11 @@
       "slot": "weapon",
       "base_cost": 140,
       "description": "A large flail.",
-      "damage": "3d6"
+      "damage": "3d6",
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "TWO_HANDED_SWORD_CLAYMORE": {
       "name": "Two-Handed Sword (Claymore)",
@@ -3304,7 +4644,11 @@
       "slot": "weapon",
       "base_cost": 200,
       "description": "A large two-handed sword.",
-      "damage": "1d7"
+      "damage": "1d7",
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "TWO_HANDED_SWORD_ESPADON": {
       "name": "Two-Handed Sword (Espadon)",
@@ -3312,7 +4656,11 @@
       "slot": "weapon",
       "base_cost": 220,
       "description": "A very large two-handed sword.",
-      "damage": "3d6"
+      "damage": "3d6",
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "TWO_HANDED_SWORD_FLAMBERGE": {
       "name": "Two-Handed Sword (Flamberge)",
@@ -3320,7 +4668,11 @@
       "slot": "weapon",
       "base_cost": 280,
       "description": "A wavy-bladed two-handed sword.",
-      "damage": "4d5"
+      "damage": "4d5",
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "TWO_HANDED_SWORD_NO_DACHI": {
       "name": "Two-Handed Sword (No-Dachi)",
@@ -3328,7 +4680,11 @@
       "slot": "weapon",
       "base_cost": 260,
       "description": "A long Japanese two-handed sword.",
-      "damage": "4d4"
+      "damage": "4d4",
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "TWO_HANDED_SWORD_ZWEIHANDER": {
       "name": "Two-Handed Sword (Zweihander)",
@@ -3336,7 +4692,11 @@
       "slot": "weapon",
       "base_cost": 300,
       "description": "A massive German two-handed sword.",
-      "damage": "4d6"
+      "damage": "4d6",
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     },
     "WAR_HAMMER": {
       "name": "War Hammer",
@@ -3344,7 +4704,11 @@
       "slot": "weapon",
       "base_cost": 120,
       "description": "Designed for crushing armor.",
-      "damage": "3d3"
+      "damage": "3d3",
+      "rarity_depth": {
+        "min": 100,
+        "max": 300
+      }
     }
   }
 }

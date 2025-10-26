@@ -1,0 +1,377 @@
+[
+  {
+    "id": "detect_evil",
+    "name": "Detect Evil",
+    "category": "priest",
+    "effect_type": "detect",
+    "effect_target": "evil",
+    "description": "Reveals evil creatures within sight.",
+    "classes": {
+      "Priest": {"min_level": 1, "mana": 1, "base_failure": 10},
+      "Paladin": {"min_level": 1, "mana": 1, "base_failure": 20}
+    }
+  },
+  {
+    "id": "cure_light_wounds",
+    "name": "Cure Light Wounds",
+    "category": "shared",
+    "effect_type": "heal",
+    "heal_amount": 12,
+    "description": "Restores a small amount of health.",
+    "classes": {
+      "Priest": {"min_level": 1, "mana": 2, "base_failure": 15},
+      "Paladin": {"min_level": 2, "mana": 2, "base_failure": 25},
+      "Mage": {"min_level": 3, "mana": 3, "base_failure": 35},
+      "Ranger": {"min_level": 5, "mana": 3, "base_failure": 30},
+      "Rogue": {"min_level": 11, "mana": 4, "base_failure": 45}
+    }
+  },
+  {
+    "id": "bless",
+    "name": "Bless",
+    "category": "priest",
+    "effect_type": "buff",
+    "status": "Blessed",
+    "duration": 30,
+    "description": "Improves armor class and fighting for a short time.",
+    "classes": {
+      "Priest": {"min_level": 1, "mana": 2, "base_failure": 20},
+      "Paladin": {"min_level": 3, "mana": 3, "base_failure": 30}
+    }
+  },
+  {
+    "id": "remove_fear",
+    "name": "Remove Fear",
+    "category": "priest",
+    "effect_type": "cleanse",
+    "status": "Fear",
+    "description": "Removes magical fear from the caster.",
+    "classes": {
+      "Priest": {"min_level": 1, "mana": 2, "base_failure": 15},
+      "Paladin": {"min_level": 5, "mana": 3, "base_failure": 25}
+    }
+  },
+  {
+    "id": "cure_serious_wounds",
+    "name": "Cure Serious Wounds",
+    "category": "priest",
+    "effect_type": "heal",
+    "heal_amount": 30,
+    "description": "Restores a large amount of health.",
+    "classes": {
+      "Priest": {"min_level": 9, "mana": 7, "base_failure": 30},
+      "Paladin": {"min_level": 17, "mana": 15, "base_failure": 45}
+    }
+  },
+  {
+    "id": "cure_critical_wounds",
+    "name": "Cure Critical Wounds",
+    "category": "priest",
+    "effect_type": "heal",
+    "heal_amount": 60,
+    "description": "Restores a great amount of health.",
+    "classes": {
+      "Priest": {"min_level": 17, "mana": 12, "base_failure": 40},
+      "Paladin": {"min_level": 29, "mana": 22, "base_failure": 50}
+    }
+  },
+  {
+    "id": "holy_orb",
+    "name": "Holy Orb",
+    "category": "priest",
+    "effect_type": "attack",
+    "damage": "8d6",
+    "damage_type": "holy",
+    "requires_target": false,
+    "description": "Deals holy damage in an area around the caster.",
+    "classes": {
+      "Priest": {"min_level": 19, "mana": 12, "base_failure": 45},
+      "Paladin": {"min_level": 33, "mana": 20, "base_failure": 55}
+    }
+  },
+  {
+    "id": "earthquake",
+    "name": "Earthquake",
+    "category": "shared",
+    "effect_type": "area_attack",
+    "damage": "10d6",
+    "damage_type": "physical",
+    "requires_target": false,
+    "description": "Shakes the ground violently, damaging nearby enemies.",
+    "classes": {
+      "Priest": {"min_level": 25, "mana": 18, "base_failure": 50},
+      "Paladin": {"min_level": 37, "mana": 25, "base_failure": 60},
+      "Mage": {"min_level": 33, "mana": 22, "base_failure": 60}
+    }
+  },
+  {
+    "id": "ice_bolt",
+    "name": "Ice Bolt",
+    "category": "mage",
+    "effect_type": "attack",
+    "damage": "6d6",
+    "damage_type": "cold",
+    "requires_target": true,
+    "description": "Fires a bolt of frost that chills the enemy.",
+    "classes": {
+      "Mage": {"min_level": 17, "mana": 9, "base_failure": 40},
+      "Ranger": {"min_level": 27, "mana": 18, "base_failure": 55}
+    }
+  },
+  {
+    "id": "acid_bolt",
+    "name": "Acid Bolt",
+    "category": "mage",
+    "effect_type": "attack",
+    "damage": "5d8",
+    "damage_type": "acid",
+    "requires_target": true,
+    "description": "Launches a corrosive bolt of acid.",
+    "classes": {
+      "Mage": {"min_level": 13, "mana": 8, "base_failure": 35},
+      "Ranger": {"min_level": 23, "mana": 15, "base_failure": 50}
+    }
+  },
+  {
+    "id": "haste_self",
+    "name": "Haste Self",
+    "category": "mage",
+    "effect_type": "buff",
+    "status": "Hasted",
+    "duration": 40,
+    "description": "Speeds up the caster’s movement and actions.",
+    "classes": {
+      "Mage": {"min_level": 15, "mana": 10, "base_failure": 40},
+      "Ranger": {"min_level": 27, "mana": 16, "base_failure": 55},
+      "Rogue": {"min_level": 33, "mana": 20, "base_failure": 60}
+    }
+  },
+  {
+    "id": "slow_monster",
+    "name": "Slow Monster",
+    "category": "mage",
+    "effect_type": "debuff",
+    "status": "Slowed",
+    "requires_target": true,
+    "description": "Slows down an enemy’s movement.",
+    "classes": {
+      "Mage": {"min_level": 7, "mana": 5, "base_failure": 25},
+      "Ranger": {"min_level": 15, "mana": 8, "base_failure": 40},
+      "Rogue": {"min_level": 25, "mana": 10, "base_failure": 55}
+    }
+  },
+  {
+    "id": "stone_to_mud",
+    "name": "Stone to Mud",
+    "category": "mage",
+    "effect_type": "terrain",
+    "description": "Turns rock into mud, opening blocked paths.",
+    "classes": {
+      "Mage": {"min_level": 9, "mana": 6, "base_failure": 25},
+      "Ranger": {"min_level": 17, "mana": 10, "base_failure": 40}
+    }
+  },
+  {
+    "id": "detect_traps",
+    "name": "Detect Traps",
+    "category": "shared",
+    "effect_type": "detect",
+    "effect_target": "traps",
+    "description": "Reveals traps in the surrounding area.",
+    "classes": {
+      "Mage": {"min_level": 3, "mana": 2, "base_failure": 15},
+      "Ranger": {"min_level": 3, "mana": 2, "base_failure": 20},
+      "Rogue": {"min_level": 1, "mana": 1, "base_failure": 10},
+      "Priest": {"min_level": 5, "mana": 3, "base_failure": 20}
+    }
+  },
+  {
+    "id": "turn_undead",
+    "name": "Turn Undead",
+    "category": "priest",
+    "effect_type": "debuff",
+    "status": "Fleeing",
+    "requires_target": false,
+    "description": "Causes undead to flee from holy power.",
+    "classes": {
+      "Priest": {"min_level": 9, "mana": 6, "base_failure": 30},
+      "Paladin": {"min_level": 15, "mana": 10, "base_failure": 40}
+    }
+  },
+  {
+    "id": "identify",
+    "name": "Identify",
+    "category": "mage",
+    "effect_type": "utility",
+    "description": "Reveals the properties of an unknown item.",
+    "classes": {
+      "Mage": {"min_level": 11, "mana": 8, "base_failure": 30},
+      "Ranger": {"min_level": 19, "mana": 12, "base_failure": 45},
+      "Priest": {"min_level": 15, "mana": 10, "base_failure": 35}
+    }
+  },
+  {
+    "id": "word_of_recall",
+    "name": "Word of Recall",
+    "category": "shared",
+    "effect_type": "teleport",
+    "range": 9999,
+    "description": "Returns the caster safely to town after a short delay.",
+    "classes": {
+      "Priest": {"min_level": 21, "mana": 15, "base_failure": 45},
+      "Mage": {"min_level": 23, "mana": 17, "base_failure": 50}
+    }
+  },
+  {
+    "id": "protection_evil",
+    "name": "Protection from Evil",
+    "category": "priest",
+    "effect_type": "buff",
+    "status": "Protected",
+    "duration": 40,
+    "description": "Reduces damage from evil creatures for a time.",
+    "classes": {
+      "Priest": {"min_level": 11, "mana": 8, "base_failure": 35},
+      "Paladin": {"min_level": 19, "mana": 15, "base_failure": 45}
+    }
+  },
+  {
+    "id": "dispel_undead",
+    "name": "Dispel Undead",
+    "category": "priest",
+    "effect_type": "attack",
+    "damage": "6d6",
+    "damage_type": "holy",
+    "requires_target": true,
+    "description": "Attempts to destroy an undead creature.",
+    "classes": {
+      "Priest": {"min_level": 17, "mana": 14, "base_failure": 40},
+      "Paladin": {"min_level": 31, "mana": 24, "base_failure": 55}
+    }
+  },
+  {
+    "id": "remove_curse",
+    "name": "Remove Curse",
+    "category": "shared",
+    "effect_type": "cleanse",
+    "status": "Cursed",
+    "description": "Removes cursed gear from the caster.",
+    "classes": {
+      "Priest": {"min_level": 7, "mana": 6, "base_failure": 30},
+      "Paladin": {"min_level": 13, "mana": 11, "base_failure": 40},
+      "Mage": {"min_level": 7, "mana": 6, "base_failure": 40},
+      "Ranger": {"min_level": 13, "mana": 11, "base_failure": 45},
+      "Rogue": {"min_level": 23, "mana": 10, "base_failure": 55}
+    }
+  },
+  {
+    "id": "phase_door",
+    "name": "Phase Door",
+    "category": "mage",
+    "effect_type": "teleport",
+    "range": 6,
+    "description": "Teleports the caster a short distance.",
+    "classes": {
+      "Mage": {"min_level": 1, "mana": 2, "base_failure": 15},
+      "Ranger": {"min_level": 3, "mana": 2, "base_failure": 25},
+      "Rogue": {"min_level": 7, "mana": 2, "base_failure": 35}
+    }
+  },
+  {
+    "id": "light",
+    "name": "Call Light",
+    "category": "shared",
+    "effect_type": "light",
+    "radius": 6,
+    "duration": 60,
+    "description": "Lights up the surrounding area.",
+    "classes": {
+      "Priest": {"min_level": 3, "mana": 2, "base_failure": 20},
+      "Paladin": {"min_level": 5, "mana": 4, "base_failure": 30},
+      "Mage": {"min_level": 1, "mana": 2, "base_failure": 15},
+      "Ranger": {"min_level": 5, "mana": 3, "base_failure": 25},
+      "Rogue": {"min_level": 9, "mana": 3, "base_failure": 35}
+    }
+  },
+  {
+    "id": "fire_bolt",
+    "name": "Fire Bolt",
+    "category": "mage",
+    "effect_type": "attack",
+    "damage": "5d6",
+    "damage_type": "fire",
+    "requires_target": true,
+    "description": "Shoots a bolt of fire at a foe.",
+    "classes": {
+      "Mage": {"min_level": 15, "mana": 9, "base_failure": 40},
+      "Ranger": {"min_level": 25, "mana": 20, "base_failure": 55}
+    }
+  },
+  {
+    "id": "sleep_monster",
+    "name": "Sleep Monster",
+    "category": "mage",
+    "effect_type": "debuff",
+    "status": "Asleep",
+    "requires_target": true,
+    "description": "Puts a single monster to sleep.",
+    "classes": {
+      "Mage": {"min_level": 5, "mana": 5, "base_failure": 30},
+      "Ranger": {"min_level": 11, "mana": 8, "base_failure": 40},
+      "Rogue": {"min_level": 19, "mana": 8, "base_failure": 55}
+    }
+  },
+  {
+    "id": "magic_missile",
+    "name": "Magic Missile",
+    "category": "mage",
+    "effect_type": "attack",
+    "damage": "3d4",
+    "damage_type": "arcane",
+    "requires_target": true,
+    "description": "Fires a bolt of pure magic.",
+    "classes": {
+      "Mage": {"min_level": 1, "mana": 1, "base_failure": 10},
+      "Ranger": {"min_level": 3, "mana": 1, "base_failure": 25}
+    }
+  },
+  {
+    "id": "detect_monsters",
+    "name": "Detect Monsters",
+    "category": "mage",
+    "effect_type": "detect",
+    "effect_target": "monsters",
+    "description": "Reveals monsters within line of sight.",
+    "classes": {
+      "Mage": {"min_level": 1, "mana": 1, "base_failure": 10},
+      "Ranger": {"min_level": 3, "mana": 2, "base_failure": 20},
+      "Rogue": {"min_level": 5, "mana": 1, "base_failure": 25}
+    }
+  },
+  {
+    "id": "teleport",
+    "name": "Teleport",
+    "category": "mage",
+    "effect_type": "teleport",
+    "range": 20,
+    "description": "Teleports the caster to a random safe tile.",
+    "classes": {
+      "Mage": {"min_level": 7, "mana": 6, "base_failure": 30},
+      "Ranger": {"min_level": 13, "mana": 10, "base_failure": 45}
+    }
+  },
+  {
+    "id": "lightning_bolt",
+    "name": "Lightning Bolt",
+    "category": "mage",
+    "effect_type": "attack",
+    "damage": "6d6",
+    "damage_type": "electric",
+    "requires_target": true,
+    "description": "Launches a bolt of lightning.",
+    "classes": {
+      "Mage": {"min_level": 21, "mana": 12, "base_failure": 45},
+      "Ranger": {"min_level": 29, "mana": 23, "base_failure": 55}
+    }
+  }
+]

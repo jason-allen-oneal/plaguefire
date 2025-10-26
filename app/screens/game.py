@@ -5,7 +5,7 @@ from textual.containers import Horizontal
 from app.ui.dungeon_view import DungeonView
 from app.ui.hud_view import HUDView
 from app.core.engine import Engine, MapData, BUILDING_KEY # Import MapData if using type hint
-from config import FLOOR, WALL, STAIRS_DOWN, STAIRS_UP, DOOR_CLOSED, DOOR_OPEN # Keep config imports needed for actions
+from config import FLOOR, WALL, STAIRS_DOWN, STAIRS_UP, DOOR_CLOSED, DOOR_OPEN, SECRET_DOOR_FOUND # Keep config imports needed for actions
 from debugtools import debug, log_exception
 from typing import Optional, List # Import Optional and List
 
@@ -26,6 +26,11 @@ class GameScreen(Screen):
         ("d", "dig_wall", "Dig"),
         # Map Interaction
         (">", "descend", "Descend Stairs"), ("<", "ascend", "Ascend Stairs"),
+        # Viewport
+        ("v", "toggle_scroll", "Toggle Smooth Scroll"), ("r", "reset_view", "Reset View"),
+        ("i", "open_inventory", "Inventory"),
+        # Search
+        ("s", "search_once", "Search Once"), ("S", "toggle_search", "Toggle Search"),
         # Meta
         ("escape", "pause_menu", "Pause"), ("enter", "interact", "Interact/Enter"),
     ]
@@ -151,14 +156,17 @@ class GameScreen(Screen):
         else:
             self.notify("You can't move there.")
 
-
-    # --- UPDATED: Actions call Engine methods ---
     def action_move_up(self): self._attempt_directional_action(0, -1)
     def action_move_down(self): self._attempt_directional_action(0, 1)
     def action_move_left(self): self._attempt_directional_action(-1, 0)
     def action_move_right(self): self._attempt_directional_action(1, 0)
+    def action_open_inventory(self):
+        """Open the inventory screen."""
+        if not getattr(self.app, "player", None):
+            self.notify("No player data available.", severity="warning")
+            return
+        self.app.push_screen("inventory")
 
-    # --- Placeholder Actions (Call engine later) ---
     def action_equip_item(self):
         if self._equip_first_available():
             debug("Action: Equip succeeded")
@@ -343,6 +351,29 @@ class GameScreen(Screen):
         self.notify(description)
         debug(f"Look direction {direction}: {description}")
 
+    def action_toggle_scroll(self):
+        """Toggle smooth scrolling on/off."""
+        if hasattr(self, 'dungeon_view') and self.dungeon_view:
+            self.dungeon_view.toggle_smooth_scrolling()
+            status = "enabled" if self.dungeon_view.scroll_smoothing else "disabled"
+            self.notify(f"Smooth scrolling {status}")
+
+    def action_reset_view(self):
+        """Reset viewport to center on player immediately."""
+        if hasattr(self, 'dungeon_view') and self.dungeon_view:
+            self.dungeon_view.reset_viewport()
+            self.notify("Viewport reset to player position")
+
+    def action_search_once(self):
+        """Perform a single search for secret doors."""
+        if hasattr(self, 'engine') and self.engine:
+            self.engine.search_once()
+
+    def action_toggle_search(self):
+        """Toggle continuous search mode on/off."""
+        if hasattr(self, 'engine') and self.engine:
+            self.engine.toggle_search()
+
     @staticmethod
     def _describe_tile(tile_char: str) -> str | None:
         mapping = {
@@ -351,5 +382,6 @@ class GameScreen(Screen):
             STAIRS_UP: "Stairs leading up",
             DOOR_CLOSED: "A closed door",
             DOOR_OPEN: "An open doorway",
+            SECRET_DOOR_FOUND: "A secret door",
         }
         return mapping.get(tile_char)

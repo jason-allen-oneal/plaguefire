@@ -1,7 +1,15 @@
 # app/ui/dungeon_view.py
 
 from textual.widgets import Static
-from config import PLAYER, VIEWPORT_WIDTH, VIEWPORT_HEIGHT
+from rich.text import Text
+from config import (
+    PLAYER,
+    VIEWPORT_WIDTH,
+    VIEWPORT_HEIGHT,
+    DOOR_CLOSED,
+    SECRET_DOOR,
+    SECRET_DOOR_FOUND,
+)
 from typing import TYPE_CHECKING, List
 from debugtools import log_exception, debug
 
@@ -30,10 +38,28 @@ class DungeonView(Static):
         self.engine = engine
         self.no_wrap = True
         self.markup = True
+        self.last_player_pos = None  # Track player position for smooth scrolling
+        self.scroll_smoothing = False  # Disable smooth scrolling by default
+    
+    def _maybe_color_wall(self, char: str) -> str:
+        """Wrap wall characters in grey color markup."""
+        if char == "#":
+            return "[gray54]#[/gray54]"
+        return char
 
     def on_mount(self) -> None:
         self.set_timer(0.01, self.update_map)
         debug("DungeonView mounted, update_map scheduled.")
+
+    def toggle_smooth_scrolling(self) -> None:
+        """Toggle smooth scrolling on/off."""
+        self.scroll_smoothing = not self.scroll_smoothing
+        debug(f"Smooth scrolling {'enabled' if self.scroll_smoothing else 'disabled'}")
+
+    def reset_viewport(self) -> None:
+        """Reset viewport to center on player immediately."""
+        self.last_player_pos = None
+        debug("Viewport reset to player position")
 
     def update_map(self):
         """Renders the visible portion of the map centered on the player."""
@@ -82,9 +108,32 @@ class DungeonView(Static):
                 visibility_map = self.engine.visibility # Get updated vis map
 
 
-            # --- Calculate viewport TL corner ---
-            map_tl_x = max(0, min(px - view_width // 2, map_width - view_width))
-            map_tl_y = max(0, min(py - view_height // 2, map_height - view_height))
+            # --- Calculate viewport TL corner with smooth scrolling ---
+            if self.scroll_smoothing and self.last_player_pos:
+                # Smooth scrolling: gradually move viewport towards player
+                last_px, last_py = self.last_player_pos
+                target_tl_x = max(0, min(px - view_width // 2, map_width - view_width))
+                target_tl_y = max(0, min(py - view_height // 2, map_height - view_height))
+                
+                # Calculate current viewport center
+                current_center_x = map_tl_x + view_width // 2 if 'map_tl_x' in locals() else target_tl_x + view_width // 2
+                current_center_y = map_tl_y + view_height // 2 if 'map_tl_y' in locals() else target_tl_y + view_height // 2
+                
+                # Smooth interpolation (adjust factor for more/less smoothing)
+                smooth_factor = 0.3
+                map_tl_x = int(current_center_x + (target_tl_x - current_center_x) * smooth_factor)
+                map_tl_y = int(current_center_y + (target_tl_y - current_center_y) * smooth_factor)
+                
+                # Ensure bounds
+                map_tl_x = max(0, min(map_tl_x, map_width - view_width))
+                map_tl_y = max(0, min(map_tl_y, map_height - view_height))
+            else:
+                # Direct centering for first frame or when smoothing is disabled
+                map_tl_x = max(0, min(px - view_width // 2, map_width - view_width))
+                map_tl_y = max(0, min(py - view_height // 2, map_height - view_height))
+            
+            # Store current player position for next frame
+            self.last_player_pos = (px, py)
             # debug(f"Viewport TL corner (map coords): {map_tl_x},{map_tl_y}. View size: {view_width}x{view_height}")
 
 
@@ -115,18 +164,37 @@ class DungeonView(Static):
                     visibility_status = vis_row[map_x] # Safe due to earlier check
 
                     if visibility_status == 2: # Currently Visible
-                        if (map_x, map_y) == (px, py): char = PLAYER
+                        if (map_x, map_y) == (px, py):
+                            char = f"[bright_white]{PLAYER}[/bright_white]"
                         else:
                             entity = self.engine.get_entity_at(map_x, map_y)
-                            char = entity.char if entity else map_row[map_x]
-                        line += char
+                            if entity:
+                                char = entity.char
+                            else:
+                                # Render secret doors as walls until found
+                                tile_char = map_row[map_x]
+                                if tile_char == SECRET_DOOR:
+                                    char = "#"  # Hidden secret door looks like wall
+                                elif tile_char == SECRET_DOOR_FOUND:
+                                    char = DOOR_CLOSED  # Revealed secret doors render as closed doors
+                                else:
+                                    char = tile_char
+                        line += self._maybe_color_wall(char)
                     elif visibility_status == 1: # Remembered
-                        line += map_row[map_x]
+                        # Render secret doors as walls in memory too
+                        tile_char = map_row[map_x]
+                        if tile_char == SECRET_DOOR:
+                            char = "#"  # Hidden secret door looks like wall
+                        elif tile_char == SECRET_DOOR_FOUND:
+                            char = DOOR_CLOSED
+                        else:
+                            char = tile_char
+                        line += self._maybe_color_wall(char)
                     else: # Hidden
                         line += " "
                 grid_list.append(line)
 
-            self.update("\n".join(grid_list))
+            self.update(Text.from_markup("\n".join(grid_list)))
 
         except IndexError as ie:
             # Detailed logging if bounds checks somehow fail
@@ -134,7 +202,7 @@ class DungeonView(Static):
             vis_h_err = len(visibility_map) if 'visibility_map' in locals() else -1
             vis_w_err = len(visibility_map[0]) if vis_h_err > 0 and visibility_map else -1
             debug(f"IndexError Details: map({map_width}x{map_height}), vis({vis_w_err}x{vis_h_err}), view({view_width}x{view_height}), player({px},{py}), tl({map_tl_x},{map_tl_y}), access attempt({map_x},{map_y})")
-            self.update(f"Map Rendering IndexError!\nCheck Logs.\nPos:{px},{py} Map:{map_width}x{map_height}")
+            self.update(Text.from_markup(f"Map Rendering IndexError!\nCheck Logs.\nPos:{px},{py} Map:{map_width}x{map_height}"))
         except Exception as e:
             log_exception(e)
-            self.update("Error rendering map!")
+            self.update(Text.from_markup("Error rendering map!"))

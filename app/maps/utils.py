@@ -1,0 +1,46 @@
+# app/maps/utils.py
+
+from typing import List, Optional
+from config import FLOOR, STAIRS_UP, STAIRS_DOWN
+from debugtools import debug
+
+
+def find_tile(map_data: List[List[str]], tile_char: str) -> Optional[List[int]]:
+    """Find the coordinates [x, y] of the first occurrence of tile_char."""
+    for y in range(len(map_data)):
+        for x in range(len(map_data[y])):
+            if map_data[y][x] == tile_char:
+                return [x, y]
+    return None
+
+
+def find_random_floor(map_data: List[List[str]]) -> Optional[List[int]]:
+    """Find random coordinates [x,y] of a floor tile within map boundaries."""
+    height = len(map_data)
+    width = len(map_data[0]) if height > 0 else 0
+    floor_tiles = [[x, y] for y in range(1, height-1) for x in range(1, width-1) if map_data[y][x] == FLOOR]
+    return floor_tiles[0] if floor_tiles else None
+
+
+def find_start_pos(map_data: List[List[str]]) -> List[int]:
+    """Find a valid FLOOR tile to place the player (fallback)."""
+    pos = find_tile(map_data, FLOOR)
+    if pos:
+        return pos
+    
+    height = len(map_data)
+    width = len(map_data[0]) if height > 0 else 0
+    debug("CRITICAL WARNING: No floor tiles found? Placing player at center.")
+    return [width // 2, height // 2]
+
+
+def is_valid_position(map_data: List[List[str]], x: int, y: int) -> bool:
+    """Check if coordinates are within map bounds."""
+    return 0 <= y < len(map_data) and 0 <= x < len(map_data[y])
+
+
+def get_tile_at(map_data: List[List[str]], x: int, y: int) -> Optional[str]:
+    """Get tile character at coordinates, returning None if out of bounds."""
+    if is_valid_position(map_data, x, y):
+        return map_data[y][x]
+    return None

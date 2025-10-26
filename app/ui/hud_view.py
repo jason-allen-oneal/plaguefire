@@ -1,6 +1,7 @@
 # app/ui/hud_view.py
 
 from textual.widgets import Static
+from rich.text import Text
 from typing import TYPE_CHECKING
 
 # Use TYPE_CHECKING to avoid circular import for type hinting
@@ -14,10 +15,8 @@ class HUDView(Static):
     """Sidebar displaying player stats and game information."""
 
     def __init__(self, engine: 'Engine', **kwargs):
-        super().__init__(id="hud", **kwargs) # Use same ID for CSS
+        super().__init__(id="hud", markup=True, **kwargs) # Enable Rich markup rendering
         self.engine = engine
-        # Ensure markup is enabled (it is by default, but good to be explicit)
-        self.markup = True 
 
     def on_mount(self):
         """Initial HUD update using a timer."""
@@ -39,9 +38,7 @@ class HUDView(Static):
         # Use a lighter block character for the empty part
         empty_blocks = '░' * empty_width 
         
-        # Combine the filled part (in color) with the empty part (dim grey)
-        # Use 'bright_red' and 'bright_blue' for better visibility on dark bg
-        bar_color = f"bright_{color}" if color in ("red", "blue") else color
+        bar_color = f"{color}"
         
         return f"[{bar_color}]{fill_blocks}[/][grey50]{empty_blocks}[/]"
 
@@ -72,7 +69,7 @@ class HUDView(Static):
         armor = equipment.get('armor', 'Nothing') or 'Nothing'
 
         stats_order = player.STATS_ORDER
-        stat_lines = [f"{stat_name[:3]}: {stats.get(stat_name, 0):>3}" for stat_name in stats_order]
+        stat_lines = [f"{stat_name[:3]}: {player.get_stat_display(stat_name):>5}" for stat_name in stats_order]
 
         separator_width = self.content_size.width if self.content_size.width > 0 else 28
         separator = "-" * separator_width
@@ -83,21 +80,23 @@ class HUDView(Static):
         bar_width = max(5, separator_width - text_label_width) # Ensure bar is at least 5 wide
 
         # --- UPDATED: Generate bars ---
-        hp_bar = self._create_bar_markup(hp, max_hp, bar_width, "red")
-        mp_bar = self._create_bar_markup(mana, max_mana, bar_width, "blue")
+        hp_bar = self._create_bar_markup(hp, max_hp, bar_width, "bright_red")
+        mp_bar = self._create_bar_markup(mana, max_mana, bar_width, "blue3")
 
         hud_lines = [
-            f"{player.name}",
-            f"{player.race} {player.class_} Lvl:{level}",
+            f"[bright_white]{player.name}[/bright_white]",
+            f"[deep_sky_blue1]{player.race} {player.class_}[/deep_sky_blue1]",
+            f"[chartreuse1]LEV:[/chartreuse1] {level}",
+            f"[chartreuse1]EXP:[/chartreuse1] {player.xp}",
             separator,
             # --- UPDATED: Display bars with text ---
-            f"HP: {hp_bar} {hp:>3}/{max_hp:<3}",
-            f"MP: {mp_bar} {mana:>3}/{max_mana:<3}",
-            f"Gold: {gold:<6}",
-            f"Depth: {depth:<5} ft",
+            f"[bright_white]HP:[/bright_white] {hp_bar} {hp:>3}/{max_hp:<3}",
+            f"[bright_blue]MP:[/bright_blue] {mp_bar} {mana:>3}/{max_mana:<3}",
+            f"[gold1]Gold:[/gold1] {gold:<6}",
+            f"[magenta3]Depth:[/magenta3] {depth:<5} ft",
             separator,
-            f"Wielding: {weapon}",
-            f"Wearing:  {armor}",
+            f"[light_steel_blue]Wielding:[/light_steel_blue] {weapon}",
+            f"[light_steel_blue]Wearing:[/light_steel_blue]  {armor}",
             separator,
         ]
         # Dynamically add stat lines
@@ -111,22 +110,30 @@ class HUDView(Static):
 
         hud_lines.append(separator)
         if time_str:
-            hud_lines.append(f"Time: {time_str}")
+            hud_lines.append(f"[chartreuse1]Time:[/chartreuse1] {time_str}")
 
-        # --- Status Effects Display ---
+        # --- Status Section (above event log) ---
+        status_entries = []
+        if getattr(self.engine, "searching", False):
+            status_entries.append("[yellow1]Searching[/yellow1]")
         if player.status_effects:
-            hud_lines.append(separator)
-            hud_lines.append("Status:")
-            # Join effects for a cleaner look
-            hud_lines.append(f"  [red]{', '.join(player.status_effects)}[/red]")
+            status_entries.extend([f"[bright_red]{effect}[/bright_red]" for effect in player.status_effects])
+
+        hud_lines.append(separator)
+        hud_lines.append("[chartreuse1]Status:[/chartreuse1]")
+        if status_entries:
+            for entry in status_entries:
+                hud_lines.append(f"  • {entry}")
+        else:
+            hud_lines.append("  • Idle")
 
         # --- Recent Events / Combat Log ---
         log_entries = getattr(self.engine, "combat_log", [])[-5:]
         if log_entries:
             hud_lines.append(separator)
-            hud_lines.append("Events:")
+            hud_lines.append("[chartreuse1]Events:[/chartreuse1]")
             for entry in log_entries:
                 hud_lines.append(f"  • {entry}")
 
-        # Update the Static widget with the new markup
-        self.update("\n".join(hud_lines))
+        # Update the Static widget with Rich markup-aware text
+        self.update(Text.from_markup("\n".join(hud_lines)))

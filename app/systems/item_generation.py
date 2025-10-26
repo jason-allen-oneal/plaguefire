@@ -1,86 +1,119 @@
-# app/item_generation.py
+# app/systems/item_generation.py
 
 import random
 from typing import Dict, List, Optional
+from app.core.data_loader import GameData
+from debugtools import debug
 
-
-# Item templates with stat ranges
-ITEM_TEMPLATES = {
-    # Weapons
-    "Rusty Dagger": {"type": "weapon", "attack": (1, 3), "value": (5, 10)},
-    "Dagger": {"type": "weapon", "attack": (2, 5), "value": (10, 20)},
-    "Iron Sword": {"type": "weapon", "attack": (4, 8), "value": (25, 50)},
-    "Orcish Axe": {"type": "weapon", "attack": (5, 10), "value": (30, 60)},
-    "Heavy Mace": {"type": "weapon", "attack": (6, 12), "value": (40, 80)},
-    "Enchanted Sword": {"type": "weapon", "attack": (10, 20), "value": (100, 200)},
-    
-    # Armor
-    "Leather Armor": {"type": "armor", "defense": (1, 3), "value": (15, 30)},
-    "Iron Mail": {"type": "armor", "defense": (3, 6), "value": (40, 80)},
-    "Troll Hide": {"type": "armor", "defense": (4, 8), "value": (50, 100)},
-    "Dragon Scale": {"type": "armor", "defense": (8, 15), "value": (150, 300)},
-    
-    # Consumables
-    "Potion of Healing": {"type": "consumable", "healing": 20, "value": (10, 15)},
-    "Rat Tail": {"type": "junk", "value": (1, 2)},
-    "Goblin Ear": {"type": "junk", "value": (2, 5)},
-    "Dragon Tooth": {"type": "treasure", "value": (50, 100)},
+# Legacy fallback templates kept for procedural stat flavoring when needed.
+LEGACY_ITEM_TEMPLATES = {
+    "Rusty Dagger": {"type": "weapon", "attack": (1, 3)},
+    "Dagger": {"type": "weapon", "attack": (2, 5)},
+    "Iron Sword": {"type": "weapon", "attack": (4, 8)},
+    "Orcish Axe": {"type": "weapon", "attack": (5, 10)},
+    "Heavy Mace": {"type": "weapon", "attack": (6, 12)},
+    "Enchanted Sword": {"type": "weapon", "attack": (10, 20)},
+    "Leather Armor": {"type": "armor", "defense": (1, 3)},
+    "Iron Mail": {"type": "armor", "defense": (3, 6)},
+    "Troll Hide": {"type": "armor", "defense": (4, 8)},
+    "Dragon Scale": {"type": "armor", "defense": (8, 15)},
+    "Potion of Healing": {"type": "consumable"},
+    "Rat Tail": {"type": "junk"},
+    "Goblin Ear": {"type": "junk"},
+    "Dragon Tooth": {"type": "treasure"},
 }
 
 
+def _weight_for_depth(item: Dict, depth: int) -> float:
+    """Bias selection toward the middle of an item's rarity range."""
+    rarity = item.get("rarity_depth")
+    if not rarity:
+        return 1.0
+    min_depth = rarity.get("min", 0)
+    max_depth = rarity.get("max", max(depth, min_depth))
+    if max_depth <= min_depth:
+        return 1.0
+    center = (min_depth + max_depth) / 2
+    half_span = (max_depth - min_depth) / 2
+    distance = abs(depth - center)
+    # Invert distance to create a loose bell curve weight
+    weight = max(0.1, (half_span - distance) / half_span)
+    return weight
+
+
+def _choose_item_template(depth: int, category: Optional[str] = None) -> Optional[Dict]:
+    """Select an item template appropriate for the requested depth."""
+    data = GameData()
+    pool = data.get_items_for_depth(depth, category)
+    if not pool:
+        debug(f"No rarity-matched items for depth {depth}. Falling back to full catalog.")
+        pool = list(data.items.values())
+    if not pool:
+        debug("No item templates available.")
+        return None
+
+    weights = [_weight_for_depth(item, depth) for item in pool]
+    total_weight = sum(weights)
+    pick = random.uniform(0, total_weight)
+    cumulative = 0.0
+    for item, weight in zip(pool, weights):
+        cumulative += weight
+        if pick <= cumulative:
+            return item
+    return pool[-1]
+
+
+def generate_random_item(depth: int = 1, category: Optional[str] = None) -> Optional[str]:
+    """
+    Return the display name of a randomly selected item for the given depth.
+    The selection respects each item's rarity_depth band.
+    """
+    template = _choose_item_template(depth, category)
+    if not template:
+        return None
+    return template.get("name") or template.get("id")
+
+
+def generate_random_item_id(depth: int = 1, category: Optional[str] = None) -> Optional[str]:
+    """Return the item ID for a random depth-appropriate item."""
+    template = _choose_item_template(depth, category)
+    if not template:
+        return None
+    return template.get("id") or template.get("name")
+
+
 def generate_item_stats(base_name: str) -> str:
-    """Generate an item with randomized stats based on its template."""
-    if base_name not in ITEM_TEMPLATES:
-        # Return the item as-is if no template exists
+    """
+    Legacy helper that applies randomized stat strings to simple items.
+    For catalog items, the provided name is returned unchanged.
+    """
+    data = GameData()
+    # If the item already exists in our catalog, return its official name.
+    if data.get_item_by_name(base_name):
         return base_name
-    
-    template = ITEM_TEMPLATES[base_name]
-    item_type = template.get("type", "misc")
-    
-    # For weapons
+
+    template = LEGACY_ITEM_TEMPLATES.get(base_name)
+    if not template:
+        return base_name
+
     if "attack" in template:
-        min_atk, max_atk = template["attack"]
-        attack = random.randint(min_atk, max_atk)
+        low, high = template["attack"]
+        attack = random.randint(low, high)
         return f"{base_name} (+{attack} ATK)"
-    
-    # For armor
-    elif "defense" in template:
-        min_def, max_def = template["defense"]
-        defense = random.randint(min_def, max_def)
+    if "defense" in template:
+        low, high = template["defense"]
+        defense = random.randint(low, high)
         return f"{base_name} (+{defense} DEF)"
-    
-    # For consumables and other items
-    else:
-        return base_name
-
-
-def generate_random_item(depth: int = 1) -> str:
-    """Generate a random item appropriate for the dungeon depth."""
-    # Item pool based on depth
-    if depth <= 25:
-        # Early depth items
-        pool = ["Rusty Dagger", "Dagger", "Leather Armor", "Potion of Healing"]
-    elif depth <= 100:
-        # Mid depth items
-        pool = ["Dagger", "Iron Sword", "Leather Armor", "Iron Mail", "Potion of Healing"]
-    elif depth <= 200:
-        # Deep items
-        pool = ["Iron Sword", "Orcish Axe", "Iron Mail", "Troll Hide", "Potion of Healing"]
-    else:
-        # Very deep items
-        pool = ["Heavy Mace", "Enchanted Sword", "Troll Hide", "Dragon Scale", "Potion of Healing"]
-    
-    base_item = random.choice(pool)
-    return generate_item_stats(base_item)
+    return base_name
 
 
 def get_monster_drops(monster_name: str, base_drops: List[str]) -> List[str]:
-    """Generate items dropped by a monster with randomized stats."""
-    items = []
-    
-    # Chance to drop each item in the base drops list
+    """
+    Legacy helper for monsters without explicit drop tables.
+    Uses catalog-aware item stats when possible.
+    """
+    drops: List[str] = []
     for base_item in base_drops:
-        if random.random() < 0.3:  # 30% chance to drop each item
-            items.append(generate_item_stats(base_item))
-    
-    return items
+        if random.random() < 0.3:
+            drops.append(generate_item_stats(base_item))
+    return drops

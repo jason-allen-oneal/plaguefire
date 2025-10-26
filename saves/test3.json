@@ -1,0 +1,80 @@
+{
+    "name": "test3",
+    "race": "Half-Elf",
+    "class": "Mage",
+    "sex": "Male",
+    "stats": {
+        "STR": 16,
+        "INT": 12,
+        "WIS": 9,
+        "DEX": 10,
+        "CON": 13,
+        "CHA": 14
+    },
+    "base_stats": {
+        "STR": 17,
+        "INT": 11,
+        "WIS": 9,
+        "DEX": 9,
+        "CON": 14,
+        "CHA": 13
+    },
+    "stat_percentiles": {
+        "STR": 0,
+        "INT": 0,
+        "WIS": 0,
+        "DEX": 0,
+        "CON": 0,
+        "CHA": 0
+    },
+    "history": "You navigated both human courts and elven groves.",
+    "social_class": 60,
+    "height": 74,
+    "weight": 187,
+    "abilities": {
+        "fighting": 3.0,
+        "bows": 3.5,
+        "throwing": 5.5,
+        "stealth": 6.0,
+        "disarming": 6.0,
+        "magic_device": 7.5,
+        "perception": 7.0,
+        "searching": 6.0,
+        "saving_throw": 7.0,
+        "infravision": 20
+    },
+    "hp": 11,
+    "max_hp": 11,
+    "mana": 6,
+    "max_mana": 6,
+    "level": 1,
+    "xp": 0,
+    "next_level_xp": 300,
+    "gold": 199,
+    "inventory": [
+        "Rations (3)",
+        "Torch (5)",
+        "Dagger"
+    ],
+    "equipment": {
+        "weapon": "Dagger",
+        "armor": null
+    },
+    "position": [
+        49,
+        16
+    ],
+    "depth": 0,
+    "time": 0,
+    "base_light_radius": 1,
+    "light_radius": 5,
+    "light_duration": 0,
+    "status_effects": [],
+    "known_spells": [
+        "phase_door",
+        "light",
+        "magic_missile",
+        "detect_monsters"
+    ],
+    "spells_available_to_learn": []
+}

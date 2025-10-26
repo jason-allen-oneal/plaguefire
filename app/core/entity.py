@@ -3,14 +3,15 @@
 from typing import Dict, List, Optional, Tuple
 from debugtools import debug
 import random
-from app.data.loader import get_entity_template, get_item_template
+from app.core.data_loader import GameData
 
 class Entity:
     """Represents NPCs, monsters, etc., generated from templates."""
 
     def __init__(self, template_id: str, level_or_depth: int, position: List[int]):
         """Creates an Entity instance from a template ID and level/depth."""
-        template = get_entity_template(template_id)
+        template = GameData().get_entity(template_id)
+
         if not template:
             # Fallback for missing template
             debug(f"ERROR: Entity template '{template_id}' not found! Creating fallback.")

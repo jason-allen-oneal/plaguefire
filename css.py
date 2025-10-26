@@ -1,11 +1,6 @@
 # css.py
 
 CSS = """
-Screen {
-    background: #0a0618;
-    color: white;
-}
-
 #layout {
     /* Ensure this is a horizontal layout (handled by Horizontal widget in Python code) */
     /* layout: horizontal; */ 
