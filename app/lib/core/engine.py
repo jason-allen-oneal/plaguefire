@@ -410,7 +410,7 @@ class Engine:
                         self.log_event("The spell completes, but the magic fades. (Return to stairs to exit)")
                     else:
                         self.log_event("You are already in town!")
-                else: 
+                else:
                     self._handle_teleport_spell(max_range)
             elif effect_type == 'heal':
                 heal_amount = spell_data.get('heal_amount', 0)
