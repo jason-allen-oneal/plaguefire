@@ -4,7 +4,7 @@ This document summarizes the implementation of major architectural features adde
 
 ## Overview
 
-Four significant systems were implemented, each requiring substantial architectural changes:
+Three significant systems were implemented, each requiring substantial architectural changes:
 
 1. **Item Instance Tracking System** - Individual item tracking with charges and inscriptions
 2. **Mining System** - Digging mechanics with mineral veins and treasure
