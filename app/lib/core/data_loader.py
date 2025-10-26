@@ -1,3 +1,12 @@
+"""
+Game data loader and cache system.
+
+This module provides the GameData singleton class which loads and caches all
+static game data from JSON files including entities, items, spells, and
+configuration. It provides a centralized data access point for the entire
+application.
+"""
+
 import json
 import os
 from pathlib import Path
@@ -6,18 +15,39 @@ from debugtools import debug, log_exception
 
 
 class GameData:
-    """Universal loader and cache for all static and runtime data (monsters, items, config, etc.)."""
+    """
+    Universal loader and cache for all static and runtime game data.
+    
+    This singleton class loads data from JSON files in the data directory and
+    provides efficient cached access to entity templates, item definitions,
+    spell data, and game configuration. All modules should use this class
+    rather than loading JSON files directly.
+    """
 
     _instance: Optional["GameData"] = None
 
     def __new__(cls, data_dir: str = "data"):
-        # Singleton pattern: one instance shared across app
+        """
+        Implement singleton pattern to ensure only one GameData instance exists.
+        
+        Args:
+            data_dir: Directory containing JSON data files
+            
+        Returns:
+            The singleton GameData instance
+        """
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._initialized = False
         return cls._instance
 
     def __init__(self, data_dir: str = "data"):
+        """
+        Initialize the GameData loader.
+        
+        Args:
+            data_dir: Directory containing JSON data files (default: "data")
+        """
         if self._initialized:
             return
         self._initialized = True
@@ -27,16 +57,21 @@ class GameData:
         self.entities: Dict[str, Dict] = {}
         self.items: Dict[str, Dict] = {}
         self.items_by_name: Dict[str, Dict] = {}
-        self.spells: Dict[str, Dict] = {}  # Added to store spell data
+        self.spells: Dict[str, Dict] = {}
         self.config: Dict[str, Any] = {}
 
         self.load_all()
 
-    # -----------------------------------------------------
-    # Core JSON operations
-    # -----------------------------------------------------
     def _load_json(self, filename: str) -> Optional[Any]:
-        """Load a JSON file safely."""
+        """
+        Load a JSON file safely with error handling.
+        
+        Args:
+            filename: Name of JSON file in the data directory
+            
+        Returns:
+            Parsed JSON data or None if loading failed
+        """
         path = self.data_dir / filename
         if not path.exists():
             log_exception(f"Missing file: {path}")
@@ -51,7 +86,16 @@ class GameData:
             return None
 
     def _save_json(self, filename: str, data: Any) -> bool:
-        """Write JSON data to disk."""
+        """
+        Write JSON data to disk with error handling.
+        
+        Args:
+            filename: Name of JSON file in the data directory
+            data: Data to serialize to JSON
+            
+        Returns:
+            True if save succeeded, False otherwise
+        """
         path = self.data_dir / filename
         os.makedirs(path.parent, exist_ok=True)
         try:
@@ -65,11 +109,21 @@ class GameData:
 
     def _load_data_as_dict(self, filename: str, key_field: str = "id") -> Dict[str, Dict]:
         """
-        Loads a JSON file (expected to be a list of objects) into a dict keyed by key_field.
+        Load a JSON array file into a dictionary keyed by a field.
+        
+        Expects the JSON file to contain an array of objects. Each object
+        must have the specified key_field.
+        
+        Args:
+            filename: Name of JSON file in the data directory
+            key_field: Field name to use as dictionary keys (default: "id")
+            
+        Returns:
+            Dictionary mapping key_field values to their objects
         """
         data = self._load_json(filename)
         if data is None:
-            return {}  # File missing or failed to load
+            return {}
         if not isinstance(data, list):
             log_exception(f"Data in {filename} is not a list as expected.")
             return {}
@@ -89,24 +143,35 @@ class GameData:
         
         return result_dict
 
-    # -----------------------------------------------------
-    # High-level data loading
-    # -----------------------------------------------------
     def load_all(self):
-        """Load all known game data files into memory."""
+        """
+        Load all known game data files into memory.
+        
+        This is called automatically during initialization. Loads entities,
+        items, spells, and configuration data.
+        """
         self.load_entities()
         self.load_items()
-        self.load_spells()  # Added spell loading
+        self.load_spells()
         self.load_config()
 
     def load_entities(self):
-        """Loads entities.json (list) into a dict keyed by 'id'."""
+        """
+        Load entity templates from entities.json.
+        
+        Builds a dictionary of entity templates keyed by ID.
+        """
         self.entities = self._load_data_as_dict("entities.json", "id")
         if self.entities:
             debug(f"Loaded {len(self.entities)} entity templates")
 
     def load_items(self):
-        """Loads items.json (dict of categories) and builds lookup tables."""
+        """
+        Load item definitions from items.json.
+        
+        Builds two lookup tables: one by item ID and one by item name.
+        The items.json file is structured as a dictionary of categories.
+        """
         data = self._load_json("items.json")
         if not data:
             self.items = {}
@@ -135,14 +200,22 @@ class GameData:
         debug(f"Loaded {len(self.items)} item templates")
 
     def load_spells(self):
-        """Loads spells.json (list) into a dict keyed by 'id'."""
-        # Assuming the file is named 'spells.json' based on your previous message
+        """
+        Load spell definitions from spells.json.
+        
+        Builds a dictionary of spell templates keyed by ID.
+        """
         self.spells = self._load_data_as_dict("spells.json", "id")
         if self.spells:
             debug(f"Loaded {len(self.spells)} spell templates")
 
     def load_config(self):
-        """Load persistent game configuration (settings, etc.)."""
+        """
+        Load game configuration from config.json.
+        
+        Loads persistent settings like sound preferences and difficulty level.
+        Creates default config if file doesn't exist.
+        """
         cfg = self._load_json("config.json")
         if cfg is None:
             cfg = {"sound": True, "difficulty": "Normal"}
@@ -150,17 +223,37 @@ class GameData:
         debug("Loaded game configuration")
 
     def save_config(self):
-        """Persist configuration to disk."""
+        """
+        Persist configuration to disk.
+        
+        Returns:
+            True if save succeeded, False otherwise
+        """
         return self._save_json("config.json", self.config)
 
-    # -----------------------------------------------------
-    # Accessors for other modules
-    # -----------------------------------------------------
     def get_entity(self, entity_id: str) -> Optional[Dict]:
+        """
+        Get an entity template by ID.
+        
+        Args:
+            entity_id: Unique identifier for the entity
+            
+        Returns:
+            Entity template dictionary or None if not found
+        """
         return self.entities.get(entity_id)
 
     def _is_within_depth(self, depth: int, bounds: Optional[Dict[str, int]]) -> bool:
-        """Helper to determine if a depth is within provided min/max bounds."""
+        """
+        Check if a depth is within provided min/max bounds.
+        
+        Args:
+            depth: Dungeon depth to check
+            bounds: Dictionary with optional 'min' and 'max' keys
+            
+        Returns:
+            True if depth is within bounds (or bounds is None)
+        """
         if bounds is None:
             return True
         min_depth = bounds.get("min", bounds.get("min_depth"))
@@ -172,7 +265,15 @@ class GameData:
         return True
 
     def get_entities_for_depth(self, depth: int) -> List[Dict]:
-        """Return entity templates whose allowed depth range includes the given depth."""
+        """
+        Get entity templates eligible for spawning at a given depth.
+        
+        Args:
+            depth: Dungeon depth (0 for town, >0 for dungeon)
+            
+        Returns:
+            List of entity template dictionaries suitable for this depth
+        """
         normalized_depth = max(0, depth)
         eligible = []
         for template in self.entities.values():
@@ -181,7 +282,6 @@ class GameData:
             depth_bounds = None
             if min_depth is not None or max_depth is not None:
                 depth_bounds = {"min": min_depth, "max": max_depth}
-            # Fallback for entities with single 'depth' value
             if depth_bounds is None and "depth" in template:
                 depth_bounds = {"min": template["depth"], "max": template["depth"]}
                 
@@ -190,13 +290,43 @@ class GameData:
         return eligible
 
     def get_item(self, item_id: str) -> Optional[Dict]:
+        """
+        Get an item template by ID.
+        
+        Args:
+            item_id: Unique identifier for the item
+            
+        Returns:
+            Item template dictionary or None if not found
+        """
         return self.items.get(item_id)
 
     def get_item_by_name(self, name: str) -> Optional[Dict]:
+        """
+        Get an item template by name.
+        
+        Args:
+            name: Display name of the item
+            
+        Returns:
+            Item template dictionary or None if not found
+        """
         return self.items_by_name.get(name)
 
     def get_items_for_depth(self, depth: int, category: Optional[str] = None) -> List[Dict]:
-        """Return items whose rarity depth band includes the requested depth."""
+        """
+        Get items eligible for spawning at a given depth.
+        
+        Filters items based on their rarity_depth range. Items without
+        rarity_depth are available at all depths.
+        
+        Args:
+            depth: Dungeon depth
+            category: Optional category filter (e.g., "weapons", "armor")
+            
+        Returns:
+            List of item template dictionaries suitable for this depth
+        """
         normalized_depth = max(0, depth)
         filtered: List[Dict] = []
         for item in self.items.values():
@@ -204,7 +334,6 @@ class GameData:
                 continue
             rarity = item.get("rarity_depth")
             if rarity is None:
-                # If no rarity depth is specified, assume it's available at all depths
                 filtered.append(item)
                 continue
                 
@@ -220,5 +349,13 @@ class GameData:
         return filtered
 
     def get_spell(self, spell_id: str) -> Optional[Dict]:
-        """Accessor for spell data."""
+        """
+        Get a spell template by ID.
+        
+        Args:
+            spell_id: Unique identifier for the spell
+            
+        Returns:
+            Spell template dictionary or None if not found
+        """
         return self.spells.get(spell_id)
