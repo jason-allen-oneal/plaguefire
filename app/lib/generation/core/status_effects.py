@@ -1,7 +1,8 @@
-# app/systems/status_effects.py
-
 """
 Status effect system for tracking buffs and debuffs on players and entities.
+
+This module provides the StatusEffect and StatusEffectManager classes for managing
+temporary effects that modify entity stats or behavior during gameplay.
 """
 
 from typing import Dict, List, Optional
@@ -11,31 +12,46 @@ from debugtools import debug
 
 @dataclass
 class StatusEffect:
-    """Represents an active status effect."""
+    """
+    Represents an active status effect.
+    
+    Attributes:
+        effect_id: Unique identifier for the effect type
+        name: Display name of the effect
+        duration: Number of turns remaining before effect expires
+        stat_modifiers: Dictionary of stat modifications (e.g., {"defense": 5, "attack": 2})
+    """
     effect_id: str
     name: str
-    duration: int  # Turns remaining
-    stat_modifiers: Optional[Dict[str, int]] = None  # e.g., {"defense": 5, "attack": 2}
+    duration: int
+    stat_modifiers: Optional[Dict[str, int]] = None
     
     def tick(self) -> bool:
         """
-        Decrements duration by 1. Returns True if effect is still active.
+        Decrements duration by 1.
+        
+        Returns:
+            True if effect is still active, False if expired
         """
         self.duration -= 1
         return self.duration > 0
 
 
 class StatusEffectManager:
-    """Manages status effects for a player or entity."""
+    """
+    Manages status effects for a player or entity.
     
-    # Define what each status does
+    This manager tracks all active effects, handles duration management,
+    and provides methods to query stat modifications and behavioral flags.
+    """
+    
     EFFECT_DEFINITIONS = {
         "Blessed": {
             "stat_modifiers": {"defense": 5, "attack": 2},
             "description": "Blessed by divine power",
         },
         "Hasted": {
-            "stat_modifiers": {"speed": 2},  # Could allow extra actions
+            "stat_modifiers": {"speed": 2},
             "description": "Moving with supernatural speed",
         },
         "Protected": {
@@ -47,11 +63,11 @@ class StatusEffectManager:
             "description": "Movements slowed by magic",
         },
         "Fleeing": {
-            "behavior": "flee",  # Special behavior flag
+            "behavior": "flee",
             "description": "Fleeing in terror",
         },
         "Asleep": {
-            "behavior": "asleep",  # Cannot act
+            "behavior": "asleep",
             "description": "Sleeping deeply",
         },
         "Fear": {
@@ -63,7 +79,7 @@ class StatusEffectManager:
             "description": "Cursed by dark magic",
         },
         "Confused": {
-            "behavior": "confused",  # Random movement/actions
+            "behavior": "confused",
             "stat_modifiers": {"attack": -2},
             "description": "Confused and disoriented",
         },
@@ -89,7 +105,6 @@ class StatusEffectManager:
         
         definition = self.EFFECT_DEFINITIONS[effect_name]
         
-        # If effect already exists, refresh duration
         if effect_name in self.active_effects:
             self.active_effects[effect_name].duration = max(
                 self.active_effects[effect_name].duration, 
@@ -97,7 +112,6 @@ class StatusEffectManager:
             )
             debug(f"Refreshed {effect_name} (duration now {self.active_effects[effect_name].duration})")
         else:
-            # Add new effect
             self.active_effects[effect_name] = StatusEffect(
                 effect_id=effect_name,
                 name=effect_name,
@@ -112,8 +126,11 @@ class StatusEffectManager:
         """
         Remove a status effect.
         
+        Args:
+            effect_name: Name of the effect to remove
+        
         Returns:
-            True if effect was removed
+            True if effect was removed, False if it wasn't active
         """
         if effect_name in self.active_effects:
             del self.active_effects[effect_name]
@@ -122,12 +139,20 @@ class StatusEffectManager:
         return False
     
     def has_effect(self, effect_name: str) -> bool:
-        """Check if an effect is active."""
+        """
+        Check if an effect is active.
+        
+        Args:
+            effect_name: Name of the effect to check
+            
+        Returns:
+            True if effect is currently active
+        """
         return effect_name in self.active_effects
     
     def tick_effects(self) -> List[str]:
         """
-        Decrement all effect durations. Remove expired effects.
+        Decrement all effect durations and remove expired effects.
         
         Returns:
             List of effect names that expired this turn
@@ -162,7 +187,10 @@ class StatusEffectManager:
         Check if any active effect has a specific behavior flag.
         
         Args:
-            behavior: e.g., "flee", "asleep"
+            behavior: Behavior to check for (e.g., "flee", "asleep", "confused")
+            
+        Returns:
+            True if any active effect has the specified behavior
         """
         for effect_name in self.active_effects:
             definition = self.EFFECT_DEFINITIONS.get(effect_name, {})
@@ -171,9 +199,18 @@ class StatusEffectManager:
         return False
     
     def get_active_effects_display(self) -> List[str]:
-        """Get list of active effect names for display."""
+        """
+        Get list of active effect names for display.
+        
+        Returns:
+            List of effect names currently active on the entity
+        """
         return list(self.active_effects.keys())
     
     def clear_all(self):
-        """Remove all active effects."""
+        """
+        Remove all active effects.
+        
+        Typically used when resetting entity state or on death.
+        """
         self.active_effects.clear()
