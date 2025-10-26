@@ -11,6 +11,7 @@ class SettingsScreen(Screen):
         ("m", "toggle_music", "Toggle Music"),
         ("s", "toggle_sfx", "Toggle Sound Effects"),
         ("d", "cycle_difficulty", "Change Difficulty"),
+        ("k", "toggle_command_mode", "Toggle Command Mode"),
         ("escape", "back_to_title", "Back to Title"),
     ]
 
@@ -35,10 +36,12 @@ class SettingsScreen(Screen):
         music = "ON" if self.app.get_music() else "OFF"
         sfx = "ON" if self.app.get_sfx() else "OFF"
         diff = self.app.get_difficulty()
+        cmd_mode = self.app.get_command_mode().capitalize()
         return (
             f"[M]usic: {music}\n"
             f"[S]ound Effects: {sfx}\n"
             f"[D]ifficulty: {diff}\n"
+            f"Command [K]eys: {cmd_mode}\n"
             "\n[ESC] Return to Title"
         )
 
@@ -68,6 +71,15 @@ class SettingsScreen(Screen):
         self.refresh_display()
         self.notify(f"[bright_yellow]Difficulty: {self.app.get_difficulty()}[/bright_yellow]", timeout=2)
 
+    def action_toggle_command_mode(self):
+        current = self.app.get_command_mode()
+        new_mode = "roguelike" if current == "original" else "original"
+        self.app.set_command_mode(new_mode)
+        if self.app.get_sfx():
+            self.app.sound.play_sfx("title")
+        self.refresh_display()
+        self.notify(f"[bright_yellow]Command Keys: {new_mode.capitalize()}[/bright_yellow]", timeout=2)
+
     def action_back_to_title(self):
         self.app.pop_screen()
         self.app.push_screen("title")
@@ -77,4 +89,5 @@ class SettingsScreen(Screen):
         self.app.data.config["music_enabled"] = self.app.get_music()
         self.app.data.config["sfx_enabled"] = self.app.get_sfx()
         self.app.data.config["difficulty"] = self.app.get_difficulty()
+        self.app.data.config["command_mode"] = self.app.get_command_mode()
         self.app.data.save_config()

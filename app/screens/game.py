@@ -2,6 +2,7 @@
 
 from textual.screen import Screen
 from textual.containers import Horizontal
+from textual.events import Key
 from app.ui.dungeon_view import DungeonView
 from app.ui.hud_view import HUDView
 from app.lib.core.engine import Engine, MapData, BUILDING_KEY # Import MapData if using type hint
@@ -10,30 +11,23 @@ from debugtools import debug, log_exception
 from typing import Optional, List # Import Optional and List
 
 class GameScreen(Screen):
+    # Base bindings that work in both modes
     BINDINGS = [
-        # Movement
-        ("up", "move_up", "Move Up"), ("down", "move_down", "Move Down"),
-        ("left", "move_left", "Move Left"), ("right", "move_right", "Move Right"),
-        # Actions
-        ("e", "equip_item", "Equip"),
-        ("u", "use_item", "Use"),
-        ("t", "take_off_item", "Take Off"),
-        ("q", "quaff_potion", "Quaff"),
-        ("E", "eat_food", "Eat"),
-        ("m", "cast_spell", "Cast Spell"),
-        ("l", "look_around", "Look"),
-        ("o", "open_door", "Open"),
-        ("c", "close_door", "Close"),
-        ("d", "dig_wall", "Dig"),
-        # Map Interaction
-        (">", "descend", "Descend Stairs"), ("<", "ascend", "Ascend Stairs"),
-        # Viewport
-        ("v", "toggle_scroll", "Toggle Smooth Scroll"), ("r", "reset_view", "Reset View"),
-        ("i", "open_inventory", "Inventory"),
-        # Search
-        ("s", "search_once", "Search Once"), ("S", "toggle_search", "Toggle Search"),
-        # Meta
-        ("escape", "pause_menu", "Pause"), ("enter", "interact", "Interact/Enter"),
+        # Movement - Arrow keys work in both modes
+        ("up", "move_up", "Move Up"), 
+        ("down", "move_down", "Move Down"),
+        ("left", "move_left", "Move Left"), 
+        ("right", "move_right", "Move Right"),
+        # Common to both modes
+        (">", "descend", "Descend Stairs"), 
+        ("<", "ascend", "Ascend Stairs"),
+        ("=", "settings", "Settings"),
+        ("/", "identify_char", "Identify Character"),
+        ("escape", "pause_menu", "Pause"),
+        ("enter", "interact", "Interact/Enter"),
+        ("ctrl+x", "save_and_quit", "Save and Quit"),
+        ("ctrl+p", "repeat_message", "Repeat Message"),
+        ("?", "help", "Help"),
     ]
 
     # --- Engine and UI Widget references ---
@@ -43,8 +37,244 @@ class GameScreen(Screen):
 
     def __init__(self):
         super().__init__()
-        self._awaiting_look_direction = False
+        self._awaiting_direction = None  # Store what action is awaiting direction
         self.markup = True
+    
+    async def on_key(self, event: Key) -> None:
+        """Handle key presses based on command mode."""
+        # Get current command mode from app
+        command_mode = self.app.get_command_mode()
+        
+        # Handle direction-awaiting mode first
+        if self._awaiting_direction:
+            self._handle_direction_input(event.key, command_mode)
+            event.prevent_default()
+            return
+        
+        # Original mode command mappings
+        if command_mode == "original":
+            handled = self._handle_original_command(event.key)
+            if handled:
+                event.prevent_default()
+                return
+        
+        # Roguelike mode command mappings
+        else:  # roguelike
+            handled = self._handle_roguelike_command(event.key)
+            if handled:
+                event.prevent_default()
+                return
+    
+    def _handle_original_command(self, key: str) -> bool:
+        """Handle Original (VMS-style) command keys. Returns True if handled."""
+        # Movement - numpad 1-9
+        numpad_moves = {
+            "1": (-1, 1), "2": (0, 1), "3": (1, 1),
+            "4": (-1, 0), "5": (0, 0), "6": (1, 0),
+            "7": (-1, -1), "8": (0, -1), "9": (1, -1)
+        }
+        if key in numpad_moves:
+            dx, dy = numpad_moves[key]
+            if dx == 0 and dy == 0:
+                self.action_wait()
+            else:
+                self._attempt_directional_action(dx, dy)
+            return True
+        
+        # Original commands
+        commands = {
+            "a": self.action_aim_wand,
+            "b": self.action_browse_book,
+            "c": lambda: self._request_direction("close_door"),
+            "d": self.action_drop_item,
+            "e": self.action_equipment_list,
+            "f": self.action_fire_throw,
+            "i": self.action_open_inventory,
+            "j": lambda: self._request_direction("jam_door"),
+            "l": lambda: self._request_direction("look"),
+            "m": self.action_cast_spell,
+            "o": lambda: self._request_direction("open_door"),
+            "p": self.action_pray,
+            "q": self.action_quaff_potion,
+            "r": self.action_read_scroll,
+            "s": self.action_search_once,
+            "t": self.action_take_off_item,
+            "u": self.action_use_staff,
+            "v": self.action_version,
+            "w": self.action_wear_wield,
+            "x": self.action_exchange_weapon,
+            ".": lambda: self._request_direction("run"),
+            "-": lambda: self._request_direction("move_no_pickup"),
+            # Uppercase commands
+            "B": lambda: self._request_direction("bash"),
+            "C": self.action_change_name,
+            "D": lambda: self._request_direction("disarm"),
+            "E": self.action_eat_food,
+            "F": self.action_fill_lamp,
+            "G": self.action_gain_spells,
+            "L": self.action_locate_map,
+            "M": self.action_show_map_reduced,
+            "R": self.action_rest,
+            "S": self.action_toggle_search,
+            "T": lambda: self._request_direction("tunnel"),
+            "V": self.action_view_scores,
+            "{": self.action_inscribe,
+            "ctrl+k": self.action_quit_game,
+        }
+        
+        if key in commands:
+            commands[key]()
+            return True
+        
+        return False
+    
+    def _handle_roguelike_command(self, key: str) -> bool:
+        """Handle Rogue-like command keys. Returns True if handled."""
+        # Movement - hjklyubn (vi keys)
+        vi_moves = {
+            "h": (-1, 0), "j": (0, 1), "k": (0, -1), "l": (1, 0),
+            "y": (-1, -1), "u": (1, -1), "b": (-1, 1), "n": (1, 1)
+        }
+        if key in vi_moves:
+            dx, dy = vi_moves[key]
+            self._attempt_directional_action(dx, dy)
+            return True
+        
+        # Shift + direction = run in that direction
+        shift_run = {
+            "H": (-1, 0), "J": (0, 1), "K": (0, -1), "L": (1, 0),
+            "Y": (-1, -1), "U": (1, -1), "B": (-1, 1), "N": (1, 1)
+        }
+        if key in shift_run:
+            dx, dy = shift_run[key]
+            self._start_running(dx, dy)
+            return True
+        
+        # Ctrl + direction = tunnel
+        ctrl_tunnel = {
+            "ctrl+h": (-1, 0), "ctrl+j": (0, 1), "ctrl+k": (0, -1), "ctrl+l": (1, 0),
+            "ctrl+y": (-1, -1), "ctrl+u": (1, -1), "ctrl+b": (-1, 1), "ctrl+n": (1, 1)
+        }
+        if key in ctrl_tunnel:
+            dx, dy = ctrl_tunnel[key]
+            self._tunnel_direction(dx, dy)
+            return True
+        
+        # Roguelike commands
+        commands = {
+            "c": lambda: self._request_direction("close_door"),
+            "d": self.action_drop_item,
+            "e": self.action_equipment_list,
+            "i": self.action_open_inventory,
+            "o": lambda: self._request_direction("open_door"),
+            "p": self.action_pray,
+            "q": self.action_quaff_potion,
+            "r": self.action_read_scroll,
+            "s": self.action_search_once,
+            "t": self.action_throw_item,
+            "v": self.action_version,
+            "w": self.action_wear_wield,
+            "x": lambda: self._request_direction("examine"),
+            "z": self.action_zap_wand,
+            "#": self.action_toggle_search,
+            "-": lambda: self._request_direction("move_no_pickup"),
+            ".": self.action_wait,
+            # Uppercase commands
+            "C": self.action_character_desc,
+            "D": lambda: self._request_direction("disarm"),
+            "E": self.action_eat_food,
+            "F": self.action_fill_lamp,
+            "G": self.action_gain_spells,
+            "P": self.action_browse_book,
+            "Q": self.action_quit_game,
+            "R": self.action_rest,
+            "S": lambda: self._request_direction("spike_door"),
+            "T": self.action_take_off_item,
+            "V": self.action_view_scores,
+            "W": self.action_where_locate,
+            "X": self.action_exchange_weapon,
+            "Z": self.action_zap_staff,
+            "{": self.action_inscribe,
+        }
+        
+        # Handle 'f' specially for force/bash
+        if key == "f":
+            self._request_direction("bash")
+            return True
+        
+        if key in commands:
+            commands[key]()
+            return True
+        
+        return False
+    
+    def _request_direction(self, action: str):
+        """Request a direction for the given action."""
+        self._awaiting_direction = action
+        self.notify(f"Choose a direction for {action.replace('_', ' ')}...")
+        debug(f"Awaiting direction for action: {action}")
+    
+    def _handle_direction_input(self, key: str, command_mode: str):
+        """Process directional input for pending action."""
+        # Get direction from key
+        dx, dy = 0, 0
+        
+        if command_mode == "original":
+            numpad = {
+                "1": (-1, 1), "2": (0, 1), "3": (1, 1),
+                "4": (-1, 0), "5": (0, 0), "6": (1, 0),
+                "7": (-1, -1), "8": (0, -1), "9": (1, -1)
+            }
+            if key in numpad:
+                dx, dy = numpad[key]
+        else:  # roguelike
+            vi_keys = {
+                "h": (-1, 0), "j": (0, 1), "k": (0, -1), "l": (1, 0),
+                "y": (-1, -1), "u": (1, -1), "b": (-1, 1), "n": (1, 1),
+                ".": (0, 0)
+            }
+            if key in vi_keys:
+                dx, dy = vi_keys[key]
+        
+        # Arrow keys work in both modes
+        arrow_map = {
+            "up": (0, -1), "down": (0, 1), "left": (-1, 0), "right": (1, 0)
+        }
+        if key in arrow_map:
+            dx, dy = arrow_map[key]
+        
+        # Execute the awaited action with direction
+        action = self._awaiting_direction
+        self._awaiting_direction = None
+        
+        if dx == 0 and dy == 0 and action != "look":
+            self.notify("Invalid direction.")
+            return
+        
+        # Route to appropriate handler
+        if action == "look":
+            self._describe_direction(dx, dy)
+        elif action == "examine":
+            self._describe_direction(dx, dy)
+        elif action == "open_door":
+            self._open_door_direction(dx, dy)
+        elif action == "close_door":
+            self._close_door_direction(dx, dy)
+        elif action == "tunnel":
+            self._tunnel_direction(dx, dy)
+        elif action == "bash":
+            self._bash_direction(dx, dy)
+        elif action == "disarm":
+            self._disarm_direction(dx, dy)
+        elif action == "jam_door":
+            self._jam_door_direction(dx, dy)
+        elif action == "spike_door":
+            self._jam_door_direction(dx, dy)  # Same as jam
+        elif action == "run":
+            self._start_running(dx, dy)
+        elif action == "move_no_pickup":
+            self._move_no_pickup(dx, dy)
+
 
     def compose(self):
         """Create child widgets for the game screen."""
@@ -230,9 +460,9 @@ class GameScreen(Screen):
             debug("Action: Eat failed")
 
     def action_look_around(self):
-        self._awaiting_look_direction = True
-        self.notify("Look which direction? Use the arrow keys.")
-        debug("Look mode activated; awaiting direction input.")
+        """Deprecated - use direction-based look instead."""
+        self._request_direction("look")
+
 
     def action_open_door(self):
         if self.engine.open_adjacent_door():
@@ -316,10 +546,8 @@ class GameScreen(Screen):
         self.dungeon_view.update_map()
 
     def _attempt_directional_action(self, dx: int, dy: int):
-        if self._awaiting_look_direction:
-            self._describe_direction(dx, dy)
-        else:
-            self._handle_engine_update(self.engine.handle_player_move(dx, dy))
+        """Handle basic movement."""
+        self._handle_engine_update(self.engine.handle_player_move(dx, dy))
 
     def _equip_first_available(self) -> bool:
         player = self.engine.player
@@ -347,7 +575,7 @@ class GameScreen(Screen):
     }
 
     def _describe_direction(self, dx: int, dy: int):
-        self._awaiting_look_direction = False
+        """Describe what's visible in a given direction."""
         direction = self.DIRECTION_NAMES.get((dx, dy), "that way")
         px, py = self.engine.player.position
         description = None
@@ -404,3 +632,273 @@ class GameScreen(Screen):
             SECRET_DOOR_FOUND: "A secret door",
         }
         return mapping.get(tile_char)
+    
+    # ===== New Action Methods =====
+    
+    def action_aim_wand(self):
+        """Aim and fire a wand."""
+        self.notify("Aim wand: Not yet implemented.", severity="info")
+        debug("Action: Aim wand")
+    
+    def action_browse_book(self):
+        """Browse/peruse a book."""
+        self.notify("Browse book: Not yet implemented.", severity="info")
+        debug("Action: Browse book")
+    
+    def action_drop_item(self):
+        """Drop an item from inventory."""
+        self.notify("Drop item: Not yet implemented.", severity="info")
+        debug("Action: Drop item")
+    
+    def action_equipment_list(self):
+        """Show equipment list (same as inventory)."""
+        self.action_open_inventory()
+    
+    def action_fire_throw(self):
+        """Fire/throw an item."""
+        self.notify("Fire/throw: Not yet implemented.", severity="info")
+        debug("Action: Fire/throw")
+    
+    def action_throw_item(self):
+        """Throw an item (roguelike version)."""
+        self.action_fire_throw()
+    
+    def action_pray(self):
+        """Pray for divine intervention."""
+        self.notify("Pray: Not yet implemented.", severity="info")
+        debug("Action: Pray")
+    
+    def action_read_scroll(self):
+        """Read a scroll."""
+        self.notify("Read scroll: Not yet implemented.", severity="info")
+        debug("Action: Read scroll")
+    
+    def action_use_staff(self):
+        """Use a staff."""
+        self.notify("Use staff: Not yet implemented.", severity="info")
+        debug("Action: Use staff")
+    
+    def action_zap_staff(self):
+        """Zap a staff (roguelike version)."""
+        self.action_use_staff()
+    
+    def action_zap_wand(self):
+        """Zap a wand (roguelike version)."""
+        self.action_aim_wand()
+    
+    def action_version(self):
+        """Show version and credits."""
+        self.notify("Rogue v1.0 - A roguelike dungeon crawler", timeout=5)
+        debug("Action: Version")
+    
+    def action_wear_wield(self):
+        """Wear or wield an item."""
+        self.notify("Wear/wield: Not yet implemented.", severity="info")
+        debug("Action: Wear/wield")
+    
+    def action_exchange_weapon(self):
+        """Exchange weapons."""
+        self.notify("Exchange weapon: Not yet implemented.", severity="info")
+        debug("Action: Exchange weapon")
+    
+    def action_change_name(self):
+        """Change character name."""
+        self.notify("Change name: Not yet implemented.", severity="info")
+        debug("Action: Change name")
+    
+    def action_fill_lamp(self):
+        """Fill lamp with oil."""
+        self.notify("Fill lamp: Not yet implemented.", severity="info")
+        debug("Action: Fill lamp")
+    
+    def action_gain_spells(self):
+        """Gain new magic spells."""
+        if not getattr(self.app, "player", None):
+            self.notify("No player data available.", severity="warning")
+            return
+        
+        # Check if player can learn spells
+        if not getattr(self.app.player, 'mana_stat', None):
+            self.notify("You cannot learn spells!", severity="warning")
+            return
+        
+        self.app.push_screen("learn_spell")
+        debug("Action: Gain spells")
+    
+    def action_locate_map(self):
+        """Show location on map."""
+        if hasattr(self, 'engine') and self.engine and self.engine.player:
+            x, y = self.engine.player.position
+            depth = self.engine.player.depth
+            self.notify(f"You are at ({x}, {y}) on depth {depth}", timeout=3)
+        debug("Action: Locate map")
+    
+    def action_show_map_reduced(self):
+        """Show reduced size map."""
+        self.notify("Show reduced map: Not yet implemented.", severity="info")
+        debug("Action: Show reduced map")
+    
+    def action_rest(self):
+        """Rest for a period."""
+        self.notify("Resting...", timeout=2)
+        # Could implement actual resting mechanics here
+        self._handle_engine_update(True)
+        debug("Action: Rest")
+    
+    def action_wait(self):
+        """Wait/do nothing for a turn."""
+        self._handle_engine_update(True)
+        debug("Action: Wait")
+    
+    def action_view_scores(self):
+        """View high scores/scoreboard."""
+        self.notify("View scores: Not yet implemented.", severity="info")
+        debug("Action: View scores")
+    
+    def action_settings(self):
+        """Open settings menu."""
+        self.app.push_screen("settings")
+        debug("Action: Settings")
+    
+    def action_inscribe(self):
+        """Inscribe an object."""
+        self.notify("Inscribe: Not yet implemented.", severity="info")
+        debug("Action: Inscribe")
+    
+    def action_identify_char(self):
+        """Identify a character on screen."""
+        self.notify("Press a key to identify its symbol meaning...")
+        debug("Action: Identify character")
+    
+    def action_quit_game(self):
+        """Quit the game."""
+        self.app.exit()
+        debug("Action: Quit game")
+    
+    def action_save_and_quit(self):
+        """Save character and quit."""
+        self.app.save_character()
+        self.notify("Game saved. Exiting...")
+        self.app.exit()
+        debug("Action: Save and quit")
+    
+    def action_repeat_message(self):
+        """Repeat the last message."""
+        self.notify("Repeat message: Not yet implemented.", severity="info")
+        debug("Action: Repeat message")
+    
+    def action_help(self):
+        """Show help/command reference."""
+        mode = self.app.get_command_mode()
+        if mode == "original":
+            help_text = "Original Commands: a=aim wand, b=browse, c=close, d=drop, e=equipment, i=inventory, m=cast spell, o=open, s=search, <=up stairs, >=down stairs"
+        else:
+            help_text = "Roguelike Commands: hjkl=move, c=close, d=drop, e=equipment, i=inventory, m=cast spell, o=open, s=search, <=up stairs, >=down stairs"
+        self.notify(help_text, timeout=10)
+        debug("Action: Help")
+    
+    def action_character_desc(self):
+        """Show character description."""
+        if hasattr(self, 'engine') and self.engine and self.engine.player:
+            player = self.engine.player
+            desc = f"{player.name} - Level {player.level} {player.char_class}"
+            self.notify(desc, timeout=3)
+        debug("Action: Character description")
+    
+    def action_where_locate(self):
+        """Show where you are (roguelike version)."""
+        self.action_locate_map()
+    
+    # ===== Directional Action Helpers =====
+    
+    def _open_door_direction(self, dx: int, dy: int):
+        """Open a door in the given direction."""
+        px, py = self.engine.player.position
+        tx, ty = px + dx, py + dy
+        tile = self.engine.get_tile_at_coords(tx, ty)
+        
+        if tile == DOOR_CLOSED:
+            self.engine.game_map[ty][tx] = DOOR_OPEN
+            self.notify("You open the door.")
+            self.dungeon_view.update_map()
+            debug(f"Opened door at ({tx}, {ty})")
+        else:
+            self.notify("There is no closed door there.")
+    
+    def _close_door_direction(self, dx: int, dy: int):
+        """Close a door in the given direction."""
+        px, py = self.engine.player.position
+        tx, ty = px + dx, py + dy
+        tile = self.engine.get_tile_at_coords(tx, ty)
+        
+        if tile == DOOR_OPEN:
+            self.engine.game_map[ty][tx] = DOOR_CLOSED
+            self.notify("You close the door.")
+            self.dungeon_view.update_map()
+            debug(f"Closed door at ({tx}, {ty})")
+        else:
+            self.notify("There is no open door there.")
+    
+    def _tunnel_direction(self, dx: int, dy: int):
+        """Tunnel/dig in the given direction."""
+        px, py = self.engine.player.position
+        tx, ty = px + dx, py + dy
+        tile = self.engine.get_tile_at_coords(tx, ty)
+        
+        if tile == WALL:
+            self.engine.game_map[ty][tx] = FLOOR
+            self.notify("You tunnel through the wall.")
+            self.dungeon_view.update_map()
+            debug(f"Tunneled at ({tx}, {ty})")
+        else:
+            self.notify("You cannot tunnel there.")
+    
+    def _bash_direction(self, dx: int, dy: int):
+        """Bash in the given direction."""
+        px, py = self.engine.player.position
+        tx, ty = px + dx, py + dy
+        
+        # Check for entity
+        entity = self.engine.get_entity_at(tx, ty)
+        if entity:
+            self.notify(f"You bash {entity.name}!")
+            # Could implement actual combat here
+            debug(f"Bashed entity at ({tx}, {ty})")
+        else:
+            tile = self.engine.get_tile_at_coords(tx, ty)
+            if tile == DOOR_CLOSED:
+                self.engine.game_map[ty][tx] = DOOR_OPEN
+                self.notify("You bash open the door!")
+                self.dungeon_view.update_map()
+            else:
+                self.notify("Nothing to bash there.")
+    
+    def _disarm_direction(self, dx: int, dy: int):
+        """Disarm a trap in the given direction."""
+        self.notify("Disarm: Not yet implemented.", severity="info")
+        debug(f"Disarm direction ({dx}, {dy})")
+    
+    def _jam_door_direction(self, dx: int, dy: int):
+        """Jam/spike a door in the given direction."""
+        px, py = self.engine.player.position
+        tx, ty = px + dx, py + dy
+        tile = self.engine.get_tile_at_coords(tx, ty)
+        
+        if tile == DOOR_CLOSED:
+            self.notify("You jam the door with a spike.")
+            debug(f"Jammed door at ({tx}, {ty})")
+        else:
+            self.notify("There is no door there to jam.")
+    
+    def _start_running(self, dx: int, dy: int):
+        """Start running in the given direction."""
+        # For now, just move once
+        self._attempt_directional_action(dx, dy)
+        self.notify("Running... (auto-run not yet implemented)")
+        debug(f"Run direction ({dx}, {dy})")
+    
+    def _move_no_pickup(self, dx: int, dy: int):
+        """Move without picking up items."""
+        # For now, just move normally
+        self._attempt_directional_action(dx, dy)
+        debug(f"Move no pickup ({dx}, {dy})")
