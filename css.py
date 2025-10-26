@@ -49,4 +49,29 @@ CSS = """
     padding: 1;
 }
 
+/* Styles for spell screens */
+#spell-list, #spell-options-list {
+    padding: 1 2;
+    height: auto;
+}
+
+.spell-option-text {
+    padding: 0 1;
+}
+
+.centered-message {
+    text-align: center;
+    padding: 2;
+}
+
+/* Styles for target selector */
+#target-list {
+    padding: 1 2;
+    height: auto;
+}
+
+.target-option-text {
+    padding: 0 1;
+}
+
 """

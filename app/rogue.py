@@ -27,6 +27,8 @@ from app.screens.settings import SettingsScreen
 from app.screens.creation import CharacterCreationScreen
 from app.screens.continue_screen import ContinueScreen
 from app.screens.inventory import InventoryScreen
+from app.screens.learn_spell import SpellLearningScreen
+from app.screens.cast_spell import CastSpellScreen
 from css import CSS
 from debugtools import debug, log_exception
 from textual.drivers.linux_driver import LinuxDriver
@@ -56,6 +58,8 @@ class RogueApp(App[None]): # Specify return type for run()
         "character_creation": CharacterCreationScreen,
         "dungeon": GameScreen, # Use GameScreen here
         "inventory": InventoryScreen,
+        "learn_spell": SpellLearningScreen,
+        "cast_spell": CastSpellScreen,
         # Shops
         "armory": ArmorShopScreen,
         "general_store": GeneralStoreScreen,

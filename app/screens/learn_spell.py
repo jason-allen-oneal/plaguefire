@@ -105,9 +105,15 @@ class SpellLearningScreen(Screen):
                 spell_data = self.data_loader.get_spell(spell_id)
                 spell_name = spell_data.get("name", spell_id) if spell_data else spell_id
 
-                engine = getattr(self.app, 'engine', None)
-                if engine:
-                    engine.log_event(f"You have learned {spell_name}!")
+                # Get the game screen engine to log the event
+                game_screen = None
+                for screen in self.app.screen_stack:
+                    if hasattr(screen, 'engine'):
+                        game_screen = screen
+                        break
+                
+                if game_screen:
+                    game_screen.engine.log_event(f"You have learned {spell_name}!")
                 else:
                     debug(f"LOG: Learned {spell_name}")
 
@@ -126,9 +132,14 @@ class SpellLearningScreen(Screen):
 
             else:
                 debug(f"Error: Finalize spell learning failed for {spell_id}")
-                engine = getattr(self.app, 'engine', None)
-                if engine:
-                    engine.log_event(f"Error learning {spell_id}.")
+                game_screen = None
+                for screen in self.app.screen_stack:
+                    if hasattr(screen, 'engine'):
+                        game_screen = screen
+                        break
+                
+                if game_screen:
+                    game_screen.engine.log_event(f"Error learning {spell_id}.")
                 self.app.pop_screen() # Exit on error
         else:
             debug(f"Invalid letter selection: {letter}")

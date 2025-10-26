@@ -4,6 +4,7 @@ from typing import Dict, List, Optional, Tuple
 from debugtools import debug
 import random
 from app.core.data_loader import GameData
+from app.systems.status_effects import StatusEffectManager
 
 class Entity:
     """Represents NPCs, monsters, etc., generated from templates."""
@@ -52,6 +53,7 @@ class Entity:
 
         # Runtime state
         self.move_counter: int = random.randint(0, 1) # Randomize initial move timer
+        self.status_manager = StatusEffectManager()  # Add status effect manager
 
     def take_damage(self, amount: int) -> bool:
         if amount <= 0: return False

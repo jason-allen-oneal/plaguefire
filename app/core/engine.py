@@ -174,6 +174,12 @@ class Engine:
         # --- End turn logic --- (omitted for brevity, keep your existing logic)
         self.player.time += 1
         debug(f"--- Turn {self.player.time} ---")
+        
+        # Tick status effects
+        expired = self.player.status_manager.tick_effects()
+        for effect_name in expired:
+            self.log_event(f"{effect_name} effect wore off.")
+        
         if self.searching:
             self.search_timer += 1
             if self.search_timer >= 3:
@@ -211,8 +217,80 @@ class Engine:
         # --- Use item logic --- (omitted for brevity, keep your existing logic)
          if not (0 <= item_index < len(self.player.inventory)): return False
          item_name = self.player.inventory[item_index]
-         # success, message = self.player.use_item(item_name) # Assuming method exists
-         success, message = False, f"Using {item_name} not implemented." # Placeholder
+         
+         # Check if it's a scroll
+         if "Scroll" in item_name:
+             success, message, spell_data = self.player.use_scroll(item_name)
+             self.log_event(message)
+             
+             if success and spell_data:
+                 # Remove scroll from inventory
+                 self.player.inventory.pop(item_index)
+                 
+                 # Apply spell effects (similar to cast_spell but without target selection for now)
+                 effect_type = spell_data.get('effect_type', 'unknown')
+                 spell_name = spell_data.get('name', 'the spell')
+                 
+                 if effect_type == 'light':
+                     radius = spell_data.get('radius', 3)
+                     duration = spell_data.get('duration', 50)
+                     self.player.light_radius = max(self.player.light_radius, radius)
+                     self.player.light_duration = max(self.player.light_duration, duration)
+                     self.update_fov()
+                 elif effect_type == 'detect':
+                     self._handle_detection_spell(spell_data)
+                 elif effect_type == 'teleport':
+                     max_range = spell_data.get('range', 10)
+                     if max_range > 1000:
+                         self.log_event("You begin to recall...")
+                     else:
+                         self._handle_teleport_spell(max_range)
+                 elif effect_type == 'heal':
+                     heal_amount = spell_data.get('heal_amount', 0)
+                     if heal_amount > 0:
+                         amount_healed = self.player.heal(heal_amount)
+                         self.log_event(f"You feel better. (+{amount_healed} HP)")
+                 elif effect_type == 'buff':
+                     status = spell_data.get('status', 'Buffed')
+                     duration = spell_data.get('duration', 20)
+                     self.player.status_manager.add_effect(status, duration)
+                     self.log_event(f"You feel {spell_data.get('description', 'different')}.")
+                 elif effect_type == 'cleanse':
+                     status_to_remove = spell_data.get('status', 'Cursed')
+                     if self.player.status_manager.remove_effect(status_to_remove):
+                         self.log_event(f"The {status_to_remove} effect is removed!")
+                     else:
+                         self.log_event(f"Nothing happens.")
+                 # Note: attack and debuff scrolls would need target selection
+                 
+                 self._end_player_turn()
+                 return True
+             elif success:
+                 # Scroll used but no spell data (custom effect scrolls)
+                 self.player.inventory.pop(item_index)
+                 self._end_player_turn()
+                 return True
+             else:
+                 # Scroll failed (shouldn't happen normally)
+                 self._end_player_turn()
+                 return False
+         
+         # Check if it's a spell book
+         if "Handbook" in item_name or "Magik" in item_name or "Chants" in item_name or "book" in item_name.lower():
+             success, learned_spells, message = self.player.read_spellbook(item_name)
+             self.log_event(message)
+             
+             if success:
+                 # Keep the book in inventory (can be referenced later)
+                 # Or remove if you want single-use books:
+                 # self.player.inventory.pop(item_index)
+                 pass
+             
+             self._end_player_turn()
+             return True
+         
+         # Placeholder for other items
+         success, message = False, f"Using {item_name} not implemented."
          if success: self.log_event(message); self._end_player_turn(); return True
          else: self.log_event(message); return False
 
@@ -256,6 +334,34 @@ class Engine:
                     self.log_event(f"{target_entity.name} takes {damage} {spell_data.get('damage_type', 'spell')} damage!")
                     if is_dead: self.handle_entity_death(target_entity); self.log_event(f"{target_entity.name} is defeated!")
                 else: self.log_event(f"{spell_name} fizzles.")
+            elif effect_type == 'area_attack':
+                # Area damage - damage all visible enemies
+                damage_str = spell_data.get('damage', '1d6')
+                damage_type = spell_data.get('damage_type', 'physical')
+                visible_enemies = [e for e in self.get_visible_entities() if e.hostile]
+                
+                if visible_enemies:
+                    total_killed = 0
+                    for enemy in visible_enemies:
+                        try:
+                            if 'd' in damage_str:
+                                num_dice, die_size = map(int, damage_str.split('d'))
+                                damage = sum(random.randint(1, die_size) for _ in range(num_dice))
+                            else:
+                                damage = int(damage_str)
+                        except ValueError:
+                            damage = random.randint(1, 6)
+                        
+                        is_dead = enemy.take_damage(damage)
+                        self.log_event(f"{enemy.name} takes {damage} {damage_type} damage!")
+                        if is_dead:
+                            self.handle_entity_death(enemy)
+                            total_killed += 1
+                    
+                    if total_killed > 0:
+                        self.log_event(f"{spell_name} defeats {total_killed} enemies!")
+                else:
+                    self.log_event(f"{spell_name} echoes through the empty dungeon.")
             elif effect_type == 'light':
                 radius = spell_data.get('radius', 3); duration = spell_data.get('duration', 50)
                 self.player.light_radius = max(self.player.light_radius, radius)
@@ -269,11 +375,29 @@ class Engine:
             elif effect_type == 'heal':
                 heal_amount = spell_data.get('heal_amount', 0)
                 if heal_amount > 0: amount_healed = self.player.heal(heal_amount); self.log_event(f"You feel better. (+{amount_healed} HP)")
-            elif effect_type == 'buff': self.log_event(f"You feel {spell_data.get('status', 'different')}.") # Placeholder
-            elif effect_type == 'debuff': # Placeholder
-                if target_entity: self.log_event(f"{target_entity.name} looks {spell_data.get('status', 'different')}.")
-                else: self.log_event(f"{spell_name} needs a target.")
-            elif effect_type == 'cleanse': self.log_event(f"A foul aura lifts.") # Placeholder
+            elif effect_type == 'buff':
+                status = spell_data.get('status', 'Buffed')
+                duration = spell_data.get('duration', 20)
+                self.player.status_manager.add_effect(status, duration)
+                self.log_event(f"You feel {spell_data.get('description', 'different')}.")
+            elif effect_type == 'debuff':
+                status = spell_data.get('status', 'Debuffed')
+                duration = spell_data.get('duration', 20)
+                if target_entity:
+                    # Apply to entity (we'll need to add status manager to entities too)
+                    if hasattr(target_entity, 'status_manager'):
+                        target_entity.status_manager.add_effect(status, duration)
+                        self.log_event(f"{target_entity.name} is affected by {spell_name}!")
+                    else:
+                        self.log_event(f"{target_entity.name} resists the effect!")
+                else:
+                    self.log_event(f"{spell_name} needs a target.")
+            elif effect_type == 'cleanse':
+                status_to_remove = spell_data.get('status', 'Cursed')
+                if self.player.status_manager.remove_effect(status_to_remove):
+                    self.log_event(f"The {status_to_remove} effect is removed!")
+                else:
+                    self.log_event(f"You don't have the {status_to_remove} effect.")
             else: self.log_event(f"{spell_name} has an unknown effect.")
         self._end_player_turn()
         return True
@@ -479,24 +603,43 @@ class Engine:
         # --- Entity update logic --- (omitted for brevity, keep your existing logic)
         for entity in self.entities[:]:
             if entity.hp <= 0: continue
+            
+            # Tick entity status effects
+            entity.status_manager.tick_effects()
+            
+            # Check if entity is asleep or fleeing
+            if entity.status_manager.has_behavior("asleep"):
+                continue  # Skip turn if asleep
+            
             entity.move_counter += 1
             if entity.move_counter < 2: continue
             entity.move_counter = 0
             ex, ey = entity.position; px, py = self.player.position
             distance = math.sqrt((ex - px)**2 + (ey - py)**2)
+            
             if entity.ai_type == "passive": pass
             elif entity.ai_type == "wander":
                  dx, dy = random.choice([-1, 0, 1]), random.choice([-1, 0, 1]); nx, ny = ex + dx, ey + dy
                  if (0 <= ny < self.map_height and 0 <= nx < self.map_width and self.game_map[ny][nx] == FLOOR and
                      not self.get_entity_at(nx, ny) and [nx, ny] != self.player.position): entity.position = [nx, ny]
             elif entity.ai_type == "aggressive":
-                 if distance <= entity.detection_range:
-                     if distance <= 1.5: self.handle_entity_attack(entity)
-                     else: # Move towards player
-                         dx = 0 if px == ex else (1 if px > ex else -1); dy = 0 if py == ey else (1 if py > ey else -1)
+                 # Check if fleeing
+                 if entity.status_manager.has_behavior("flee"):
+                     # Move away from player
+                     if distance <= entity.detection_range:
+                         dx = 0 if px == ex else (-1 if px > ex else 1); dy = 0 if py == ey else (-1 if py > ey else 1)
                          nx, ny = ex + dx, ey + dy
                          if (0 <= ny < self.map_height and 0 <= nx < self.map_width and self.game_map[ny][nx] == FLOOR and
                              not self.get_entity_at(nx, ny) and [nx, ny] != self.player.position): entity.position = [nx, ny]
+                 else:
+                     # Normal aggressive behavior
+                     if distance <= entity.detection_range:
+                         if distance <= 1.5: self.handle_entity_attack(entity)
+                         else: # Move towards player
+                             dx = 0 if px == ex else (1 if px > ex else -1); dy = 0 if py == ey else (1 if py > ey else -1)
+                             nx, ny = ex + dx, ey + dy
+                             if (0 <= ny < self.map_height and 0 <= nx < self.map_width and self.game_map[ny][nx] == FLOOR and
+                                 not self.get_entity_at(nx, ny) and [nx, ny] != self.player.position): entity.position = [nx, ny]
             elif entity.ai_type == "thief": self._process_beggar_ai(entity, distance)
 
 

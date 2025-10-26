@@ -29,7 +29,7 @@ CLASS_ORDER = ["Warrior", "Mage", "Priest", "Rogue", "Ranger", "Paladin"]
 SEX_OPTIONS = ["Male", "Female"]
 
 # --- Constants for Spell Selection ---
-MAX_STARTER_SPELLS = 3 # How many spells a starting caster can choose
+MAX_STARTER_SPELLS = 1 # How many spells a starting caster can choose
 
 def _format_stat(total: int, percentile: int) -> str:
     if total < 18:
@@ -283,8 +283,8 @@ class CharacterCreationScreen(Screen):
         instructions = Text.from_markup(f"[dim][a-z] Select/Deselect Spell ({len(self.chosen_starter_spells)}/{MAX_STARTER_SPELLS})  [Enter] Confirm Spells  [Esc] Back[/]")
 
         lines = [
-            Text.from_markup("[chartreuse1]====== CHOOSE STARTING SPELLS ======[/chartreuse1]"),
-            Text(f"As a {cls}, you can learn {MAX_STARTER_SPELLS} spells to begin your journey."),
+            Text.from_markup("[chartreuse1]====== CHOOSE STARTING SPELL ======[/chartreuse1]"),
+            Text(f"As a {cls}, you can learn {MAX_STARTER_SPELLS} spell to begin your journey."),
             Text("")
         ]
 
@@ -442,7 +442,7 @@ class CharacterCreationScreen(Screen):
             "abilities": profile.get("abilities"),
             "gold": profile.get("starting_gold", 100),
             # --- Use chosen spells if available, otherwise empty list ---
-            "known_spells": self.chosen_starter_spells if self.creation_step == "spell_select" else [],
+            "known_spells": self.chosen_starter_spells if self.chosen_starter_spells else [],
             # Standard starting gear
             "inventory": ["Rations (3)", "Torch (5)", "Dagger"],
             "equipment": {"weapon": "Dagger", "armor": None},

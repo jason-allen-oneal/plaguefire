@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Tuple
 
 # --- Added Imports ---
 from app.core.data_loader import GameData
+from app.systems.status_effects import StatusEffectManager
 from config import VIEWPORT_HEIGHT, VIEWPORT_WIDTH
 from debugtools import debug
 
@@ -511,17 +512,20 @@ class Player:
         self.light_duration: int = data.get("light_duration", 0)
 
         self.status_effects: List[str] = data.get("status_effects", [])
+        # Initialize status effect manager
+        self.status_manager = StatusEffectManager()
+        # Restore active effects from save data
+        for effect_name in self.status_effects:
+            # Default duration when loading from save (will be managed by system)
+            self.status_manager.add_effect(effect_name, duration=10)
 
         self.known_spells: List[str] = data.get("known_spells", []) # Load if exists
-        # Automatically learn level 1 spells ONLY IF NOT provided in data
-        if "known_spells" not in data:
-            debug("No known_spells in data, auto-learning level 1 spells.")
-            self._check_for_new_spells(1) # Call check instead of learn
-        else:
-            debug(f"Loaded known_spells: {self.known_spells}")
-
         # --- List to track spells available to learn (for level up) ---
         self.spells_available_to_learn: List[str] = data.get("spells_available_to_learn", [])
+        
+        # Note: Starting spells should be provided via character creation, not auto-learned
+        if self.known_spells:
+            debug(f"Loaded known_spells: {self.known_spells}")
 
 
     XP_THRESHOLDS = {
@@ -548,7 +552,7 @@ class Player:
             # --- Check for spells BEFORE applying other level up benefits ---
             if self._check_for_new_spells(self.level):
                  new_spells_available = True # Flag that choices are pending
-            self._on_level_up_stats() # Apply stat/hp/mana gains
+            self._on_level_up() # Apply stat/hp/mana gains
             leveled_up = True
 
         if leveled_up: debug(f"{self.name} reached level {self.level}!")
@@ -569,23 +573,18 @@ class Player:
             debug(f"Error: Tried to finalize learning '{spell_id_to_learn}' which was not available.")
             return False
 
-    # --- UPDATED: _on_level_up calls _check_for_new_spells ---
     def _on_level_up(self) -> None:
-        """Handles stat increases and checks for new spells on level up."""
+        """Handles stat increases and HP/Mana restoration on level up."""
         con_modifier = self._get_modifier("CON")
         hp_gain = max(4, 6 + con_modifier)
         self.max_hp += hp_gain
         self.hp = self.max_hp
         self.max_mana = self._base_mana_pool(self.mana_stat)
         self.mana = self.max_mana
-        
-        # Check for spells available at this new level
-        self._check_for_new_spells(self.level)
 
-    # --- RENAMED & UPDATED: Populates choices instead of auto-learning ---
-    def _check_for_new_spells(self, check_level: int):
-        """Finds spells available at check_level and adds them to spells_available_to_learn."""
-        if not self.mana_stat: return # Warriors don't learn spells
+    def _check_for_new_spells(self, check_level: int) -> bool:
+        """Finds spells available at check_level and adds them to spells_available_to_learn. Returns True if new spells were added."""
+        if not self.mana_stat: return False # Warriors don't learn spells
             
         data_loader = GameData()
         newly_available = []
@@ -601,8 +600,8 @@ class Player:
         if newly_available:
             self.spells_available_to_learn.extend(newly_available)
             debug(f"Level {check_level}! Spells available to learn: {', '.join(newly_available)}")
-            # The game engine/UI will need to check self.spells_available_to_learn
-            # and present the choice to the player.
+            return True
+        return False
 
     def _get_modifier(self, stat_name: str) -> int:
         score = self.stats.get(stat_name, 10)
@@ -641,7 +640,7 @@ class Player:
                 self.light_duration = 0
 
     def to_dict(self) -> Dict:
-        # --- UPDATED: Save spells_available_to_learn ---
+        # --- UPDATED: Save active status effects ---
         data = {
             "name": self.name, "race": self.race, "class": self.class_, "sex": self.sex,
             "stats": self.stats, "base_stats": self.base_stats, "stat_percentiles": self.stat_percentiles,
@@ -650,7 +649,8 @@ class Player:
             "level": self.level, "xp": self.xp, "next_level_xp": self.next_level_xp, "gold": self.gold,
             "inventory": self.inventory, "equipment": self.equipment, "position": self.position, "depth": self.depth,
             "time": self.time, "base_light_radius": self.base_light_radius, "light_radius": self.light_radius,
-            "light_duration": self.light_duration, "status_effects": self.status_effects,
+            "light_duration": self.light_duration, 
+            "status_effects": self.status_manager.get_active_effects_display(),  # Save active effects
             "known_spells": self.known_spells,
             "spells_available_to_learn": self.spells_available_to_learn, # Save pending choices
         }
@@ -723,4 +723,126 @@ class Player:
         _ = self.gain_xp(xp_gain) 
         
         return True, f"You cast {spell_name}!", spell_data
+
+    def use_scroll(self, scroll_name: str) -> Tuple[bool, str, Optional[Dict]]:
+        """
+        Use a scroll to cast a spell without mana cost or failure chance.
+        
+        Args:
+            scroll_name: Name of the scroll item
+            
+        Returns:
+            (success, message, spell_data) - similar to cast_spell
+        """
+        # Map scroll names to spell IDs
+        scroll_to_spell_map = {
+            "Scroll of Identify": "identify",
+            "Scroll of Magic Missile": "magic_missile",
+            "Scroll of Blessing": "bless",
+            "Scroll of Light": "light",
+            "Scroll of Darkness": None,  # Custom effect, not a spell
+            "Scroll of Phase Door": "phase_door",
+            "Scroll of Teleport": "teleport",
+            "Scroll of Word of Recall": "word_of_recall",
+            "Scroll of Detect Monsters": "detect_monsters",
+            "Scroll of Detect Traps": "detect_traps",
+            "Scroll of Remove Curse": "remove_curse",
+        }
+        
+        spell_id = scroll_to_spell_map.get(scroll_name)
+        
+        if spell_id is None:
+            # Scroll has a custom effect, not a spell
+            return False, f"The {scroll_name} crumbles but nothing happens.", None
+        
+        # Check if scroll maps to a valid spell
+        data_loader = GameData()
+        spell_data = data_loader.get_spell(spell_id)
+        
+        if not spell_data:
+            return False, f"The {scroll_name} crumbles but nothing happens.", None
+        
+        spell_name = spell_data.get("name", "a spell")
+        
+        # Scrolls always succeed (no failure chance) and don't cost mana
+        # Grant minimal XP for using scroll (less than casting)
+        xp_gain = 1
+        self.gain_xp(xp_gain)
+        
+        return True, f"You read the {scroll_name}! {spell_name} activates!", spell_data
+
+    def read_spellbook(self, book_name: str) -> Tuple[bool, List[str], str]:
+        """
+        Read a spell book to learn spells it contains.
+        
+        Args:
+            book_name: Name of the spell book item
+            
+        Returns:
+            (success, newly_learned_spells, message)
+        """
+        # Map book names to spell lists (this should ideally come from item data)
+        book_spells_map = {
+            "Beginners Handbook": ["detect_evil", "cure_light_wounds"],
+            "Beginners-Magik": ["magic_missile", "detect_monsters"],
+            "Magik I": ["phase_door", "light"],
+            "Magik II": ["fire_bolt", "sleep_monster"],
+        }
+        
+        spell_ids = book_spells_map.get(book_name, [])
+        
+        if not spell_ids:
+            return False, [], f"The {book_name} is written in an unknown language."
+        
+        # Check if any spells can be learned
+        data_loader = GameData()
+        newly_learned = []
+        already_known = []
+        cannot_learn = []
+        
+        for spell_id in spell_ids:
+            spell_data = data_loader.get_spell(spell_id)
+            
+            if not spell_data:
+                continue
+            
+            # Check if already known
+            if spell_id in self.known_spells:
+                already_known.append(spell_data.get("name", spell_id))
+                continue
+            
+            # Check if player's class can learn this spell
+            if self.class_ not in spell_data.get("classes", {}):
+                cannot_learn.append(spell_data.get("name", spell_id))
+                continue
+            
+            # Check if player meets level requirement
+            spell_class_info = spell_data["classes"][self.class_]
+            min_level = spell_class_info.get("min_level", 1)
+            
+            if self.level < min_level:
+                cannot_learn.append(f"{spell_data.get('name', spell_id)} (requires level {min_level})")
+                continue
+            
+            # Learn the spell!
+            self.known_spells.append(spell_id)
+            newly_learned.append(spell_data.get("name", spell_id))
+            debug(f"Learned {spell_id} from {book_name}")
+        
+        # Build message
+        messages = []
+        if newly_learned:
+            messages.append(f"You learned: {', '.join(newly_learned)}!")
+        if already_known:
+            messages.append(f"Already known: {', '.join(already_known)}")
+        if cannot_learn:
+            messages.append(f"Cannot learn: {', '.join(cannot_learn)}")
+        
+        if not messages:
+            messages.append("The book contains no useful spells.")
+        
+        success = len(newly_learned) > 0
+        message = " ".join(messages)
+        
+        return success, newly_learned, message
 
