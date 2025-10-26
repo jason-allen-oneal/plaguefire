@@ -1,0 +1,103 @@
+# app/screens/read_scroll.py
+
+from textual.app import ComposeResult
+from textual.containers import Container, Vertical
+from textual.screen import Screen
+from textual.widgets import Header, Footer, Static
+from textual import events
+from rich.text import Text
+from typing import TYPE_CHECKING, Dict, List, Optional
+from debugtools import debug
+import string
+
+if TYPE_CHECKING:
+    from app.rogue import RogueApp
+    from app.lib.generation.entities.player import Player
+
+class ReadScrollScreen(Screen):
+    """Screen for the player to select and read a scroll using letter keys."""
+
+    BINDINGS = [
+        ("escape", "app.pop_screen", "Cancel"),
+    ]
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.player: 'Player' = self.app.player
+        # --- Map letters to scroll indices ---
+        self.scroll_options: Dict[str, int] = {}
+        self._setup_options()
+
+    def _setup_options(self):
+        """Creates the letter-to-scroll-index mapping."""
+        self.scroll_options.clear()
+        
+        inventory = self.player.inventory
+        letters = string.ascii_lowercase
+        
+        if not inventory:
+            return
+
+        # Generate letter-to-scroll mapping for scrolls only
+        letter_idx = 0
+        for i, item in enumerate(inventory):
+            if "Scroll" in item:
+                if letter_idx < len(letters):
+                    letter = letters[letter_idx]
+                    self.scroll_options[letter] = i
+                    letter_idx += 1
+                else:
+                    break
+
+    def compose(self) -> ComposeResult:
+        yield Static(Text.from_markup(self._render_scroll_list()), id="scroll-list")
+
+    def _render_scroll_list(self) -> str:
+        """Renders the scroll list with Rich Text colors."""
+        lines = [
+            f"[chartreuse1]Read a Scroll[/chartreuse1]",
+            "[chartreuse1]" + "=" * 50 + "[/chartreuse1]",
+            ""
+        ]
+
+        if not self.scroll_options:
+            lines.append("[yellow2]You don't have any scrolls.[/yellow2]")
+        else:
+            for letter, item_idx in self.scroll_options.items():
+                scroll_name = self.player.inventory[item_idx]
+                inscribed_name = self.player.get_inscribed_item_name(scroll_name)
+                
+                lines.append(f"[yellow]{letter})[/yellow] [bold white]{inscribed_name}[/bold white]")
+
+        lines.append("")
+        lines.append("[dim]Press letter to read scroll, [Esc] to cancel[/dim]")
+        return "\n".join(lines)
+
+    async def on_key(self, event: events.Key):
+        """Handle key presses for scroll selection."""
+        key = event.key
+        
+        if key in self.scroll_options:
+            item_idx = self.scroll_options[key]
+            debug(f"Player selected scroll at index {item_idx}")
+            
+            # Get the game screen and its engine
+            game_screen = None
+            for screen in self.app.screen_stack:
+                if screen.__class__.__name__ == "GameScreen":
+                    game_screen = screen
+                    break
+            
+            if game_screen and hasattr(game_screen, 'engine'):
+                engine = game_screen.engine
+                # Use the engine's handle_use_item method
+                if engine.handle_use_item(item_idx):
+                    # Refresh UI on game screen
+                    if hasattr(game_screen, '_refresh_ui'):
+                        game_screen._refresh_ui()
+                    self.app.pop_screen()
+                else:
+                    self.notify("Failed to read scroll.", severity="warning")
+            else:
+                self.notify("Error: Game engine not found.", severity="error")
+                debug("ERROR: Could not find game screen or engine")

@@ -641,7 +641,8 @@ class GameScreen(Screen):
     
     def action_browse_book(self):
         """Browse/peruse a book."""
-        self.notify("Browse book: Not yet implemented.", severity="info")
+        from app.screens.browse_book import BrowseBookScreen
+        self.app.push_screen(BrowseBookScreen())
         debug("Action: Browse book")
     
     def action_drop_item(self):
@@ -669,7 +670,8 @@ class GameScreen(Screen):
     
     def action_read_scroll(self):
         """Read a scroll."""
-        self.notify("Read scroll: Not yet implemented.", severity="info")
+        from app.screens.read_scroll import ReadScrollScreen
+        self.app.push_screen(ReadScrollScreen())
         debug("Action: Read scroll")
     
     def action_use_staff(self):
