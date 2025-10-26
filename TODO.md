@@ -23,11 +23,11 @@ These features are referenced in game.py but show "Not yet implemented" messages
   - Required: Staff usage system, charge consumption, area effects
   - Dependencies: Item instance tracking for charges
 
-- [ ] **Read Scroll** (`action_read_scroll`)
-  - Location: `app/screens/game.py:670-673`
-  - Status: Shows notification "Read scroll: Not yet implemented."
-  - Note: Spell learning from scrolls works, but direct scroll reading doesn't
-  - Required: Scroll consumption system, effect application
+- [x] **Read Scroll** (`action_read_scroll`) ✅ IMPLEMENTED
+  - Location: `app/screens/read_scroll.py`
+  - Status: Fully functional - players can select and read scrolls from inventory
+  - Implementation: Created ReadScrollScreen with letter-based selection
+  - Note: Scrolls are consumed on use and effects applied immediately
 
 - [ ] **Drop Item** (`action_drop_item`)
   - Location: `app/screens/game.py:647-650`
@@ -42,11 +42,11 @@ These features are referenced in game.py but show "Not yet implemented" messages
   - Items: Arrows, darts, throwing weapons
 
 ### Equipment Management
-- [ ] **Wear/Wield Item** (`action_wear_wield`)
-  - Location: `app/screens/game.py:693-696`
-  - Status: Shows notification "Wear/wield: Not yet implemented."
-  - Note: Equipment can be managed via inventory screen, but not this command
-  - Required: Direct equipment command interface
+- [x] **Wear/Wield Item** (`action_wear_wield`) ✅ IMPLEMENTED
+  - Location: `app/screens/wear_wield.py`
+  - Status: Fully functional - players can equip items from inventory
+  - Implementation: Created WearWieldScreen showing slot info and replacement warnings
+  - Note: Shows which slot item will occupy and warns when replacing equipped items
 
 - [ ] **Exchange Weapon** (`action_exchange_weapon`)
   - Location: `app/screens/game.py:698-701`
@@ -55,17 +55,17 @@ These features are referenced in game.py but show "Not yet implemented" messages
   - Moria feature: Swap between two wielded weapons
 
 ### Character Actions
-- [ ] **Pray** (`action_pray`)
-  - Location: `app/screens/game.py:665-668`
-  - Status: Shows notification "Pray: Not yet implemented."
-  - Required: Prayer system for clerics/paladins, different from spell casting
-  - Moria feature: Alternative to spell casting for divine classes
+- [x] **Pray** (`action_pray`) ✅ IMPLEMENTED
+  - Location: `app/screens/game.py:666-687`
+  - Status: Fully functional - divine classes can pray to cast spells
+  - Implementation: Prayer restricted to Priest and Paladin classes, uses existing spell casting system
+  - Note: Provides class-appropriate spell casting for divine classes
 
-- [ ] **Browse Book** (`action_browse_book`)
-  - Location: `app/screens/game.py:642-645`
-  - Status: Shows notification "Browse book: Not yet implemented."
-  - Note: Spell learning works, but book browsing to see spells doesn't
-  - Required: Book content viewer without learning spells
+- [x] **Browse Book** (`action_browse_book`) ✅ IMPLEMENTED
+  - Location: `app/screens/browse_book.py`
+  - Status: Fully functional - players can view spell book contents
+  - Implementation: Created BrowseBookScreen showing spell details, requirements, costs, and known status
+  - Note: Allows viewing book contents without learning spells
 
 ### Utility Commands
 - [ ] **Disarm Trap** (`_disarm_direction`)
@@ -74,16 +74,17 @@ These features are referenced in game.py but show "Not yet implemented" messages
   - Required: Trap detection, disarming skill check, trap types
   - Related: Chest trap disarming exists but general trap disarming doesn't
 
-- [ ] **Inscribe Item** (`action_inscribe`)
-  - Location: `app/screens/game.py:763-766`
-  - Status: Shows notification "Inscribe: Not yet implemented."
-  - Required: Custom player inscriptions on items
-  - Related: Automatic inscriptions work ({damned}, {magik})
+- [x] **Inscribe Item** (`action_inscribe`) ✅ IMPLEMENTED
+  - Location: `app/screens/inscribe.py`, `app/lib/generation/entities/player.py`
+  - Status: Fully functional - players can add custom inscriptions to items
+  - Implementation: Added custom_inscriptions dict to Player, created InscribeScreen (max 15 chars)
+  - Note: Custom inscriptions display alongside automatic inscriptions like {damned}, {magik}
 
-- [ ] **Change Name** (`action_change_name`)
-  - Location: `app/screens/game.py:703-706`
-  - Status: Shows notification "Change name: Not yet implemented."
-  - Required: Character name editing interface
+- [x] **Change Name** (`action_change_name`) ✅ IMPLEMENTED
+  - Location: `app/screens/change_name.py`
+  - Status: Fully functional - players can rename their character
+  - Implementation: Created ChangeNameScreen with input validation (max 30 chars)
+  - Note: Character can be renamed at any time during gameplay
 
 - [ ] **Fill Lamp** (`action_fill_lamp`)
   - Location: `app/screens/game.py:708-711`
@@ -91,27 +92,30 @@ These features are referenced in game.py but show "Not yet implemented" messages
   - Required: Lamp fuel tracking, oil consumption
   - Items: Brass Lantern, flasks of oil
 
-- [ ] **Show Reduced Map** (`action_show_map_reduced`)
-  - Location: `app/screens/game.py:735-738`
-  - Status: Shows notification "Show reduced map: Not yet implemented."
-  - Required: Zoomed-out map view for level overview
+- [x] **Show Reduced Map** (`action_show_map_reduced`) ✅ IMPLEMENTED
+  - Location: `app/screens/reduced_map.py`
+  - Status: Fully functional - displays full level overview
+  - Implementation: Created ReducedMapScreen with color-coded legend, player (@), entities (E)
+  - Note: Shows entire current level with visual indicators for all features
 
-- [ ] **View Scores** (`action_view_scores`)
-  - Location: `app/screens/game.py:753-756`
-  - Status: Shows notification "View scores: Not yet implemented."
-  - Required: High score tracking, death records, character morgue
+- [x] **View Scores** (`action_view_scores`) ✅ IMPLEMENTED
+  - Location: `app/screens/view_scores.py`
+  - Status: Fully functional - displays comprehensive character statistics
+  - Implementation: Created ViewScoresScreen showing level, XP, stats, equipment, inventory, spells, effects
+  - Note: Equipment displayed with inscribed names, includes all progression data
 
-- [ ] **Repeat Message** (`action_repeat_message`)
-  - Location: `app/screens/game.py:785-788`
-  - Status: Shows notification "Repeat message: Not yet implemented."
-  - Required: Message history buffer, last message display
+- [x] **Repeat Message** (`action_repeat_message`) ✅ IMPLEMENTED
+  - Location: `app/screens/game.py:789-797`
+  - Status: Fully functional - displays last combat log message
+  - Implementation: Shows last message from combat_log as notification with 10-second timeout
+  - Note: Accessible via Ctrl+P keybinding
 
 ### Movement Enhancement
-- [ ] **Auto-Run** (`_start_running`)
-  - Location: `app/screens/game.py:893-898`
-  - Status: Shows notification "Running... (auto-run not yet implemented)"
-  - Required: Continuous movement until obstacle/enemy, pathfinding
-  - Current: Only moves once
+- [x] **Auto-Run** (`_start_running`) ✅ IMPLEMENTED
+  - Location: `app/screens/game.py:922-971`
+  - Status: Fully functional - continuous movement in direction
+  - Implementation: Runs up to 10 steps, stops when encountering walls, doors, or enemies
+  - Note: UI refreshes during movement to show progress
 
 ---
 
