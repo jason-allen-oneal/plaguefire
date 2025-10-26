@@ -665,7 +665,26 @@ class GameScreen(Screen):
     
     def action_pray(self):
         """Pray for divine intervention."""
-        self.notify("Pray: Not yet implemented.", severity="info")
+        # Prayer is essentially spell casting for divine classes
+        # For now, it works the same as casting spells
+        player = self.engine.player
+        
+        # Check if player is a divine class
+        divine_classes = ["Priest", "Paladin"]
+        if player.class_ not in divine_classes:
+            self.notify("You are not of a divine class and cannot pray for spells.", severity="warning")
+            debug(f"Action: Pray failed - {player.class_} is not a divine class")
+            return
+        
+        # Check if player has spells to pray
+        if not player.known_spells:
+            self.notify("You don't know any prayers yet.", severity="info")
+            debug("Action: Pray - no known spells")
+            return
+        
+        # Open the cast spell screen (prayers use the same system)
+        from app.screens.cast_spell import CastSpellScreen
+        self.app.push_screen(CastSpellScreen())
         debug("Action: Pray")
     
     def action_read_scroll(self):
@@ -705,7 +724,8 @@ class GameScreen(Screen):
     
     def action_change_name(self):
         """Change character name."""
-        self.notify("Change name: Not yet implemented.", severity="info")
+        from app.screens.change_name import ChangeNameScreen
+        self.app.push_screen(ChangeNameScreen())
         debug("Action: Change name")
     
     def action_fill_lamp(self):
@@ -788,8 +808,13 @@ class GameScreen(Screen):
     
     def action_repeat_message(self):
         """Repeat the last message."""
-        self.notify("Repeat message: Not yet implemented.", severity="info")
-        debug("Action: Repeat message")
+        if hasattr(self, 'engine') and self.engine.combat_log:
+            last_message = self.engine.combat_log[-1]
+            self.notify(f"[Last message] {last_message}", timeout=10)
+            debug(f"Action: Repeat message - {last_message}")
+        else:
+            self.notify("No messages to repeat.", severity="info")
+            debug("Action: Repeat message - no messages")
     
     def action_help(self):
         """Show help/command reference."""
@@ -896,10 +921,56 @@ class GameScreen(Screen):
     
     def _start_running(self, dx: int, dy: int):
         """Start running in the given direction."""
-        # For now, just move once
-        self._attempt_directional_action(dx, dy)
-        self.notify("Running... (auto-run not yet implemented)")
-        debug(f"Run direction ({dx}, {dy})")
+        # Run up to 10 steps in the direction until blocked or enemy encountered
+        max_steps = 10
+        steps_taken = 0
+        
+        px, py = self.engine.player.position
+        
+        for _ in range(max_steps):
+            # Check next position
+            next_x = px + dx
+            next_y = py + dy
+            
+            # Check if position is valid and walkable
+            if not (0 <= next_x < len(self.engine.game_map[0]) and 
+                    0 <= next_y < len(self.engine.game_map)):
+                break
+            
+            tile = self.engine.game_map[next_y][next_x]
+            
+            # Stop if we hit a wall or closed door
+            if tile in [WALL, DOOR_CLOSED]:
+                break
+            
+            # Stop if there's an enemy
+            enemy_at_pos = None
+            for entity in self.engine.entities:
+                if entity.position == [next_x, next_y] and hasattr(entity, 'hp'):
+                    enemy_at_pos = entity
+                    break
+            
+            if enemy_at_pos:
+                # Stop before enemy
+                break
+            
+            # Move the player
+            result = self.engine.handle_player_move(dx, dy)
+            if not result:
+                break
+            
+            steps_taken += 1
+            px, py = self.engine.player.position
+            
+            # Refresh UI to show movement
+            self._refresh_ui()
+        
+        if steps_taken > 0:
+            self.notify(f"You run {steps_taken} step{'s' if steps_taken > 1 else ''}.")
+        else:
+            self.notify("You cannot run in that direction.")
+        
+        debug(f"Run direction ({dx}, {dy}) - took {steps_taken} steps")
     
     def _move_no_pickup(self, dx: int, dy: int):
         """Move without picking up items."""
