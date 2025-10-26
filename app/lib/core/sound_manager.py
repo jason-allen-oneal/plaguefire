@@ -35,16 +35,22 @@ class SoundManager:
 
         self.sounds = {}
         self.music_playing = None
+        self.sfx_channel = None
 
         try:
             pygame.mixer.init()
             debug("Sound system initialized.")
-            self.sfx_channel = pygame.mixer.Channel(1)
         except Exception as e:
             log_exception(f"Failed to initialize sound: {e}")
             self.music_enabled = False
             self.sfx_enabled = False
-            self.sfx_channel = None
+            return
+        
+        try:
+            self.sfx_channel = pygame.mixer.Channel(1)
+        except Exception as e:
+            log_exception(f"Failed to create SFX channel: {e}")
+            self.sfx_enabled = False
 
     def play_music(self, filename: str, loop: bool = True, volume: float = 0.6):
         """
@@ -123,7 +129,7 @@ class SoundManager:
         Args:
             name: Identifier of the sound effect to play
         """
-        if not self.sfx_enabled or not self.sfx_channel:
+        if not self.sfx_enabled:
             return
         try:
             sound = self.sounds.get(name)
