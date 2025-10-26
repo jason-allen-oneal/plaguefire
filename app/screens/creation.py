@@ -181,7 +181,8 @@ class CharacterCreationScreen(Screen):
             return self._render_base_creation()
         # --- Render Spell Selection Step ---
         elif self.creation_step == "spell_select":
-            return self._render_spell_selection()
+            spell_markup = self._render_spell_selection()
+            return Text.from_markup(spell_markup)
         else:
             return Text("Error: Unknown creation step.", style="bold red")
 
@@ -277,20 +278,29 @@ class CharacterCreationScreen(Screen):
                 final_text.append("\n")
         return final_text
 
-    def _render_spell_selection(self) -> Text:
+    def _render_spell_selection(self) -> str:
         """Renders the spell selection step."""
         cls = self.available_classes[self.current_class_index]
-        instructions = Text.from_markup(f"[dim][a-z] Select/Deselect Spell ({len(self.chosen_starter_spells)}/{MAX_STARTER_SPELLS})  [Enter] Confirm Spells  [Esc] Back[/]")
-
+        
+        # Build Rich Text spell selection with proper markup
+        spell_text = self._render_spell_selection_markup()
+        
+        # Return the markup string directly for Static widget to render
+        return spell_text
+    
+    def _render_spell_selection_markup(self) -> str:
+        """Renders the spell selection step with Rich Text markup."""
+        cls = self.available_classes[self.current_class_index]
+        
         lines = [
-            Text.from_markup("[chartreuse1]====== CHOOSE STARTING SPELL ======[/chartreuse1]"),
-            Text(f"As a {cls}, you can learn {MAX_STARTER_SPELLS} spell to begin your journey."),
-            Text("")
+            "[chartreuse1]====== CHOOSE STARTING SPELL ======[/chartreuse1]",
+            f"As a [deep_sky_blue3]{cls}[/deep_sky_blue3], you can learn [deep_sky_blue3]{MAX_STARTER_SPELLS}[/deep_sky_blue3] spell to begin your journey.",
+            ""
         ]
 
         # List available spells
         if not self.spell_selection_map:
-            lines.append(Text("No starter spells available for this class.", style="italic"))
+            lines.append("[yellow2]No starter spells available for this class.[/yellow2]")
         else:
             for letter, spell_id in self.spell_selection_map.items():
                 spell_data = next((data for s_id, data in self.available_starter_spells if s_id == spell_id), None)
@@ -300,30 +310,16 @@ class CharacterCreationScreen(Screen):
                     mana_cost = class_info.get("mana", "?")
                     fail_chance = class_info.get("base_failure", "?")
 
-                    # --- Use Rich Text for colored/styled output ---
+                    # Rich Text formatting with colors
                     prefix = "[X]" if spell_id in self.chosen_starter_spells else "[ ]"
-                    spell_text = Text.assemble(
-                        (f"{prefix} {letter}) ", "yellow"), # Selection letter
-                        (f"{spell_name}", "bold white"),
-                        f" (", (f"{mana_cost} Mana", "bright_blue"), f", Fail: {fail_chance}%)"
-                    )
-                    lines.append(spell_text)
+                    lines.append(f"{prefix} [yellow]{letter})[/yellow] [bold white]{spell_name}[/bold white] ([bright_cyan]{mana_cost} Mana[/bright_cyan], Fail: {fail_chance}%)")
                 else:
-                     lines.append(Text(f"[ ] {letter}) {spell_id} (Error: Data missing)", style="red"))
+                    lines.append(f"[ ] {letter}) {spell_id} (Error: Data missing)")
 
-        lines.append(Text(""))
-        lines.append(instructions)
-
-        # Combine lines and pad width
-        final_text = Text()
-        for idx, line_text in enumerate(lines):
-            pad = max(0, self.panel_width - line_text.cell_len)
-            if pad:
-                line_text.pad_right(pad)
-            final_text += line_text
-            if idx < len(lines) - 1:
-                final_text.append("\n")
-        return final_text
+        lines.append("")
+        lines.append(f"[dim]a-z Select/Deselect Spell ({len(self.chosen_starter_spells)}/{MAX_STARTER_SPELLS})  [Enter] Confirm Spells  [Esc] Back[/dim]")
+        
+        return "\n".join(lines)
 
 
     def refresh_display(self):

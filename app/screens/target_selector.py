@@ -4,6 +4,7 @@ from textual.app import ComposeResult
 from textual.containers import Container
 from textual.screen import Screen
 from textual.widgets import Header, Footer, Static
+from textual import events
 from rich.text import Text
 from typing import TYPE_CHECKING, List, Optional, Callable
 from debugtools import debug
@@ -35,51 +36,74 @@ class TargetSelectorScreen(Screen):
         self._setup_bindings()
 
     def _setup_bindings(self):
-        """Creates letter-to-target mapping and adds bindings."""
+        """Creates letter-to-target mapping."""
         self.target_map.clear()
         letters = string.ascii_lowercase
         
         if not self.targets:
             return
 
-        new_bindings = []
+        # Generate letter-to-target mapping
         for i, target in enumerate(self.targets):
             if i < len(letters):
                 letter = letters[i]
                 self.target_map[letter] = target
-                new_bindings.append((letter, f"select_target('{letter}')", f"Target {target.name}"))
             else:
                 break
-                
-        self.BINDINGS = [
-            ("escape", "cancel", "Cancel"),
-            *new_bindings
-        ]
 
     def compose(self) -> ComposeResult:
-        yield Header()
-        yield Static("Select a Target", classes="title")
+        yield Static(Text.from_markup(self._render_target_list_ascii()), id="target-list")
 
-        with Container(id="target-list"):
-            if not self.target_map:
-                yield Static("No valid targets in sight.", classes="centered-message")
-            else:
-                for letter, target in self.target_map.items():
-                    # Calculate distance from player
-                    player = self.app.player
-                    tx, ty = target.position
-                    px, py = player.position
-                    distance = abs(tx - px) + abs(ty - py)
-                    
-                    label = Text.assemble(
-                        (f"{letter}) ", "yellow bold"),
-                        (f"{target.name}", "bold white"),
-                        f" - Distance: {distance}, ",
-                        (f"HP: {target.hp}/{target.max_hp}", "red" if target.hp < target.max_hp // 2 else "green"),
-                    )
-                    yield Static(label, classes="target-option-text")
+    def _render_target_list_ascii(self) -> str:
+        """Renders the target list with Rich Text colors."""
+        lines = [
+            "[chartreuse1]Select a Target[/chartreuse1]",
+            "[chartreuse1]" + "=" * 30 + "[/chartreuse1]",
+            ""
+        ]
 
-        yield Footer()
+        if not self.target_map:
+            lines.append("[yellow2]No valid targets in sight.[/yellow2]")
+        else:
+            for letter, target in self.target_map.items():
+                # Calculate distance from player
+                player = self.app.player
+                tx, ty = target.position
+                px, py = player.position
+                distance = abs(tx - px) + abs(ty - py)
+                
+                # Rich Text formatting with colors
+                hp_status = "LOW" if target.hp < target.max_hp // 2 else "OK"
+                hp_color = "red" if hp_status == "LOW" else "green"
+                
+                lines.append(f"[yellow]{letter})[/yellow] [bold white]{target.name}[/bold white]")
+                lines.append(f"    Distance: [bright_cyan]{distance}[/bright_cyan] | HP: [{hp_color}]{target.hp}/{target.max_hp}[/{hp_color}] ([{hp_color}]{hp_status}[/{hp_color}])")
+                lines.append("")
+
+        lines.append("[dim]Press letter to select target, [Esc] to cancel[/dim]")
+        return "\n".join(lines)
+
+    async def on_key(self, event: events.Key):
+        """Handle key presses for target selection."""
+        key = event.key.lower()
+        
+        # Always stop the event from propagating to underlying screens
+        event.stop()
+        
+        if key == "escape":
+            self.action_cancel()
+            return
+        
+        # Check if the key corresponds to a target
+        if key in self.target_map:
+            target = self.target_map[key]
+            debug(f"Player pressed '{key}' to select target: {target.name}")
+            self.action_select_target(key)
+        else:
+            # Invalid key
+            debug(f"Invalid target selection key: {key}")
+        
+        # Don't call refresh_display() here as action methods handle screen changes
 
     def action_select_target(self, letter: str) -> None:
         """Handle target selection via letter key."""

@@ -1,23 +1,23 @@
 {
-    "name": "test3",
+    "name": "test2",
     "race": "Human",
     "class": "Mage",
     "sex": "Male",
     "stats": {
-        "STR": 9,
-        "INT": 14,
-        "WIS": 9,
-        "DEX": 9,
-        "CON": 4,
-        "CHA": 9
+        "STR": 16,
+        "INT": 13,
+        "WIS": 12,
+        "DEX": 12,
+        "CON": 7,
+        "CHA": 15
     },
     "base_stats": {
-        "STR": 9,
-        "INT": 14,
-        "WIS": 9,
-        "DEX": 9,
-        "CON": 4,
-        "CHA": 9
+        "STR": 16,
+        "INT": 13,
+        "WIS": 12,
+        "DEX": 12,
+        "CON": 7,
+        "CHA": 15
     },
     "stat_percentiles": {
         "STR": 0,
@@ -27,10 +27,10 @@
         "CON": 0,
         "CHA": 0
     },
-    "history": "Your family served a local lord.",
-    "social_class": 65,
-    "height": 73,
-    "weight": 161,
+    "history": "You are the child of a guild artisan.",
+    "social_class": 55,
+    "height": 68,
+    "weight": 165,
     "abilities": {
         "fighting": 3.5,
         "bows": 3.0,
@@ -45,12 +45,12 @@
     },
     "hp": 10,
     "max_hp": 10,
-    "mana": 7,
-    "max_mana": 7,
+    "mana": 6,
+    "max_mana": 6,
     "level": 1,
     "xp": 0,
     "next_level_xp": 300,
-    "gold": 191,
+    "gold": 181,
     "inventory": [
         "Rations (3)",
         "Torch (5)",

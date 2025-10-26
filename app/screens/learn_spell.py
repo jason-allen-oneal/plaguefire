@@ -62,12 +62,12 @@ class SpellLearningScreen(Screen):
 
     def compose(self) -> ComposeResult:
         yield Header()
-        yield Static(f"Level {self.player.level}! Choose a spell to learn:", classes="title")
+        yield Static(f"[deep_sky_blue3]Level {self.player.level}![/deep_sky_blue3] [chartreuse1]Choose a spell to learn:[/chartreuse1]", classes="title")
 
         # Use a simple container for the list
         with Container(id="spell-options-list"):
             if not self.spell_options:
-                 yield Static("No new spells available at this level.", classes="centered-message")
+                 yield Static("[yellow2]No new spells available at this level.[/yellow2]", classes="centered-message")
             else:
                 for letter, spell_id in self.spell_options.items():
                     spell_data = self.data_loader.get_spell(spell_id)
@@ -87,7 +87,7 @@ class SpellLearningScreen(Screen):
                             f", Fail: {fail_chance}%)"
                         )
                         # --- Use Static instead of Button ---
-                        yield Static(label, classes="spell-option-text")
+                        yield Static(label, classes="spell-option-text", markup=True)
                     else:
                         yield Static(f"{letter}) {spell_id} (Error: Data missing)", classes="spell-option-text error")
 
