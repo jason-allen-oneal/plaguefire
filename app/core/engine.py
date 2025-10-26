@@ -334,6 +334,34 @@ class Engine:
                     self.log_event(f"{target_entity.name} takes {damage} {spell_data.get('damage_type', 'spell')} damage!")
                     if is_dead: self.handle_entity_death(target_entity); self.log_event(f"{target_entity.name} is defeated!")
                 else: self.log_event(f"{spell_name} fizzles.")
+            elif effect_type == 'area_attack':
+                # Area damage - damage all visible enemies
+                damage_str = spell_data.get('damage', '1d6')
+                damage_type = spell_data.get('damage_type', 'physical')
+                visible_enemies = [e for e in self.get_visible_entities() if e.hostile]
+                
+                if visible_enemies:
+                    total_killed = 0
+                    for enemy in visible_enemies:
+                        try:
+                            if 'd' in damage_str:
+                                num_dice, die_size = map(int, damage_str.split('d'))
+                                damage = sum(random.randint(1, die_size) for _ in range(num_dice))
+                            else:
+                                damage = int(damage_str)
+                        except ValueError:
+                            damage = random.randint(1, 6)
+                        
+                        is_dead = enemy.take_damage(damage)
+                        self.log_event(f"{enemy.name} takes {damage} {damage_type} damage!")
+                        if is_dead:
+                            self.handle_entity_death(enemy)
+                            total_killed += 1
+                    
+                    if total_killed > 0:
+                        self.log_event(f"{spell_name} defeats {total_killed} enemies!")
+                else:
+                    self.log_event(f"{spell_name} echoes through the empty dungeon.")
             elif effect_type == 'light':
                 radius = spell_data.get('radius', 3); duration = spell_data.get('duration', 50)
                 self.player.light_radius = max(self.player.light_radius, radius)

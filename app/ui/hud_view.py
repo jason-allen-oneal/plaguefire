@@ -116,7 +116,14 @@ class HUDView(Static):
         status_entries = []
         if getattr(self.engine, "searching", False):
             status_entries.append("[yellow1]Searching[/yellow1]")
-        if player.status_effects:
+        
+        # Show active status effects from status_manager
+        if hasattr(player, 'status_manager') and player.status_manager.active_effects:
+            for effect_name, effect in player.status_manager.active_effects.items():
+                status_entries.append(f"[cyan]{effect_name}[/cyan] ({effect.duration}t)")
+        
+        # Fallback to old status_effects list if needed
+        elif player.status_effects:
             status_entries.extend([f"[bright_red]{effect}[/bright_red]" for effect in player.status_effects])
 
         hud_lines.append(separator)
