@@ -513,15 +513,23 @@ class Player:
         self.status_effects: List[str] = data.get("status_effects", [])
 
         self.known_spells: List[str] = data.get("known_spells", []) # Load if exists
+        # --- List to track spells available to learn (for level up) ---
+        self.spells_available_to_learn: List[str] = data.get("spells_available_to_learn", [])
+        
         # Automatically learn level 1 spells ONLY IF NOT provided in data
         if "known_spells" not in data:
             debug("No known_spells in data, auto-learning level 1 spells.")
-            self._check_for_new_spells(1) # Call check instead of learn
+            # For new characters, directly learn level 1 spells instead of adding to available
+            if self.mana_stat:
+                data_loader = GameData()
+                for spell_id, spell_data in data_loader.spells.items():
+                    if self.class_ in spell_data.get("classes", {}):
+                        spell_class_info = spell_data["classes"][self.class_]
+                        if spell_class_info.get("min_level") == 1:
+                            self.known_spells.append(spell_id)
+                debug(f"Auto-learned {len(self.known_spells)} level 1 spells: {', '.join(self.known_spells)}")
         else:
             debug(f"Loaded known_spells: {self.known_spells}")
-
-        # --- List to track spells available to learn (for level up) ---
-        self.spells_available_to_learn: List[str] = data.get("spells_available_to_learn", [])
 
 
     XP_THRESHOLDS = {
