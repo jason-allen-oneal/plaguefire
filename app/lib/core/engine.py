@@ -253,10 +253,9 @@ class Engine:
             turns_since_warning = self.player.time - self.last_overweight_warning
             if turns_since_warning >= self.overweight_warning_interval:
                 speed_mod = self.player.get_speed_modifier()
-                if speed_mod > 1.0:
-                    slowdown_pct = int((speed_mod - 1.0) * 100)
-                    self.log_event(f"You are burdened by your load ({slowdown_pct}% slower).")
-                    self.last_overweight_warning = self.player.time
+                slowdown_pct = int((speed_mod - 1.0) * 100)
+                self.log_event(f"You are burdened by your load ({slowdown_pct}% slower).")
+                self.last_overweight_warning = self.player.time
         
         if self.searching:
             self.search_timer += 1
