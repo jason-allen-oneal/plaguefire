@@ -60,15 +60,25 @@ def test_disarm_trap():
     """Test disarming traps."""
     print("\nTest: Disarming traps...")
     
-    # Create chest and force it to be trapped
+    # Create chest and force it to be trapped with low difficulty
     chest = ChestInstance("CHEST_IRON_SMALL", "Iron chest", 5, 5, 10)
     chest.trapped = True
     chest.trap_type = "poison_needle"
-    chest.trap_difficulty = 10
+    chest.trap_difficulty = 5  # Low difficulty
     
-    # Test with high skill (should succeed)
-    success, msg = chest.disarm_trap(player_disarm_skill=15)
-    assert success, "High skill should disarm trap"
+    # Test with very high skill (should almost always succeed)
+    # Success chance = 50 + (20 - 5) * 5 = 50 + 75 = 95% (capped at 95%)
+    success, msg = chest.disarm_trap(player_disarm_skill=20)
+    # Allow for the 5% failure chance by retrying if needed
+    if not success:
+        # Recreate chest for retry
+        chest = ChestInstance("CHEST_IRON_SMALL", "Iron chest", 5, 5, 10)
+        chest.trapped = True
+        chest.trap_type = "poison_needle"
+        chest.trap_difficulty = 5
+        success, msg = chest.disarm_trap(player_disarm_skill=20)
+    
+    assert success, f"High skill should disarm trap (got: {msg})"
     assert "successfully disarm" in msg.lower(), f"Expected success message, got: {msg}"
     assert chest.trap_disarmed, "Trap should be disarmed"
     print(f"✓ High skill disarm: {msg}")
