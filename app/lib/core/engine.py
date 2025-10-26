@@ -112,6 +112,13 @@ class Engine:
         self.previous_time_of_day = self.get_time_of_day()
         self.searching = False
         self.search_timer = 0
+        
+        # Word of Recall tracking
+        self.recall_active = False
+        self.recall_timer = 0
+        self.recall_turns = 20  # Number of turns before recall activates
+        self.recall_target_depth = None
+        
         self.update_fov()
 
     def get_time_of_day(self) -> str:
@@ -169,6 +176,54 @@ class Engine:
     def get_tile_at_player(self) -> str | None:
         px, py = self.player.position
         return self.get_tile_at_coords(px, py)
+    
+    def activate_recall(self):
+        """
+        Activate Word of Recall spell/scroll.
+        Teleports to town if in dungeon, or to deepest visited level if in town.
+        Activation is delayed by recall_turns (default 20).
+        """
+        if self.recall_active:
+            self.log_event("You are already recalling!")
+            return
+        
+        if self.player.depth > 0:
+            # In dungeon - recall to town
+            self.recall_target_depth = 0
+            self.log_event("You begin to recall to the surface...")
+        else:
+            # In town - recall to deepest dungeon level visited
+            # For now, use depth 1 as a placeholder (full implementation would track deepest depth)
+            deepest_depth = getattr(self.player, 'deepest_depth', 1)
+            if deepest_depth > 0:
+                self.recall_target_depth = deepest_depth
+                self.log_event(f"You begin to recall to dungeon level {deepest_depth}...")
+            else:
+                self.log_event("You have not visited the dungeon yet!")
+                return
+        
+        self.recall_active = True
+        self.recall_timer = 0
+    
+    def _execute_recall(self):
+        """Execute the Word of Recall teleport after the delay."""
+        if not self.recall_active or self.recall_target_depth is None:
+            return
+        
+        self.log_event("The world spins around you...")
+        
+        # Trigger depth change through the app
+        if hasattr(self.app, 'change_depth'):
+            self.app.change_depth(self.recall_target_depth)
+        else:
+            # Fallback: just log the event
+            self.log_event(f"You are recalled! (Target depth: {self.recall_target_depth})")
+        
+        # Reset recall state
+        self.recall_active = False
+        self.recall_timer = 0
+        self.recall_target_depth = None
+
 
     def _end_player_turn(self):
         # --- End turn logic --- (omitted for brevity, keep your existing logic)
@@ -179,6 +234,15 @@ class Engine:
         expired = self.player.status_manager.tick_effects()
         for effect_name in expired:
             self.log_event(f"{effect_name} effect wore off.")
+        
+        # Handle Word of Recall countdown
+        if self.recall_active:
+            self.recall_timer += 1
+            remaining = self.recall_turns - self.recall_timer
+            if remaining > 0 and remaining % 5 == 0:
+                self.log_event(f"Recall in {remaining} turns...")
+            elif self.recall_timer >= self.recall_turns:
+                self._execute_recall()
         
         if self.searching:
             self.search_timer += 1
@@ -249,7 +313,8 @@ class Engine:
                  elif effect_type == 'teleport':
                      max_range = spell_data.get('range', 10)
                      if max_range > 1000:
-                         self.log_event("You begin to recall...")
+                         # Word of Recall - delayed teleport
+                         self.activate_recall()
                      else:
                          self._handle_teleport_spell(max_range)
                  elif effect_type == 'heal':
@@ -402,14 +467,8 @@ class Engine:
             elif effect_type == 'teleport':
                 max_range = spell_data.get('range', 10)
                 if max_range > 1000:
-                    # Word of Recall - teleport to town
-                    if self.player.depth > 0:
-                        self.log_event("You begin to recall to the surface...")
-                        # In a full implementation, this would trigger a map change to town
-                        # For now, just provide feedback
-                        self.log_event("The spell completes, but the magic fades. (Return to stairs to exit)")
-                    else:
-                        self.log_event("You are already in town!")
+                    # Word of Recall - delayed teleport
+                    self.activate_recall()
                 else:
                     self._handle_teleport_spell(max_range)
             elif effect_type == 'heal':
@@ -680,8 +739,13 @@ class Engine:
              template = GameData().get_item(item_id)
              if template:
                  item_name = template.get("name", item_id)
-                 self.player.inventory.append(item_name)
-                 self.log_event(f"You find a {item_name}.")
+                 # Check if player can pick up the item
+                 can_pickup, reason = self.player.can_pickup_item(item_name)
+                 if can_pickup:
+                     self.player.inventory.append(item_name)
+                     self.log_event(f"You find a {item_name}.")
+                 else:
+                     self.log_event(f"You find a {item_name}, but {reason}")
              else: debug(f"Warn: Unknown item ID '{item_id}'")
 
         # --- Remove entity ---

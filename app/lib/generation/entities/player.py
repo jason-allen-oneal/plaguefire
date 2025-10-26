@@ -503,6 +503,7 @@ class Player:
 
         self.position: Optional[List[int]] = data.get("position", [VIEWPORT_WIDTH // 2, VIEWPORT_HEIGHT // 2])
         self.depth: int = data.get("depth", 0)
+        self.deepest_depth: int = data.get("deepest_depth", max(1, self.depth))  # Track deepest dungeon level visited
         self.time: int = data.get("time", 0)
 
         infravision = self.abilities.get("infravision", 0)
@@ -772,6 +773,7 @@ class Player:
             "abilities": self.abilities, "hp": self.hp, "max_hp": self.max_hp, "mana": self.mana, "max_mana": self.max_mana,
             "level": self.level, "xp": self.xp, "next_level_xp": self.next_level_xp, "gold": self.gold,
             "inventory": self.inventory, "equipment": self.equipment, "position": self.position, "depth": self.depth,
+            "deepest_depth": self.deepest_depth,  # Save deepest depth visited
             "time": self.time, "base_light_radius": self.base_light_radius, "light_radius": self.light_radius,
             "light_duration": self.light_duration, 
             "status_effects": self.status_manager.get_active_effects_display(),  # Save active effects
@@ -1038,6 +1040,31 @@ class Player:
     def is_overweight(self) -> bool:
         """Check if player is carrying more than their capacity."""
         return self.get_current_weight() > self.get_carrying_capacity()
+    
+    def get_speed_modifier(self) -> float:
+        """
+        Get movement speed modifier based on encumbrance.
+        Returns multiplier for movement cost (1.0 = normal, >1.0 = slower).
+        
+        Following Moria mechanics:
+        - Normal weight: 1.0x speed
+        - Over capacity: Progressive penalty based on excess weight
+        - Max penalty: 2.0x movement cost (50% slower)
+        """
+        current_weight = self.get_current_weight()
+        capacity = self.get_carrying_capacity()
+        
+        if current_weight <= capacity:
+            return 1.0
+        
+        # Calculate excess weight as percentage of capacity
+        excess_percent = ((current_weight - capacity) / capacity) * 100
+        
+        # Progressive penalty: 0.1x slower per 10% excess, max 2.0x
+        # 10% excess = 1.1x, 20% = 1.2x, ..., 100% excess = 2.0x
+        penalty = 1.0 + min(excess_percent / 100, 1.0)
+        
+        return penalty
     
     def get_item_inscription(self, item_name: str) -> str:
         """
