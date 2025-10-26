@@ -1073,6 +1073,31 @@ class Player:
         Returns:
             Inscription string or empty if no inscription
         """
+        # Try to find the item instance in inventory or equipment
+        instances = self.inventory_manager.get_instances_by_name(item_name)
+        
+        # Check equipment if not in inventory
+        if not instances:
+            for slot, instance in self.inventory_manager.equipment.items():
+                if instance and instance.item_name == item_name:
+                    instances = [instance]
+                    break
+        
+        if instances:
+            # Use the ItemInstance's built-in inscription method
+            # This handles empty charges, tried status, and cursed items automatically
+            instance = instances[0]
+            inscription = instance.get_inscription()
+            
+            # Add magical detection for high-level characters
+            if self.level >= 5 and instance.effect and not inscription:
+                inscription = "magik"
+            elif self.level >= 5 and instance.effect and inscription:
+                inscription = f"{inscription}, magik"
+            
+            return inscription
+        
+        # Fallback for items not yet in inventory_manager (backward compatibility)
         data_loader = GameData()
         item_data = data_loader.get_item_by_name(item_name)
         if not item_data:
@@ -1085,13 +1110,6 @@ class Player:
         if effect and isinstance(effect, list) and len(effect) > 0:
             if effect[0] == "cursed":
                 inscriptions.append("damned")
-        
-        # Check if wand/staff is empty (has charges)
-        item_type = item_data.get("type", "")
-        if item_type in ["wand", "staff"]:
-            # Would need to track individual item charges - for now just show structure
-            # In full implementation, track charges per item instance
-            pass
         
         # High-level characters notice magic items
         if self.level >= 5:
