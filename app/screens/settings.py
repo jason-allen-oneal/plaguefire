@@ -1,7 +1,7 @@
 from textual.screen import Screen
 from textual.widgets import Static
 from textual.containers import Vertical
-from app.core.utils import colored_text
+from app.lib.core.utils import colored_text
 
 class SettingsScreen(Screen):
     """Settings screen with toggles for music, sfx, and difficulty."""

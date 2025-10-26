@@ -2,7 +2,7 @@
 
 import random
 from typing import Dict, List, Optional
-from app.core.data_loader import GameData
+from app.lib.core.data_loader import GameData
 from debugtools import debug
 
 # Legacy fallback templates kept for procedural stat flavoring when needed.

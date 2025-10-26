@@ -4,7 +4,7 @@ from textual.screen import Screen
 from textual.containers import Horizontal
 from app.ui.dungeon_view import DungeonView
 from app.ui.hud_view import HUDView
-from app.core.engine import Engine, MapData, BUILDING_KEY # Import MapData if using type hint
+from app.lib.core.engine import Engine, MapData, BUILDING_KEY # Import MapData if using type hint
 from config import FLOOR, WALL, STAIRS_DOWN, STAIRS_UP, DOOR_CLOSED, DOOR_OPEN, SECRET_DOOR_FOUND # Keep config imports needed for actions
 from debugtools import debug, log_exception
 from typing import Optional, List # Import Optional and List
@@ -56,7 +56,7 @@ class GameScreen(Screen):
              default_player_data = { "name": "Default", "stats": {}, "depth": 0, "time": 0, "level": 1,
                                      "hp": 10, "max_hp": 10, "gold": 0, "equipment": {} }
              # Import Player class here or ensure it's imported globally
-             from app.core.player import Player
+             from app.lib.generation.entities.player import Player
              self.app.player = Player(default_player_data) # Create Player object
 
         # --- Create Engine instance, passing the Player object ---

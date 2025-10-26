@@ -3,8 +3,8 @@
 from typing import Dict, List, Optional, Tuple
 from debugtools import debug
 import random
-from app.core.data_loader import GameData
-from app.systems.status_effects import StatusEffectManager
+from app.lib.core.data_loader import GameData
+from app.lib.generation.core.status_effects import StatusEffectManager
 
 class Entity:
     """Represents NPCs, monsters, etc., generated from templates."""

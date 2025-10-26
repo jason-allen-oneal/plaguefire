@@ -2,8 +2,8 @@
 
 import random
 from typing import List, Optional, Dict
-from app.core.entity import Entity
-from app.core.data_loader import GameData
+from app.lib.generation.entities.entity import Entity
+from app.lib.core.data_loader import GameData
 from debugtools import debug, log_exception
 from config import FLOOR, STAIRS_UP, STAIRS_DOWN
 
