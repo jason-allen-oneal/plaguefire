@@ -577,18 +577,15 @@ class Player:
             debug(f"Error: Tried to finalize learning '{spell_id_to_learn}' which was not available.")
             return False
 
-    # --- UPDATED: _on_level_up calls _check_for_new_spells ---
+    # --- UPDATED: _on_level_up applies stat/hp/mana gains ---
     def _on_level_up(self) -> None:
-        """Handles stat increases and checks for new spells on level up."""
+        """Handles stat increases and HP/Mana restoration on level up."""
         con_modifier = self._get_modifier("CON")
         hp_gain = max(4, 6 + con_modifier)
         self.max_hp += hp_gain
         self.hp = self.max_hp
         self.max_mana = self._base_mana_pool(self.mana_stat)
         self.mana = self.max_mana
-        
-        # Check for spells available at this new level
-        self._check_for_new_spells(self.level)
 
     # --- RENAMED & UPDATED: Populates choices instead of auto-learning ---
     def _check_for_new_spells(self, check_level: int) -> bool:
