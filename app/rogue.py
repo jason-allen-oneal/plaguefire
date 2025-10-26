@@ -84,6 +84,7 @@ class RogueApp(App[None]): # Specify return type for run()
         self._music_enabled = self.data.config.get("music_enabled", True)
         self._sfx_enabled = self.data.config.get("sfx_enabled", True)
         self._difficulty = self.data.config.get("difficulty", "Normal")
+        self._command_mode = self.data.config.get("command_mode", "original")
 
         self.sound.set_music_enabled(self._music_enabled)
         self.sound.set_sfx_enabled(self._sfx_enabled)
@@ -100,6 +101,15 @@ class RogueApp(App[None]): # Specify return type for run()
 
     def get_difficulty(self) -> str:
         return self._difficulty
+
+    def get_command_mode(self) -> str:
+        return self._command_mode
+
+    def set_command_mode(self, mode: str):
+        if mode in ["original", "roguelike"]:
+            self._command_mode = mode
+            self.data.config["command_mode"] = mode
+            self.data.save_config()
 
     def on_mount(self):
         """Called when the app starts."""
