@@ -577,7 +577,6 @@ class Player:
             debug(f"Error: Tried to finalize learning '{spell_id_to_learn}' which was not available.")
             return False
 
-    # --- UPDATED: _on_level_up applies stat/hp/mana gains ---
     def _on_level_up(self) -> None:
         """Handles stat increases and HP/Mana restoration on level up."""
         con_modifier = self._get_modifier("CON")
@@ -587,7 +586,6 @@ class Player:
         self.max_mana = self._base_mana_pool(self.mana_stat)
         self.mana = self.max_mana
 
-    # --- RENAMED & UPDATED: Populates choices instead of auto-learning ---
     def _check_for_new_spells(self, check_level: int) -> bool:
         """Finds spells available at check_level and adds them to spells_available_to_learn. Returns True if new spells were added."""
         if not self.mana_stat: return False # Warriors don't learn spells
