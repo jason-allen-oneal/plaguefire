@@ -9,7 +9,7 @@ import os
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.lib.core.chest_system import ChestInstance, ChestSystem, get_chest_system
+from app.lib.core.chests import ChestInstance, ChestSystem, get_chest_system
 
 
 def test_chest_creation():

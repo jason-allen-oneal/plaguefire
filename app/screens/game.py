@@ -10,8 +10,8 @@ from app.lib.core.engine import Engine, MapData, BUILDING_KEY # Import MapData i
 from config import FLOOR, WALL, STAIRS_DOWN, STAIRS_UP, DOOR_CLOSED, DOOR_OPEN, SECRET_DOOR_FOUND, QUARTZ_VEIN, MAGMA_VEIN, GRANITE # Keep config imports needed for actions
 from debugtools import debug, log_exception
 from typing import Optional, List # Import Optional and List
-from app.lib.core.mining_system import get_mining_system
-from app.lib.core.chest_system import get_chest_system
+from app.lib.core.mining import get_mining_system
+from app.lib.core.chests import get_chest_system
 
 class GameScreen(Screen):
     # Base bindings that work in both modes
@@ -289,7 +289,7 @@ class GameScreen(Screen):
              default_player_data = { "name": "Default", "stats": {}, "depth": 0, "time": 0, "level": 1,
                                      "hp": 10, "max_hp": 10, "gold": 0, "equipment": {} }
              # Import Player class here or ensure it's imported globally
-             from app.lib.generation.entities.player import Player
+             from app.lib.player import Player
              self.app.player = Player(default_player_data) # Create Player object
 
         # --- Create Engine instance, passing the Player object ---

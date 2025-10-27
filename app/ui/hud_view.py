@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     # Assuming these paths are correct based on your file
     from app.lib.core.engine import Engine
-    from app.lib.generation.entities.player import Player
+    from app.lib.player import Player
 
 
 class HUDView(Static):

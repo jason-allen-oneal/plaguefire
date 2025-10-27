@@ -7,7 +7,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.lib.generation.entities.player import Player
+from app.lib.player import Player
 
 
 def test_scroll_usage():

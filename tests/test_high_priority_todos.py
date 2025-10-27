@@ -15,9 +15,9 @@ import os
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.lib.generation.entities.player import Player
+from app.lib.player import Player
 from app.lib.core.engine import Engine
-from app.lib.core.data_loader import GameData
+from app.lib.core.loader import GameData
 from debugtools import debug
 
 
@@ -262,8 +262,8 @@ def test_exchange_weapon():
         player.inventory_manager.equip_instance(instances[0].instance_id)
     
     # Set up secondary weapon
-    from app.lib.core.data_loader import GameData
-    from app.lib.core.item_instance import ItemInstance
+    from app.lib.core.loader import GameData
+    from app.lib.core.item import ItemInstance
     
     data_loader = GameData()
     sword_data = data_loader.get_item('BROADSWORD')

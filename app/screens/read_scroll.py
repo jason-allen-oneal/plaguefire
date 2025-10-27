@@ -11,8 +11,8 @@ from debugtools import debug
 import string
 
 if TYPE_CHECKING:
-    from app.rogue import RogueApp
-    from app.lib.generation.entities.player import Player
+    from app.plaguefire import RogueApp
+    from app.lib.player import Player
 
 class ReadScrollScreen(Screen):
     """Screen for the player to select and read a scroll using letter keys."""

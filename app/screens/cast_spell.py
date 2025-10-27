@@ -8,12 +8,12 @@ from textual import events
 from rich.text import Text
 from typing import TYPE_CHECKING, Dict, List, Optional
 from debugtools import debug
-from app.lib.core.data_loader import GameData
+from app.lib.core.loader import GameData
 import string
 
 if TYPE_CHECKING:
-    from app.rogue import RogueApp
-    from app.lib.generation.entities.player import Player
+    from app.plaguefire import RogueApp
+    from app.lib.player import Player
 
 class CastSpellScreen(Screen):
     """Screen for the player to select and cast a spell using letter keys."""

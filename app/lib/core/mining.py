@@ -15,7 +15,7 @@ from debugtools import debug
 from config import WALL, FLOOR, QUARTZ_VEIN, MAGMA_VEIN, GRANITE
 
 if TYPE_CHECKING:
-    from app.lib.generation.entities.player import Player
+    from app.lib.player import Player
 
 
 class MiningSystem:

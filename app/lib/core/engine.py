@@ -3,17 +3,17 @@
 import random
 import math
 from typing import Dict, List, Optional, TYPE_CHECKING
-from app.lib.generation.entities.player import Player
-from app.lib.generation.entities.entity import Entity
-from app.lib.core.data_loader import GameData
-from app.lib.generation.maps.town import get_town_map
-from app.lib.generation.maps.generate import (
+from app.lib.player import Player
+from app.lib.entity import Entity
+from app.lib.core.loader import GameData
+from app.lib.core.generation.maps.town import get_town_map
+from app.lib.core.generation.maps.generate import (
     generate_cellular_automata_dungeon,
     generate_room_corridor_dungeon
 )
-from app.lib.generation.maps.utils import find_tile, find_start_pos
-from app.lib.generation.core.spawning import spawn_entities_for_depth, spawn_chests_for_depth
-from app.lib.generation.maps.fov import update_visibility
+from app.lib.core.utils import find_tile, find_start_pos
+from app.lib.core.generation.spawn import spawn_entities_for_depth, spawn_chests_for_depth
+from app.lib.fov import update_visibility
 from config import (
     WALL, FLOOR, STAIRS_DOWN, STAIRS_UP,
     DOOR_CLOSED, DOOR_OPEN, SECRET_DOOR, SECRET_DOOR_FOUND,
@@ -24,7 +24,7 @@ from config import (
 from debugtools import debug, log_exception
 
 if TYPE_CHECKING:
-    from app.rogue import RogueApp # Assuming rogue.py contains your main App class
+    from app.plaguefire import RogueApp # Assuming rogue.py contains your main App class
 
 MapData = List[List[str]]
 VisibilityData = List[List[int]]
@@ -589,7 +589,7 @@ class Engine:
         This will be expanded to show a selection UI in the future.
         For now, it identifies the first unidentified item.
         """
-        from app.lib.core.item_instance import ItemInstance
+        from app.lib.core.item import ItemInstance
         
         # Find first unidentified item in inventory
         unidentified_item = None
@@ -1228,7 +1228,7 @@ class Engine:
         """Disarm a trap at the given location."""
         # Check if there's a chest with a trap at this location
         if hasattr(self, 'chest_system'):
-            from app.lib.core.chest_system import get_chest_system
+            from app.lib.core.chests import get_chest_system
             chest_system = get_chest_system()
             chest = chest_system.get_chest(x, y)
             

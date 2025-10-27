@@ -7,7 +7,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.lib.generation.core.status_effects import StatusEffectManager
+from app.lib.status_effects import StatusEffectManager
 
 
 def test_status_effect_manager():

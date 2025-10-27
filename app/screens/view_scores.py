@@ -10,8 +10,8 @@ from typing import TYPE_CHECKING
 from debugtools import debug
 
 if TYPE_CHECKING:
-    from app.rogue import RogueApp
-    from app.lib.generation.entities.player import Player
+    from app.plaguefire import RogueApp
+    from app.lib.player import Player
 
 class ViewScoresScreen(Screen):
     """Screen showing character statistics and achievements."""

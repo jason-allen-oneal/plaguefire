@@ -99,7 +99,7 @@ class ItemInstance:
         Returns:
             Full display name with inscriptions in {braces}
         """
-        from app.lib.core.data_loader import GameData
+        from app.lib.core.loader import GameData
         
         # Determine base name (unknown or real)
         data_loader = GameData()
@@ -162,7 +162,7 @@ class ItemInstance:
     
     def identify(self):
         """Identify this item."""
-        from app.lib.core.data_loader import GameData
+        from app.lib.core.loader import GameData
         
         self.identified = True
         self.tried = False  # Clear tried flag when identified
