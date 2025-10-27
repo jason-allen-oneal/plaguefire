@@ -8,17 +8,21 @@ Last Updated: 2025-10-27
 
 ## 🟡 Medium Priority – Item Systems
 
-**Remaining Work**:
+**Completed**:
 
 ### Identification System
 
-- [ ] **Identify Spell/Scroll Effects**
-  - Current: Items can be marked as identified in data
-  - Required: Runtime identification system, unknown item names
+- [x] **Identify Spell/Scroll Effects** ✅
+  - ✅ Runtime identification system with unknown item names (170+ names)
+  - ✅ Global identification tracking (identifying one item identifies all of that type)
+  - ✅ "Tried" flag for used but unidentified items
+  - ✅ Identify spell handler in engine.py
 
-- [ ] **Magic Detection**
-  - Current: Level 5+ characters see {magik} inscription
-  - Required: Detect Magic spell to reveal magical properties
+- [x] **Magic Detection** ✅
+  - ✅ Detect Magic spell added to spells.json
+  - ✅ Spell reveals magical properties of items in inventory
+  - ✅ {magik} inscription for detected magical items
+  - ✅ Level 5+ characters automatically detect magic
 
 ---
 

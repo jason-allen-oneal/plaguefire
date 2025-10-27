@@ -59,6 +59,9 @@ class GameData:
         self.items_by_name: Dict[str, Dict] = {}
         self.spells: Dict[str, Dict] = {}
         self.config: Dict[str, Any] = {}
+        self.unknown_names: Dict[str, List[str]] = {}
+        self.identified_types: Dict[str, bool] = {}  # Track globally identified item types
+        self.unknown_name_mapping: Dict[str, str] = {}  # Map item_id to unknown name
 
         self.load_all()
 
@@ -154,6 +157,7 @@ class GameData:
         self.load_items()
         self.load_spells()
         self.load_config()
+        self.load_unknown_names()
 
     def load_entities(self):
         """
@@ -221,6 +225,61 @@ class GameData:
             cfg = {"sound": True, "difficulty": "Normal"}
         self.config = cfg
         debug("Loaded game configuration")
+
+    def load_unknown_names(self):
+        """
+        Load unknown item names from unknown_names.json.
+        
+        These names are used for unidentified items (potions, scrolls, wands, etc.)
+        """
+        data = self._load_json("unknown_names.json")
+        if data:
+            self.unknown_names = data
+            debug(f"Loaded unknown names for {len(data)} item categories")
+            # Initialize the unknown name mapping
+            self._assign_unknown_names()
+        else:
+            self.unknown_names = {}
+    
+    def _assign_unknown_names(self):
+        """
+        Assign unknown names to items that need identification.
+        
+        This creates a random mapping from item IDs to unknown names for
+        potions, scrolls, wands, staves, rings, and amulets.
+        """
+        import random
+        
+        # Get lists of items by type
+        identifiable_types = {
+            "potion": "potions",
+            "scroll": "scrolls", 
+            "wand": "wands",
+            "staff": "staves",
+            "ring": "rings",
+            "amulet": "amulets"
+        }
+        
+        for item_type, unknown_category in identifiable_types.items():
+            # Get all items of this type
+            items_of_type = [
+                item_id for item_id, item_data in self.items.items()
+                if item_data.get("type") == item_type
+            ]
+            
+            # Get unknown names for this category
+            unknown_list = self.unknown_names.get(unknown_category, [])
+            if not unknown_list or not items_of_type:
+                continue
+            
+            # Shuffle and assign
+            shuffled_names = unknown_list.copy()
+            random.shuffle(shuffled_names)
+            
+            for i, item_id in enumerate(items_of_type):
+                # Use modulo to handle more items than names
+                unknown_name = shuffled_names[i % len(shuffled_names)]
+                self.unknown_name_mapping[item_id] = unknown_name
 
     def save_config(self):
         """
@@ -359,3 +418,37 @@ class GameData:
             Spell template dictionary or None if not found
         """
         return self.spells.get(spell_id)
+    
+    def get_unknown_name(self, item_id: str) -> Optional[str]:
+        """
+        Get the unknown name for an item.
+        
+        Args:
+            item_id: Item template ID
+            
+        Returns:
+            Unknown name string or None if item doesn't have an unknown name
+        """
+        return self.unknown_name_mapping.get(item_id)
+    
+    def is_item_type_identified(self, item_id: str) -> bool:
+        """
+        Check if an item type has been globally identified.
+        
+        Args:
+            item_id: Item template ID
+            
+        Returns:
+            True if this item type has been identified
+        """
+        return self.identified_types.get(item_id, False)
+    
+    def identify_item_type(self, item_id: str):
+        """
+        Mark an item type as globally identified.
+        
+        Args:
+            item_id: Item template ID to identify
+        """
+        self.identified_types[item_id] = True
+        debug(f"Identified item type: {item_id}")

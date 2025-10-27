@@ -211,6 +211,19 @@
     }
   },
   {
+    "id": "detect_magic",
+    "name": "Detect Magic",
+    "category": "mage",
+    "effect_type": "utility",
+    "subtype": "detect_magic",
+    "description": "Reveals magical properties of items in your inventory.",
+    "classes": {
+      "Mage": {"min_level": 5, "mana": 3, "base_failure": 20},
+      "Ranger": {"min_level": 9, "mana": 5, "base_failure": 30},
+      "Priest": {"min_level": 7, "mana": 4, "base_failure": 25}
+    }
+  },
+  {
     "id": "word_of_recall",
     "name": "Word of Recall",
     "category": "shared",
