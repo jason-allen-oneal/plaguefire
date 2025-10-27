@@ -170,12 +170,31 @@ def test_drop_item():
     assert result == True, "Drop should succeed"
     assert len(player.inventory) == initial_count - 1, "Inventory should have one less item"
     
-    # Check ground items
+    # Items now use physics simulation, so we need to update the physics
+    # until all items settle
+    max_updates = 100
+    for _ in range(max_updates):
+        engine.update_dropped_items()
+        if not engine.dropped_items:
+            break
+    
+    # Check ground items after physics simulation
     assert hasattr(engine, 'ground_items'), "Engine should have ground_items"
-    pos_key = tuple(player.position)
-    assert pos_key in engine.ground_items, "Item should be on ground at player position"
-    # The dropped item will have the display name, not the ID
-    assert len(engine.ground_items[pos_key]) > 0, "Dropped item should be on ground"
+    
+    # Item may have rolled slightly from player position
+    # Check that at least one item is on the ground nearby
+    items_found = False
+    player_x, player_y = player.position
+    for y in range(max(0, player_y - 2), min(5, player_y + 3)):
+        for x in range(max(0, player_x - 2), min(5, player_x + 3)):
+            pos_key = (x, y)
+            if pos_key in engine.ground_items and len(engine.ground_items[pos_key]) > 0:
+                items_found = True
+                break
+        if items_found:
+            break
+    
+    assert items_found, "Item should be on ground near player position"
     
     print("✓ Item dropped successfully")
     print("✓ Inventory count decreased")

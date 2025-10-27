@@ -40,6 +40,7 @@ class DungeonView(Static):
         self.markup = True
         self.last_player_pos = None  # Track player position for smooth scrolling
         self.scroll_smoothing = False  # Disable smooth scrolling by default
+        self.animation_timer = None  # Timer for projectile animations
     
     def _maybe_color_wall(self, char: str) -> str:
         """Wrap wall characters in grey color markup."""
@@ -49,7 +50,26 @@ class DungeonView(Static):
 
     def on_mount(self) -> None:
         self.set_timer(0.01, self.update_map)
+        # Set up animation timer for projectiles
+        self.animation_timer = self.set_interval(0.05, self._animate_projectiles)
         debug("DungeonView mounted, update_map scheduled.")
+    
+    def _animate_projectiles(self) -> None:
+        """Advance all active projectiles and refresh display if any are active."""
+        if not self.engine:
+            return
+        
+        projectiles = self.engine.get_active_projectiles()
+        if projectiles:
+            # Advance each projectile
+            for proj in projectiles:
+                proj.advance()
+            
+            # Clear inactive projectiles
+            self.engine.clear_inactive_projectiles()
+            
+            # Refresh the display to show new positions
+            self.update_map()
 
     def toggle_smooth_scrolling(self) -> None:
         """Toggle smooth scrolling on/off."""
@@ -167,18 +187,37 @@ class DungeonView(Static):
                         if (map_x, map_y) == (px, py):
                             char = f"[bright_white]{PLAYER}[/bright_white]"
                         else:
-                            entity = self.engine.get_entity_at(map_x, map_y)
-                            if entity:
-                                char = entity.char
+                            # Check for active projectiles at this position
+                            projectile_char = None
+                            for proj in self.engine.get_active_projectiles():
+                                proj_pos = proj.get_current_position()
+                                if proj_pos and proj_pos == (map_x, map_y):
+                                    projectile_char = proj.get_char_with_color()
+                                    break
+                            
+                            # Check for animating dropped items at this position
+                            if not projectile_char:
+                                for item in self.engine.get_dropped_items():
+                                    item_pos = item.get_current_position()
+                                    if item_pos == (map_x, map_y):
+                                        projectile_char = "[yellow]*[/yellow]"
+                                        break
+                            
+                            if projectile_char:
+                                char = projectile_char
                             else:
-                                # Render secret doors as walls until found
-                                tile_char = map_row[map_x]
-                                if tile_char == SECRET_DOOR:
-                                    char = "#"  # Hidden secret door looks like wall
-                                elif tile_char == SECRET_DOOR_FOUND:
-                                    char = DOOR_CLOSED  # Revealed secret doors render as closed doors
+                                entity = self.engine.get_entity_at(map_x, map_y)
+                                if entity:
+                                    char = entity.char
                                 else:
-                                    char = tile_char
+                                    # Render secret doors as walls until found
+                                    tile_char = map_row[map_x]
+                                    if tile_char == SECRET_DOOR:
+                                        char = "#"  # Hidden secret door looks like wall
+                                    elif tile_char == SECRET_DOOR_FOUND:
+                                        char = DOOR_CLOSED  # Revealed secret doors render as closed doors
+                                    else:
+                                        char = tile_char
                         line += self._maybe_color_wall(char)
                     elif visibility_status == 1: # Remembered
                         # Render secret doors as walls in memory too
