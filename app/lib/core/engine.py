@@ -735,8 +735,22 @@ class Engine:
             self.log_event(f"Unknown wand: {item_name}")
             return False
         
-        # Check charges (simplified for now - will be enhanced with item instances)
-        # TODO: Implement proper charge tracking with item instances
+        # Get the item instance to check/consume charges
+        instances = self.player.inventory_manager.get_instances_by_name(item_name)
+        if not instances:
+            self.log_event(f"Cannot find {item_name}.")
+            return False
+        
+        wand_instance = instances[0]
+        
+        # Check if wand has charges
+        if wand_instance.is_empty():
+            self.log_event(f"{item_name} has no charges left!")
+            return False
+        
+        # Consume a charge
+        wand_instance.use_charge()
+        
         effect = item_data.get('effect')
         if not effect or not isinstance(effect, list) or len(effect) == 0:
             self.log_event(f"You aim {item_name}. Nothing happens.")
@@ -805,8 +819,22 @@ class Engine:
             self.log_event(f"Unknown staff: {item_name}")
             return False
         
-        # Check charges (simplified for now - will be enhanced with item instances)
-        # TODO: Implement proper charge tracking with item instances
+        # Get the item instance to check/consume charges
+        instances = self.player.inventory_manager.get_instances_by_name(item_name)
+        if not instances:
+            self.log_event(f"Cannot find {item_name}.")
+            return False
+        
+        staff_instance = instances[0]
+        
+        # Check if staff has charges
+        if staff_instance.is_empty():
+            self.log_event(f"{item_name} has no charges left!")
+            return False
+        
+        # Consume a charge
+        staff_instance.use_charge()
+        
         effect = item_data.get('effect')
         if not effect or not isinstance(effect, list) or len(effect) == 0:
             self.log_event(f"You use {item_name}. Nothing happens.")
@@ -908,15 +936,27 @@ class Engine:
         self.ground_items[pos_key].append(item_name)
         
         # Remove from inventory using inventory manager
-        # Get the instance by item name
-        instances = self.player.inventory_manager.get_instances_by_name(item_name)
-        if instances:
-            # Remove the first instance
-            self.player.inventory_manager.remove_instance(instances[0].instance_id)
+        self._remove_item_from_inventory(item_name)
         
         self.log_event(f"You drop {item_name}.")
         self._end_player_turn()
         return True
+    
+    def _remove_item_from_inventory(self, item_name: str) -> bool:
+        """
+        Helper method to remove an item from inventory by name.
+        
+        Args:
+            item_name: Name of the item to remove
+        
+        Returns:
+            True if item was removed, False otherwise
+        """
+        instances = self.player.inventory_manager.get_instances_by_name(item_name)
+        if instances:
+            self.player.inventory_manager.remove_instance(instances[0].instance_id)
+            return True
+        return False
     
     def handle_throw_item(self, item_index: int, dx: int = 0, dy: int = 1) -> bool:
         """Handle throwing an item as a projectile."""
@@ -979,10 +1019,7 @@ class Engine:
                     if "Potion" not in item_name:
                         if random.random() < 0.5:  # 50% chance to break
                             self.log_event(f"{item_name} breaks!")
-                            # Remove from inventory using inventory manager
-                            instances = self.player.inventory_manager.get_instances_by_name(item_name)
-                            if instances:
-                                self.player.inventory_manager.remove_instance(instances[0].instance_id)
+                            self._remove_item_from_inventory(item_name)
                             self._end_player_turn()
                             return True
                 else:
@@ -997,10 +1034,7 @@ class Engine:
                     self.ground_items[pos_key] = []
                 
                 self.ground_items[pos_key].append(item_name)
-                # Remove from inventory using inventory manager
-                instances = self.player.inventory_manager.get_instances_by_name(item_name)
-                if instances:
-                    self.player.inventory_manager.remove_instance(instances[0].instance_id)
+                self._remove_item_from_inventory(item_name)
                 self._end_player_turn()
                 return True
             
@@ -1017,10 +1051,7 @@ class Engine:
             self.ground_items[pos_key] = []
         
         self.ground_items[pos_key].append(item_name)
-        # Remove from inventory using inventory manager
-        instances = self.player.inventory_manager.get_instances_by_name(item_name)
-        if instances:
-            self.player.inventory_manager.remove_instance(instances[0].instance_id)
+        self._remove_item_from_inventory(item_name)
         
         self._end_player_turn()
         return True

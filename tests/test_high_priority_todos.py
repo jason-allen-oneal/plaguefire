@@ -21,6 +21,18 @@ from app.lib.core.data_loader import GameData
 from debugtools import debug
 
 
+def create_mock_app():
+    """Create a mock app for testing."""
+    class MockApp:
+        def __init__(self):
+            self._music_enabled = False
+            class MockSound:
+                def play_music(self, *args): pass
+            self.sound = MockSound()
+    
+    return MockApp()
+
+
 def test_wand_usage():
     """Test wand usage with charge consumption."""
     print("Test: Wand usage...")
@@ -45,14 +57,7 @@ def test_wand_usage():
     player = Player(player_data)
     
     # Create minimal engine
-    class MockApp:
-        def __init__(self):
-            self._music_enabled = False
-            class MockSound:
-                def play_music(self, *args): pass
-            self.sound = MockSound()
-    
-    app = MockApp()
+    app = create_mock_app()
     
     # Create simple test map
     test_map = [
@@ -98,14 +103,7 @@ def test_staff_usage():
     player = Player(player_data)
     
     # Create minimal engine
-    class MockApp:
-        def __init__(self):
-            self._music_enabled = False
-            class MockSound:
-                def play_music(self, *args): pass
-            self.sound = MockSound()
-    
-    app = MockApp()
+    app = create_mock_app()
     
     # Create simple test map
     test_map = [
@@ -151,14 +149,7 @@ def test_drop_item():
     player = Player(player_data)
     
     # Create minimal engine
-    class MockApp:
-        def __init__(self):
-            self._music_enabled = False
-            class MockSound:
-                def play_music(self, *args): pass
-            self.sound = MockSound()
-    
-    app = MockApp()
+    app = create_mock_app()
     
     # Create simple test map
     test_map = [
@@ -216,14 +207,7 @@ def test_throw_item():
     player = Player(player_data)
     
     # Create minimal engine
-    class MockApp:
-        def __init__(self):
-            self._music_enabled = False
-            class MockSound:
-                def play_music(self, *args): pass
-            self.sound = MockSound()
-    
-    app = MockApp()
+    app = create_mock_app()
     
     # Create simple test map
     test_map = [
@@ -292,14 +276,7 @@ def test_exchange_weapon():
         return
     
     # Create minimal engine
-    class MockApp:
-        def __init__(self):
-            self._music_enabled = False
-            class MockSound:
-                def play_music(self, *args): pass
-            self.sound = MockSound()
-    
-    app = MockApp()
+    app = create_mock_app()
     
     # Create simple test map
     test_map = [
@@ -356,14 +333,7 @@ def test_fill_lamp():
     player.lamp_fuel = 500
     
     # Create minimal engine
-    class MockApp:
-        def __init__(self):
-            self._music_enabled = False
-            class MockSound:
-                def play_music(self, *args): pass
-            self.sound = MockSound()
-    
-    app = MockApp()
+    app = create_mock_app()
     
     # Create simple test map
     test_map = [
@@ -416,14 +386,7 @@ def test_disarm_trap():
     player = Player(player_data)
     
     # Create minimal engine
-    class MockApp:
-        def __init__(self):
-            self._music_enabled = False
-            class MockSound:
-                def play_music(self, *args): pass
-            self.sound = MockSound()
-    
-    app = MockApp()
+    app = create_mock_app()
     
     # Create simple test map
     test_map = [
