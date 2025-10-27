@@ -714,6 +714,528 @@ class Engine:
         # Default food behavior
         self.log_event(f"You eat {food_name}. Tasty!")
         return True
+    
+    def handle_use_wand(self, item_index: int) -> bool:
+        """Handle wand usage with charge consumption."""
+        if not (0 <= item_index < len(self.player.inventory)):
+            return False
+        
+        item_name = self.player.inventory[item_index]
+        
+        # Verify it's a wand
+        if "Wand" not in item_name:
+            self.log_event(f"That's not a wand!")
+            return False
+        
+        # Get item data
+        data_loader = GameData()
+        item_data = data_loader.get_item_by_name(item_name)
+        
+        if not item_data:
+            self.log_event(f"Unknown wand: {item_name}")
+            return False
+        
+        # Get the item instance to check/consume charges
+        instances = self.player.inventory_manager.get_instances_by_name(item_name)
+        if not instances:
+            self.log_event(f"Cannot find {item_name}.")
+            return False
+        
+        wand_instance = instances[0]
+        
+        # Check if wand has charges
+        if wand_instance.is_empty():
+            self.log_event(f"{item_name} has no charges left!")
+            return False
+        
+        # Consume a charge
+        wand_instance.use_charge()
+        
+        effect = item_data.get('effect')
+        if not effect or not isinstance(effect, list) or len(effect) == 0:
+            self.log_event(f"You aim {item_name}. Nothing happens.")
+            self._end_player_turn()
+            return True
+        
+        effect_type = effect[0]
+        
+        # Apply wand effect (similar to scroll but needs targeting)
+        if effect_type == 'attack':
+            # For now, apply to nearest enemy
+            visible_entities = self.get_visible_entities()
+            if visible_entities:
+                target = visible_entities[0]
+                damage = effect[1] if len(effect) > 1 else 10
+                target.take_damage(damage)
+                self.log_event(f"You zap {item_name} at {target.name}! It takes {damage} damage.")
+                
+                if target.hp <= 0:
+                    self.handle_entity_death(target)
+            else:
+                self.log_event(f"There are no visible targets.")
+        
+        elif effect_type == 'heal':
+            heal_amount = effect[1] if len(effect) > 1 else 15
+            amount_healed = self.player.heal(heal_amount)
+            self.log_event(f"You use {item_name}. (+{amount_healed} HP)")
+        
+        elif effect_type == 'buff':
+            buff_name = effect[1] if len(effect) > 1 else 'Buffed'
+            duration = effect[2] if len(effect) > 2 else 20
+            self.player.status_manager.add_effect(buff_name.capitalize(), duration)
+            self.log_event(f"You use {item_name}. You feel {buff_name}!")
+        
+        elif effect_type == 'light':
+            radius = effect[1] if len(effect) > 1 else 3
+            duration = effect[2] if len(effect) > 2 else 50
+            self.player.light_radius = max(self.player.light_radius, radius)
+            self.player.light_duration = max(self.player.light_duration, duration)
+            self.update_fov()
+            self.log_event(f"You use {item_name}. Light illuminates the area!")
+        
+        else:
+            self.log_event(f"You use {item_name}. The magic activates!")
+        
+        self._end_player_turn()
+        return True
+    
+    def handle_use_staff(self, item_index: int) -> bool:
+        """Handle staff usage with charge consumption."""
+        if not (0 <= item_index < len(self.player.inventory)):
+            return False
+        
+        item_name = self.player.inventory[item_index]
+        
+        # Verify it's a staff
+        if "Staff" not in item_name:
+            self.log_event(f"That's not a staff!")
+            return False
+        
+        # Get item data
+        data_loader = GameData()
+        item_data = data_loader.get_item_by_name(item_name)
+        
+        if not item_data:
+            self.log_event(f"Unknown staff: {item_name}")
+            return False
+        
+        # Get the item instance to check/consume charges
+        instances = self.player.inventory_manager.get_instances_by_name(item_name)
+        if not instances:
+            self.log_event(f"Cannot find {item_name}.")
+            return False
+        
+        staff_instance = instances[0]
+        
+        # Check if staff has charges
+        if staff_instance.is_empty():
+            self.log_event(f"{item_name} has no charges left!")
+            return False
+        
+        # Consume a charge
+        staff_instance.use_charge()
+        
+        effect = item_data.get('effect')
+        if not effect or not isinstance(effect, list) or len(effect) == 0:
+            self.log_event(f"You use {item_name}. Nothing happens.")
+            self._end_player_turn()
+            return True
+        
+        effect_type = effect[0]
+        
+        # Apply staff effect (area effects)
+        if effect_type == 'attack':
+            # Area attack - affects all visible enemies
+            visible_entities = self.get_visible_entities()
+            damage = effect[1] if len(effect) > 1 else 10
+            
+            if visible_entities:
+                for target in visible_entities:
+                    target.take_damage(damage)
+                    self.log_event(f"{target.name} takes {damage} damage from {item_name}!")
+                    
+                    if target.hp <= 0:
+                        self.handle_entity_death(target)
+            else:
+                self.log_event(f"There are no visible targets.")
+        
+        elif effect_type == 'heal':
+            heal_amount = effect[1] if len(effect) > 1 else 20
+            amount_healed = self.player.heal(heal_amount)
+            self.log_event(f"You use {item_name}. (+{amount_healed} HP)")
+        
+        elif effect_type == 'detect':
+            self._handle_detection_spell({'effect_type': 'detect', 'detect_type': effect[1] if len(effect) > 1 else 'monsters'})
+            self.log_event(f"You use {item_name}. Detection magic activates!")
+        
+        elif effect_type == 'buff':
+            buff_name = effect[1] if len(effect) > 1 else 'Buffed'
+            duration = effect[2] if len(effect) > 2 else 30
+            self.player.status_manager.add_effect(buff_name.capitalize(), duration)
+            self.log_event(f"You use {item_name}. You feel {buff_name}!")
+        
+        elif effect_type == 'debuff':
+            # Apply debuff to all visible enemies
+            visible_entities = self.get_visible_entities()
+            debuff_name = effect[1] if len(effect) > 1 else 'Slowed'
+            duration = effect[2] if len(effect) > 2 else 20
+            
+            for target in visible_entities:
+                # TODO: Add status effects to entities
+                self.log_event(f"{target.name} is affected by {debuff_name}!")
+        
+        elif effect_type == 'light':
+            radius = effect[1] if len(effect) > 1 else 5
+            duration = effect[2] if len(effect) > 2 else 100
+            self.player.light_radius = max(self.player.light_radius, radius)
+            self.player.light_duration = max(self.player.light_duration, duration)
+            self.update_fov()
+            self.log_event(f"You use {item_name}. Brilliant light fills the area!")
+        
+        else:
+            self.log_event(f"You use {item_name}. The magic activates!")
+        
+        self._end_player_turn()
+        return True
+    
+    def handle_drop_item(self, item_index: int) -> bool:
+        """Handle dropping an item on the ground."""
+        if not (0 <= item_index < len(self.player.inventory)):
+            return False
+        
+        item_name = self.player.inventory[item_index]
+        
+        # Check if item is equipped and cursed
+        if hasattr(self.player, 'equipment'):
+            for slot, equipped_item in self.player.equipment.items():
+                if equipped_item == item_name:
+                    # Check if cursed
+                    data_loader = GameData()
+                    item_data = data_loader.get_item_by_name(item_name)
+                    if item_data and item_data.get('effect'):
+                        effect = item_data.get('effect')
+                        if isinstance(effect, list) and len(effect) > 0 and effect[0] == 'cursed':
+                            self.log_event(f"{item_name} is cursed! You cannot remove it!")
+                            return False
+                    
+                    # Unequip the item first
+                    self.player.equipment[slot] = None
+                    self.log_event(f"You remove {item_name}.")
+        
+        # Initialize ground items storage if not exists
+        if not hasattr(self, 'ground_items'):
+            self.ground_items = {}
+        
+        # Drop item at player's position
+        px, py = self.player.position
+        pos_key = (px, py)
+        
+        if pos_key not in self.ground_items:
+            self.ground_items[pos_key] = []
+        
+        self.ground_items[pos_key].append(item_name)
+        
+        # Remove from inventory using inventory manager
+        self._remove_item_from_inventory(item_name)
+        
+        self.log_event(f"You drop {item_name}.")
+        self._end_player_turn()
+        return True
+    
+    def _remove_item_from_inventory(self, item_name: str) -> bool:
+        """
+        Helper method to remove an item from inventory by name.
+        
+        Args:
+            item_name: Name of the item to remove
+        
+        Returns:
+            True if item was removed, False otherwise
+        """
+        instances = self.player.inventory_manager.get_instances_by_name(item_name)
+        if instances:
+            self.player.inventory_manager.remove_instance(instances[0].instance_id)
+            return True
+        return False
+    
+    def handle_throw_item(self, item_index: int, dx: int = 0, dy: int = 1) -> bool:
+        """Handle throwing an item as a projectile."""
+        if not (0 <= item_index < len(self.player.inventory)):
+            return False
+        
+        item_name = self.player.inventory[item_index]
+        
+        # Get item data
+        data_loader = GameData()
+        item_data = data_loader.get_item_by_name(item_name)
+        
+        if not item_data:
+            self.log_event(f"Cannot throw {item_name}.")
+            return False
+        
+        # Calculate throw range based on item weight and player STR
+        weight = item_data.get('weight', 10)
+        player_str = self.player.stats.get('STR', 10)
+        max_range = max(3, min(10, player_str // 2 - weight // 10))
+        
+        # Trace projectile path
+        px, py = self.player.position
+        tx, ty = px, py
+        
+        for step in range(1, max_range + 1):
+            next_x = px + dx * step
+            next_y = py + dy * step
+            
+            # Check bounds
+            if not (0 <= next_x < self.map_width and 0 <= next_y < self.map_height):
+                break
+            
+            # Check for wall
+            if self.game_map[next_y][next_x] == WALL:
+                break
+            
+            # Check for entity
+            target = self.get_entity_at(next_x, next_y)
+            if target:
+                # Calculate hit chance based on DEX
+                player_dex = self.player.stats.get('DEX', 10)
+                hit_chance = 50 + (player_dex - 10) * 3
+                
+                if random.randint(1, 100) <= hit_chance:
+                    # Hit! Calculate damage
+                    base_damage = item_data.get('damage', [1, 4])
+                    if isinstance(base_damage, list) and len(base_damage) == 2:
+                        damage = random.randint(base_damage[0], base_damage[1])
+                    else:
+                        damage = 5
+                    
+                    target.take_damage(damage)
+                    self.log_event(f"You hit {target.name} with {item_name} for {damage} damage!")
+                    
+                    if target.hp <= 0:
+                        self.handle_entity_death(target)
+                    
+                    # Item breaks on hit (for throwable weapons)
+                    if "Potion" not in item_name:
+                        if random.random() < 0.5:  # 50% chance to break
+                            self.log_event(f"{item_name} breaks!")
+                            self._remove_item_from_inventory(item_name)
+                            self._end_player_turn()
+                            return True
+                else:
+                    self.log_event(f"You miss {target.name}!")
+                
+                # Drop item at target location if it doesn't break
+                if not hasattr(self, 'ground_items'):
+                    self.ground_items = {}
+                
+                pos_key = (next_x, next_y)
+                if pos_key not in self.ground_items:
+                    self.ground_items[pos_key] = []
+                
+                self.ground_items[pos_key].append(item_name)
+                self._remove_item_from_inventory(item_name)
+                self._end_player_turn()
+                return True
+            
+            tx, ty = next_x, next_y
+        
+        # Item lands on ground at final position
+        self.log_event(f"You throw {item_name}.")
+        
+        if not hasattr(self, 'ground_items'):
+            self.ground_items = {}
+        
+        pos_key = (tx, ty)
+        if pos_key not in self.ground_items:
+            self.ground_items[pos_key] = []
+        
+        self.ground_items[pos_key].append(item_name)
+        self._remove_item_from_inventory(item_name)
+        
+        self._end_player_turn()
+        return True
+    
+    def handle_exchange_weapon(self) -> bool:
+        """Exchange primary and secondary weapons."""
+        # Equipment is now managed through inventory_manager and returns instances
+        weapon_instance = self.player.inventory_manager.equipment.get('weapon')
+        
+        if not weapon_instance:
+            self.log_event("You don't have a weapon equipped!")
+            return False
+        
+        # Initialize secondary weapon slot if it doesn't exist (as instance)
+        if not hasattr(self.player, 'secondary_weapon_instance'):
+            self.player.secondary_weapon_instance = None
+        
+        secondary_weapon_instance = self.player.secondary_weapon_instance
+        
+        if not weapon_instance and not secondary_weapon_instance:
+            self.log_event("You don't have any weapons to exchange!")
+            return False
+        
+        # Swap weapons
+        self.player.inventory_manager.equipment['weapon'] = secondary_weapon_instance
+        self.player.secondary_weapon_instance = weapon_instance
+        
+        if secondary_weapon_instance:
+            self.log_event(f"You swap to {secondary_weapon_instance.item_name}.")
+        else:
+            self.log_event(f"You put away {weapon_instance.item_name}.")
+        
+        self._end_player_turn()
+        return True
+    
+    def handle_fill_lamp(self) -> bool:
+        """Fill lamp with oil from inventory."""
+        # Equipment is now managed through inventory_manager and returns instances
+        # Lanterns may be in 'light' or 'weapon' slot depending on the item definition
+        lamp_instance = self.player.inventory_manager.equipment.get('light')
+        if not lamp_instance:
+            lamp_instance = self.player.inventory_manager.equipment.get('weapon')
+        
+        if not lamp_instance:
+            self.log_event("You don't have a lamp equipped!")
+            return False
+        
+        if 'Lantern' not in lamp_instance.item_name and 'Torch' not in lamp_instance.item_name:
+            self.log_event("You don't have a lantern to fill!")
+            return False
+        
+        # Look for oil in inventory
+        oil_instance = None
+        
+        for instance in self.player.inventory_manager.instances:
+            if 'Oil' in instance.item_name or 'oil' in instance.item_name:
+                oil_instance = instance
+                break
+        
+        if not oil_instance:
+            self.log_event("You don't have any oil!")
+            return False
+        
+        # Initialize lamp fuel if it doesn't exist
+        if not hasattr(self.player, 'lamp_fuel'):
+            self.player.lamp_fuel = 0
+        
+        # Fill lamp (max 1500 turns)
+        max_fuel = 1500
+        fuel_added = min(500, max_fuel - self.player.lamp_fuel)
+        self.player.lamp_fuel += fuel_added
+        
+        # Remove oil from inventory using inventory manager
+        self.player.inventory_manager.remove_instance(oil_instance.instance_id)
+        
+        self.log_event(f"You fill your lantern with {oil_instance.item_name}. ({self.player.lamp_fuel}/{max_fuel} turns)")
+        self._end_player_turn()
+        return True
+    
+    def handle_disarm_trap(self, x: int, y: int) -> bool:
+        """Disarm a trap at the given location."""
+        # Check if there's a chest with a trap at this location
+        if hasattr(self, 'chest_system'):
+            from app.lib.core.chest_system import get_chest_system
+            chest_system = get_chest_system()
+            chest = chest_system.get_chest(x, y)
+            
+            if chest and chest.trapped and not chest.trap_disarmed:
+                # Calculate disarm skill based on DEX and class
+                player_dex = self.player.stats.get('DEX', 10)
+                disarm_skill = player_dex
+                
+                # Rogues get bonus
+                if self.player.class_ == 'Rogue':
+                    disarm_skill += 5
+                
+                success, message = chest.disarm_trap(disarm_skill)
+                self.log_event(message)
+                
+                if not success:
+                    # Trap triggered - apply effect
+                    self._apply_trap_effect(chest.trap_type)
+                
+                self._end_player_turn()
+                return True
+        
+        # Check for floor traps (to be implemented with trap system)
+        if not hasattr(self, 'traps'):
+            self.traps = {}
+        
+        pos_key = (x, y)
+        if pos_key in self.traps:
+            trap_data = self.traps[pos_key]
+            
+            # Calculate disarm chance
+            player_dex = self.player.stats.get('DEX', 10)
+            disarm_skill = player_dex
+            
+            if self.player.class_ == 'Rogue':
+                disarm_skill += 5
+            
+            trap_difficulty = trap_data.get('difficulty', 10)
+            success_chance = 50 + (disarm_skill - trap_difficulty) * 5
+            success_chance = max(10, min(90, success_chance))
+            
+            if random.randint(1, 100) <= success_chance:
+                self.traps.pop(pos_key)
+                self.log_event(f"You successfully disarm the {trap_data.get('name', 'trap')}!")
+            else:
+                self.log_event(f"You fail to disarm the trap and trigger it!")
+                self._apply_trap_effect(trap_data.get('type', 'dart'))
+            
+            self._end_player_turn()
+            return True
+        
+        self.log_event("There is no trap there.")
+        return False
+    
+    def _apply_trap_effect(self, trap_type: str):
+        """Apply the effect of a triggered trap."""
+        if trap_type == 'poison_needle':
+            damage = random.randint(1, 6)
+            self.player.take_damage(damage)
+            self.player.status_manager.add_effect('Poisoned', 20)
+            self.log_event(f"A poison needle pricks you! ({damage} damage)")
+        
+        elif trap_type == 'poison_gas':
+            damage = random.randint(2, 8)
+            self.player.take_damage(damage)
+            self.player.status_manager.add_effect('Poisoned', 30)
+            self.log_event(f"Poison gas fills the air! ({damage} damage)")
+        
+        elif trap_type == 'dart':
+            damage = random.randint(1, 4)
+            self.player.take_damage(damage)
+            self.log_event(f"A dart shoots out and hits you! ({damage} damage)")
+        
+        elif trap_type == 'explosion':
+            damage = random.randint(5, 15)
+            self.player.take_damage(damage)
+            self.log_event(f"The trap explodes! ({damage} damage)")
+        
+        elif trap_type == 'summon_monster':
+            # Spawn a monster near player
+            self.log_event("The trap summons a monster!")
+            # TODO: Implement monster summoning
+        
+        elif trap_type == 'alarm':
+            self.log_event("An alarm sounds! Monsters are alerted!")
+            # Wake up all nearby monsters
+            for entity in self.entities:
+                if hasattr(entity, 'asleep'):
+                    entity.asleep = False
+        
+        elif trap_type == 'magic_drain':
+            mana_drain = random.randint(5, 15)
+            if hasattr(self.player, 'mana'):
+                actual_drain = min(mana_drain, self.player.mana)
+                self.player.mana -= actual_drain
+                self.log_event(f"Your mana is drained! (-{actual_drain} mana)")
+        
+        else:
+            self.log_event("The trap activates!")
+
 
 
     def get_entity_at(self, x: int, y: int) -> Optional[Entity]:

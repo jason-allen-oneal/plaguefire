@@ -636,7 +636,8 @@ class GameScreen(Screen):
     
     def action_aim_wand(self):
         """Aim and fire a wand."""
-        self.notify("Aim wand: Not yet implemented.", severity="info")
+        from app.screens.use_wand import UseWandScreen
+        self.app.push_screen(UseWandScreen())
         debug("Action: Aim wand")
     
     def action_browse_book(self):
@@ -647,7 +648,8 @@ class GameScreen(Screen):
     
     def action_drop_item(self):
         """Drop an item from inventory."""
-        self.notify("Drop item: Not yet implemented.", severity="info")
+        from app.screens.drop_item import DropItemScreen
+        self.app.push_screen(DropItemScreen())
         debug("Action: Drop item")
     
     def action_equipment_list(self):
@@ -656,7 +658,8 @@ class GameScreen(Screen):
     
     def action_fire_throw(self):
         """Fire/throw an item."""
-        self.notify("Fire/throw: Not yet implemented.", severity="info")
+        from app.screens.throw_item import ThrowItemScreen
+        self.app.push_screen(ThrowItemScreen())
         debug("Action: Fire/throw")
     
     def action_throw_item(self):
@@ -695,7 +698,8 @@ class GameScreen(Screen):
     
     def action_use_staff(self):
         """Use a staff."""
-        self.notify("Use staff: Not yet implemented.", severity="info")
+        from app.screens.use_staff import UseStaffScreen
+        self.app.push_screen(UseStaffScreen())
         debug("Action: Use staff")
     
     def action_zap_staff(self):
@@ -719,7 +723,12 @@ class GameScreen(Screen):
     
     def action_exchange_weapon(self):
         """Exchange weapons."""
-        self.notify("Exchange weapon: Not yet implemented.", severity="info")
+        # Get the game engine
+        if hasattr(self, 'engine'):
+            if self.engine.handle_exchange_weapon():
+                self._refresh_ui()
+        else:
+            self.notify("Error: Game engine not found.", severity="error")
         debug("Action: Exchange weapon")
     
     def action_change_name(self):
@@ -730,7 +739,12 @@ class GameScreen(Screen):
     
     def action_fill_lamp(self):
         """Fill lamp with oil."""
-        self.notify("Fill lamp: Not yet implemented.", severity="info")
+        # Get the game engine
+        if hasattr(self, 'engine'):
+            if self.engine.handle_fill_lamp():
+                self._refresh_ui()
+        else:
+            self.notify("Error: Game engine not found.", severity="error")
         debug("Action: Fill lamp")
     
     def action_gain_spells(self):
@@ -906,7 +920,16 @@ class GameScreen(Screen):
     
     def _disarm_direction(self, dx: int, dy: int):
         """Disarm a trap in the given direction."""
-        self.notify("Disarm: Not yet implemented.", severity="info")
+        px, py = self.engine.player.position
+        tx, ty = px + dx, py + dy
+        
+        # Check if there's a trap at this location
+        if hasattr(self.engine, 'handle_disarm_trap'):
+            if self.engine.handle_disarm_trap(tx, ty):
+                self._refresh_ui()
+        else:
+            self.notify("Disarm: Not yet implemented.", severity="info")
+        
         debug(f"Disarm direction ({dx}, {dy})")
     
     def _jam_door_direction(self, dx: int, dy: int):
