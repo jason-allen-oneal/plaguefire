@@ -88,26 +88,42 @@ class ItemInstance:
         
         return " ".join(inscriptions)
     
-    def get_display_name(self, player_level: int = 1) -> str:
+    def get_display_name(self, player_level: int = 1, detect_magic: bool = False) -> str:
         """
         Get the display name with inscriptions.
         
         Args:
             player_level: Player's level for magical detection
+            detect_magic: Whether Detect Magic spell has been cast
         
         Returns:
             Full display name with inscriptions in {braces}
         """
-        base_name = self.item_name
+        from app.lib.core.data_loader import GameData
+        
+        # Determine base name (unknown or real)
+        data_loader = GameData()
+        
+        # Check if item should show unknown name
+        needs_identification = self.item_type in ("potion", "scroll", "wand", "staff", "ring", "amulet")
+        is_type_identified = data_loader.is_item_type_identified(self.item_id)
+        
+        if needs_identification and not self.identified and not is_type_identified:
+            # Show unknown name
+            unknown_name = data_loader.get_unknown_name(self.item_id)
+            base_name = unknown_name if unknown_name else self.item_name
+        else:
+            base_name = self.item_name
         
         # Get instance-specific inscription
         inscription = self.get_inscription()
         
-        # Add magical detection for high-level characters
-        if player_level >= 5 and self.effect and not inscription:
+        # Add magical detection for high-level characters or Detect Magic spell
+        magic_detected = (player_level >= 5 or detect_magic) and self.effect
+        if magic_detected and not inscription:
             # Only show {magik} if no other inscriptions
             inscription = "magik"
-        elif player_level >= 5 and self.effect and inscription:
+        elif magic_detected and inscription:
             # Add magik to existing inscriptions
             inscription = f"{inscription}, magik"
         
@@ -146,8 +162,14 @@ class ItemInstance:
     
     def identify(self):
         """Identify this item."""
+        from app.lib.core.data_loader import GameData
+        
         self.identified = True
         self.tried = False  # Clear tried flag when identified
+        
+        # Also identify this item type globally
+        data_loader = GameData()
+        data_loader.identify_item_type(self.item_id)
     
     def to_dict(self) -> Dict:
         """Serialize to dictionary for saving."""

@@ -352,6 +352,8 @@ class Engine:
                      else:
                          self.log_event(f"Nothing happens.")
                  # Note: attack and debuff scrolls would need target selection
+                elif effect_type == 'utility':
+                    self._handle_utility_spell(spell_data)
                  
                  self._end_player_turn()
                  return True
@@ -515,6 +517,8 @@ class Engine:
                     self.log_event(f"The {status_to_remove} effect is removed!")
                 else:
                     self.log_event(f"You don't have the {status_to_remove} effect.")
+            elif effect_type == 'utility':
+                self._handle_utility_spell(spell_data)
             else: self.log_event(f"{spell_name} has an unknown effect.")
         self._end_player_turn()
         return True
@@ -545,6 +549,77 @@ class Engine:
                 self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny)):
                 self.player.position = [nx, ny]; self.log_event("Phase through space!"); self.update_fov(); return
         self.log_event("Teleport fails!")
+
+    def _handle_utility_spell(self, spell_data: Dict) -> None:
+        """
+        Handle utility spells like Identify and Detect Magic.
+        
+        Args:
+            spell_data: Spell data dictionary
+        """
+        spell_id = spell_data.get('id', '')
+        spell_name = spell_data.get('name', 'the spell')
+        subtype = spell_data.get('subtype', '')
+        
+        if spell_id == 'identify' or subtype == 'identify':
+            # Identify spell - identify a single unknown item
+            self._handle_identify_spell()
+        elif spell_id == 'detect_magic' or subtype == 'detect_magic':
+            # Detect Magic spell - reveal magical items in inventory
+            self._handle_detect_magic_spell()
+        else:
+            self.log_event(f"{spell_name} has no effect.")
+    
+    def _handle_identify_spell(self) -> None:
+        """
+        Handle the Identify spell - identifies a single unknown item.
+        This will be expanded to show a selection UI in the future.
+        For now, it identifies the first unidentified item.
+        """
+        from app.lib.core.item_instance import ItemInstance
+        
+        # Find first unidentified item in inventory
+        unidentified_item = None
+        
+        # Check if player has item instances
+        if hasattr(self.player, 'inventory_manager') and self.player.inventory_manager:
+            for instance in self.player.inventory_manager.instances:
+                if not instance.identified:
+                    unidentified_item = instance
+                    break
+        
+        if unidentified_item:
+            unidentified_item.identify()
+            self.log_event(f"You identify the {unidentified_item.item_name}!")
+        else:
+            self.log_event("You have no unidentified items.")
+    
+    def _handle_detect_magic_spell(self) -> None:
+        """
+        Handle the Detect Magic spell - reveals magical properties of items.
+        Sets a temporary flag that causes items to show {magik} inscription.
+        """
+        # Count magical items in inventory
+        magical_count = 0
+        
+        if hasattr(self.player, 'inventory_manager') and self.player.inventory_manager:
+            for instance in self.player.inventory_manager.instances:
+                if instance.effect:
+                    magical_count += 1
+        
+        # Also check equipped items
+        if hasattr(self.player, 'inventory_manager') and self.player.inventory_manager:
+            for slot, instance in self.player.inventory_manager.equipment.items():
+                if instance and instance.effect:
+                    magical_count += 1
+        
+        if magical_count > 0:
+            self.log_event(f"You sense {magical_count} magical item(s) in your possession!")
+            # Set a temporary detect magic flag on player for display purposes
+            if hasattr(self.player, 'status_manager'):
+                self.player.status_manager.add_effect("Detect_Magic", 100)  # Lasts 100 turns
+        else:
+            self.log_event("You sense no magical items.")
 
     def _use_potion(self, potion_name: str) -> bool:
         """Handle potion consumption with various effects."""
