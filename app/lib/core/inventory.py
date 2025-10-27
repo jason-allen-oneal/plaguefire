@@ -83,12 +83,12 @@ class InventoryManager:
         # Check if this item can stack with existing items
         item_type = item_data.get("type", "misc")
         if item_type in self.stackable_types:
-            # Try to find an existing stack
+            # Try to find an existing stack with same item_id
             for instance in self.instances:
-                if instance.item_id == item_id and instance.item_type in self.stackable_types:
-                    # Check if we can stack with this instance
-                    temp_instance = ItemInstance.from_template(item_id, item_data)
-                    if self._can_stack(instance, temp_instance):
+                if instance.item_id == item_id:
+                    # Items match - check if they can stack based on identification
+                    # For now, only stack if both are unidentified (default state)
+                    if not instance.identified and not instance.custom_inscription:
                         instance.quantity += quantity
                         return True
         

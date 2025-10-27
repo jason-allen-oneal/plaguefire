@@ -208,7 +208,7 @@ def test_object_stacking():
     # Test that non-stackable items don't stack
     manager.add_item("DAGGER_BODKIN")
     manager.add_item("DAGGER_BODKIN")
-    dagger_instances = [inst for inst in manager.instances if "Dagger" in inst.item_name]
+    dagger_instances = [inst for inst in manager.instances if inst.item_id == "DAGGER_BODKIN"]
     assert len(dagger_instances) == 2, "Daggers should not stack"
     print("✓ Non-stackable items don't stack")
     

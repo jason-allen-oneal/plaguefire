@@ -819,19 +819,15 @@ class Player:
         Returns:
             (can_pickup, reason) - True if can pickup, False with reason if not
         """
+        data_loader = GameData()
+        
         # Check inventory limit (22 different item stacks, Moria standard)
         # Note: Stackable items of the same type count as one slot
         if len(self.inventory_manager.instances) >= 22:
             # Check if this item can stack with an existing item
-            data_loader = GameData()
             item_data = data_loader.get_item_by_name(item_name)
             if item_data:
-                item_id = None
-                # Find the item ID
-                for key, value in data_loader.items.items():
-                    if isinstance(value, dict) and value.get("name") == item_name:
-                        item_id = key
-                        break
+                item_id = data_loader.get_item_id_by_name(item_name)
                 
                 # Check if we can stack with existing items
                 if item_id:
@@ -845,7 +841,6 @@ class Player:
             return False, "Your backpack is full (22 item limit)."
         
         # Check weight limit
-        data_loader = GameData()
         item_data = data_loader.get_item_by_name(item_name)
         if item_data:
             item_weight = item_data.get("weight", 10)

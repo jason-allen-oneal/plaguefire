@@ -371,6 +371,21 @@ class GameData:
             Item template dictionary or None if not found
         """
         return self.items_by_name.get(name)
+    
+    def get_item_id_by_name(self, name: str) -> Optional[str]:
+        """
+        Get an item template ID by its display name.
+        
+        Args:
+            name: Display name of the item
+            
+        Returns:
+            Item ID or None if not found
+        """
+        for item_id, item_data in self.items.items():
+            if isinstance(item_data, dict) and item_data.get("name") == name:
+                return item_id
+        return None
 
     def get_items_for_depth(self, depth: int, category: Optional[str] = None) -> List[Dict]:
         """
