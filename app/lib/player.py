@@ -495,16 +495,13 @@ class Player:
                 self.inventory_manager.add_item(item_name)
             for slot, item_name in data.get("equipment", {}).items():
                 if item_name:
-                    # Create an instance and equip it
-                    # First add to inventory, then equip
+                    # Add item to inventory and then equip it properly
                     if self.inventory_manager.add_item(item_name):
-                        # Get the instance we just added
+                        # Get the instance we just added and equip it
                         instances = self.inventory_manager.get_instances_by_name(item_name)
                         if instances:
-                            # Move it to equipment by removing from inventory and placing in slot
                             instance = instances[-1]  # Get the one we just added
-                            self.inventory_manager.remove_instance(instance.instance_id)
-                            self.inventory_manager.equipment[slot] = instance
+                            self.inventory_manager.equip_instance(instance.instance_id)
 
         race_def = get_race_definition(self.race)
         con_modifier = self._get_modifier("CON")
