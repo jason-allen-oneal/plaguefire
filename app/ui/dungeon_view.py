@@ -167,18 +167,37 @@ class DungeonView(Static):
                         if (map_x, map_y) == (px, py):
                             char = f"[bright_white]{PLAYER}[/bright_white]"
                         else:
-                            entity = self.engine.get_entity_at(map_x, map_y)
-                            if entity:
-                                char = entity.char
+                            # Check for active projectiles at this position
+                            projectile_char = None
+                            for proj in self.engine.get_active_projectiles():
+                                proj_pos = proj.get_current_position()
+                                if proj_pos and proj_pos == (map_x, map_y):
+                                    projectile_char = proj.get_char_with_color()
+                                    break
+                            
+                            # Check for animating dropped items at this position
+                            if not projectile_char:
+                                for item in self.engine.get_dropped_items():
+                                    item_pos = item.get_current_position()
+                                    if item_pos == (map_x, map_y):
+                                        projectile_char = "[yellow]*[/yellow]"
+                                        break
+                            
+                            if projectile_char:
+                                char = projectile_char
                             else:
-                                # Render secret doors as walls until found
-                                tile_char = map_row[map_x]
-                                if tile_char == SECRET_DOOR:
-                                    char = "#"  # Hidden secret door looks like wall
-                                elif tile_char == SECRET_DOOR_FOUND:
-                                    char = DOOR_CLOSED  # Revealed secret doors render as closed doors
+                                entity = self.engine.get_entity_at(map_x, map_y)
+                                if entity:
+                                    char = entity.char
                                 else:
-                                    char = tile_char
+                                    # Render secret doors as walls until found
+                                    tile_char = map_row[map_x]
+                                    if tile_char == SECRET_DOOR:
+                                        char = "#"  # Hidden secret door looks like wall
+                                    elif tile_char == SECRET_DOOR_FOUND:
+                                        char = DOOR_CLOSED  # Revealed secret doors render as closed doors
+                                    else:
+                                        char = tile_char
                         line += self._maybe_color_wall(char)
                     elif visibility_status == 1: # Remembered
                         # Render secret doors as walls in memory too

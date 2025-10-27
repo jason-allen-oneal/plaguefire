@@ -15,6 +15,7 @@ from app.lib.core.utils import find_tile, find_start_pos
 from app.lib.core.generation.spawn import spawn_entities_for_depth, spawn_chests_for_depth
 from app.lib.core.mining import get_mining_system
 from app.lib.fov import update_visibility
+from app.lib.core.projectile import Projectile, DroppedItem
 from config import (
     WALL, FLOOR, STAIRS_DOWN, STAIRS_UP,
     DOOR_CLOSED, DOOR_OPEN, SECRET_DOOR, SECRET_DOOR_FOUND,
@@ -133,6 +134,10 @@ class Engine:
         # Ground items tracking {(x, y): [item_name, ...]}
         self.ground_items = {}
         
+        # Projectile and item animation tracking
+        self.active_projectiles: List[Projectile] = []
+        self.dropped_items: List[DroppedItem] = []
+        
         self.update_fov()
 
     def get_time_of_day(self) -> str:
@@ -243,6 +248,10 @@ class Engine:
         # --- End turn logic --- (omitted for brevity, keep your existing logic)
         self.player.time += 1
         debug(f"--- Turn {self.player.time} ---")
+        
+        # Update projectiles and dropped items
+        self.update_dropped_items()
+        self.clear_inactive_projectiles()
         
         # Regenerate mana each turn
         self.player.regenerate_mana()
@@ -478,6 +487,13 @@ class Engine:
             spell_name = spell_data.get('name', 'the spell')
             if effect_type == 'attack':
                 if target_entity:
+                    # Add projectile animation for targeted spells
+                    px, py = self.player.position
+                    tx, ty = target_entity.position
+                    projectile_char = spell_data.get('projectile_char', '*')
+                    projectile_type = spell_data.get('damage_type', 'magic')
+                    self.add_projectile((px, py), (tx, ty), projectile_char, projectile_type)
+                    
                     # ... (damage calculation logic remains the same) ...
                     damage_str = spell_data.get('damage', '1d6')
                     damage = 0 # Calculate damage based on damage_str
@@ -1064,11 +1080,13 @@ class Engine:
                     self.player.equipment[slot] = None
                     self.log_event(f"You remove {item_name}.")
         
-        # Drop item at player's position
+        # Drop item at player's position with physics
         px, py = self.player.position
-        pos_key = (px, py)
         
-        self.ground_items.setdefault(pos_key, []).append(item_name)
+        # Add item with physics (it will roll to final position)
+        import random
+        velocity = (random.uniform(-1.0, 1.0), random.uniform(-1.0, 1.0))
+        self.add_dropped_item_with_physics(item_name, (px, py), velocity)
         
         # Remove from inventory using inventory manager
         self._remove_item_from_inventory(item_name)
@@ -1166,6 +1184,11 @@ class Engine:
         # Trace projectile path
         px, py = self.player.position
         tx, ty = px, py
+        hit_entity = False
+        broke_on_impact = False
+        
+        # Determine if this is ammo (arrows, bolts, darts, etc.)
+        is_ammo = any(keyword in item_name for keyword in ["Arrow", "Bolt", "Dart", "Javelin"])
         
         for step in range(1, max_range + 1):
             next_x = px + dx * step
@@ -1194,36 +1217,84 @@ class Engine:
                     else:
                         damage = 5
                     
+                    # Add projectile animation
+                    self.add_projectile((px, py), (next_x, next_y), '/', 'arrow' if is_ammo else 'item')
+                    
                     target.take_damage(damage)
                     self.log_event(f"You hit {target.name} with {item_name} for {damage} damage!")
+                    hit_entity = True
                     
                     if target.hp <= 0:
                         self.handle_entity_death(target)
                     
-                    # Item breaks on hit (for throwable weapons)
-                    if "Potion" not in item_name:
-                        if random.random() < 0.5:  # 50% chance to break
-                            self.log_event(f"{item_name} breaks!")
-                            self._remove_item_from_inventory(item_name)
-                            self._end_player_turn()
-                            return True
+                    # Ammo has different recovery rules
+                    if is_ammo:
+                        # 50% chance to recover ammo on hit
+                        if random.random() < 0.5:
+                            pos_key = (next_x, next_y)
+                            self.ground_items.setdefault(pos_key, []).append(item_name)
+                            self.log_event(f"{item_name} can be recovered.")
+                        else:
+                            broke_on_impact = True
+                            self.log_event(f"{item_name} breaks on impact!")
+                    else:
+                        # Non-ammo items break on hit
+                        if "Potion" not in item_name:
+                            if random.random() < 0.5:  # 50% chance to break
+                                broke_on_impact = True
+                                self.log_event(f"{item_name} breaks!")
+                        else:
+                            # Potions splash on impact
+                            pos_key = (next_x, next_y)
+                            self.ground_items.setdefault(pos_key, []).append(item_name)
+                    
+                    self._remove_item_from_inventory(item_name)
+                    self._end_player_turn()
+                    return True
                 else:
+                    # Missed - ammo is more likely to be recovered
                     self.log_event(f"You miss {target.name}!")
-                
-                # Drop item at target location if it doesn't break
-                pos_key = (next_x, next_y)
-                self.ground_items.setdefault(pos_key, []).append(item_name)
-                self._remove_item_from_inventory(item_name)
-                self._end_player_turn()
-                return True
+                    
+                    # Add projectile animation
+                    self.add_projectile((px, py), (next_x, next_y), '/', 'arrow' if is_ammo else 'item')
+                    
+                    # Drop item at target location
+                    if is_ammo:
+                        # 80% chance to recover ammo on miss
+                        if random.random() < 0.8:
+                            pos_key = (next_x, next_y)
+                            self.ground_items.setdefault(pos_key, []).append(item_name)
+                            self.log_event(f"{item_name} can be recovered.")
+                        else:
+                            self.log_event(f"{item_name} is lost.")
+                    else:
+                        pos_key = (next_x, next_y)
+                        self.ground_items.setdefault(pos_key, []).append(item_name)
+                    
+                    self._remove_item_from_inventory(item_name)
+                    self._end_player_turn()
+                    return True
             
             tx, ty = next_x, next_y
         
         # Item lands on ground at final position
         self.log_event(f"You throw {item_name}.")
         
-        pos_key = (tx, ty)
-        self.ground_items.setdefault(pos_key, []).append(item_name)
+        # Add projectile animation
+        self.add_projectile((px, py), (tx, ty), '/', 'arrow' if is_ammo else 'item')
+        
+        # Ammo is almost always recoverable when it doesn't hit anything
+        if is_ammo:
+            if random.random() < 0.9:  # 90% recovery on clean miss
+                pos_key = (tx, ty)
+                self.ground_items.setdefault(pos_key, []).append(item_name)
+                self.log_event(f"{item_name} can be recovered.")
+            else:
+                self.log_event(f"{item_name} is lost.")
+        else:
+            pos_key = (tx, ty)
+            self.ground_items.setdefault(pos_key, []).append(item_name)
+        
         self._remove_item_from_inventory(item_name)
         
         self._end_player_turn()
@@ -1469,23 +1540,26 @@ class Engine:
             needs_spell_choice = self.player.gain_xp(xp_reward) # Capture the return value
             self.log_event(f"You gain {xp_reward} XP.")
 
-        # --- Drop calculation - items and gold drop on ground ---
+        # --- Drop calculation - items and gold drop on ground with physics ---
         item_ids, gold = entity.get_drops()
         ex, ey = entity.position
-        pos_key = (ex, ey)
         
-        # Drop gold on ground if any
+        # Drop gold on ground if any (gold doesn't use physics)
         if gold > 0:
+            pos_key = (ex, ey)
             # Use a special marker for gold
             self.ground_items.setdefault(pos_key, []).append(f"${gold}")
             self.log_event(f"{entity.name} drops {gold} gold.")
         
-        # Drop items on ground
+        # Drop items on ground with rolling physics
         for item_id in item_ids:
             template = GameData().get_item(item_id)
             if template:
                 item_name = template.get("name", item_id)
-                self.ground_items.setdefault(pos_key, []).append(item_name)
+                # Add items with physics animation
+                import random
+                velocity = (random.uniform(-1.5, 1.5), random.uniform(-1.5, 1.5))
+                self.add_dropped_item_with_physics(item_name, (ex, ey), velocity)
                 self.log_event(f"{entity.name} drops a {item_name}.")
             else:
                 debug(f"Warn: Unknown item ID '{item_id}'")
@@ -1945,3 +2019,51 @@ class Engine:
             for x in range(self.map_width):
                 if self.game_map[y][x] == SECRET_DOOR_FOUND: found.append([x, y])
         return found
+    
+    def add_projectile(self, start_pos: tuple, end_pos: tuple, char: str, projectile_type: str = "generic") -> None:
+        """Add a new projectile to animate."""
+        projectile = Projectile(start_pos, end_pos, char, projectile_type)
+        self.active_projectiles.append(projectile)
+        debug(f"Added projectile: {projectile_type} from {start_pos} to {end_pos}")
+    
+    def get_active_projectiles(self) -> List[Projectile]:
+        """Get list of currently animating projectiles."""
+        return self.active_projectiles
+    
+    def clear_inactive_projectiles(self) -> None:
+        """Remove projectiles that have finished animating."""
+        self.active_projectiles = [p for p in self.active_projectiles if p.is_active()]
+    
+    def add_dropped_item_with_physics(self, item_name: str, pos: tuple, velocity: Optional[tuple] = None) -> None:
+        """Add a dropped item with physics simulation."""
+        dropped = DroppedItem(item_name, pos, velocity)
+        self.dropped_items.append(dropped)
+        debug(f"Added dropped item: {item_name} at {pos}")
+    
+    def update_dropped_items(self) -> None:
+        """Update physics for all dropped items."""
+        still_animating = []
+        for item in self.dropped_items:
+            if item.update():
+                still_animating.append(item)
+            else:
+                # Item settled, add to ground_items
+                final_pos = item.get_final_position()
+                if final_pos:
+                    # Check if position is valid
+                    x, y = final_pos
+                    if 0 <= x < self.map_width and 0 <= y < self.map_height:
+                        if self.game_map[y][x] != WALL:
+                            self.ground_items.setdefault(final_pos, []).append(item.item_name)
+                            debug(f"Item {item.item_name} settled at {final_pos}")
+                        else:
+                            # Item rolled into wall, place at starting position
+                            start_pos = (int(item.position[0]), int(item.position[1]))
+                            self.ground_items.setdefault(start_pos, []).append(item.item_name)
+                            debug(f"Item {item.item_name} hit wall, placed at {start_pos}")
+        
+        self.dropped_items = still_animating
+    
+    def get_dropped_items(self) -> List[DroppedItem]:
+        """Get list of currently animating dropped items."""
+        return self.dropped_items
