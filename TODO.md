@@ -87,7 +87,6 @@ Last Updated: 2025-10-27
 
 #### Magic System
 
-- [ ] **Spell Books as Findable Items**
 - [ ] **Spell Failure**
 
 #### Character Progression
