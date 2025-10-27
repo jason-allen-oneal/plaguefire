@@ -69,6 +69,24 @@ class BaseShopScreen(Screen):
         self.haggle_attempted_this_selection: bool = False
 
     # --- Helper Methods ---
+    
+    def _get_charisma_price_modifier(self) -> float:
+        """Calculate price modifier based on player's charisma (0.85 to 1.15 range)."""
+        if not self.app.player:
+            return 1.0
+        
+        cha_stat = self.app.player.stats.get('CHA', 10)
+        # Lower prices for high charisma, higher prices for low charisma
+        # CHA 10 = 1.0x (no change)
+        # CHA 18 = 0.85x (15% discount)
+        # CHA 3 = 1.15x (15% markup)
+        modifier = 1.0 - ((cha_stat - 10) * 0.02)
+        return max(0.85, min(1.15, modifier))
+    
+    def _apply_charisma_to_price(self, base_price: int) -> int:
+        """Apply charisma modifier to a price."""
+        modifier = self._get_charisma_price_modifier()
+        return max(1, int(base_price * modifier))
 
     def _generate_default_items(self) -> List[ShopItem]:
         debug(f"[{self.shop_name}] Generating default items (subclass should override).")
@@ -162,9 +180,12 @@ class BaseShopScreen(Screen):
             item_name = selected_item_data
             sell_price, _ = self._get_item_sell_price(item_name); base_price = sell_price
         else:
-            item: ShopItem = selected_item_data; base_price = item.cost; item_name = item.name
+            item: ShopItem = selected_item_data
+            # Use charisma-adjusted price as base for haggling
+            base_price = self._apply_charisma_to_price(item.cost)
+            item_name = item.name
 
-        debug(f"Attempting haggle on '{item_name}'. Base price: {base_price}gp.")
+        debug(f"Attempting haggle on '{item_name}'. Base price (CHA-adjusted): {base_price}gp.")
         self.haggle_attempted_this_selection = True # Mark attempt immediately
 
         cha_modifier = self.app.player._get_modifier('CHA')
@@ -189,17 +210,20 @@ class BaseShopScreen(Screen):
 
 
     def _buy_selected_item(self):
-        """Logic to buy the currently selected shop item, considering haggled price."""
+        """Logic to buy the currently selected shop item, considering haggled price and charisma."""
         current_list, selected_item = self._get_current_list_and_item()
         if not isinstance(selected_item, ShopItem): # Ensure we're in buy mode with a valid item
              self.notify("Cannot buy this.", severity="warning"); return
 
         self.player_gold = self.app.player.gold
 
-        # Use haggled price if available for this specific selection
-        price_to_pay = self.haggled_price if self.haggled_price is not None else selected_item.cost
+        # Apply charisma modifier to base price
+        charisma_adjusted_price = self._apply_charisma_to_price(selected_item.cost)
+        
+        # Use haggled price if available, otherwise use charisma-adjusted price
+        price_to_pay = self.haggled_price if self.haggled_price is not None else charisma_adjusted_price
 
-        debug(f"Buy: '{selected_item.name}' ({price_to_pay}gp, Base: {selected_item.cost}gp). Has: {self.player_gold}gp.")
+        debug(f"Buy: '{selected_item.name}' (Pay: {price_to_pay}gp, CHA-adjusted: {charisma_adjusted_price}gp, Base: {selected_item.cost}gp). Has: {self.player_gold}gp.")
 
         if self.player_gold >= price_to_pay:
             try:
@@ -304,8 +328,11 @@ class BaseShopScreen(Screen):
                 for index, item in enumerate(shop_list):
                     prefix = "> " if index == self.selected_index else "  "
                     letter = chr(ord('a') + index)
-                    # Show haggled price if applicable, else normal buy cost
-                    display_price = self.haggled_price if index == self.selected_index and self.haggled_price is not None else item.cost
+                    # Show haggled price if applicable, else charisma-adjusted price
+                    if index == self.selected_index and self.haggled_price is not None:
+                        display_price = self.haggled_price
+                    else:
+                        display_price = self._apply_charisma_to_price(item.cost)
                     lines.append(f"{prefix}[{letter}] {item.name:<20} ({display_price}gp)")
 
         lines.append("-" * 30)

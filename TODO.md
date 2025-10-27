@@ -45,7 +45,7 @@ This document tracks all partial implementations, stubs, and missing features.
   - Required: Shops refresh stock over time
   - Current: Static inventory
 
-- [ ] **Shop Pricing Variance**
+- [x] **Shop Pricing Variance**
   - Required: Charisma affects prices
   - Enhancement: Haggling system
 
