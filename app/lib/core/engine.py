@@ -302,6 +302,22 @@ class Engine:
         self._end_player_turn()
         return True
 
+    def _remove_item_by_index(self, item_index: int) -> bool:
+        """
+        Remove an item from player's inventory by index.
+        
+        Args:
+            item_index: Index of item in inventory to remove
+            
+        Returns:
+            True if item was removed successfully
+        """
+        if not (0 <= item_index < len(self.player.inventory_manager.instances)):
+            return False
+        
+        instance = self.player.inventory_manager.instances[item_index]
+        return self.player.inventory_manager.remove_instance(instance.instance_id) is not None
+
     def handle_use_item(self, item_index: int) -> bool:
         # --- Use item logic --- (omitted for brevity, keep your existing logic)
          if not (0 <= item_index < len(self.player.inventory)): return False
@@ -314,7 +330,7 @@ class Engine:
              
              if success and spell_data:
                  # Remove scroll from inventory
-                 self.player.inventory.pop(item_index)
+                 self._remove_item_by_index(item_index)
                  
                  # Apply spell effects (similar to cast_spell but without target selection for now)
                  effect_type = spell_data.get('effect_type', 'unknown')
@@ -352,14 +368,14 @@ class Engine:
                      else:
                          self.log_event(f"Nothing happens.")
                  # Note: attack and debuff scrolls would need target selection
-                elif effect_type == 'utility':
-                    self._handle_utility_spell(spell_data)
+                 elif effect_type == 'utility':
+                     self._handle_utility_spell(spell_data)
                  
                  self._end_player_turn()
                  return True
              elif success:
                  # Scroll used but no spell data (custom effect scrolls)
-                 self.player.inventory.pop(item_index)
+                 self._remove_item_by_index(item_index)
                  self._end_player_turn()
                  return True
              else:
@@ -372,11 +388,8 @@ class Engine:
              success, learned_spells, message = self.player.read_spellbook(item_name)
              self.log_event(message)
              
-             if success:
-                 # Keep the book in inventory (can be referenced later)
-                 # Or remove if you want single-use books:
-                 # self.player.inventory.pop(item_index)
-                 pass
+             # Consume the book after reading
+             self._remove_item_by_index(item_index)
              
              self._end_player_turn()
              return True
@@ -385,7 +398,7 @@ class Engine:
          if "Potion" in item_name:
              success = self._use_potion(item_name)
              if success:
-                 self.player.inventory.pop(item_index)
+                 self._remove_item_by_index(item_index)
                  self._end_player_turn()
                  return True
              else:
@@ -395,7 +408,7 @@ class Engine:
          if "Food" in item_name or "Ration" in item_name:
              success = self._use_food(item_name)
              if success:
-                 self.player.inventory.pop(item_index)
+                 self._remove_item_by_index(item_index)
                  self._end_player_turn()
                  return True
              else:
