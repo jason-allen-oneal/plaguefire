@@ -907,8 +907,12 @@ class Engine:
         
         self.ground_items[pos_key].append(item_name)
         
-        # Remove from inventory
-        self.player.inventory.pop(item_index)
+        # Remove from inventory using inventory manager
+        # Get the instance by item name
+        instances = self.player.inventory_manager.get_instances_by_name(item_name)
+        if instances:
+            # Remove the first instance
+            self.player.inventory_manager.remove_instance(instances[0].instance_id)
         
         self.log_event(f"You drop {item_name}.")
         self._end_player_turn()
@@ -975,7 +979,10 @@ class Engine:
                     if "Potion" not in item_name:
                         if random.random() < 0.5:  # 50% chance to break
                             self.log_event(f"{item_name} breaks!")
-                            self.player.inventory.pop(item_index)
+                            # Remove from inventory using inventory manager
+                            instances = self.player.inventory_manager.get_instances_by_name(item_name)
+                            if instances:
+                                self.player.inventory_manager.remove_instance(instances[0].instance_id)
                             self._end_player_turn()
                             return True
                 else:
@@ -990,7 +997,10 @@ class Engine:
                     self.ground_items[pos_key] = []
                 
                 self.ground_items[pos_key].append(item_name)
-                self.player.inventory.pop(item_index)
+                # Remove from inventory using inventory manager
+                instances = self.player.inventory_manager.get_instances_by_name(item_name)
+                if instances:
+                    self.player.inventory_manager.remove_instance(instances[0].instance_id)
                 self._end_player_turn()
                 return True
             
@@ -1007,66 +1017,70 @@ class Engine:
             self.ground_items[pos_key] = []
         
         self.ground_items[pos_key].append(item_name)
-        self.player.inventory.pop(item_index)
+        # Remove from inventory using inventory manager
+        instances = self.player.inventory_manager.get_instances_by_name(item_name)
+        if instances:
+            self.player.inventory_manager.remove_instance(instances[0].instance_id)
         
         self._end_player_turn()
         return True
     
     def handle_exchange_weapon(self) -> bool:
         """Exchange primary and secondary weapons."""
-        # Check if player has a weapon equipped
-        if not hasattr(self.player, 'equipment') or 'weapon' not in self.player.equipment:
+        # Equipment is now managed through inventory_manager and returns instances
+        weapon_instance = self.player.inventory_manager.equipment.get('weapon')
+        
+        if not weapon_instance:
             self.log_event("You don't have a weapon equipped!")
             return False
         
-        primary_weapon = self.player.equipment.get('weapon')
+        # Initialize secondary weapon slot if it doesn't exist (as instance)
+        if not hasattr(self.player, 'secondary_weapon_instance'):
+            self.player.secondary_weapon_instance = None
         
-        # Initialize secondary weapon slot if it doesn't exist
-        if not hasattr(self.player, 'secondary_weapon'):
-            self.player.secondary_weapon = None
+        secondary_weapon_instance = self.player.secondary_weapon_instance
         
-        secondary_weapon = self.player.secondary_weapon
-        
-        if not primary_weapon and not secondary_weapon:
+        if not weapon_instance and not secondary_weapon_instance:
             self.log_event("You don't have any weapons to exchange!")
             return False
         
         # Swap weapons
-        self.player.equipment['weapon'] = secondary_weapon
-        self.player.secondary_weapon = primary_weapon
+        self.player.inventory_manager.equipment['weapon'] = secondary_weapon_instance
+        self.player.secondary_weapon_instance = weapon_instance
         
-        if secondary_weapon:
-            self.log_event(f"You swap to {secondary_weapon}.")
+        if secondary_weapon_instance:
+            self.log_event(f"You swap to {secondary_weapon_instance.item_name}.")
         else:
-            self.log_event(f"You put away {primary_weapon}.")
+            self.log_event(f"You put away {weapon_instance.item_name}.")
         
         self._end_player_turn()
         return True
     
     def handle_fill_lamp(self) -> bool:
         """Fill lamp with oil from inventory."""
-        # Check if player has a lamp equipped
-        if not hasattr(self.player, 'equipment') or 'light' not in self.player.equipment:
+        # Equipment is now managed through inventory_manager and returns instances
+        # Lanterns may be in 'light' or 'weapon' slot depending on the item definition
+        lamp_instance = self.player.inventory_manager.equipment.get('light')
+        if not lamp_instance:
+            lamp_instance = self.player.inventory_manager.equipment.get('weapon')
+        
+        if not lamp_instance:
             self.log_event("You don't have a lamp equipped!")
             return False
         
-        lamp = self.player.equipment.get('light')
-        
-        if not lamp or 'Lantern' not in lamp:
+        if 'Lantern' not in lamp_instance.item_name and 'Torch' not in lamp_instance.item_name:
             self.log_event("You don't have a lantern to fill!")
             return False
         
         # Look for oil in inventory
-        oil_found = False
-        oil_index = -1
+        oil_instance = None
         
-        for i, item in enumerate(self.player.inventory):
-            if 'Oil' in item or 'Flask' in item:
-                oil_found = True
-                oil_index = i
+        for instance in self.player.inventory_manager.instances:
+            if 'Oil' in instance.item_name or 'oil' in instance.item_name:
+                oil_instance = instance
                 break
         
-        if not oil_found:
+        if not oil_instance:
             self.log_event("You don't have any oil!")
             return False
         
@@ -1079,10 +1093,10 @@ class Engine:
         fuel_added = min(500, max_fuel - self.player.lamp_fuel)
         self.player.lamp_fuel += fuel_added
         
-        # Remove oil from inventory
-        oil_name = self.player.inventory.pop(oil_index)
+        # Remove oil from inventory using inventory manager
+        self.player.inventory_manager.remove_instance(oil_instance.instance_id)
         
-        self.log_event(f"You fill your lantern with {oil_name}. ({self.player.lamp_fuel}/{max_fuel} turns)")
+        self.log_event(f"You fill your lantern with {oil_instance.item_name}. ({self.player.lamp_fuel}/{max_fuel} turns)")
         self._end_player_turn()
         return True
     
