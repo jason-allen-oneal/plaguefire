@@ -7,7 +7,7 @@ This document tracks all partial implementations, stubs, and missing features.
 
 ### Light Sources and Vision
 
-- [ ] **Darkness Effects**
+- [x] **Darkness Effects**
   - Required: Limited vision when out of light
   - Penalty: Reduced FOV, combat penalties
 

@@ -1575,11 +1575,29 @@ class Engine:
                 self.game_map[ty][tx] = FLOOR; self.update_fov(); self.log_event("Dug through rock."); return True
         return False
 
+    def is_in_darkness(self, x: int, y: int) -> bool:
+        """Check if a position is in darkness (not lit)."""
+        # In town during day, nothing is dark
+        if self.player.depth == 0 and self.get_time_of_day() == "Day":
+            return False
+        # Check if position is visible (lit)
+        if 0 <= y < self.map_height and 0 <= x < self.map_width:
+            return self.visibility[y][x] < 2  # Not currently visible means in darkness
+        return True
+
     def handle_player_attack(self, target: Entity) -> bool:
         # --- Player attack logic --- (omitted for brevity, keep your existing logic)
         str_mod = (self.player.stats.get('STR', 10) - 10) // 2
         prof = 2 + (self.player.level - 1) // 4
         roll = random.randint(1, 20); total_atk = roll + str_mod + prof
+        
+        # Apply darkness penalty to attack roll
+        tx, ty = target.position
+        if self.is_in_darkness(tx, ty):
+            darkness_penalty = 2
+            total_atk -= darkness_penalty
+            self.log_event(f"Attacking in darkness! (-{darkness_penalty} to hit)")
+        
         target_ac = 10 + target.defense
         is_crit = (roll == 20); is_miss = (roll == 1 or total_atk < target_ac)
         if is_miss: self.log_event(f"You miss {target.name}."); return False
@@ -1609,6 +1627,13 @@ class Engine:
     def handle_entity_attack(self, entity: Entity) -> bool:
         # --- Entity attack logic --- (omitted for brevity, keep your existing logic)
         roll = random.randint(1, 20); total_atk = roll + entity.attack
+        
+        # Apply darkness penalty to entity attack roll
+        px, py = self.player.position
+        if self.is_in_darkness(px, py):
+            darkness_penalty = 2
+            total_atk -= darkness_penalty
+        
         dex_mod = (self.player.stats.get('DEX', 10) - 10) // 2; player_ac = 10 + dex_mod
         armor_name = self.player.equipment.get('armor')
         if armor_name: armor_tmpl = GameData().get_item_by_name(armor_name); player_ac += armor_tmpl.get('defense_bonus', 0) if armor_tmpl else 0
