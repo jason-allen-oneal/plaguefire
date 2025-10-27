@@ -138,12 +138,13 @@ class ChestInstance:
         ]
         return random.choice(traps)
     
-    def disarm_trap(self, player_disarm_skill: int) -> Tuple[bool, str]:
+    def disarm_trap(self, player_disarm_skill: int, lockpick_bonus: int = 0) -> Tuple[bool, str]:
         """
         Attempt to disarm a trap.
         
         Args:
             player_disarm_skill: Player's disarming ability
+            lockpick_bonus: Bonus from lockpicking tools
         
         Returns:
             (success, message)
@@ -155,8 +156,9 @@ class ChestInstance:
             return True, "The trap has already been disarmed."
         
         # Calculate success chance
-        # Base 50% + (skill - difficulty) * 5%
-        success_chance = 50 + (player_disarm_skill - self.trap_difficulty) * 5
+        # Base 50% + (skill + bonus - difficulty) * 5%
+        total_skill = player_disarm_skill + lockpick_bonus
+        success_chance = 50 + (total_skill - self.trap_difficulty) * 5
         success_chance = max(5, min(95, success_chance))
         
         roll = random.randint(1, 100)
@@ -168,12 +170,13 @@ class ChestInstance:
             # Failed - trigger trap
             return False, f"You fail to disarm the trap and trigger it!"
     
-    def open_chest(self, player_disarm_skill: int) -> Tuple[bool, str, Optional[str]]:
+    def open_chest(self, player_disarm_skill: int, lockpick_bonus: int = 0) -> Tuple[bool, str, Optional[str]]:
         """
         Attempt to open a locked chest.
         
         Args:
             player_disarm_skill: Player's disarming ability (for lockpicking)
+            lockpick_bonus: Bonus from lockpicking tools
         
         Returns:
             (success, message, trap_effect) - trap_effect is trap type if triggered
@@ -192,7 +195,8 @@ class ChestInstance:
         
         # Try to pick the lock
         if self.locked:
-            success_chance = 50 + (player_disarm_skill - self.lock_difficulty) * 5
+            total_skill = player_disarm_skill + lockpick_bonus
+            success_chance = 50 + (total_skill - self.lock_difficulty) * 5
             success_chance = max(5, min(95, success_chance))
             
             roll = random.randint(1, 100)

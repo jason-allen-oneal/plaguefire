@@ -917,8 +917,11 @@ class GameScreen(Screen):
             # Get player's disarm skill (use DEX for lockpicking)
             player_skill = self.engine.player.stats.get('DEX', 10)
             
+            # Get lockpick bonus from tools
+            lockpick_bonus = self.engine.player.get_lockpick_bonus()
+            
             # Try to open the chest
-            success, message, trap_type = chest.open_chest(player_skill)
+            success, message, trap_type = chest.open_chest(player_skill, lockpick_bonus)
             self.notify(message)
             
             if trap_type:
@@ -985,7 +988,7 @@ class GameScreen(Screen):
                 weapon_name = weapon_item.get('name', '')
         
         # Attempt to dig
-        success, message, treasure = mining_system.dig(tx, ty, tile, weapon_name)
+        success, message, treasure = mining_system.dig(tx, ty, tile, weapon_name, player=self.engine.player)
         
         if success:
             # Digging complete - convert to floor

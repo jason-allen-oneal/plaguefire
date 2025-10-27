@@ -106,7 +106,8 @@ class MiningSystem:
         x: int,
         y: int,
         tile: str,
-        weapon_name: Optional[str] = None
+        weapon_name: Optional[str] = None,
+        player: Optional['Player'] = None
     ) -> Tuple[bool, str, Optional[List[str]]]:
         """
         Attempt to dig at a location.
@@ -116,6 +117,7 @@ class MiningSystem:
             y: Y coordinate
             tile: Current tile at location
             weapon_name: Name of wielded weapon
+            player: Player object for tracking statistics (optional)
         
         Returns:
             (success, message, treasure_list) - success if digging completes,
@@ -150,8 +152,18 @@ class MiningSystem:
             # Digging complete!
             self.dig_progress.pop(position, None)
             
+            # Track vein mining statistics
+            if player and tile in (QUARTZ_VEIN, MAGMA_VEIN):
+                player.mining_stats["veins_mined"] = player.mining_stats.get("veins_mined", 0) + 1
+            
             # Check for treasure
             treasure = self._spawn_treasure(tile)
+            
+            # Track gems found
+            if player and treasure:
+                gem_count = sum(1 for item in treasure if item.startswith("GEM_"))
+                if gem_count > 0:
+                    player.mining_stats["gems_found"] = player.mining_stats.get("gems_found", 0) + gem_count
             
             if treasure:
                 return True, f"You dig through and find treasure!", treasure

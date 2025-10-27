@@ -386,5 +386,18 @@
       "Mage": {"min_level": 21, "mana": 12, "base_failure": 45},
       "Ranger": {"min_level": 29, "mana": 23, "base_failure": 55}
     }
+  },
+  {
+    "id": "detect_treasure",
+    "name": "Detect Treasure",
+    "category": "shared",
+    "effect_type": "detect",
+    "effect_target": "treasure",
+    "description": "Reveals treasure veins and valuable ore deposits within range.",
+    "classes": {
+      "Mage": {"min_level": 5, "mana": 3, "base_failure": 25},
+      "Ranger": {"min_level": 7, "mana": 4, "base_failure": 30},
+      "Rogue": {"min_level": 3, "mana": 2, "base_failure": 15}
+    }
   }
 ]
