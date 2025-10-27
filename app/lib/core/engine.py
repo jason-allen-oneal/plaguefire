@@ -2052,15 +2052,42 @@ class Engine:
                 if final_pos:
                     # Check if position is valid
                     x, y = final_pos
-                    if 0 <= x < self.map_width and 0 <= y < self.map_height:
-                        if self.game_map[y][x] != WALL:
-                            self.ground_items.setdefault(final_pos, []).append(item.item_name)
-                            debug(f"Item {item.item_name} settled at {final_pos}")
-                        else:
-                            # Item rolled into wall, place at starting position
-                            start_pos = (int(item.position[0]), int(item.position[1]))
-                            self.ground_items.setdefault(start_pos, []).append(item.item_name)
-                            debug(f"Item {item.item_name} hit wall, placed at {start_pos}")
+                    
+                    # Clamp to map bounds
+                    x = max(0, min(x, self.map_width - 1))
+                    y = max(0, min(y, self.map_height - 1))
+                    final_pos = (x, y)
+                    
+                    # Check if it's a valid floor tile
+                    if 0 <= x < self.map_width and 0 <= y < self.map_height and self.game_map[y][x] != WALL:
+                        self.ground_items.setdefault(final_pos, []).append(item.item_name)
+                        debug(f"Item {item.item_name} settled at {final_pos}")
+                    else:
+                        # Item rolled into wall or invalid position, find nearest valid floor
+                        # Try positions in expanding circles
+                        found_valid = False
+                        for radius in range(1, 5):
+                            for dy in range(-radius, radius + 1):
+                                for dx in range(-radius, radius + 1):
+                                    check_x, check_y = x + dx, y + dy
+                                    if (0 <= check_x < self.map_width and 
+                                        0 <= check_y < self.map_height and 
+                                        self.game_map[check_y][check_x] != WALL):
+                                        final_pos = (check_x, check_y)
+                                        self.ground_items.setdefault(final_pos, []).append(item.item_name)
+                                        debug(f"Item {item.item_name} placed at nearest floor {final_pos}")
+                                        found_valid = True
+                                        break
+                                if found_valid:
+                                    break
+                            if found_valid:
+                                break
+                        
+                        if not found_valid:
+                            # Last resort: place at player position
+                            px, py = self.player.position
+                            self.ground_items.setdefault((px, py), []).append(item.item_name)
+                            debug(f"Item {item.item_name} placed at player position as fallback")
         
         self.dropped_items = still_animating
     

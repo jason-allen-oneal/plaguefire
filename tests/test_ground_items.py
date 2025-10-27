@@ -91,25 +91,42 @@ def test_entity_drops_on_ground():
     # Kill the entity
     engine.handle_entity_death(entity)
     
-    # Check that items are on the ground, not in inventory
+    # Check that items are not added to inventory directly
     assert len(player.inventory) == initial_inventory_count, "Items should not be added to inventory directly"
     assert player.gold == initial_gold, "Gold should not be added directly to player"
     
-    # Check ground items
+    # Items now use physics simulation, so we need to update the physics
+    # until all items settle
+    max_updates = 100
+    for _ in range(max_updates):
+        engine.update_dropped_items()
+        if not engine.dropped_items:
+            break
+    
+    # Check ground items after physics simulation completes
     pos_key = (3, 2)
-    assert pos_key in engine.ground_items, "Items should be on ground at entity position"
+    # Items may have rolled slightly from their starting position
+    # Check that at least some items are on the ground nearby
+    items_found = False
+    gold_found = False
     
-    # Check for gold on ground
-    gold_items = [item for item in engine.ground_items[pos_key] if item.startswith("$")]
-    assert len(gold_items) > 0, "Gold should be on ground"
+    for y in range(1, 4):
+        for x in range(1, 4):
+            check_pos = (x, y)
+            if check_pos in engine.ground_items:
+                items = engine.ground_items[check_pos]
+                if any(item.startswith("$") for item in items):
+                    gold_found = True
+                if any(not item.startswith("$") for item in items):
+                    items_found = True
     
-    # Check for item on ground
-    non_gold_items = [item for item in engine.ground_items[pos_key] if not item.startswith("$")]
-    assert len(non_gold_items) > 0, "Item should be on ground"
+    assert gold_found, "Gold should be on ground"
+    assert items_found, "Item should be on ground"
     
     print("✓ Entity death drops items on ground")
     print("✓ Items not added directly to inventory")
     print("✓ Gold marked on ground")
+    print("✓ Items settled after physics simulation")
     print("✓ Test passed!")
 
 
