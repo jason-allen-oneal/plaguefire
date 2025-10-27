@@ -2,7 +2,7 @@
 
 This document tracks all partial implementations, stubs, and missing features compared to Moria/Angband.
 
-Last Updated: 2025-10-26
+Last Updated: 2025-10-27
 
 ---
 
@@ -26,11 +26,13 @@ Last Updated: 2025-10-26
 
 ### Mining System (Infrastructure Exists)
 
-**Remaining Work**:
+**Completed**:
 
-- [ ] **Add Mining Command**
-  - Required: 'd' or 'dig' command in game.py
-  - Integration: Call `mining.dig()` from engine
+- [x] **Add Mining Command**
+  - Implemented: 'T' (tunnel) command in game.py integrates with mining system
+  - Integration: Calls `mining.dig()` with weapon detection and treasure spawning
+
+**Remaining Work**:
 
 - [ ] **Vein Detection Spell**
   - Items: Staff/Scroll of Treasure Location
@@ -46,19 +48,21 @@ Last Updated: 2025-10-26
 
 ### Chest System (Infrastructure Exists)
 
+**Completed**:
+
+- [x] **Add Chests to Dungeon Generation**
+  - Implemented: Chests spawn in dungeons (1-3 per level based on depth)
+  - Integration: ChestSystem integrated with spawning system
+
+- [x] **Chest Interaction Commands**
+  - Implemented: 'o' (open), 'D' (disarm), 'B/f' (force) commands
+  - Integration: Commands connected to ChestSystem methods
+
+- [x] **Trap Effects**
+  - Implemented: poison_needle, poison_gas, summon_monster, alarm, explosion, dart, magic_drain
+  - Current: All trap types apply their effects when triggered
+
 **Remaining Work**:
-
-- [ ] **Add Chests to Dungeon Generation**
-  - Required: Spawn chests in rooms
-  - Integration: Add ChestSystem to engine
-
-- [ ] **Chest Interaction Commands**
-  - Required: 'o' (open), 'd' (disarm), 'f' (force) commands
-  - Integration: Connect commands to ChestSystem methods
-
-- [ ] **Trap Effects**
-  - Required: Implement poison, summon, explosion, alarm effects
-  - Current: Trap types exist but effects not applied
 
 - [ ] **Lockpicking Tools**
   - Items: Lockpicks, skeleton keys
@@ -178,9 +182,9 @@ Last Updated: 2025-10-26
 
 #### Commands Missing
 
-- [ ] **Tunnel Command** ('T')
-- [ ] **Look Command** ('l')
-- [ ] **Character Sheet** ('C')
+- [x] **Tunnel Command** ('T') - Implemented with mining system integration
+- [x] **Look Command** ('l' in original, 'x' in roguelike) - Already implemented
+- [x] **Character Sheet** ('C') - Implemented with detailed stats display
 
 #### Dungeon Features
 
