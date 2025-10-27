@@ -213,6 +213,3 @@ Plaguefire faithfully implements classic Moria/Angband object mechanics:
 - **Mining System**: Dig through quartz veins (%) and magma veins (~) with picks and shovels for gems and treasure
 - **Chest System**: Locked and trapped chests with multiple interaction options (pick lock, disarm trap, force open)
 - **341+ Items**: Comprehensive item database including weapons, armor, potions, scrolls, wands, staves, books, and more
-
-For complete details on object mechanics, see [docs/MORIA_MECHANICS.md](docs/MORIA_MECHANICS.md) and [EXTREME_REFACTORS.md](EXTREME_REFACTORS.md).
-
