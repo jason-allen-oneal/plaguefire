@@ -543,6 +543,13 @@ class Player:
         # --- Dictionary to track custom inscriptions on items ---
         self.custom_inscriptions: Dict[str, str] = data.get("custom_inscriptions", {})
         
+        # --- Mining statistics ---
+        self.mining_stats: Dict[str, int] = data.get("mining_stats", {
+            "veins_mined": 0,
+            "gems_found": 0,
+            "total_treasure_value": 0
+        })
+        
         # Note: Starting spells should be provided via character creation, not auto-learned
         if self.known_spells:
             debug(f"Loaded known_spells: {self.known_spells}")
@@ -782,6 +789,7 @@ class Player:
             "status_effects": self.status_manager.get_active_effects_display(),  # Save active effects
             "known_spells": self.known_spells,
             "spells_available_to_learn": self.spells_available_to_learn, # Save pending choices
+            "mining_stats": self.mining_stats,  # Save mining statistics
         }
         return data
 

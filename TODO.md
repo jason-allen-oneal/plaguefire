@@ -17,9 +17,10 @@ Last Updated: 2025-10-27
   - Required: Highlight veins on map ✓
   - Status: COMPLETED - Added detect_treasure spell, Staff/Scroll of Treasure Location, and detection logic
 
-- [ ] **Mining Statistics**
-  - Required: Track gems found, veins mined
-  - Enhancement: Character progression tracking
+- [x] **Mining Statistics**
+  - Required: Track gems found, veins mined ✓
+  - Enhancement: Character progression tracking ✓
+  - Status: COMPLETED - Added mining_stats dict to Player tracking veins_mined, gems_found, total_treasure_value
 
 ### Chest System (Infrastructure Exists)
 

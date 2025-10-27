@@ -985,7 +985,7 @@ class GameScreen(Screen):
                 weapon_name = weapon_item.get('name', '')
         
         # Attempt to dig
-        success, message, treasure = mining_system.dig(tx, ty, tile, weapon_name)
+        success, message, treasure = mining_system.dig(tx, ty, tile, weapon_name, player=self.engine.player)
         
         if success:
             # Digging complete - convert to floor
