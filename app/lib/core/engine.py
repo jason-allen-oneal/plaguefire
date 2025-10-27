@@ -128,6 +128,9 @@ class Engine:
         self.last_overweight_warning = 0
         self.overweight_warning_interval = 50  # Warn every 50 turns when overweight
         
+        # Ground items tracking {(x, y): [item_name, ...]}
+        self.ground_items = {}
+        
         self.update_fov()
 
     def get_time_of_day(self) -> str:
@@ -290,6 +293,27 @@ class Engine:
                          self.log_event("Your light source has expired!")
                 time_after_move_check = self.get_time_of_day()
                 if self.player.depth == 0 and time_before_move != time_after_move_check: self.update_fov()
+                
+                # Auto-pickup gold on the tile
+                pos_key = (nx, ny)
+                if pos_key in self.ground_items:
+                    items_to_remove = []
+                    for item in self.ground_items[pos_key]:
+                        if item.startswith("$"):
+                            # It's gold - auto-pickup
+                            gold_amount = int(item[1:])
+                            self.player.gold += gold_amount
+                            self.log_event(f"You pick up {gold_amount} gold.")
+                            items_to_remove.append(item)
+                    
+                    # Remove picked up gold
+                    for item in items_to_remove:
+                        self.ground_items[pos_key].remove(item)
+                    
+                    # Clean up empty ground item lists
+                    if not self.ground_items[pos_key]:
+                        del self.ground_items[pos_key]
+                
                 action_taken = True
             # else: Bumping doesn't take a turn
         if action_taken: self._end_player_turn()
@@ -1015,18 +1039,11 @@ class Engine:
                     self.player.equipment[slot] = None
                     self.log_event(f"You remove {item_name}.")
         
-        # Initialize ground items storage if not exists
-        if not hasattr(self, 'ground_items'):
-            self.ground_items = {}
-        
         # Drop item at player's position
         px, py = self.player.position
         pos_key = (px, py)
         
-        if pos_key not in self.ground_items:
-            self.ground_items[pos_key] = []
-        
-        self.ground_items[pos_key].append(item_name)
+        self.ground_items.setdefault(pos_key, []).append(item_name)
         
         # Remove from inventory using inventory manager
         self._remove_item_from_inventory(item_name)
@@ -1034,6 +1051,56 @@ class Engine:
         self.log_event(f"You drop {item_name}.")
         self._end_player_turn()
         return True
+    
+    def handle_pickup_item(self) -> bool:
+        """Handle picking up items from the ground at player's position."""
+        px, py = self.player.position
+        pos_key = (px, py)
+        
+        # Check if there are items on the ground
+        if pos_key not in self.ground_items or not self.ground_items[pos_key]:
+            self.log_event("There is nothing here to pick up.")
+            return False
+        
+        # Filter out gold (already auto-picked up)
+        non_gold_items = [item for item in self.ground_items[pos_key] if not item.startswith("$")]
+        
+        if not non_gold_items:
+            self.log_event("There is nothing here to pick up.")
+            return False
+        
+        # Pick up the first non-gold item
+        item_name = non_gold_items[0]
+        
+        # Check if player can pick up the item
+        can_pickup, reason = self.player.can_pickup_item(item_name)
+        if not can_pickup:
+            self.log_event(f"You cannot pick up {item_name}: {reason}")
+            return False
+        
+        # Get item ID from name for inventory manager
+        item_data = GameData().get_item_by_name(item_name)
+        if not item_data:
+            self.log_event(f"Unknown item: {item_name}")
+            debug(f"Warning: Could not find item data for {item_name}")
+            return False
+        
+        item_id = item_data.get('id', item_name)
+        
+        # Add to inventory using inventory manager
+        if self.player.inventory_manager.add_item(item_id):
+            self.ground_items[pos_key].remove(item_name)
+            
+            # Clean up empty ground item lists
+            if not self.ground_items[pos_key]:
+                del self.ground_items[pos_key]
+            
+            self.log_event(f"You pick up {item_name}.")
+            self._end_player_turn()
+            return True
+        else:
+            self.log_event(f"Failed to pick up {item_name}.")
+            return False
     
     def _remove_item_from_inventory(self, item_name: str) -> bool:
         """
@@ -1119,14 +1186,8 @@ class Engine:
                     self.log_event(f"You miss {target.name}!")
                 
                 # Drop item at target location if it doesn't break
-                if not hasattr(self, 'ground_items'):
-                    self.ground_items = {}
-                
                 pos_key = (next_x, next_y)
-                if pos_key not in self.ground_items:
-                    self.ground_items[pos_key] = []
-                
-                self.ground_items[pos_key].append(item_name)
+                self.ground_items.setdefault(pos_key, []).append(item_name)
                 self._remove_item_from_inventory(item_name)
                 self._end_player_turn()
                 return True
@@ -1136,14 +1197,8 @@ class Engine:
         # Item lands on ground at final position
         self.log_event(f"You throw {item_name}.")
         
-        if not hasattr(self, 'ground_items'):
-            self.ground_items = {}
-        
         pos_key = (tx, ty)
-        if pos_key not in self.ground_items:
-            self.ground_items[pos_key] = []
-        
-        self.ground_items[pos_key].append(item_name)
+        self.ground_items.setdefault(pos_key, []).append(item_name)
         self._remove_item_from_inventory(item_name)
         
         self._end_player_turn()
@@ -1348,7 +1403,7 @@ class Engine:
 
     # --- MODIFIED: handle_entity_death to check gain_xp return value ---
     def handle_entity_death(self, entity: Entity):
-        """Handles removing entity, calculating XP, dropping items/gold, and triggering spell learn screen."""
+        """Handles removing entity, calculating XP, dropping items/gold on ground, and triggering spell learn screen."""
         debug(f"{entity.name} died at {entity.position}")
         xp_reward = self._calculate_xp_reward(entity)
 
@@ -1358,23 +1413,26 @@ class Engine:
             needs_spell_choice = self.player.gain_xp(xp_reward) # Capture the return value
             self.log_event(f"You gain {xp_reward} XP.")
 
-        # --- Drop calculation ---
+        # --- Drop calculation - items and gold drop on ground ---
         item_ids, gold = entity.get_drops()
+        ex, ey = entity.position
+        pos_key = (ex, ey)
+        
+        # Drop gold on ground if any
         if gold > 0:
-            self.player.gold += gold
-            self.log_event(f"You find {gold} gold.")
+            # Use a special marker for gold
+            self.ground_items.setdefault(pos_key, []).append(f"${gold}")
+            self.log_event(f"{entity.name} drops {gold} gold.")
+        
+        # Drop items on ground
         for item_id in item_ids:
-             template = GameData().get_item(item_id)
-             if template:
-                 item_name = template.get("name", item_id)
-                 # Check if player can pick up the item
-                 can_pickup, reason = self.player.can_pickup_item(item_name)
-                 if can_pickup:
-                     self.player.inventory.append(item_name)
-                     self.log_event(f"You find a {item_name}.")
-                 else:
-                     self.log_event(f"You find a {item_name}, but {reason}")
-             else: debug(f"Warn: Unknown item ID '{item_id}'")
+            template = GameData().get_item(item_id)
+            if template:
+                item_name = template.get("name", item_id)
+                self.ground_items.setdefault(pos_key, []).append(item_name)
+                self.log_event(f"{entity.name} drops a {item_name}.")
+            else:
+                debug(f"Warn: Unknown item ID '{item_id}'")
 
         # --- Remove entity ---
         if entity in self.entities:
@@ -1385,6 +1443,7 @@ class Engine:
             debug("Player leveled up and has spells to learn, pushing screen.")
             self.log_event("You feel more experienced! Choose a spell to learn.")
             self.app.push_screen("learn_spell")
+
 
 
     def _calculate_xp_reward(self, entity: Entity) -> int:

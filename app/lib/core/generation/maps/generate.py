@@ -7,9 +7,19 @@ from config import (
     MIN_MAP_WIDTH, MAX_MAP_WIDTH, MIN_MAP_HEIGHT, MAX_MAP_HEIGHT
 )
 from debugtools import debug
-from app.lib.core.utils import find_tile, find_random_floor, find_start_pos
+from app.lib.core.utils import find_tile, find_start_pos
 
 MapData = List[List[str]] # Type alias
+
+
+def find_random_floor(map_data: List[List[str]]) -> Optional[List[int]]:
+    """Find random coordinates [x,y] of a floor tile within map boundaries."""
+    height = len(map_data)
+    width = len(map_data[0]) if height > 0 else 0
+    floor_tiles = [[x, y] for y in range(1, height-1) for x in range(1, width-1) if map_data[y][x] == FLOOR]
+    if not floor_tiles:
+        return None
+    return random.choice(floor_tiles)
 
 # --- Room Definition (Helper for room generator) ---
 class Rect:
