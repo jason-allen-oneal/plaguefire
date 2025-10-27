@@ -1,14 +1,17 @@
 # app/screens/game_screen.py (or keep as game.py if preferred)
 
+import random
 from textual.screen import Screen
 from textual.containers import Horizontal
 from textual.events import Key
 from app.ui.dungeon_view import DungeonView
 from app.ui.hud_view import HUDView
 from app.lib.core.engine import Engine, MapData, BUILDING_KEY # Import MapData if using type hint
-from config import FLOOR, WALL, STAIRS_DOWN, STAIRS_UP, DOOR_CLOSED, DOOR_OPEN, SECRET_DOOR_FOUND # Keep config imports needed for actions
+from config import FLOOR, WALL, STAIRS_DOWN, STAIRS_UP, DOOR_CLOSED, DOOR_OPEN, SECRET_DOOR_FOUND, QUARTZ_VEIN, MAGMA_VEIN, GRANITE # Keep config imports needed for actions
 from debugtools import debug, log_exception
 from typing import Optional, List # Import Optional and List
+from app.lib.core.mining_system import get_mining_system
+from app.lib.core.chest_system import get_chest_system
 
 class GameScreen(Screen):
     # Base bindings that work in both modes
@@ -857,18 +860,50 @@ class GameScreen(Screen):
     # ===== Directional Action Helpers =====
     
     def _open_door_direction(self, dx: int, dy: int):
-        """Open a door in the given direction."""
+        """Open a door or chest in the given direction."""
         px, py = self.engine.player.position
         tx, ty = px + dx, py + dy
-        tile = self.engine.get_tile_at_coords(tx, ty)
         
+        # Get the chest system
+        chest_system = get_chest_system()
+        
+        # Check if there's a chest at this location
+        chest = chest_system.get_chest(tx, ty)
+        if chest:
+            # Get player's disarm skill (use DEX for lockpicking)
+            player_skill = self.engine.player.stats.get('DEX', 10)
+            
+            # Try to open the chest
+            success, message, trap_type = chest.open_chest(player_skill)
+            self.notify(message)
+            
+            if trap_type:
+                # Trap triggered!
+                self._apply_trap_effect(trap_type)
+            
+            if success and chest.opened:
+                # Chest opened - show contents
+                contents = chest.generate_contents()
+                if contents:
+                    # Add items to the floor
+                    for item_id in contents:
+                        if hasattr(self.engine, 'add_item_to_floor'):
+                            self.engine.add_item_to_floor(tx, ty, item_id)
+                        debug(f"Chest contents: {item_id}")
+                    self.notify(f"The chest contains {len(contents)} items!")
+            
+            debug(f"Open chest at ({tx}, {ty}): {message}")
+            return
+        
+        # Open door
+        tile = self.engine.get_tile_at_coords(tx, ty)
         if tile == DOOR_CLOSED:
             self.engine.game_map[ty][tx] = DOOR_OPEN
             self.notify("You open the door.")
             self.dungeon_view.update_map()
             debug(f"Opened door at ({tx}, {ty})")
         else:
-            self.notify("There is no closed door there.")
+            self.notify("There is nothing to open there.")
     
     def _close_door_direction(self, dx: int, dy: int):
         """Close a door in the given direction."""
@@ -885,23 +920,83 @@ class GameScreen(Screen):
             self.notify("There is no open door there.")
     
     def _tunnel_direction(self, dx: int, dy: int):
-        """Tunnel/dig in the given direction."""
+        """Tunnel/dig in the given direction using the mining system."""
         px, py = self.engine.player.position
         tx, ty = px + dx, py + dy
         tile = self.engine.get_tile_at_coords(tx, ty)
         
-        if tile == WALL:
+        # Get the mining system
+        mining_system = get_mining_system()
+        
+        # Check if the tile can be dug
+        if not mining_system.can_dig(tile):
+            self.notify("You cannot dig there.")
+            return
+        
+        # Get the player's equipped weapon
+        weapon_name = None
+        if hasattr(self.engine.player, 'equipment') and self.engine.player.equipment:
+            weapon_item = self.engine.player.equipment.get('weapon')
+            if weapon_item:
+                weapon_name = weapon_item.get('name', '')
+        
+        # Attempt to dig
+        success, message, treasure = mining_system.dig(tx, ty, tile, weapon_name)
+        
+        if success:
+            # Digging complete - convert to floor
             self.engine.game_map[ty][tx] = FLOOR
-            self.notify("You tunnel through the wall.")
+            self.notify(message)
+            
+            # If treasure was found, add it to the player's inventory
+            if treasure:
+                for item_id in treasure:
+                    if hasattr(self.engine, 'add_item_to_inventory'):
+                        self.engine.add_item_to_inventory(item_id)
+                    debug(f"Found treasure: {item_id}")
+            
             self.dungeon_view.update_map()
-            debug(f"Tunneled at ({tx}, {ty})")
+            debug(f"Dug through at ({tx}, {ty})")
         else:
-            self.notify("You cannot tunnel there.")
+            # Still digging
+            self.notify(message)
+            debug(f"Digging in progress at ({tx}, {ty})")
     
     def _bash_direction(self, dx: int, dy: int):
-        """Bash in the given direction."""
+        """Bash in the given direction (force open chests or doors)."""
         px, py = self.engine.player.position
         tx, ty = px + dx, py + dy
+        
+        # Get the chest system
+        chest_system = get_chest_system()
+        
+        # Check if there's a chest at this location
+        chest = chest_system.get_chest(tx, ty)
+        if chest:
+            # Get player's strength
+            player_str = self.engine.player.stats.get('STR', 10)
+            
+            # Try to force open the chest
+            success, message, trap_type = chest.force_open(player_str)
+            self.notify(message)
+            
+            if trap_type:
+                # Trap triggered!
+                self._apply_trap_effect(trap_type)
+            
+            if success and chest.opened:
+                # Chest opened - show contents
+                contents = chest.generate_contents()
+                if contents:
+                    # Add items to the floor or inventory
+                    for item_id in contents:
+                        if hasattr(self.engine, 'add_item_to_floor'):
+                            self.engine.add_item_to_floor(tx, ty, item_id)
+                        debug(f"Chest contents: {item_id}")
+                    self.notify(f"The chest contains {len(contents)} items!")
+            
+            debug(f"Bash chest at ({tx}, {ty}): {message}")
+            return
         
         # Check for entity
         entity = self.engine.get_entity_at(tx, ty)
@@ -919,16 +1014,36 @@ class GameScreen(Screen):
                 self.notify("Nothing to bash there.")
     
     def _disarm_direction(self, dx: int, dy: int):
-        """Disarm a trap in the given direction."""
+        """Disarm a trap in the given direction (works on chests)."""
         px, py = self.engine.player.position
         tx, ty = px + dx, py + dy
         
-        # Check if there's a trap at this location
+        # Get the chest system
+        chest_system = get_chest_system()
+        
+        # Check if there's a chest at this location
+        chest = chest_system.get_chest(tx, ty)
+        if chest:
+            # Get player's disarm skill (use DEX for now)
+            player_skill = self.engine.player.stats.get('DEX', 10)
+            
+            # Try to disarm the trap
+            success, message = chest.disarm_trap(player_skill)
+            self.notify(message)
+            
+            if not success and chest.trapped:
+                # Trap triggered! Apply trap effects
+                self._apply_trap_effect(chest.trap_type)
+            
+            debug(f"Disarm chest at ({tx}, {ty}): {message}")
+            return
+        
+        # Check if there's a trap at this location (existing trap system)
         if hasattr(self.engine, 'handle_disarm_trap'):
             if self.engine.handle_disarm_trap(tx, ty):
                 self._refresh_ui()
         else:
-            self.notify("Disarm: Not yet implemented.", severity="info")
+            self.notify("There is nothing to disarm there.")
         
         debug(f"Disarm direction ({dx}, {dy})")
     
@@ -943,6 +1058,51 @@ class GameScreen(Screen):
             debug(f"Jammed door at ({tx}, {ty})")
         else:
             self.notify("There is no door there to jam.")
+    
+    def _apply_trap_effect(self, trap_type: str):
+        """Apply the effects of a triggered trap."""
+        if trap_type == "poison_needle":
+            damage = random.randint(1, 6)
+            self.engine.player.hp -= damage
+            self.notify(f"A poison needle pricks you! You take {damage} damage.")
+            # Could add poison status effect here
+            
+        elif trap_type == "poison_gas":
+            damage = random.randint(2, 8)
+            self.engine.player.hp -= damage
+            self.notify(f"Poison gas fills the air! You take {damage} damage.")
+            
+        elif trap_type == "summon_monster":
+            self.notify("The trap summons a monster!")
+            # Could spawn a monster here
+            
+        elif trap_type == "alarm":
+            self.notify("An alarm sounds! Nearby monsters are alerted!")
+            # Could wake nearby monsters here
+            
+        elif trap_type == "explosion":
+            damage = random.randint(5, 15)
+            self.engine.player.hp -= damage
+            self.notify(f"An explosion erupts! You take {damage} damage.")
+            
+        elif trap_type == "dart":
+            damage = random.randint(1, 4)
+            self.engine.player.hp -= damage
+            self.notify(f"A dart shoots out! You take {damage} damage.")
+            
+        elif trap_type == "magic_drain":
+            if hasattr(self.engine.player, 'mana') and self.engine.player.mana > 0:
+                drain = min(random.randint(5, 15), self.engine.player.mana)
+                self.engine.player.mana -= drain
+                self.notify(f"The trap drains {drain} mana!")
+            else:
+                self.notify("The trap tries to drain your mana, but you have none!")
+        
+        # Update UI to reflect damage
+        if hasattr(self, 'hud_view'):
+            self.hud_view.update_stats()
+        
+        debug(f"Applied trap effect: {trap_type}")
     
     def _start_running(self, dx: int, dy: int):
         """Start running in the given direction."""
