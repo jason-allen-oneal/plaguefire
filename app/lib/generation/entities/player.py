@@ -1022,23 +1022,8 @@ class Player:
         Returns:
             Current carried weight (in pounds * 10)
         """
-        data_loader = GameData()
-        total_weight = 0
-        
-        # Weight of inventory items
-        for item_name in self.inventory:
-            item_data = data_loader.get_item_by_name(item_name)
-            if item_data:
-                total_weight += item_data.get("weight", 10)
-        
-        # Weight of equipped items
-        for slot, item_name in self.equipment.items():
-            if item_name:
-                item_data = data_loader.get_item_by_name(item_name)
-                if item_data:
-                    total_weight += item_data.get("weight", 10)
-        
-        return total_weight
+        # Use the inventory_manager's built-in weight calculation
+        return self.inventory_manager.get_total_weight()
     
     def is_overweight(self) -> bool:
         """Check if player is carrying more than their capacity."""
@@ -1164,8 +1149,14 @@ class Player:
         Returns:
             True if successfully inscribed
         """
-        # Check if item exists in inventory or equipment
-        if item_name not in self.inventory and item_name not in self.equipment.values():
+        # Check if item exists in inventory or equipment using inventory_manager
+        found_in_inventory = len(self.inventory_manager.get_instances_by_name(item_name)) > 0
+        found_in_equipment = any(
+            inst and inst.item_name == item_name 
+            for inst in self.inventory_manager.equipment.values()
+        )
+        
+        if not found_in_inventory and not found_in_equipment:
             debug(f"Cannot inscribe {item_name} - not found")
             return False
         
