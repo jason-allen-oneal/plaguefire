@@ -46,12 +46,13 @@ Last Updated: 2025-10-27
   - Required: Limited vision when out of light
   - Penalty: Reduced FOV, combat penalties
 
-**Missing**:
+**Status Effects**:
 
-- [ ] **Sleep/Slow**
-  - Effect: Skip turns or reduced speed
-  - Sources: Monster spells, traps
-  - Note: Slowed effect exists, Sleep needs implementation
+- [x] **Sleep/Slow**
+  - Effect: Skip turns or reduced speed ✓
+  - Sources: Monster spells, traps ✓
+  - Status: COMPLETED - Both Asleep and Slowed effects fully implemented with spell, items, and engine integration
+  - Note: Slowed effect reduces speed by -2, Asleep causes entities to skip turns
 
 ### Monster AI Enhancements
 
