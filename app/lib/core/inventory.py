@@ -175,6 +175,19 @@ class InventoryManager:
                 # Both ring slots occupied, unequip left ring
                 self.unequip_slot("ring_left")
                 slot = "ring_left"
+        # Handle quiver slot specially - stack same ammunition types
+        elif instance.slot == "quiver":
+            slot = "quiver"
+            current_ammo = self.equipment.get("quiver")
+            
+            if current_ammo and current_ammo.item_id == instance.item_id:
+                # Same ammunition type - stack them
+                current_ammo.quantity += instance.quantity
+                self.remove_instance(instance_id)
+                return True, f"Added {instance.quantity} {instance.item_name} to quiver ({current_ammo.quantity} total)"
+            elif current_ammo:
+                # Different ammunition type - unequip current
+                self.unequip_slot("quiver")
         else:
             slot = instance.slot
             # Unequip current item in slot

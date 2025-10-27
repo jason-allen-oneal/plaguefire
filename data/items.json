@@ -146,7 +146,7 @@
     "BOOTS_HARD_LEATHER": {
       "name": "Pair of Hard Leather Boots",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_feet",
       "base_cost": 30,
       "description": "Sturdy boots.",
       "defense_bonus": 1,
@@ -159,7 +159,7 @@
     "BOOTS_SOFT_LEATHER": {
       "name": "Pair of Soft Leather Boots",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_feet",
       "base_cost": 15,
       "description": "Comfortable boots.",
       "defense_bonus": 0,
@@ -172,7 +172,7 @@
     "BRIGANDINE_METAL": {
       "name": "Metal Brigandine Armor",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 500,
       "description": "Plates riveted inside cloth/leather.",
       "defense_bonus": 6,
@@ -185,7 +185,7 @@
     "CHAIN_MAIL": {
       "name": "Chain Mail",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 250,
       "description": "Standard metal ring mail.",
       "defense_bonus": 3,
@@ -198,7 +198,7 @@
     "CHAIN_MAIL_AUGMENTED": {
       "name": "Augmented Chain Mail",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 300,
       "description": "Reinforced chain mail.",
       "defense_bonus": 4,
@@ -211,7 +211,7 @@
     "CHAIN_MAIL_BAR": {
       "name": "Bar Chain Mail",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 280,
       "description": "Chain mail with metal bars.",
       "defense_bonus": 4,
@@ -224,7 +224,7 @@
     "CHAIN_MAIL_DOUBLE": {
       "name": "Double Chain Mail",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 350,
       "description": "Heavy, double-layered chain.",
       "defense_bonus": 5,
@@ -237,7 +237,7 @@
     "CHAIN_MAIL_RUSTY": {
       "name": "Rusty Chain Mail",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 50,
       "description": "Poor quality chain mail.",
       "defense_bonus": 2,
@@ -250,7 +250,7 @@
     "CLOAK": {
       "name": "Cloak",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_cloak",
       "base_cost": 10,
       "description": "Provides minimal protection.",
       "defense_bonus": 0,
@@ -263,7 +263,7 @@
     "CROWN_GOLDEN": {
       "name": "Golden Crown",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_head",
       "base_cost": 500,
       "description": "A crown of gold.",
       "defense_bonus": 0,
@@ -276,7 +276,7 @@
     "CROWN_JEWELED": {
       "name": "Jewel-Encrusted Crown",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_head",
       "base_cost": 2000,
       "description": "A valuable crown.",
       "defense_bonus": 1,
@@ -289,7 +289,7 @@
     "CROWN_SILVER": {
       "name": "Silver Crown",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_head",
       "base_cost": 250,
       "description": "A crown of silver.",
       "defense_bonus": 0,
@@ -302,7 +302,7 @@
     "FILTHY_RAGS": {
       "name": "some filthy rags",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 1,
       "description": "Barely counts as clothing.",
       "defense_bonus": 0,
@@ -315,7 +315,7 @@
     "GAUNTLETS": {
       "name": "Set of Gauntlets",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_hands",
       "base_cost": 80,
       "description": "Metal hand protection.",
       "defense_bonus": 1,
@@ -328,7 +328,7 @@
     "GLOVES_LEATHER": {
       "name": "Set of Leather Gloves",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_hands",
       "base_cost": 10,
       "description": "Basic hand coverings.",
       "defense_bonus": 0,
@@ -341,7 +341,7 @@
     "HELM_IRON": {
       "name": "Iron Helm",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_head",
       "base_cost": 100,
       "description": "A sturdy iron helmet.",
       "defense_bonus": 2,
@@ -354,7 +354,7 @@
     "HELM_STEEL": {
       "name": "Steel Helm",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_head",
       "base_cost": 150,
       "description": "A strong steel helmet.",
       "defense_bonus": 3,
@@ -367,7 +367,7 @@
     "LAMELLAR_METAL": {
       "name": "Metal Lamellar Armor",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 450,
       "description": "Small plates laced together.",
       "defense_bonus": 5,
@@ -380,7 +380,7 @@
     "LAMINATED_ARMOR": {
       "name": "Laminated Armor",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 400,
       "description": "Overlapping plates.",
       "defense_bonus": 5,
@@ -393,7 +393,7 @@
     "LEATHER_ARMOR_HARD": {
       "name": "Hard Leather Armor",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 150,
       "description": "Stiffened leather.",
       "defense_bonus": 2,
@@ -406,7 +406,7 @@
     "LEATHER_ARMOR_SOFT": {
       "name": "Soft Leather Armor",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 80,
       "description": "Flexible leather.",
       "defense_bonus": 1,
@@ -419,7 +419,7 @@
     "LEATHER_CAP_HARD": {
       "name": "Hard Leather Cap",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_head",
       "base_cost": 20,
       "description": "Basic head protection.",
       "defense_bonus": 1,
@@ -432,7 +432,7 @@
     "LEATHER_CAP_SOFT": {
       "name": "Soft Leather Cap",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_head",
       "base_cost": 10,
       "description": "Simple leather cap.",
       "defense_bonus": 0,
@@ -445,7 +445,7 @@
     "METAL_CAP": {
       "name": "Metal Cap",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_head",
       "base_cost": 60,
       "description": "Basic metal head protection.",
       "defense_bonus": 1,
@@ -458,7 +458,7 @@
     "PLATE_ARMOR_FULL": {
       "name": "Full Plate Armor",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 1500,
       "description": "Excellent protection, very heavy.",
       "defense_bonus": 8,
@@ -471,7 +471,7 @@
     "PLATE_ARMOR_PARTIAL": {
       "name": "Partial Plate Armor",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 800,
       "description": "Plate covering vital areas.",
       "defense_bonus": 7,
@@ -484,7 +484,7 @@
     "PLATE_ARMOR_RIBBED": {
       "name": "Ribbed Plate Armor",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 1000,
       "description": "Reinforced plate armor.",
       "defense_bonus": 7,
@@ -497,7 +497,7 @@
     "RING_MAIL_HARD": {
       "name": "Hard Leather Ring Mail",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 180,
       "description": "Hard leather with rings.",
       "defense_bonus": 3,
@@ -510,7 +510,7 @@
     "RING_MAIL_SOFT": {
       "name": "Soft Leather Ring Mail",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 120,
       "description": "Soft leather with rings.",
       "defense_bonus": 2,
@@ -523,7 +523,7 @@
     "ROBE": {
       "name": "Robe",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_cloak",
       "base_cost": 15,
       "description": "Simple cloth robe.",
       "defense_bonus": 0,
@@ -536,7 +536,7 @@
     "SCALE_MAIL_LEATHER": {
       "name": "Leather Scale Mail",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 220,
       "description": "Leather scales on backing.",
       "defense_bonus": 3,
@@ -549,7 +549,7 @@
     "SCALE_MAIL_METAL": {
       "name": "Metal Scale Mail",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 300,
       "description": "Metal scales on backing.",
       "defense_bonus": 4,
@@ -640,7 +640,7 @@
     "SHOES_SOFT_LEATHER": {
       "name": "Pair of Soft Leather Shoes",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 10,
       "description": "Simple shoes.",
       "defense_bonus": 0,
@@ -653,7 +653,7 @@
     "STUDDED_LEATHER_HARD": {
       "name": "Hard Studded Leather",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 200,
       "description": "Hard leather with studs.",
       "defense_bonus": 3,
@@ -666,7 +666,7 @@
     "STUDDED_LEATHER_SOFT": {
       "name": "Soft Studded Leather",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 150,
       "description": "Soft leather with studs.",
       "defense_bonus": 2,
@@ -679,7 +679,7 @@
     "WOVEN_CORD_ARMOR": {
       "name": "Woven Cord Armor",
       "type": "armor",
-      "slot": "armor",
+      "slot": "armor_body",
       "base_cost": 60,
       "description": "Armor made from tough cord.",
       "defense_bonus": 1,
@@ -3488,11 +3488,10 @@
     "STAFF_TREASURE_LOCATION": {
       "name": "Staff of Treasure Location",
       "type": "staff",
-      "base_cost": 180,
-      "description": "Detects treasure veins and ore deposits.",
+      "base_cost": 160,
+      "description": "Locates treasure.",
       "effect": [
-        "detect",
-        "treasure"
+        "detect_treasure"
       ],
       "charges": [
         10,
@@ -3500,7 +3499,7 @@
       ],
       "rarity_depth": {
         "min": 100,
-        "max": 400
+        "max": 300
       },
       "weight": 50
     },
@@ -3789,24 +3788,6 @@
       "description": "Locates traps.",
       "effect": [
         "detect_traps"
-      ],
-      "charges": [
-        10,
-        20
-      ],
-      "rarity_depth": {
-        "min": 100,
-        "max": 300
-      },
-      "weight": 50
-    },
-    "STAFF_TREASURE_LOCATION": {
-      "name": "Staff of Treasure Location",
-      "type": "staff",
-      "base_cost": 160,
-      "description": "Locates treasure.",
-      "effect": [
-        "detect_treasure"
       ],
       "charges": [
         10,
@@ -4292,7 +4273,8 @@
         "min": 0,
         "max": 75
       },
-      "weight": 1
+      "weight": 1,
+      "slot": "quiver"
     },
     "AWL_PIKE": {
       "name": "Awl-Pike",
@@ -4395,7 +4377,8 @@
         "min": 0,
         "max": 75
       },
-      "weight": 1
+      "weight": 1,
+      "slot": "quiver"
     },
     "BOW_COMPOSITE": {
       "name": "Composite Bow",
@@ -4408,7 +4391,8 @@
         "min": 100,
         "max": 300
       },
-      "weight": 30
+      "weight": 30,
+      "ammo_type": "ARROW"
     },
     "BOW_LONG": {
       "name": "Long Bow",
@@ -4421,7 +4405,8 @@
         "min": 100,
         "max": 300
       },
-      "weight": 30
+      "weight": 30,
+      "ammo_type": "ARROW"
     },
     "BOW_SHORT": {
       "name": "Short Bow",
@@ -4434,7 +4419,8 @@
         "min": 50,
         "max": 150
       },
-      "weight": 30
+      "weight": 30,
+      "ammo_type": "ARROW"
     },
     "BROADSWORD": {
       "name": "Broadsword",
@@ -4500,7 +4486,8 @@
         "min": 100,
         "max": 300
       },
-      "weight": 45
+      "weight": 45,
+      "ammo_type": "BOLT"
     },
     "CROSSBOW_LIGHT": {
       "name": "Light Crossbow",
@@ -4513,7 +4500,8 @@
         "min": 100,
         "max": 300
       },
-      "weight": 21
+      "weight": 21,
+      "ammo_type": "BOLT"
     },
     "CUTLASS": {
       "name": "Cutlass",
@@ -4785,7 +4773,8 @@
         "min": 0,
         "max": 75
       },
-      "weight": 1
+      "weight": 1,
+      "slot": "quiver"
     },
     "PICK": {
       "name": "Pick",
@@ -4878,7 +4867,8 @@
         "min": 0,
         "max": 75
       },
-      "weight": 1
+      "weight": 1,
+      "slot": "quiver"
     },
     "SHOVEL": {
       "name": "Shovel",
@@ -4969,7 +4959,8 @@
         "min": 0,
         "max": 75
       },
-      "weight": 30
+      "weight": 30,
+      "ammo_type": "SHOT_IRON"
     },
     "SMALL_SWORD": {
       "name": "Small Sword",

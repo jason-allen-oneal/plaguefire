@@ -79,17 +79,14 @@ Last Updated: 2025-10-27
 
 #### Object Handling
 
-- [ ] **Multiple Armor Slots**
-- [ ] **Ammunition System**
+(All basic object handling features implemented)
 
 #### Dungeon Features
 
-- [ ] **Traps**
-- [ ] **Monster Pits**
+(All basic dungeon features implemented)
 
 #### Magic System
 
-- [ ] **Spell Books as Findable Items**
 - [ ] **Spell Failure**
 
 #### Character Progression
