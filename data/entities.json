@@ -24,7 +24,9 @@
       "base": 83,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "mana": 30,
+    "max_mana": 30
   },
   {
     "id": "ANCIENT_BLACK_DRAGON",
@@ -729,7 +731,9 @@
       "base": 85,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "mana": 35,
+    "max_mana": 35
   },
   {
     "id": "BLACK_YEEK",
@@ -781,7 +785,10 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "ranged_attack": "gaze",
+    "ranged_damage": "1d4",
+    "ranged_range": 5
   },
   {
     "id": "BLOODSHOT_ICKY_THING",
@@ -808,7 +815,10 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "ranged_attack": "spit",
+    "ranged_damage": "1d6",
+    "ranged_range": 4
   },
   {
     "id": "BLUBBERING_ICKY_THING",
@@ -1167,7 +1177,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "mana": 10,
+    "max_mana": 10
   },
   {
     "id": "CLEAR_ICKY_THING",
@@ -1821,7 +1833,9 @@
       "base": 83,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "mana": 40,
+    "max_mana": 40
   },
   {
     "id": "EARTH_SPIRIT",
@@ -1875,7 +1889,9 @@
       "base": 83,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "mana": 40,
+    "max_mana": 40
   },
   {
     "id": "EMPEROR_LICH",
@@ -2860,7 +2876,10 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "ranged_attack": "acid spit",
+    "ranged_damage": "1d4",
+    "ranged_range": 4
   },
   {
     "id": "GIANT_LIGHTNING_BAT",
@@ -4022,7 +4041,9 @@
       "base": 96,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "mana": 15,
+    "max_mana": 15
   },
   {
     "id": "ICE_TROLL",
@@ -4456,7 +4477,9 @@
       "base": 76,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "mana": 60,
+    "max_mana": 60
   },
   {
     "id": "KOBOLD",
@@ -4648,7 +4671,9 @@
       "base": 70,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "mana": 60,
+    "max_mana": 60
   },
   {
     "id": "LOST_SOUL",
@@ -4729,7 +4754,9 @@
       "base": 96,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "mana": 30,
+    "max_mana": 30
   },
   {
     "id": "MAGIC_USER",
@@ -4815,7 +4842,9 @@
       "base": 76,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "mana": 55,
+    "max_mana": 55
   },
   {
     "id": "MASTER_YEEK",
@@ -5378,7 +5407,9 @@
       "base": 96,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "mana": 40,
+    "max_mana": 40
   },
   {
     "id": "NETHER_WRAITH",
@@ -5463,7 +5494,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "mana": 15,
+    "max_mana": 15
   },
   {
     "id": "NOVICE_ROGUE",
@@ -5579,7 +5612,9 @@
       "base": 91,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "mana": 30,
+    "max_mana": 30
   },
   {
     "id": "OOZE_GREY",
@@ -5664,7 +5699,9 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "mana": 20,
+    "max_mana": 20
   },
   {
     "id": "ORC_WARRIOR",
@@ -5806,7 +5843,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "mana": 25,
+    "max_mana": 25
   },
   {
     "id": "PURPLE_MUSHROOM_PATCH",
@@ -6603,7 +6642,9 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "mana": 35,
+    "max_mana": 35
   },
   {
     "id": "SPIRIT_TROLL",
@@ -6933,7 +6974,9 @@
       "base": 76,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "mana": 50,
+    "max_mana": 50
   },
   {
     "id": "VIOLET_MOLD",
@@ -7043,7 +7086,9 @@
       "base": 83,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "mana": 40,
+    "max_mana": 40
   },
   {
     "id": "WATER_SPIRIT",
@@ -7975,7 +8020,8 @@
       "base": 55,
       "per_depth": -0.3
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "max_mana": 20
   },
   {
     "id": "ORC_WARLOCK",
@@ -8010,7 +8056,8 @@
       "base": 50,
       "per_depth": -0.25
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "max_mana": 30
   },
   {
     "id": "DARK_PRIEST",
@@ -8045,6 +8092,7 @@
       "base": 45,
       "per_depth": -0.2
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "max_mana": 40
   }
 ]
