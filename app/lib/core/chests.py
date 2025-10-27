@@ -12,10 +12,10 @@ from __future__ import annotations
 import random
 from typing import Dict, List, Optional, Tuple, TYPE_CHECKING
 from debugtools import debug
-from app.lib.core.data_loader import GameData
+from app.lib.core.loader import GameData
 
 if TYPE_CHECKING:
-    from app.lib.generation.entities.player import Player
+    from app.lib.player import Player
 
 
 class ChestInstance:

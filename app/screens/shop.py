@@ -7,11 +7,11 @@ from debugtools import debug
 import random
 from typing import NamedTuple, List, Optional, TYPE_CHECKING, Tuple
 # Import Player for type hinting
-from app.lib.generation.entities.player import Player
+from app.lib.player import Player
 
 # Type hint for App
 if TYPE_CHECKING:
-    from app.rogue import RogueApp
+    from app.plaguefire import RogueApp
 
 # --- ShopItem definition ---
 class ShopItem(NamedTuple):

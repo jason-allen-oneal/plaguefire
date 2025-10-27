@@ -8,9 +8,9 @@ spawn probabilities, and valid placement locations.
 
 import random
 from typing import List, Optional, Dict
-from app.lib.generation.entities.entity import Entity
-from app.lib.core.data_loader import GameData
-from app.lib.core.chest_system import ChestInstance, get_chest_system
+from app.lib.entity import Entity
+from app.lib.core.loader import GameData
+from app.lib.core.chests import ChestInstance, get_chest_system
 from debugtools import debug, log_exception
 from config import FLOOR, STAIRS_UP, STAIRS_DOWN
 

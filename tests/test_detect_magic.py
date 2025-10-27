@@ -13,9 +13,9 @@ import os
 # Add parent directory to path to import modules
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app.lib.core.data_loader import GameData
-from app.lib.core.item_instance import ItemInstance
-from app.lib.generation.entities.player import Player
+from app.lib.core.loader import GameData
+from app.lib.core.item import ItemInstance
+from app.lib.player import Player
 
 
 def test_detect_magic_spell_exists():

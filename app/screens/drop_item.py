@@ -11,8 +11,8 @@ from debugtools import debug
 import string
 
 if TYPE_CHECKING:
-    from app.rogue import RogueApp
-    from app.lib.generation.entities.player import Player
+    from app.plaguefire import RogueApp
+    from app.lib.player import Player
 
 class DropItemScreen(Screen):
     """Screen for the player to select and drop an item using letter keys."""

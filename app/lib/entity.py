@@ -9,8 +9,8 @@ Entities are created from templates defined in the game data files.
 from typing import Dict, List, Optional, Tuple
 from debugtools import debug
 import random
-from app.lib.core.data_loader import GameData
-from app.lib.generation.core.status_effects import StatusEffectManager
+from app.lib.core.loader import GameData
+from app.lib.status_effects import StatusEffectManager
 
 
 class Entity:

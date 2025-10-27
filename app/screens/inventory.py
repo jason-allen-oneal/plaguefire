@@ -6,7 +6,7 @@ from textual.widgets import Static
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from app.rogue import RogueApp
+    from app.plaguefire import RogueApp
 
 
 class InventoryScreen(Screen):

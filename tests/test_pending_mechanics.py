@@ -10,8 +10,8 @@ import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app.lib.generation.entities.player import Player
-from app.lib.core.data_loader import GameData
+from app.lib.player import Player
+from app.lib.core.loader import GameData
 
 
 def test_speed_penalty():

@@ -9,7 +9,7 @@ import os
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.lib.core.mining_system import MiningSystem, get_mining_system
+from app.lib.core.mining import MiningSystem, get_mining_system
 from config import WALL, FLOOR, QUARTZ_VEIN, MAGMA_VEIN, GRANITE
 
 

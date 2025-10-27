@@ -14,9 +14,9 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app.lib.core.data_loader import GameData
-from app.lib.generation.entities.player import Player
-from app.lib.generation.entities.entity import Entity
+from app.lib.core.loader import GameData
+from app.lib.player import Player
+from app.lib.entity import Entity
 
 
 def test_player_attack_damage():

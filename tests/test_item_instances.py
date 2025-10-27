@@ -9,9 +9,9 @@ import os
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.lib.core.item_instance import ItemInstance
-from app.lib.core.inventory_manager import InventoryManager
-from app.lib.core.data_loader import GameData
+from app.lib.core.item import ItemInstance
+from app.lib.core.inventory import InventoryManager
+from app.lib.core.loader import GameData
 
 
 def test_item_instance_creation():

@@ -12,8 +12,8 @@ from textual.widgets import Static
 from rich.text import Text
 
 # --- Added GameData import ---
-from app.lib.core.data_loader import GameData
-from app.lib.generation.entities.player import (
+from app.lib.core.loader import GameData
+from app.lib.player import (
     Player,
     STAT_NAMES,
     CLASS_DEFINITIONS,

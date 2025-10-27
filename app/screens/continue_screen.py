@@ -8,7 +8,7 @@ from debugtools import debug
 import os
 import json
 import glob
-from app.lib.generation.entities.player import Player
+from app.lib.player import Player
 
 class ContinueScreen(Screen):
     """Screen to select a saved character to continue."""

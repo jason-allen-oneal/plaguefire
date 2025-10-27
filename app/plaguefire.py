@@ -6,10 +6,10 @@ from typing import Dict, List, Any, Optional # Add Optional
 from textual import log
 
 # --- UPDATED: Import Player class ---
-from app.lib.generation.entities.player import Player
-from app.lib.generation.entities.entity import Entity
-from app.lib.core.data_loader import GameData
-from app.lib.core.sound_manager import SoundManager
+from app.lib.player import Player
+from app.lib.entity import Entity
+from app.lib.core.loader import GameData
+from app.lib.core.sound import SoundManager
 
 
 # Import shop screens

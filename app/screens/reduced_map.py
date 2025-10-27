@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, List
 from debugtools import debug
 
 if TYPE_CHECKING:
-    from app.rogue import RogueApp
+    from app.plaguefire import RogueApp
     from app.lib.core.engine import Engine
 
 class ReducedMapScreen(Screen):

@@ -8,8 +8,8 @@ the new item instance system.
 """
 
 from typing import Dict, List, Optional, Tuple
-from app.lib.core.item_instance import ItemInstance
-from app.lib.core.data_loader import GameData
+from app.lib.core.item import ItemInstance
+from app.lib.core.loader import GameData
 
 
 class InventoryManager:

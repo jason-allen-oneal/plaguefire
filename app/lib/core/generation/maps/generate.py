@@ -7,7 +7,7 @@ from config import (
     MIN_MAP_WIDTH, MAX_MAP_WIDTH, MIN_MAP_HEIGHT, MAX_MAP_HEIGHT
 )
 from debugtools import debug
-from .utils import find_tile, find_random_floor, find_start_pos
+from app.lib.core.utils import find_tile, find_random_floor, find_start_pos
 
 MapData = List[List[str]] # Type alias
 

@@ -6,14 +6,14 @@ from textual.screen import Screen
 from textual.widgets import Header, Footer, Static
 from rich.text import Text # Import Rich Text again
 
-from app.lib.core.data_loader import GameData
+from app.lib.core.loader import GameData
 from typing import TYPE_CHECKING, Dict, List, Optional
 from debugtools import debug
 import string # To get lowercase letters
 
 if TYPE_CHECKING:
-    from app.rogue import RogueApp
-    from app.lib.generation.entities.player import Player
+    from app.plaguefire import RogueApp
+    from app.lib.player import Player
 
 class SpellLearningScreen(Screen):
     """Screen for the player to choose a new spell using letter keys."""

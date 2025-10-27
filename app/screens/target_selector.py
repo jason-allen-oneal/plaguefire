@@ -8,11 +8,11 @@ from textual import events
 from rich.text import Text
 from typing import TYPE_CHECKING, List, Optional, Callable
 from debugtools import debug
-from app.lib.generation.entities.entity import Entity
+from app.lib.entity import Entity
 import string
 
 if TYPE_CHECKING:
-    from app.rogue import RogueApp
+    from app.plaguefire import RogueApp
 
 class TargetSelectorScreen(Screen):
     """Screen for selecting a target for spells or abilities."""

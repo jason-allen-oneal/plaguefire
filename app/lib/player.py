@@ -6,9 +6,9 @@ import random
 from typing import Dict, List, Optional, Tuple
 
 # --- Added Imports ---
-from app.lib.core.data_loader import GameData
-from app.lib.core.inventory_manager import InventoryManager
-from app.lib.generation.core.status_effects import StatusEffectManager
+from app.lib.core.loader import GameData
+from app.lib.core.inventory import InventoryManager
+from app.lib.status_effects import StatusEffectManager
 from config import VIEWPORT_HEIGHT, VIEWPORT_WIDTH
 from debugtools import debug
 

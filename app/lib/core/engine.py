@@ -3,17 +3,17 @@
 import random
 import math
 from typing import Dict, List, Optional, TYPE_CHECKING
-from app.lib.generation.entities.player import Player
-from app.lib.generation.entities.entity import Entity
-from app.lib.core.data_loader import GameData
-from app.lib.generation.maps.town import get_town_map
-from app.lib.generation.maps.generate import (
+from app.lib.player import Player
+from app.lib.entity import Entity
+from app.lib.core.loader import GameData
+from app.lib.core.generation.maps.town import get_town_map
+from app.lib.core.generation.maps.generate import (
     generate_cellular_automata_dungeon,
     generate_room_corridor_dungeon
 )
-from app.lib.generation.maps.utils import find_tile, find_start_pos
-from app.lib.generation.core.spawning import spawn_entities_for_depth, spawn_chests_for_depth
-from app.lib.generation.maps.fov import update_visibility
+from app.lib.core.utils import find_tile, find_start_pos
+from app.lib.core.generation.spawn import spawn_entities_for_depth, spawn_chests_for_depth
+from app.lib.fov import update_visibility
 from config import (
     WALL, FLOOR, STAIRS_DOWN, STAIRS_UP,
     DOOR_CLOSED, DOOR_OPEN, SECRET_DOOR, SECRET_DOOR_FOUND,
@@ -24,7 +24,7 @@ from config import (
 from debugtools import debug, log_exception
 
 if TYPE_CHECKING:
-    from app.rogue import RogueApp # Assuming rogue.py contains your main App class
+    from app.plaguefire import RogueApp # Assuming rogue.py contains your main App class
 
 MapData = List[List[str]]
 VisibilityData = List[List[int]]
@@ -302,6 +302,22 @@ class Engine:
         self._end_player_turn()
         return True
 
+    def _remove_item_by_index(self, item_index: int) -> bool:
+        """
+        Remove an item from player's inventory by index.
+        
+        Args:
+            item_index: Index of item in inventory to remove
+            
+        Returns:
+            True if item was removed successfully
+        """
+        if not (0 <= item_index < len(self.player.inventory_manager.instances)):
+            return False
+        
+        instance = self.player.inventory_manager.instances[item_index]
+        return self.player.inventory_manager.remove_instance(instance.instance_id) is not None
+
     def handle_use_item(self, item_index: int) -> bool:
         # --- Use item logic --- (omitted for brevity, keep your existing logic)
          if not (0 <= item_index < len(self.player.inventory)): return False
@@ -314,7 +330,7 @@ class Engine:
              
              if success and spell_data:
                  # Remove scroll from inventory
-                 self.player.inventory.pop(item_index)
+                 self._remove_item_by_index(item_index)
                  
                  # Apply spell effects (similar to cast_spell but without target selection for now)
                  effect_type = spell_data.get('effect_type', 'unknown')
@@ -352,14 +368,14 @@ class Engine:
                      else:
                          self.log_event(f"Nothing happens.")
                  # Note: attack and debuff scrolls would need target selection
-                elif effect_type == 'utility':
-                    self._handle_utility_spell(spell_data)
+                 elif effect_type == 'utility':
+                     self._handle_utility_spell(spell_data)
                  
                  self._end_player_turn()
                  return True
              elif success:
                  # Scroll used but no spell data (custom effect scrolls)
-                 self.player.inventory.pop(item_index)
+                 self._remove_item_by_index(item_index)
                  self._end_player_turn()
                  return True
              else:
@@ -372,11 +388,8 @@ class Engine:
              success, learned_spells, message = self.player.read_spellbook(item_name)
              self.log_event(message)
              
-             if success:
-                 # Keep the book in inventory (can be referenced later)
-                 # Or remove if you want single-use books:
-                 # self.player.inventory.pop(item_index)
-                 pass
+             # Consume the book after reading
+             self._remove_item_by_index(item_index)
              
              self._end_player_turn()
              return True
@@ -385,7 +398,7 @@ class Engine:
          if "Potion" in item_name:
              success = self._use_potion(item_name)
              if success:
-                 self.player.inventory.pop(item_index)
+                 self._remove_item_by_index(item_index)
                  self._end_player_turn()
                  return True
              else:
@@ -395,7 +408,7 @@ class Engine:
          if "Food" in item_name or "Ration" in item_name:
              success = self._use_food(item_name)
              if success:
-                 self.player.inventory.pop(item_index)
+                 self._remove_item_by_index(item_index)
                  self._end_player_turn()
                  return True
              else:
@@ -576,7 +589,7 @@ class Engine:
         This will be expanded to show a selection UI in the future.
         For now, it identifies the first unidentified item.
         """
-        from app.lib.core.item_instance import ItemInstance
+        from app.lib.core.item import ItemInstance
         
         # Find first unidentified item in inventory
         unidentified_item = None
@@ -1215,7 +1228,7 @@ class Engine:
         """Disarm a trap at the given location."""
         # Check if there's a chest with a trap at this location
         if hasattr(self, 'chest_system'):
-            from app.lib.core.chest_system import get_chest_system
+            from app.lib.core.chests import get_chest_system
             chest_system = get_chest_system()
             chest = chest_system.get_chest(x, y)
             
