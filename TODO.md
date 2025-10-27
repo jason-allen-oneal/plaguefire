@@ -79,7 +79,6 @@ Last Updated: 2025-10-27
 
 #### Object Handling
 
-- [ ] **Multiple Armor Slots**
 - [ ] **Ammunition System**
 
 #### Dungeon Features
