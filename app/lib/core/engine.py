@@ -295,9 +295,15 @@ class Engine:
         if target_entity and target_entity.hostile:
             self.handle_player_attack(target_entity); action_taken = True
         else:
-            walkable_tiles = [FLOOR, STAIRS_DOWN, STAIRS_UP, DOOR_OPEN, SECRET_DOOR_FOUND, '1', '2', '3', '4', '5', '6']
             target_tile = self.get_tile_at_coords(nx, ny)
-            if target_tile is not None and target_tile in walkable_tiles and not target_entity:
+            
+            # Auto-open closed doors when trying to walk into them
+            if target_tile == DOOR_CLOSED:
+                self.game_map[ny][nx] = DOOR_OPEN
+                self.update_fov()
+                self.log_event("You open the door.")
+                action_taken = True
+            elif target_tile is not None and target_tile in [FLOOR, STAIRS_DOWN, STAIRS_UP, DOOR_OPEN, SECRET_DOOR_FOUND, '1', '2', '3', '4', '5', '6'] and not target_entity:
                 time_before_move = self.get_time_of_day()
                 self.player.position = [nx, ny]
                 if self.player.light_duration > 0:

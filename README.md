@@ -10,6 +10,7 @@ Plaguefire is a traditional roguelike game where players explore procedurally ge
 
 ### Core Gameplay
 - **Procedurally Generated Dungeons**: Each playthrough offers unique dungeon layouts with varying room types, corridors, and secrets
+- **Door System**: Regular doors at corridor-room junctions (auto-open on contact) and secret doors hidden in walls
 - **Mining System**: Dig through quartz and magma veins with picks and shovels to find treasure
 - **Chest Interactions**: Pick locks, disarm traps, or force open chests for loot
 - **Strategic Turn-Based Combat**: Engage enemies using positioning, terrain, and tactical decision-making
@@ -129,6 +130,8 @@ rogue/
 - **l**: Learn spell (when available)
 - **</>**: Use stairs
 - **ESC**: Return to previous screen
+
+**Note**: Doors automatically open when you walk into them. Secret doors must be found using the search command.
 
 ### Combat
 - Attack by moving into an enemy
