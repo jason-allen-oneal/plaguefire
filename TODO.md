@@ -1,12 +1,9 @@
 # Plaguefire TODO List
 
-This document tracks all partial implementations, stubs, and missing features compared to Moria/Angband.
+This document tracks all partial implementations, stubs, and missing features.
 
-Last Updated: 2025-10-27
 
 ---
-
-## 🟢 Low Priority – Advanced Features
 
 ### Light Sources and Vision
 
@@ -56,41 +53,3 @@ Last Updated: 2025-10-27
   - Services: Rest (restore HP/MP), rumors, quests
   - Current: Basic implementation
 
-### Quest System
-
-- [ ] **Quest Framework**
-  - Required: Quest tracking, objectives, rewards
-  - Types: Kill monsters, retrieve items, explore depths
-
-- [ ] **Town Quests**
-  - Sources: NPCs in tavern, temple
-  - Rewards: Gold, items, experience
-
-- [ ] **Unique Monsters**
-  - Required: Named bosses, special loot
-  - Enhancement: Memorable encounters
-
----
-
-
-## 🎯 Comparison with Moria/Angband
-
-### Features Present in Moria but Missing in Plaguefire
-
-#### Object Handling
-
-(All basic object handling features implemented)
-
-#### Dungeon Features
-
-(All basic dungeon features implemented)
-
-#### Magic System
-
-- [ ] **Spell Failure**
-
-#### Character Progression
-
-- [ ] **Experience Penalty for Races/Classes**
-- [ ] **Stat Gain on Level Up**
-- [ ] **Skill Training**
