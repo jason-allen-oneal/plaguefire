@@ -9,6 +9,18 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from app.lib.player import Player
 
 
+def calculate_cha_modifier(cha: int) -> float:
+    """Helper function to calculate charisma price modifier (matches shop.py formula)."""
+    modifier = 1.0 - ((cha - 10) * 0.02)
+    return max(0.85, min(1.15, modifier))
+
+
+def apply_cha_to_price(base_price: int, cha: int) -> int:
+    """Helper function to apply charisma modifier to a price."""
+    modifier = calculate_cha_modifier(cha)
+    return max(1, int(base_price * modifier))
+
+
 def test_charisma_price_calculations():
     """Test charisma-based price modifier calculations."""
     print("\nTest: Charisma price calculations...")
@@ -23,11 +35,9 @@ def test_charisma_price_calculations():
     }
     player_high = Player(player_data_high)
     
-    # Calculate modifier manually using the formula from shop.py
     cha_high = player_high.stats.get('CHA', 10)
-    modifier_high = 1.0 - ((cha_high - 10) * 0.02)
-    modifier_high = max(0.85, min(1.15, modifier_high))
-    adjusted_price_high = max(1, int(100 * modifier_high))
+    modifier_high = calculate_cha_modifier(cha_high)
+    adjusted_price_high = apply_cha_to_price(100, cha_high)
     
     # CHA 18: modifier = 1.0 - (8 * 0.02) = 0.84, clamped to 0.85
     assert modifier_high == 0.85, f"CHA 18 modifier should be clamped to 0.85, got {modifier_high}"
@@ -45,9 +55,8 @@ def test_charisma_price_calculations():
     player_low = Player(player_data_low)
     
     cha_low = player_low.stats.get('CHA', 10)
-    modifier_low = 1.0 - ((cha_low - 10) * 0.02)
-    modifier_low = max(0.85, min(1.15, modifier_low))
-    adjusted_price_low = max(1, int(100 * modifier_low))
+    modifier_low = calculate_cha_modifier(cha_low)
+    adjusted_price_low = apply_cha_to_price(100, cha_low)
     
     # CHA 3: modifier = 1.0 - (-7 * 0.02) = 1.14
     assert abs(modifier_low - 1.14) < 0.01, f"CHA 3 modifier should be ~1.14, got {modifier_low}"
@@ -65,9 +74,8 @@ def test_charisma_price_calculations():
     player_avg = Player(player_data_avg)
     
     cha_avg = player_avg.stats.get('CHA', 10)
-    modifier_avg = 1.0 - ((cha_avg - 10) * 0.02)
-    modifier_avg = max(0.85, min(1.15, modifier_avg))
-    adjusted_price_avg = max(1, int(100 * modifier_avg))
+    modifier_avg = calculate_cha_modifier(cha_avg)
+    adjusted_price_avg = apply_cha_to_price(100, cha_avg)
     
     # CHA 10: modifier = 1.0
     assert modifier_avg == 1.0, f"CHA 10 modifier should be 1.0, got {modifier_avg}"
@@ -92,8 +100,7 @@ def test_charisma_range():
     player = Player(player_data_extreme_high)
     
     cha = player.stats.get('CHA', 10)
-    modifier = 1.0 - ((cha - 10) * 0.02)
-    modifier = max(0.85, min(1.15, modifier))
+    modifier = calculate_cha_modifier(cha)
     
     # CHA 20: modifier = 1.0 - (10 * 0.02) = 0.80, clamped to 0.85
     assert modifier == 0.85, f"Max modifier should be 0.85, got {modifier}"
@@ -110,8 +117,7 @@ def test_charisma_range():
     player = Player(player_data_extreme_low)
     
     cha = player.stats.get('CHA', 10)
-    modifier = 1.0 - ((cha - 10) * 0.02)
-    modifier = max(0.85, min(1.15, modifier))
+    modifier = calculate_cha_modifier(cha)
     
     # CHA 1: modifier = 1.0 - (-9 * 0.02) = 1.18, clamped to 1.15
     assert modifier == 1.15, f"Max modifier should be 1.15, got {modifier}"

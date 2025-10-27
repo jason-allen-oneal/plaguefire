@@ -71,15 +71,24 @@ class BaseShopScreen(Screen):
     # --- Helper Methods ---
     
     def _get_charisma_price_modifier(self) -> float:
-        """Calculate price modifier based on player's charisma (0.85 to 1.15 range)."""
+        """
+        Calculate price modifier based on player's charisma (0.85 to 1.15 range).
+        
+        The formula is: modifier = 1.0 - ((CHA - 10) * 0.02)
+        - Each point of CHA above 10 gives a 2% discount
+        - Each point of CHA below 10 adds a 2% markup
+        - The modifier is clamped between 0.85 (15% discount) and 1.15 (15% markup)
+        
+        Examples:
+        - CHA 18: 1.0 - (8 * 0.02) = 0.84, clamped to 0.85 (15% discount)
+        - CHA 10: 1.0 - (0 * 0.02) = 1.00 (no change)
+        - CHA 3: 1.0 - (-7 * 0.02) = 1.14 (14% markup)
+        """
         if not self.app.player:
             return 1.0
         
         cha_stat = self.app.player.stats.get('CHA', 10)
         # Lower prices for high charisma, higher prices for low charisma
-        # CHA 10 = 1.0x (no change)
-        # CHA 18 = 0.85x (15% discount)
-        # CHA 3 = 1.15x (15% markup)
         modifier = 1.0 - ((cha_stat - 10) * 0.02)
         return max(0.85, min(1.15, modifier))
     
