@@ -60,34 +60,7 @@ Last Updated: 2025-10-26
 
 ## 🟡 Medium Priority – Item Systems
 
-### Item Instance Tracking (Partially Implemented)
-
 **Remaining Work**:
-
-- [x] **Migrate Player class to use InventoryManager** ✅
-  - Location: `app/lib/generation/entities/player.py`
-  - Status: COMPLETED - Added InventoryManager import and properties
-  - Date: 2025-10-26
-
-- [x] **Charge Tracking Implementation** ✅
-  - Location: `app/lib/generation/entities/player.py:1065-1120`
-  - Status: COMPLETED - Using ItemInstance.get_inscription() method
-  - Date: 2025-10-26
-
-- [x] **"empty" Inscription** ✅
-  - Status: COMPLETED - Handled by ItemInstance.get_inscription()
-  - Shows {empty} on depleted wands/staves automatically
-  - Date: 2025-10-26
-
-- [x] **"tried" Inscription** ✅
-  - Status: COMPLETED - Handled by ItemInstance.get_inscription()
-  - Shows {tried} on used but unidentified items
-  - Date: 2025-10-26
-
-- [x] **Save/Load ItemInstance Serialization** ✅
-  - Status: COMPLETED - InventoryManager.to_dict() and from_dict() already implemented
-  - Player.to_dict() saves inventory_manager, Player.__init__ loads it
-  - Date: 2025-10-26
 
 ### Identification System
 
@@ -241,25 +214,6 @@ Last Updated: 2025-10-26
 
 ---
 
-## 📋 Code Quality Issues
-
-### Pass Statements (Intentional Stubs)
-
-1. **Player.py:1065-1120** – Item charge tracking stub  
-   Status: ✅ RESOLVED - Integrated ItemInstance charge system (2025-10-26)
-
-2. **Engine.py:372** – Book consumption decision  
-   Resolution: Decide on book consumption policy
-
-3. **ItemInstance.py:53** – Charge initialization stub  
-   Resolution: Already handled, pass is appropriate
-
-### Test File Pass Statements
-
-- `tests/test_item_usage.py:38, 89, 127` – Empty except blocks in tests  
-  Resolution: Fine for test error handling
-
----
 
 ## 🎯 Comparison with Moria/Angband
 
