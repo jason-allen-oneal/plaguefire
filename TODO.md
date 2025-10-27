@@ -45,24 +45,27 @@ Last Updated: 2025-10-27
 
 ### Status Effects (Partially Implemented)
 
+**Completed**:
+
+- [x] **Blindness**
+  - Effect: Reduces attack/defense by 4, sets blind behavior flag
+  - Implemented: 2025-10-27
+
+- [x] **Paralysis**
+  - Effect: Cannot move or act, paralyzed behavior flag
+  - Implemented: 2025-10-27
+
+- [x] **Resistance Tracking**
+  - Types: Fire, Cold, Acid, Lightning, Poison
+  - Implementation: has_resistance() method in StatusEffectManager
+  - Implemented: 2025-10-27
+
 **Missing**:
-
-- [ ] **Blindness**
-  - Effect: Zero vision radius, cannot read scrolls
-  - Cure: Potion of Cure Blindness, time
-
-- [ ] **Paralysis**
-  - Effect: Cannot move or act
-  - Sources: Monster attacks, traps
-  - Cure: Free Action, time
 
 - [ ] **Sleep/Slow**
   - Effect: Skip turns or reduced speed
   - Sources: Monster spells, traps
-
-- [ ] **Resistance Tracking**
-  - Types: Fire, Cold, Acid, Lightning, Poison
-  - Sources: Equipment, potions, rings
+  - Note: Slowed effect exists, Sleep needs implementation
 
 ### Monster AI Enhancements
 
@@ -84,9 +87,10 @@ Last Updated: 2025-10-27
 
 ### Advanced Combat
 
-- [ ] **Critical Hits**
-  - Required: Extra damage on high rolls
-  - Enhancement: Combat variety
+- [x] **Critical Hits**
+  - Status: Already implemented in combat system
+  - Implementation: Natural 20 rolls, double damage dice
+  - Verified: 2025-10-27
 
 - [ ] **Backstab Bonus**
   - Class: Rogue special ability
@@ -133,12 +137,25 @@ Last Updated: 2025-10-27
 
 #### Object Handling
 
-- [ ] **Ring Equipment Slots**
-- [ ] **Amulet Equipment Slot**
-- [ ] **Shield Equipment Slot**
+- [x] **Ring Equipment Slots**
+  - Implementation: Dual ring slots (ring_left, ring_right)
+  - Implemented: 2025-10-27
+
+- [x] **Amulet Equipment Slot**
+  - Implementation: Single amulet slot
+  - Implemented: 2025-10-27
+
+- [x] **Shield Equipment Slot**
+  - Implementation: Single shield slot
+  - Implemented: 2025-10-27
+
+- [x] **Object Stacking**
+  - Implementation: Stackable items (potion, scroll, food, ammunition)
+  - Features: Auto-merge by item_id, quantity tracking, partial removal
+  - Implemented: 2025-10-27
+
 - [ ] **Multiple Armor Slots**
 - [ ] **Ammunition System**
-- [ ] **Object Stacking**
 
 #### Dungeon Features
 
@@ -149,7 +166,11 @@ Last Updated: 2025-10-27
 
 - [ ] **Spell Books as Findable Items**
 - [ ] **Spell Failure**
-- [ ] **Mana Regeneration**
+
+- [x] **Mana Regeneration**
+  - Implementation: Base 1 + (stat_modifier // 2) per turn
+  - Integrated: _end_player_turn() in engine
+  - Implemented: 2025-10-27
 
 #### Character Progression
 
