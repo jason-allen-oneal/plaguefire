@@ -23,6 +23,7 @@ from tests import test_inventory
 from tests import test_item_instances
 from tests import test_item_usage
 from tests import test_mining
+from tests import test_ground_items
 
 
 def run_all_tests():
@@ -137,6 +138,12 @@ def run_all_tests():
         ("Scroll and Book Tests", [
             test_scrolls_books.test_scroll_usage,
             test_scrolls_books.test_spell_book_reading,
+        ]),
+        ("Ground Items Tests", [
+            test_ground_items.test_entity_drops_on_ground,
+            test_ground_items.test_gold_auto_pickup,
+            test_ground_items.test_manual_pickup,
+            test_ground_items.test_pickup_with_full_inventory,
         ]),
     ]
     

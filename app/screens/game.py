@@ -92,6 +92,7 @@ class GameScreen(Screen):
             "d": self.action_drop_item,
             "e": self.action_equipment_list,
             "f": self.action_fire_throw,
+            "g": self.action_pickup_item,
             "i": self.action_open_inventory,
             "j": lambda: self._request_direction("jam_door"),
             "l": lambda: self._request_direction("look"),
@@ -168,6 +169,7 @@ class GameScreen(Screen):
             "c": lambda: self._request_direction("close_door"),
             "d": self.action_drop_item,
             "e": self.action_equipment_list,
+            "g": self.action_pickup_item,
             "i": self.action_open_inventory,
             "o": lambda: self._request_direction("open_door"),
             "p": self.action_pray,
@@ -654,6 +656,12 @@ class GameScreen(Screen):
         from app.screens.drop_item import DropItemScreen
         self.app.push_screen(DropItemScreen())
         debug("Action: Drop item")
+    
+    def action_pickup_item(self):
+        """Pick up an item from the ground."""
+        if self.engine.handle_pickup_item():
+            self._refresh_ui()
+        debug("Action: Pickup item")
     
     def action_equipment_list(self):
         """Show equipment list (same as inventory)."""
