@@ -844,6 +844,31 @@ class Player:
         self.mana -= amount
         debug(f"{self.name} spends {amount} mana ({self.mana}/{self.max_mana})")
         return True
+    
+    def regenerate_mana(self) -> int:
+        """
+        Regenerate mana per turn based on class and stats.
+        
+        Returns:
+            Amount of mana regenerated
+        """
+        if self.max_mana <= 0 or self.mana >= self.max_mana:
+            return 0
+        
+        # Base regeneration: 1 mana per turn for classes with mana
+        # Bonus from mana stat modifier (INT for Mage, WIS for Priest)
+        base_regen = 1
+        if self.mana_stat:
+            stat_modifier = self._get_modifier(self.mana_stat)
+            # Add bonus regeneration for high stat (every 2 points of modifier = +1 regen/turn)
+            bonus_regen = max(0, stat_modifier // 2)
+            total_regen = base_regen + bonus_regen
+        else:
+            total_regen = 0
+        
+        if total_regen > 0:
+            return self.restore_mana(total_regen)
+        return 0
 
     def cast_spell(self, spell_id: str) -> Tuple[bool, str, Optional[Dict]]:
         """ Attempts to cast a spell, checking mana, failure rate, and granting XP. """

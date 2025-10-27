@@ -101,13 +101,26 @@ class InventoryManager:
         if not instance.slot:
             return False, "Item cannot be equipped"
         
-        # Unequip current item in slot
-        if self.equipment.get(instance.slot):
-            self.unequip_slot(instance.slot)
+        # Handle ring slots specially - support two ring slots
+        if instance.slot == "ring":
+            # Try to equip to first available ring slot
+            if not self.equipment.get("ring_left"):
+                slot = "ring_left"
+            elif not self.equipment.get("ring_right"):
+                slot = "ring_right"
+            else:
+                # Both ring slots occupied, unequip left ring
+                self.unequip_slot("ring_left")
+                slot = "ring_left"
+        else:
+            slot = instance.slot
+            # Unequip current item in slot
+            if self.equipment.get(slot):
+                self.unequip_slot(slot)
         
         # Remove from inventory and add to equipment
         self.remove_instance(instance_id)
-        self.equipment[instance.slot] = instance
+        self.equipment[slot] = instance
         
         return True, f"Equipped {instance.item_name}"
     

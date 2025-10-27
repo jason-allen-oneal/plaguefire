@@ -242,6 +242,9 @@ class Engine:
         self.player.time += 1
         debug(f"--- Turn {self.player.time} ---")
         
+        # Regenerate mana each turn
+        self.player.regenerate_mana()
+        
         # Tick status effects
         expired = self.player.status_manager.tick_effects()
         for effect_name in expired:

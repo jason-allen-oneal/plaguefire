@@ -83,6 +83,39 @@ class StatusEffectManager:
             "stat_modifiers": {"attack": -2},
             "description": "Confused and disoriented",
         },
+        "Blindness": {
+            "behavior": "blind",
+            "stat_modifiers": {"attack": -4, "defense": -4},
+            "description": "Cannot see anything",
+        },
+        "Paralysis": {
+            "behavior": "paralyzed",
+            "description": "Cannot move or act",
+        },
+        "Poison": {
+            "behavior": "poisoned",
+            "description": "Suffering from poison",
+        },
+        "ResistFire": {
+            "resistance": "fire",
+            "description": "Resistant to fire",
+        },
+        "ResistCold": {
+            "resistance": "cold",
+            "description": "Resistant to cold",
+        },
+        "ResistAcid": {
+            "resistance": "acid",
+            "description": "Resistant to acid",
+        },
+        "ResistLightning": {
+            "resistance": "lightning",
+            "description": "Resistant to lightning",
+        },
+        "ResistPoison": {
+            "resistance": "poison",
+            "description": "Resistant to poison",
+        },
     }
     
     def __init__(self):
@@ -195,6 +228,22 @@ class StatusEffectManager:
         for effect_name in self.active_effects:
             definition = self.EFFECT_DEFINITIONS.get(effect_name, {})
             if definition.get("behavior") == behavior:
+                return True
+        return False
+    
+    def has_resistance(self, resistance_type: str) -> bool:
+        """
+        Check if any active effect provides resistance to a damage type.
+        
+        Args:
+            resistance_type: Type of resistance (e.g., "fire", "cold", "acid", "lightning", "poison")
+            
+        Returns:
+            True if resistance is active
+        """
+        for effect_name in self.active_effects:
+            definition = self.EFFECT_DEFINITIONS.get(effect_name, {})
+            if definition.get("resistance") == resistance_type:
                 return True
         return False
     
