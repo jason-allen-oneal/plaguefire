@@ -49,7 +49,7 @@ This document tracks all partial implementations, stubs, and missing features.
   - Required: Charisma affects prices
   - Enhancement: Haggling system
 
-- [ ] **Inn/Tavern Services**
+- [x] **Inn/Tavern Services**
   - Services: Rest (restore HP/MP), rumors, quests
-  - Current: Basic implementation
+  - Implementation: Enhanced tavern with rest service
 
