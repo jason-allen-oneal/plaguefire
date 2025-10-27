@@ -110,7 +110,7 @@ class GameScreen(Screen):
             "-": lambda: self._request_direction("move_no_pickup"),
             # Uppercase commands
             "B": lambda: self._request_direction("bash"),
-            "C": self.action_change_name,
+            "C": self.action_character_desc,
             "D": lambda: self._request_direction("disarm"),
             "E": self.action_eat_food,
             "F": self.action_fill_lamp,
@@ -846,11 +846,47 @@ class GameScreen(Screen):
         debug("Action: Help")
     
     def action_character_desc(self):
-        """Show character description."""
+        """Show detailed character sheet."""
         if hasattr(self, 'engine') and self.engine and self.engine.player:
             player = self.engine.player
-            desc = f"{player.name} - Level {player.level} {player.char_class}"
-            self.notify(desc, timeout=3)
+            
+            # Build character sheet display
+            lines = []
+            lines.append(f"=== {player.name} - Level {player.level} {player.race} {player.char_class} ===")
+            lines.append("")
+            
+            # Stats
+            lines.append("Stats:")
+            for stat in ["STR", "INT", "WIS", "DEX", "CON", "CHA"]:
+                value = player.stats.get(stat, 10)
+                lines.append(f"  {stat}: {value}")
+            
+            lines.append("")
+            
+            # Vital stats
+            lines.append(f"HP: {player.hp}/{player.max_hp}")
+            if hasattr(player, 'mana'):
+                lines.append(f"Mana: {player.mana}/{player.max_mana}")
+            lines.append(f"XP: {player.xp}/{player.xp_to_next_level()}")
+            lines.append(f"Gold: {player.gold}")
+            lines.append(f"Depth: {player.depth}")
+            
+            lines.append("")
+            
+            # Equipment
+            lines.append("Equipment:")
+            if player.equipment:
+                for slot, item in player.equipment.items():
+                    if item:
+                        item_name = item.get('name', 'Unknown')
+                        lines.append(f"  {slot.title()}: {item_name}")
+            else:
+                lines.append("  None")
+            
+            # Show as multi-line notification
+            full_desc = "\n".join(lines)
+            self.notify(full_desc, timeout=10)
+        
         debug("Action: Character description")
     
     def action_where_locate(self):

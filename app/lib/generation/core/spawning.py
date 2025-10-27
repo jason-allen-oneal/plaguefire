@@ -10,6 +10,7 @@ import random
 from typing import List, Optional, Dict
 from app.lib.generation.entities.entity import Entity
 from app.lib.core.data_loader import GameData
+from app.lib.core.chest_system import ChestInstance, get_chest_system
 from debugtools import debug, log_exception
 from config import FLOOR, STAIRS_UP, STAIRS_DOWN
 
@@ -158,3 +159,103 @@ def spawn_entities_for_depth(
             log_exception(f"Error creating entity from template {template.get('id','N/A')}: {e}")
 
     return entities
+
+
+def spawn_chests_for_depth(
+    map_data: List[List[str]], 
+    depth: int, 
+    player_position: List[int] = None,
+    entity_positions: List[List[int]] = None
+) -> None:
+    """
+    Spawn chests appropriate for a given depth.
+    
+    This function places chests in valid dungeon locations. Chests are added
+    to the global chest system.
+    
+    Args:
+        map_data: 2D grid of map tiles
+        depth: Current depth (0 for town, >0 for dungeon)
+        player_position: Optional [x, y] player position to avoid
+        entity_positions: Optional list of entity positions to avoid
+    """
+    # Don't spawn chests in town
+    if depth == 0:
+        return
+    
+    # Get the chest system
+    chest_system = get_chest_system()
+    
+    # Calculate number of chests based on depth
+    dungeon_level = max(1, depth // 25)
+    num_chests = random.randint(1, 2 + dungeon_level // 2)
+    
+    # Find valid spawn positions
+    avoid_positions = []
+    if player_position:
+        avoid_positions.append(player_position)
+    if entity_positions:
+        avoid_positions.extend(entity_positions)
+    
+    spawnable_area = find_floor_tiles(map_data, avoid_positions)
+    
+    # Remove stairs from spawnable area
+    spawnable_area = [
+        pos for pos in spawnable_area 
+        if map_data[pos[1]][pos[0]] not in [STAIRS_UP, STAIRS_DOWN]
+    ]
+    
+    if not spawnable_area:
+        debug("Warning: No valid chest spawn locations found.")
+        return
+    
+    # Determine chest types based on depth
+    chest_types = []
+    if depth < 10:
+        chest_types = ["CHEST_WOODEN_SMALL", "CHEST_WOODEN_LARGE"]
+    elif depth < 25:
+        chest_types = ["CHEST_WOODEN_LARGE", "CHEST_IRON_SMALL", "CHEST_IRON_LARGE"]
+    else:
+        chest_types = ["CHEST_IRON_LARGE", "CHEST_STEEL_SMALL", "CHEST_STEEL_LARGE"]
+    
+    # Load chest data
+    game_data = GameData()
+    
+    # Spawn chests
+    spawned_count = 0
+    attempts = 0
+    max_attempts = num_chests * 5
+    
+    while spawnable_area and spawned_count < num_chests and attempts < max_attempts:
+        attempts += 1
+        
+        # Choose random chest type
+        chest_id = random.choice(chest_types)
+        
+        # Get chest template
+        chest_template = game_data.get_item_by_id(chest_id)
+        if not chest_template:
+            debug(f"Warning: Chest template {chest_id} not found")
+            continue
+        
+        # Choose random spawn position
+        spawn_pos = random.choice(spawnable_area)
+        spawnable_area.remove(spawn_pos)
+        x, y = spawn_pos
+        
+        # Create chest instance
+        try:
+            chest = ChestInstance(
+                chest_id=chest_id,
+                chest_name=chest_template.get('name', 'chest'),
+                x=x,
+                y=y,
+                depth=depth
+            )
+            chest_system.add_chest(chest)
+            spawned_count += 1
+            debug(f"Spawned {chest.chest_name} at {spawn_pos} (depth {depth})")
+        except Exception as e:
+            log_exception(f"Error creating chest {chest_id}: {e}")
+    
+    debug(f"Spawned {spawned_count} chests for depth {depth}")

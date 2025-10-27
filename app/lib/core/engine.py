@@ -12,7 +12,7 @@ from app.lib.generation.maps.generate import (
     generate_room_corridor_dungeon
 )
 from app.lib.generation.maps.utils import find_tile, find_start_pos
-from app.lib.generation.core.spawning import spawn_entities_for_depth
+from app.lib.generation.core.spawning import spawn_entities_for_depth, spawn_chests_for_depth
 from app.lib.generation.maps.fov import update_visibility
 from config import (
     WALL, FLOOR, STAIRS_DOWN, STAIRS_UP,
@@ -107,6 +107,11 @@ class Engine:
         else:
             debug("Spawning entities for current depth.")
             self.entities = spawn_entities_for_depth(self.game_map, self.player.depth, self.player.position)
+            
+            # Spawn chests for dungeon levels
+            if generated_new_map:
+                entity_positions = [entity.position for entity in self.entities]
+                spawn_chests_for_depth(self.game_map, self.player.depth, self.player.position, entity_positions)
 
         debug(f"Engine initialized with {len(self.entities)} entities.")
         self.previous_time_of_day = self.get_time_of_day()
