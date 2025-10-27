@@ -33,14 +33,16 @@ Last Updated: 2025-10-27
 
 ### Light Sources and Vision
 
-- [ ] **Torch/Lamp Fuel System**
-  - Items: Wooden Torch (30 turns), Brass Lantern (1500 turns)
-  - Required: Fuel depletion, darkness when depleted
-  - Related: "Fill Lamp" command above
+- [x] **Torch/Lamp Fuel System**
+  - Items: Wooden Torch (100 turns), Brass Lantern (300 turns) ✓
+  - Required: Fuel depletion, darkness when depleted ✓
+  - Status: COMPLETED - Torch and lantern items exist, engine decrements light_duration each turn, resets radius when fuel runs out
+  - Implementation: Player tracks light_radius and light_duration, engine.py:294-298 handles fuel consumption
 
-- [ ] **Light Radius**
-  - Required: Different light sources affect FOV radius
-  - Enhancement: Torch = radius 2, Lantern = radius 3
+- [x] **Light Radius**
+  - Required: Different light sources affect FOV radius ✓
+  - Enhancement: Torch = radius 5, Lantern = radius 7 ✓
+  - Status: COMPLETED - Light sources set different radius values, fully integrated with FOV system
 
 - [ ] **Darkness Effects**
   - Required: Limited vision when out of light
