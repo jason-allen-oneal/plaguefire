@@ -66,6 +66,10 @@ class Entity:
         self.gold_min_mult: int = template.get("gold_min_mult", 0)
         self.gold_max_mult: int = template.get("gold_max_mult", 0)
 
+        # Ranged attack capabilities
+        self.ranged_attack: Optional[Dict] = template.get("ranged_attack", None)
+        self.ranged_range: int = template.get("ranged_range", 0) if self.ranged_attack else 0
+
         self.move_counter: int = random.randint(0, 1)
         self.status_manager = StatusEffectManager()
         self.aware_of_player: bool = False  # Track if entity has detected the player

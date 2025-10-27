@@ -7474,5 +7474,101 @@
       "base": 96,
       "per_depth": -0.5
     }
+  },
+  {
+    "id": "GOBLIN_ARCHER",
+    "name": "Goblin Archer",
+    "char": "g",
+    "hp_base": 8,
+    "hp_per_level": 2,
+    "attack_base": 3,
+    "attack_per_level": 1,
+    "defense_base": 2,
+    "defense_per_level": 0,
+    "ai_type": "aggressive",
+    "hostile": true,
+    "detection_range": 8,
+    "ranged_attack": {
+      "name": "arrow",
+      "damage": "1d6"
+    },
+    "ranged_range": 6,
+    "gold_min_mult": 2,
+    "gold_max_mult": 8,
+    "drops": {
+      "ARROW": 80,
+      "BOW_SHORT": 5
+    },
+    "depth": 50,
+    "min_depth": 25,
+    "max_depth": 150,
+    "spawn_chance": {
+      "base": 70,
+      "per_depth": -0.3
+    }
+  },
+  {
+    "id": "KOBOLD_SLINGER",
+    "name": "Kobold Slinger",
+    "char": "k",
+    "hp_base": 5,
+    "hp_per_level": 1,
+    "attack_base": 2,
+    "attack_per_level": 1,
+    "defense_base": 1,
+    "defense_per_level": 0,
+    "ai_type": "aggressive",
+    "hostile": true,
+    "detection_range": 7,
+    "ranged_attack": {
+      "name": "stone",
+      "damage": "1d4"
+    },
+    "ranged_range": 5,
+    "gold_min_mult": 1,
+    "gold_max_mult": 5,
+    "drops": {
+      "SHOT_IRON": 60
+    },
+    "depth": 25,
+    "min_depth": 10,
+    "max_depth": 100,
+    "spawn_chance": {
+      "base": 80,
+      "per_depth": -0.4
+    }
+  },
+  {
+    "id": "ORC_CROSSBOWMAN",
+    "name": "Orc Crossbowman",
+    "char": "o",
+    "hp_base": 15,
+    "hp_per_level": 3,
+    "attack_base": 5,
+    "attack_per_level": 2,
+    "defense_base": 4,
+    "defense_per_level": 1,
+    "ai_type": "aggressive",
+    "hostile": true,
+    "detection_range": 10,
+    "ranged_attack": {
+      "name": "crossbow bolt",
+      "damage": "1d8"
+    },
+    "ranged_range": 7,
+    "gold_min_mult": 5,
+    "gold_max_mult": 15,
+    "drops": {
+      "ARROW": 70,
+      "CROSSBOW_LIGHT": 10,
+      "POTION_CURE_LIGHT": 15
+    },
+    "depth": 100,
+    "min_depth": 75,
+    "max_depth": 250,
+    "spawn_chance": {
+      "base": 60,
+      "per_depth": -0.3
+    }
   }
 ]

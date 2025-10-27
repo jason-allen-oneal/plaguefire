@@ -1679,6 +1679,58 @@ class Engine:
         if is_dead: self.log_event("You have been slain!")
         return is_dead
 
+    def handle_entity_ranged_attack(self, entity: Entity) -> bool:
+        """Handle a ranged attack from an entity to the player."""
+        if not entity.ranged_attack:
+            return False
+        
+        roll = random.randint(1, 20)
+        total_atk = roll + entity.attack
+        
+        # Apply darkness penalty to ranged attack roll
+        px, py = self.player.position
+        if self.is_in_darkness(px, py):
+            darkness_penalty = 2
+            total_atk -= darkness_penalty
+        
+        dex_mod = (self.player.stats.get('DEX', 10) - 10) // 2
+        player_ac = 10 + dex_mod
+        armor_name = self.player.equipment.get('armor')
+        if armor_name:
+            armor_tmpl = GameData().get_item_by_name(armor_name)
+            player_ac += armor_tmpl.get('defense_bonus', 0) if armor_tmpl else 0
+        
+        is_crit = (roll == 20)
+        is_miss = (roll == 1 or total_atk < player_ac)
+        
+        if is_miss:
+            self.log_event(f"{entity.name}'s {entity.ranged_attack['name']} misses!")
+            return False
+        
+        # Calculate ranged damage
+        damage_str = entity.ranged_attack.get('damage', '1d4')
+        try:
+            if 'd' in damage_str:
+                num, die = map(int, damage_str.split('d'))
+                num *= 2 if is_crit else 1
+                damage = sum(random.randint(1, die) for _ in range(num))
+            else:
+                damage = int(damage_str) * 2 if is_crit else int(damage_str)
+        except:
+            damage = random.randint(1, 4)
+        
+        damage = max(1, damage)
+        
+        if is_crit:
+            self.log_event(f"Crit! {entity.name}'s {entity.ranged_attack['name']} hits for {damage} dmg!")
+        else:
+            self.log_event(f"{entity.name}'s {entity.ranged_attack['name']} hits for {damage} dmg!")
+        
+        is_dead = self.player.take_damage(damage)
+        if is_dead:
+            self.log_event("You have been slain!")
+        return is_dead
+
     def update_entities(self) -> None:
         # --- Entity update logic --- (omitted for brevity, keep your existing logic)
         for entity in self.entities[:]:
@@ -1722,8 +1774,16 @@ class Engine:
                      # Normal aggressive behavior
                      if distance <= entity.detection_range:
                          entity.aware_of_player = True  # Player detected
-                         if distance <= 1.5: self.handle_entity_attack(entity)
-                         else: # Move towards player
+                         
+                         # Check if entity has ranged attack and is in range
+                         if entity.ranged_attack and entity.ranged_range >= distance > 1.5:
+                             # Use ranged attack
+                             self.handle_entity_ranged_attack(entity)
+                         elif distance <= 1.5:
+                             # Use melee attack
+                             self.handle_entity_attack(entity)
+                         else:
+                             # Move towards player
                              dx = 0 if px == ex else (1 if px > ex else -1); dy = 0 if py == ey else (1 if py > ey else -1)
                              nx, ny = ex + dx, ey + dy
                              if (0 <= ny < self.map_height and 0 <= nx < self.map_width and self.game_map[ny][nx] == FLOOR and

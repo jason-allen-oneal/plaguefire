@@ -17,9 +17,9 @@ This document tracks all partial implementations, stubs, and missing features.
   - Required: Monsters with spell lists
   - Current: Only melee and special abilities
 
-- [ ] **Ranged Attacks**
+- [x] **Ranged Attacks**
   - Required: Monsters shooting arrows, throwing rocks
-  - Current: Only melee attacks
+  - Current: Implemented with 3 ranged monsters
 
 - [ ] **Group Behavior**
   - Required: Pack monsters moving together
