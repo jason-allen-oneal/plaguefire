@@ -41,9 +41,9 @@ This document tracks all partial implementations, stubs, and missing features.
 
 ### Town Enhancements
 
-- [ ] **Shop Inventory Restocking**
+- [x] **Shop Inventory Restocking**
   - Required: Shops refresh stock over time
-  - Current: Static inventory
+  - Implementation: Time-based restocking system
 
 - [x] **Shop Pricing Variance**
   - Required: Charisma affects prices

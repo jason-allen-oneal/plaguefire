@@ -39,13 +39,18 @@ class BaseShopScreen(Screen):
         catchphrases: Optional[List[str]] = None,
         items_for_sale: Optional[List[ShopItem]] = None,
         allowed_actions: Optional[List[str]] = None, # Add 'haggle' if desired per shop
+        restock_interval: int = 100,  # Time units between restocks
         **kwargs
     ):
         super().__init__(**kwargs)
         self.shop_name = shop_name
         self.owner_name = owner_name
         self.catchphrases = catchphrases or ["Welcome!", "Looking for something?", "Fine wares."]
-        self.items_for_sale: List[ShopItem] = list(items_for_sale) if items_for_sale is not None else self._generate_default_items()
+        self.initial_items_for_sale: List[ShopItem] = list(items_for_sale) if items_for_sale is not None else self._generate_default_items()
+        self.items_for_sale: List[ShopItem] = list(self.initial_items_for_sale)
+        self.restock_interval = restock_interval
+        self.last_restock_time: int = 0
+        
         # Ensure 'haggle' is included if buying or selling is allowed
         # --- Refined allowed_actions logic ---
         # Start with the list provided by the subclass, or a default
@@ -96,6 +101,34 @@ class BaseShopScreen(Screen):
         """Apply charisma modifier to a price."""
         modifier = self._get_charisma_price_modifier()
         return max(1, int(base_price * modifier))
+    
+    def _check_and_restock(self) -> bool:
+        """
+        Check if shop should restock and restock if needed.
+        Returns True if restocking occurred.
+        """
+        if not self.app.player:
+            return False
+        
+        current_time = self.app.player.time
+        
+        # Initialize last_restock_time if this is the first visit
+        if self.last_restock_time == 0:
+            self.last_restock_time = current_time
+            return False
+        
+        # Check if enough time has passed
+        time_since_restock = current_time - self.last_restock_time
+        
+        if time_since_restock >= self.restock_interval:
+            # Restock the shop
+            debug(f"[{self.shop_name}] Restocking inventory (time: {current_time}, last: {self.last_restock_time})")
+            self.items_for_sale = list(self.initial_items_for_sale)
+            self.last_restock_time = current_time
+            self.notify(f"{self.owner_name} has restocked the shelves!", severity="information")
+            return True
+        
+        return False
 
     def _generate_default_items(self) -> List[ShopItem]:
         debug(f"[{self.shop_name}] Generating default items (subclass should override).")
@@ -299,6 +332,10 @@ class BaseShopScreen(Screen):
         debug(f"Mounting {self.shop_name} screen.")
         self.focus()
         if self.app.player: self.player_gold = self.app.player.gold
+        
+        # Check for restocking
+        self._check_and_restock()
+        
         self.current_greeting = self.get_shop_greeting()
         self.data_changed = False
         self.selling_mode = False
