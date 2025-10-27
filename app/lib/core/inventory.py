@@ -24,13 +24,53 @@ class InventoryManager:
         self.instances: List[ItemInstance] = []
         self.equipment: Dict[str, Optional[ItemInstance]] = {}
         self._data_loader = GameData()
+        # Define stackable item types
+        self.stackable_types = ["potion", "scroll", "food", "ammunition"]
     
-    def add_item(self, item_id: str) -> bool:
+    def _can_stack(self, item1: ItemInstance, item2: ItemInstance) -> bool:
+        """
+        Check if two items can be stacked together.
+        
+        Items can stack if:
+        - They have the same item_id
+        - They are stackable types (potion, scroll, food, ammunition)
+        - They have the same identification status
+        - They don't have unique properties (charges, custom inscriptions)
+        
+        Args:
+            item1: First item instance
+            item2: Second item instance
+        
+        Returns:
+            True if items can be stacked
+        """
+        if item1.item_id != item2.item_id:
+            return False
+        
+        if item1.item_type not in self.stackable_types:
+            return False
+        
+        # Must have same identification status
+        if item1.identified != item2.identified:
+            return False
+        
+        # Don't stack if either has custom inscriptions
+        if item1.custom_inscription or item2.custom_inscription:
+            return False
+        
+        # Don't stack items with charges (wands/staves shouldn't be stackable anyway)
+        if item1.charges is not None or item2.charges is not None:
+            return False
+        
+        return True
+    
+    def add_item(self, item_id: str, quantity: int = 1) -> bool:
         """
         Add an item to inventory by template ID.
         
         Args:
             item_id: Item template ID (e.g., "STAFF_CURE_LIGHT_WOUNDS")
+            quantity: Number of items to add (for stackable items)
         
         Returns:
             True if item was added
@@ -40,8 +80,21 @@ class InventoryManager:
         if not item_data:
             return False
         
-        # Create instance
+        # Check if this item can stack with existing items
+        item_type = item_data.get("type", "misc")
+        if item_type in self.stackable_types:
+            # Try to find an existing stack with same item_id
+            for instance in self.instances:
+                if instance.item_id == item_id:
+                    # Items match - check if they can stack based on identification
+                    # For now, only stack if both are unidentified (default state)
+                    if not instance.identified and not instance.custom_inscription:
+                        instance.quantity += quantity
+                        return True
+        
+        # Create new instance
         instance = ItemInstance.from_template(item_id, item_data)
+        instance.quantity = quantity
         self.instances.append(instance)
         return True
     
@@ -58,19 +111,29 @@ class InventoryManager:
         self.instances.append(instance)
         return True
     
-    def remove_instance(self, instance_id: str) -> Optional[ItemInstance]:
+    def remove_instance(self, instance_id: str, quantity: int = None) -> Optional[ItemInstance]:
         """
         Remove an item instance from inventory.
         
         Args:
             instance_id: Instance ID to remove
+            quantity: Number to remove from stack (None = remove all)
         
         Returns:
-            Removed ItemInstance or None
+            Removed ItemInstance or None (with adjusted quantity)
         """
         for i, instance in enumerate(self.instances):
             if instance.instance_id == instance_id:
-                return self.instances.pop(i)
+                if quantity is None or instance.quantity <= quantity:
+                    # Remove entire stack
+                    return self.instances.pop(i)
+                else:
+                    # Remove partial stack
+                    instance.quantity -= quantity
+                    # Return a copy with the removed quantity
+                    removed = ItemInstance.from_dict(instance.to_dict())
+                    removed.quantity = quantity
+                    return removed
         return None
     
     def get_instance(self, instance_id: str) -> Optional[ItemInstance]:
@@ -101,13 +164,26 @@ class InventoryManager:
         if not instance.slot:
             return False, "Item cannot be equipped"
         
-        # Unequip current item in slot
-        if self.equipment.get(instance.slot):
-            self.unequip_slot(instance.slot)
+        # Handle ring slots specially - support two ring slots
+        if instance.slot == "ring":
+            # Try to equip to first available ring slot
+            if not self.equipment.get("ring_left"):
+                slot = "ring_left"
+            elif not self.equipment.get("ring_right"):
+                slot = "ring_right"
+            else:
+                # Both ring slots occupied, unequip left ring
+                self.unequip_slot("ring_left")
+                slot = "ring_left"
+        else:
+            slot = instance.slot
+            # Unequip current item in slot
+            if self.equipment.get(slot):
+                self.unequip_slot(slot)
         
         # Remove from inventory and add to equipment
         self.remove_instance(instance_id)
-        self.equipment[instance.slot] = instance
+        self.equipment[slot] = instance
         
         return True, f"Equipped {instance.item_name}"
     
@@ -138,9 +214,9 @@ class InventoryManager:
     
     def get_total_weight(self) -> int:
         """Calculate total weight of inventory and equipment."""
-        inventory_weight = sum(inst.weight for inst in self.instances)
+        inventory_weight = sum(inst.weight * inst.quantity for inst in self.instances)
         equipment_weight = sum(
-            inst.weight for inst in self.equipment.values() if inst
+            inst.weight * inst.quantity for inst in self.equipment.values() if inst
         )
         return inventory_weight + equipment_weight
     

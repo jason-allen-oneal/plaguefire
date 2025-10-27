@@ -109,11 +109,80 @@ def test_effect_refresh():
     return True
 
 
+def test_new_status_effects():
+    """Test newly added status effects: Blindness, Paralysis, Poison."""
+    print("Test: New status effects...")
+    
+    manager = StatusEffectManager()
+    
+    # Test Blindness
+    manager.add_effect("Blindness", duration=10)
+    assert manager.has_effect("Blindness"), "Should have Blindness effect"
+    assert manager.has_behavior("blind"), "Should have blind behavior"
+    attack_mod = manager.get_stat_modifier("attack")
+    defense_mod = manager.get_stat_modifier("defense")
+    assert attack_mod == -4, f"Blindness should reduce attack by 4, got {attack_mod}"
+    assert defense_mod == -4, f"Blindness should reduce defense by 4, got {defense_mod}"
+    print("✓ Blindness effect works correctly")
+    
+    # Test Paralysis
+    manager.clear_all()
+    manager.add_effect("Paralysis", duration=5)
+    assert manager.has_effect("Paralysis"), "Should have Paralysis effect"
+    assert manager.has_behavior("paralyzed"), "Should have paralyzed behavior"
+    print("✓ Paralysis effect works correctly")
+    
+    # Test Poison
+    manager.clear_all()
+    manager.add_effect("Poison", duration=20)
+    assert manager.has_effect("Poison"), "Should have Poison effect"
+    assert manager.has_behavior("poisoned"), "Should have poisoned behavior"
+    print("✓ Poison effect works correctly")
+    
+    print("✓ Test passed!\n")
+    return True
+
+
+def test_resistances():
+    """Test resistance tracking system."""
+    print("Test: Resistance system...")
+    
+    manager = StatusEffectManager()
+    
+    # Test Fire Resistance
+    manager.add_effect("ResistFire", duration=50)
+    assert manager.has_effect("ResistFire"), "Should have ResistFire effect"
+    assert manager.has_resistance("fire"), "Should have fire resistance"
+    assert not manager.has_resistance("cold"), "Should not have cold resistance"
+    print("✓ Fire resistance works")
+    
+    # Test multiple resistances
+    manager.add_effect("ResistCold", duration=30)
+    manager.add_effect("ResistAcid", duration=30)
+    assert manager.has_resistance("fire"), "Should have fire resistance"
+    assert manager.has_resistance("cold"), "Should have cold resistance"
+    assert manager.has_resistance("acid"), "Should have acid resistance"
+    assert not manager.has_resistance("lightning"), "Should not have lightning resistance"
+    print("✓ Multiple resistances work")
+    
+    # Test Lightning and Poison resistances
+    manager.add_effect("ResistLightning", duration=25)
+    manager.add_effect("ResistPoison", duration=40)
+    assert manager.has_resistance("lightning"), "Should have lightning resistance"
+    assert manager.has_resistance("poison"), "Should have poison resistance"
+    print("✓ All resistance types work")
+    
+    print("✓ Test passed!\n")
+    return True
+
+
 if __name__ == "__main__":
     try:
         test_status_effect_manager()
         test_behavior_flags()
         test_effect_refresh()
+        test_new_status_effects()
+        test_resistances()
         
         print("=" * 60)
         print("✓ ALL STATUS EFFECT TESTS PASSED!")

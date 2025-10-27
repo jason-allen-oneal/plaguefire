@@ -25,6 +25,7 @@ class ItemInstance:
     - Identification status
     - Usage history ("tried" but not identified)
     - Custom inscriptions
+    - Quantity for stackable items
     """
     
     # Core identification
@@ -38,6 +39,7 @@ class ItemInstance:
     identified: bool = False  # Whether the item has been identified
     tried: bool = False  # Whether the item has been used but not identified
     custom_inscription: Optional[str] = None  # Player-added inscription
+    quantity: int = 1  # Quantity for stackable items (scrolls, potions, etc.)
     
     # Item properties (cached from template)
     item_type: str = "misc"
@@ -182,6 +184,7 @@ class ItemInstance:
             "identified": self.identified,
             "tried": self.tried,
             "custom_inscription": self.custom_inscription,
+            "quantity": self.quantity,
             "item_type": self.item_type,
             "weight": self.weight,
             "base_cost": self.base_cost,
@@ -201,6 +204,7 @@ class ItemInstance:
             identified=data.get("identified", False),
             tried=data.get("tried", False),
             custom_inscription=data.get("custom_inscription"),
+            quantity=data.get("quantity", 1),
             item_type=data.get("item_type", "misc"),
             weight=data.get("weight", 10),
             base_cost=data.get("base_cost", 0),

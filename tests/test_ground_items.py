@@ -204,9 +204,24 @@ def test_pickup_with_full_inventory():
     # Create test player
     player = Player(create_test_player_data())
     
-    # Fill inventory to max (22 items)
-    for i in range(22):
-        player.inventory_manager.add_item("POTION_CURE_LIGHT")
+    # Fill inventory to max (22 different item stacks)
+    # Use different items so they don't stack
+    different_items = [
+        "POTION_CURE_LIGHT", "POTION_CURE_SERIOUS", "POTION_RESTORE_MANA",
+        "POTION_HEROISM", "SCROLL_LIGHT", "SCROLL_PHASE_DOOR", 
+        "SCROLL_CURSE_WEAPON", "FOOD_RATION", "DAGGER_BODKIN", 
+        "RING_GAIN_STR", "RING_GAIN_DEX", "AMULET_SLOW_DIGESTION", 
+        "SHIELD_LEATHER_SMALL", "WAND_LIGHT", "STAFF_CURE_LIGHT_WOUNDS",
+        "BOOTS_SOFT_LEATHER", "BOOTS_HARD_LEATHER", "GLOVES_LEATHER", 
+        "HELM_IRON", "CHAIN_MAIL", "POTION_BOLDNESS", "MACE_LEAD_FILLED"
+    ]
+    
+    for item_id in different_items:
+        player.inventory_manager.add_item(item_id)
+    
+    # Verify we have 22 stacks
+    actual_count = len(player.inventory_manager.instances)
+    assert actual_count == 22, f"Should have 22 item stacks, got {actual_count}"
     
     # Create minimal engine
     app = create_mock_app()
@@ -215,9 +230,9 @@ def test_pickup_with_full_inventory():
     
     engine = Engine(app, player, map_override=test_map)
     
-    # Place item on player's tile
+    # Place a non-stackable item on player's tile (Torch is not stackable)
     pos_key = (2, 2)
-    engine.ground_items[pos_key] = ["Potion of Cure Light Wounds"]
+    engine.ground_items[pos_key] = ["Wooden Torch"]
     
     # Try to pick up
     result = engine.handle_pickup_item()
@@ -225,7 +240,7 @@ def test_pickup_with_full_inventory():
     
     # Check item is still on ground
     assert pos_key in engine.ground_items, "Item should still be on ground"
-    assert "Potion of Cure Light Wounds" in engine.ground_items[pos_key], "Potion should still be on ground"
+    assert "Wooden Torch" in engine.ground_items[pos_key], "Torch should still be on ground"
     
     print("✓ Pickup fails with full inventory")
     print("✓ Item remains on ground")

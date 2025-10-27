@@ -811,7 +811,7 @@ class Player:
     def can_pickup_item(self, item_name: str) -> Tuple[bool, str]:
         """
         Check if player can pick up an item.
-        Enforces inventory limit (22 different items) and weight limit.
+        Enforces inventory limit (22 different item stacks) and weight limit.
         
         Args:
             item_name: Name of the item to pick up
@@ -819,12 +819,28 @@ class Player:
         Returns:
             (can_pickup, reason) - True if can pickup, False with reason if not
         """
-        # Check inventory limit (22 different items, Moria standard)
-        if len(self.inventory) >= 22:
+        data_loader = GameData()
+        
+        # Check inventory limit (22 different item stacks, Moria standard)
+        # Note: Stackable items of the same type count as one slot
+        if len(self.inventory_manager.instances) >= 22:
+            # Check if this item can stack with an existing item
+            item_data = data_loader.get_item_by_name(item_name)
+            if item_data:
+                item_id = data_loader.get_item_id_by_name(item_name)
+                
+                # Check if we can stack with existing items
+                if item_id:
+                    item_type = item_data.get("type", "misc")
+                    if item_type in self.inventory_manager.stackable_types:
+                        for instance in self.inventory_manager.instances:
+                            if instance.item_id == item_id:
+                                # Can stack, so pickup is allowed
+                                return True, ""
+            
             return False, "Your backpack is full (22 item limit)."
         
         # Check weight limit
-        data_loader = GameData()
         item_data = data_loader.get_item_by_name(item_name)
         if item_data:
             item_weight = item_data.get("weight", 10)
@@ -844,6 +860,31 @@ class Player:
         self.mana -= amount
         debug(f"{self.name} spends {amount} mana ({self.mana}/{self.max_mana})")
         return True
+    
+    def regenerate_mana(self) -> int:
+        """
+        Regenerate mana per turn based on class and stats.
+        
+        Returns:
+            Amount of mana regenerated
+        """
+        if self.max_mana <= 0 or self.mana >= self.max_mana:
+            return 0
+        
+        # Base regeneration: 1 mana per turn for classes with mana
+        # Bonus from mana stat modifier (INT for Mage, WIS for Priest)
+        base_regen = 1
+        if self.mana_stat:
+            stat_modifier = self._get_modifier(self.mana_stat)
+            # Add bonus regeneration for high stat (every 2 points of modifier = +1 regen/turn)
+            bonus_regen = max(0, stat_modifier // 2)
+            total_regen = base_regen + bonus_regen
+        else:
+            total_regen = 0
+        
+        if total_regen > 0:
+            return self.restore_mana(total_regen)
+        return 0
 
     def cast_spell(self, spell_id: str) -> Tuple[bool, str, Optional[Dict]]:
         """ Attempts to cast a spell, checking mana, failure rate, and granting XP. """
