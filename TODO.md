@@ -26,41 +26,17 @@ Last Updated: 2025-10-27
 
 ### Mining System (Infrastructure Exists)
 
-**Completed**:
-
-- [x] **Add Mining Command**
-  - Implemented: 'T' (tunnel) command in game.py integrates with mining system
-  - Integration: Calls `mining.dig()` with weapon detection and treasure spawning
-
 **Remaining Work**:
 
 - [ ] **Vein Detection Spell**
   - Items: Staff/Scroll of Treasure Location
   - Required: Highlight veins on map
 
-- [ ] **Visual Vein Highlighting**
-  - Required: Optional setting to colorize quartz (%) and magma (~) veins
-  - Enhancement: Better visibility of mining targets
-
 - [ ] **Mining Statistics**
   - Required: Track gems found, veins mined
   - Enhancement: Character progression tracking
 
 ### Chest System (Infrastructure Exists)
-
-**Completed**:
-
-- [x] **Add Chests to Dungeon Generation**
-  - Implemented: Chests spawn in dungeons (1-3 per level based on depth)
-  - Integration: ChestSystem integrated with spawning system
-
-- [x] **Chest Interaction Commands**
-  - Implemented: 'o' (open), 'D' (disarm), 'B/f' (force) commands
-  - Integration: Commands connected to ChestSystem methods
-
-- [x] **Trap Effects**
-  - Implemented: poison_needle, poison_gas, summon_monster, alarm, explosion, dart, magic_drain
-  - Current: All trap types apply their effects when triggered
 
 **Remaining Work**:
 
@@ -179,12 +155,6 @@ Last Updated: 2025-10-27
 - [ ] **Multiple Armor Slots**
 - [ ] **Ammunition System**
 - [ ] **Object Stacking**
-
-#### Commands Missing
-
-- [x] **Tunnel Command** ('T') - Implemented with mining system integration
-- [x] **Look Command** ('l' in original, 'x' in roguelike) - Already implemented
-- [x] **Character Sheet** ('C') - Implemented with detailed stats display
 
 #### Dungeon Features
 
