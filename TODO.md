@@ -26,9 +26,10 @@ Last Updated: 2025-10-27
 
 **Remaining Work**:
 
-- [ ] **Lockpicking Tools**
-  - Items: Lockpicks, skeleton keys
-  - Required: Tool bonuses for chest opening
+- [x] **Lockpicking Tools**
+  - Items: Lockpicks, skeleton keys ✓
+  - Required: Tool bonuses for chest opening ✓
+  - Status: COMPLETED - Added Lockpicks (+3), Thieves' Tools (+5), and Skeleton Key (+8) with full chest integration
 
 ### Light Sources and Vision
 

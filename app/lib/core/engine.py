@@ -1321,7 +1321,10 @@ class Engine:
                 if self.player.class_ == 'Rogue':
                     disarm_skill += 5
                 
-                success, message = chest.disarm_trap(disarm_skill)
+                # Get lockpick bonus from tools
+                lockpick_bonus = self.player.get_lockpick_bonus()
+                
+                success, message = chest.disarm_trap(disarm_skill, lockpick_bonus)
                 self.log_event(message)
                 
                 if not success:

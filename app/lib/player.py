@@ -1220,3 +1220,28 @@ class Player:
                 debug(f"Removed inscription from {item_name}")
         
         return True
+    
+    def get_lockpick_bonus(self) -> int:
+        """
+        Get the lockpicking bonus from tools in inventory.
+        
+        Returns:
+            Total lockpick bonus from all lockpicking tools
+        """
+        data_loader = GameData()
+        bonus = 0
+        
+        # Check all items in inventory
+        for instance in self.inventory_manager.instances:
+            item_data = data_loader.get_item(instance.item_id)
+            if item_data and "lockpick_bonus" in item_data:
+                bonus += item_data["lockpick_bonus"]
+        
+        # Also check equipped items (in case lockpicks can be equipped)
+        for instance in self.inventory_manager.equipment.values():
+            if instance:
+                item_data = data_loader.get_item(instance.item_id)
+                if item_data and "lockpick_bonus" in item_data:
+                    bonus += item_data["lockpick_bonus"]
+        
+        return bonus

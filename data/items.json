@@ -4922,6 +4922,42 @@
       "weight": 30,
       "digging_bonus": 2
     },
+    "LOCKPICKS": {
+      "name": "Lockpicks",
+      "type": "tool",
+      "base_cost": 35,
+      "description": "A set of basic lockpicks for opening locks.",
+      "rarity_depth": {
+        "min": 10,
+        "max": 100
+      },
+      "weight": 2,
+      "lockpick_bonus": 3
+    },
+    "THIEVES_TOOLS": {
+      "name": "Thieves' Tools",
+      "type": "tool",
+      "base_cost": 75,
+      "description": "Professional lockpicking and trap disarming tools.",
+      "rarity_depth": {
+        "min": 30,
+        "max": 150
+      },
+      "weight": 3,
+      "lockpick_bonus": 5
+    },
+    "SKELETON_KEY": {
+      "name": "Skeleton Key",
+      "type": "tool",
+      "base_cost": 120,
+      "description": "A master key that can open most locks.",
+      "rarity_depth": {
+        "min": 50,
+        "max": 200
+      },
+      "weight": 1,
+      "lockpick_bonus": 8
+    },
     "SLING": {
       "name": "Sling",
       "type": "weapon",
