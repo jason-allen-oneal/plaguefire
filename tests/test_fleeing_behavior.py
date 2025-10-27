@@ -206,8 +206,77 @@ def test_healthy_entity_no_flee():
     print("✓ Test passed!\n")
 
 
+def test_fearless_entity_never_flees():
+    """Test that fearless entities (undead, constructs, etc.) never flee."""
+    print("\nTest: Fearless entities never flee...")
+    
+    # Create a minimal mock app
+    mock_app = MagicMock(spec=RogueApp)
+    mock_app.sound = MagicMock()
+    mock_app.sound.play_music = MagicMock()
+    mock_app._music_enabled = False
+    
+    # Create a player
+    player_data = {
+        "name": "Test Warrior",
+        "class": "Warrior",
+        "race": "Human",
+        "stats": {"STR": 16, "INT": 10, "WIS": 10, "DEX": 12, "CON": 14, "CHA": 10},
+        "position": [5, 5],
+        "depth": 1,
+        "level": 5
+    }
+    player = Player(player_data)
+    
+    # Create a small test map
+    test_map = [
+        ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
+        ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+        ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+        ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+        ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+        ['#', '.', '.', '.', '.', '@', '.', '.', '.', '.', '#'],  # Player at [5, 5]
+        ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+        ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+        ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+        ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+        ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
+    ]
+    
+    engine = Engine(mock_app, player, map_override=test_map)
+    
+    # Create a fearless entity (skeleton) with critically low HP
+    skeleton = Entity("SKELETON_HUMAN", 1, [6, 5])
+    skeleton.max_hp = 100
+    skeleton.hp = 10  # 10% HP - critically low
+    skeleton.hostile = True
+    skeleton.ai_type = "aggressive"
+    skeleton.detection_range = 10
+    engine.entities.append(skeleton)
+    
+    # Check that skeleton has can_flee set to False
+    assert skeleton.can_flee == False, "Skeleton should have can_flee=False"
+    
+    # Update entities (should NOT trigger flee for skeleton)
+    initial_log_len = len(engine.combat_log)
+    engine.update_entities()
+    
+    # Skeleton should NOT be fleeing despite low HP
+    assert not skeleton.status_manager.has_behavior("flee"), "Fearless entity should never flee"
+    
+    # Check that no flee message was logged
+    flee_mentioned = any("flee" in msg.lower() or "terrified" in msg.lower() 
+                         for msg in engine.combat_log[initial_log_len:])
+    assert not flee_mentioned, "Fearless entity should not generate flee message"
+    
+    print("✓ Skeleton with 10% HP does not flee (can_flee=False)")
+    print("✓ No flee message logged for fearless entity")
+    print("✓ Test passed!\n")
+
+
 if __name__ == "__main__":
     test_low_hp_fleeing()
     test_fleeing_movement()
     test_healthy_entity_no_flee()
+    test_fearless_entity_never_flees()
     print("All fleeing behavior tests passed!")

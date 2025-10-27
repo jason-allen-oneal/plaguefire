@@ -61,6 +61,7 @@ class Entity:
         self.detection_range: int = template.get("detection_range", 5)
         self.target_pos: Optional[List[int]] = None
         self.provoked: bool = False
+        self.can_flee: bool = template.get("can_flee", True)  # Most entities can flee, but some (undead, constructs, etc) cannot
 
         self.drop_table: Dict[str, int] = template.get("drops", {})
         self.gold_min_mult: int = template.get("gold_min_mult", 0)
