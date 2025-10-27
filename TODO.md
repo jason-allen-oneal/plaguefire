@@ -13,9 +13,9 @@ This document tracks all partial implementations, stubs, and missing features.
 
 ### Monster AI Enhancements
 
-- [ ] **Spell Casting Monsters**
+- [x] **Spell Casting Monsters**
   - Required: Monsters with spell lists
-  - Current: Only melee and special abilities
+  - Implementation: 3 spell-casting monsters with mana system
 
 - [x] **Ranged Attacks**
   - Required: Monsters shooting arrows, throwing rocks

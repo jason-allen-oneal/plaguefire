@@ -7653,5 +7653,106 @@
       "base": 68,
       "per_depth": -0.35
     }
+  },
+  {
+    "id": "GOBLIN_SHAMAN",
+    "name": "Goblin Shaman",
+    "char": "g",
+    "hp_base": 12,
+    "hp_per_level": 2,
+    "attack_base": 3,
+    "attack_per_level": 1,
+    "defense_base": 1,
+    "defense_per_level": 0,
+    "mana": 20,
+    "spells": [
+      "magic_missile",
+      "detect_evil",
+      "cure_light_wounds"
+    ],
+    "ai_type": "aggressive",
+    "hostile": true,
+    "detection_range": 8,
+    "gold_min_mult": 5,
+    "gold_max_mult": 15,
+    "drops": {
+      "POTION_CURE_LIGHT": 20,
+      "SCROLL_MAGIC_MISSILE": 15
+    },
+    "depth": 60,
+    "min_depth": 30,
+    "max_depth": 150,
+    "spawn_chance": {
+      "base": 55,
+      "per_depth": -0.3
+    }
+  },
+  {
+    "id": "ORC_WARLOCK",
+    "name": "Orc Warlock",
+    "char": "o",
+    "hp_base": 20,
+    "hp_per_level": 3,
+    "attack_base": 4,
+    "attack_per_level": 2,
+    "defense_base": 3,
+    "defense_per_level": 1,
+    "mana": 30,
+    "spells": [
+      "magic_missile",
+      "lightning_bolt",
+      "cure_serious_wounds"
+    ],
+    "ai_type": "aggressive",
+    "hostile": true,
+    "detection_range": 9,
+    "gold_min_mult": 10,
+    "gold_max_mult": 30,
+    "drops": {
+      "POTION_RESTORE_MANA": 25,
+      "WAND_MAGIC_MISSILES": 10,
+      "SCROLL_LIGHTNING_BOLT": 15
+    },
+    "depth": 120,
+    "min_depth": 80,
+    "max_depth": 250,
+    "spawn_chance": {
+      "base": 50,
+      "per_depth": -0.25
+    }
+  },
+  {
+    "id": "DARK_PRIEST",
+    "name": "Dark Priest",
+    "char": "p",
+    "hp_base": 18,
+    "hp_per_level": 3,
+    "attack_base": 3,
+    "attack_per_level": 1,
+    "defense_base": 4,
+    "defense_per_level": 1,
+    "mana": 40,
+    "spells": [
+      "cure_critical_wounds",
+      "protection_from_evil",
+      "bless"
+    ],
+    "ai_type": "aggressive",
+    "hostile": true,
+    "detection_range": 8,
+    "gold_min_mult": 8,
+    "gold_max_mult": 25,
+    "drops": {
+      "POTION_CURE_SERIOUS": 30,
+      "POTION_RESTORE_MANA": 20,
+      "PRAYER_BOOK": 5
+    },
+    "depth": 100,
+    "min_depth": 70,
+    "max_depth": 200,
+    "spawn_chance": {
+      "base": 45,
+      "per_depth": -0.2
+    }
   }
 ]

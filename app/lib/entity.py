@@ -73,6 +73,11 @@ class Entity:
         # Group/pack behavior
         self.pack_id: Optional[str] = template.get("pack_id", None)
         self.pack_coordination: bool = template.get("pack_coordination", False)
+        
+        # Spell casting
+        self.spell_list: List[str] = template.get("spells", [])
+        self.mana: int = template.get("mana", 0)
+        self.max_mana: int = self.mana
 
         self.move_counter: int = random.randint(0, 1)
         self.status_manager = StatusEffectManager()

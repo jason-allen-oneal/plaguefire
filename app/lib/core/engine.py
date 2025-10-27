@@ -1731,6 +1731,51 @@ class Engine:
             self.log_event("You have been slain!")
         return is_dead
 
+    def handle_entity_cast_spell(self, entity: Entity) -> bool:
+        """Handle spell casting from an entity."""
+        if not entity.spell_list or entity.mana <= 0:
+            return False
+        
+        # Choose a random spell from the entity's spell list
+        spell_id = random.choice(entity.spell_list)
+        spell_data = GameData().get_spell(spell_id)
+        
+        if not spell_data:
+            return False
+        
+        # Simple spell cost (assume 5 mana for most spells)
+        mana_cost = 5
+        if entity.mana < mana_cost:
+            return False
+        
+        entity.mana -= mana_cost
+        
+        # Handle different spell types
+        effect_type = spell_data.get('effect_type', 'damage')
+        
+        if effect_type == 'damage':
+            # Damage spell - attack player
+            damage = random.randint(3, 10)  # Simplified damage
+            self.log_event(f"{entity.name} casts {spell_data['name']}!")
+            self.player.take_damage(damage)
+            self.log_event(f"The spell hits you for {damage} damage!")
+            return True
+        elif effect_type == 'heal':
+            # Healing spell - heal self
+            heal_amount = random.randint(5, 15)
+            old_hp = entity.hp
+            entity.hp = min(entity.max_hp, entity.hp + heal_amount)
+            actual_heal = entity.hp - old_hp
+            if actual_heal > 0:
+                self.log_event(f"{entity.name} casts {spell_data['name']} and heals {actual_heal} HP!")
+                return True
+        elif effect_type == 'buff':
+            # Buff spell - simplified (just log it)
+            self.log_event(f"{entity.name} casts {spell_data['name']}!")
+            return True
+        
+        return False
+
     def update_entities(self) -> None:
         # --- Entity update logic --- (omitted for brevity, keep your existing logic)
         for entity in self.entities[:]:
@@ -1775,8 +1820,14 @@ class Engine:
                      if distance <= entity.detection_range:
                          entity.aware_of_player = True  # Player detected
                          
-                         # Check if entity has ranged attack and is in range
-                         if entity.ranged_attack and entity.ranged_range >= distance > 1.5:
+                         # Check if entity can cast spells (30% chance if has spells and mana)
+                         can_cast = entity.spell_list and entity.mana >= 5
+                         will_cast = can_cast and random.random() < 0.3
+                         
+                         if will_cast and distance <= 6:
+                             # Cast a spell
+                             self.handle_entity_cast_spell(entity)
+                         elif entity.ranged_attack and entity.ranged_range >= distance > 1.5:
                              # Use ranged attack
                              self.handle_entity_ranged_attack(entity)
                          elif distance <= 1.5:
