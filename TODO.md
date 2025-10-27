@@ -25,7 +25,7 @@ This document tracks all partial implementations, stubs, and missing features.
   - Required: Pack monsters moving together
   - Enhancement: Coordinated attacks
 
-- [ ] **Fleeing Behavior**
+- [x] **Fleeing Behavior**
   - Required: Low HP monsters flee
   - Enhancement: More tactical AI
 

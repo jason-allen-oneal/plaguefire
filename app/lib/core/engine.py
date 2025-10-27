@@ -1658,6 +1658,12 @@ class Engine:
             if entity.status_manager.has_behavior("asleep"):
                 continue  # Skip turn if asleep
             
+            # Auto-flee if HP is critically low (below 25% of max HP)
+            if entity.hostile and entity.hp < entity.max_hp * 0.25:
+                if not entity.status_manager.has_behavior("flee"):
+                    entity.status_manager.add_effect("Fleeing", 10)
+                    self.log_event(f"{entity.name} looks terrified and tries to flee!")
+            
             entity.move_counter += 1
             if entity.move_counter < 2: continue
             entity.move_counter = 0
