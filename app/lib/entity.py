@@ -61,13 +61,28 @@ class Entity:
         self.detection_range: int = template.get("detection_range", 5)
         self.target_pos: Optional[List[int]] = None
         self.provoked: bool = False
+        self.flee_chance: int = template.get("flee_chance", 50)  # Percentage chance to flee when HP < 25% (0-100)
 
         self.drop_table: Dict[str, int] = template.get("drops", {})
         self.gold_min_mult: int = template.get("gold_min_mult", 0)
         self.gold_max_mult: int = template.get("gold_max_mult", 0)
 
+        # Ranged attack capabilities
+        self.ranged_attack: Optional[Dict] = template.get("ranged_attack", None)
+        self.ranged_range: int = template.get("ranged_range", 0) if self.ranged_attack else 0
+        
+        # Group/pack behavior
+        self.pack_id: Optional[str] = template.get("pack_id", None)
+        self.pack_coordination: bool = template.get("pack_coordination", False)
+        
+        # Spell casting
+        self.spell_list: List[str] = template.get("spells", [])
+        self.mana: int = template.get("mana", 0)
+        self.max_mana: int = self.mana
+
         self.move_counter: int = random.randint(0, 1)
         self.status_manager = StatusEffectManager()
+        self.aware_of_player: bool = False  # Track if entity has detected the player
 
     def take_damage(self, amount: int) -> bool:
         """

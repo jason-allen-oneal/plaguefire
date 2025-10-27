@@ -23,7 +23,10 @@
     "spawn_chance": {
       "base": 83,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50,
+    "mana": 30,
+    "max_mana": 30
   },
   {
     "id": "ANCIENT_BLACK_DRAGON",
@@ -52,7 +55,8 @@
     "spawn_chance": {
       "base": 51,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "ANCIENT_BLUE_DRAGON",
@@ -81,7 +85,8 @@
     "spawn_chance": {
       "base": 51,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "ANCIENT_GREEN_DRAGON",
@@ -110,7 +115,8 @@
     "spawn_chance": {
       "base": 51,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "ANCIENT_MULTI_HUED_DRAGON",
@@ -139,7 +145,8 @@
     "spawn_chance": {
       "base": 51,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "ANCIENT_WHITE_DRAGON",
@@ -168,7 +175,8 @@
     "spawn_chance": {
       "base": 51,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "ANT_GIANT_BLACK",
@@ -194,7 +202,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "ANT_GIANT_RED",
@@ -221,7 +230,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "ANT_LION_GIANT_GREY",
@@ -247,7 +257,8 @@
     "spawn_chance": {
       "base": 92,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "INFERNAL_LORD",
@@ -275,7 +286,8 @@
     "spawn_chance": {
       "base": 38,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "BANSHEE",
@@ -301,7 +313,8 @@
     "spawn_chance": {
       "base": 88,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "BATTLE_SCARRED_VETERAN",
@@ -330,7 +343,8 @@
     "spawn_chance": {
       "base": 100,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "BAT_GIANT_BROWN",
@@ -356,7 +370,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "BAT_GIANT_FIRE",
@@ -383,7 +398,8 @@
     "spawn_chance": {
       "base": 95,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "BEETLE_KILLER_FIRE",
@@ -409,7 +425,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "BERZERKER",
@@ -437,7 +454,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "BLACK_DRAGON_BAT",
@@ -463,7 +481,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "BLACK_HARPY",
@@ -490,7 +509,8 @@
     "spawn_chance": {
       "base": 91,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "BLACK_KNIGHT",
@@ -518,7 +538,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "BLACK_MAMBA",
@@ -544,7 +565,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "BLACK_MOLD",
@@ -570,7 +592,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "BLACK_MUSHROOM_PATCH",
@@ -596,7 +619,8 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "BLACK_NAGA",
@@ -623,7 +647,8 @@
     "spawn_chance": {
       "base": 86,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "BLACK_OOZE",
@@ -649,7 +674,8 @@
     "spawn_chance": {
       "base": 92,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "BLACK_ORC",
@@ -677,7 +703,8 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "BLACK_WRAITH",
@@ -703,7 +730,10 @@
     "spawn_chance": {
       "base": 85,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0,
+    "mana": 35,
+    "max_mana": 35
   },
   {
     "id": "BLACK_YEEK",
@@ -729,7 +759,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "BLOODSHOT_EYE",
@@ -753,7 +784,11 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50,
+    "ranged_attack": "gaze",
+    "ranged_damage": "1d4",
+    "ranged_range": 5
   },
   {
     "id": "BLOODSHOT_ICKY_THING",
@@ -779,7 +814,11 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50,
+    "ranged_attack": "spit",
+    "ranged_damage": "1d6",
+    "ranged_range": 4
   },
   {
     "id": "BLUBBERING_ICKY_THING",
@@ -805,7 +844,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "BLUBBERING_IDIOT",
@@ -834,7 +874,8 @@
     "spawn_chance": {
       "base": 100,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "BLUE_DRAGON_BAT",
@@ -860,7 +901,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "BLUE_JELLY",
@@ -886,7 +928,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "BLUE_WORM_MASS",
@@ -912,7 +955,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "BLUE_YEEK",
@@ -938,7 +982,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "BRIGAND",
@@ -966,7 +1011,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "BROWN_MOLD",
@@ -992,7 +1038,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "CENTIPEDE_GIANT_RED",
@@ -1018,7 +1065,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "CITIZEN_COMMONER",
@@ -1044,7 +1092,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "CITIZEN_GUARD",
@@ -1071,7 +1120,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "CITIZEN_MERCHANT",
@@ -1098,7 +1148,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "CITIZEN_PRIEST",
@@ -1125,7 +1176,10 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50,
+    "mana": 10,
+    "max_mana": 10
   },
   {
     "id": "CLEAR_ICKY_THING",
@@ -1151,7 +1205,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "CLEAR_MUSHROOM_PATCH",
@@ -1177,7 +1232,8 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "CLEAR_OOZE",
@@ -1203,7 +1259,8 @@
     "spawn_chance": {
       "base": 92,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "CLEAR_YEEK",
@@ -1229,7 +1286,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "CLOUD_GIANT",
@@ -1256,7 +1314,8 @@
     "spawn_chance": {
       "base": 88,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "COINS_CREEPING_COPPER",
@@ -1282,7 +1341,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "COPPERHEAD_SNAKE",
@@ -1308,7 +1368,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "CREEPING_GOLD_COINS",
@@ -1334,7 +1395,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "CREEPING_SILVER_COINS",
@@ -1360,7 +1422,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "CRIMSON_MOLD",
@@ -1386,7 +1449,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "CRYSTAL_OOZE",
@@ -1412,7 +1476,8 @@
     "spawn_chance": {
       "base": 92,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "OOZE_ACIDIC",
@@ -1436,7 +1501,8 @@
     "spawn_chance": {
       "base": 91,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "DEATH_QUASIT",
@@ -1462,7 +1528,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "DEATH_WATCH_BEETLE",
@@ -1488,7 +1555,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "DISENCHANTER_BAT",
@@ -1514,7 +1582,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "DISENCHANTER_EYE",
@@ -1538,7 +1607,8 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "DISENCHANTER_MOLD",
@@ -1564,7 +1634,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "DISENCHANTER_OOZE",
@@ -1590,7 +1661,8 @@
     "spawn_chance": {
       "base": 92,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "DISENCHANTER_WORM",
@@ -1616,7 +1688,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "DRAGON_ANCIENT_RED",
@@ -1645,7 +1718,8 @@
     "spawn_chance": {
       "base": 51,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "DRAGON_MATURE_MULTI",
@@ -1674,7 +1748,8 @@
     "spawn_chance": {
       "base": 63,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "DRAGON_YOUNG_RED",
@@ -1702,7 +1777,8 @@
     "spawn_chance": {
       "base": 82,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "DROOLING_HARPY",
@@ -1729,7 +1805,8 @@
     "spawn_chance": {
       "base": 91,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "EARTH_ELEMENTAL",
@@ -1755,7 +1832,10 @@
     "spawn_chance": {
       "base": 83,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50,
+    "mana": 40,
+    "max_mana": 40
   },
   {
     "id": "EARTH_SPIRIT",
@@ -1781,7 +1861,8 @@
     "spawn_chance": {
       "base": 83,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "ELEMENTAL_FIRE",
@@ -1807,7 +1888,10 @@
     "spawn_chance": {
       "base": 83,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50,
+    "mana": 40,
+    "max_mana": 40
   },
   {
     "id": "EMPEROR_LICH",
@@ -1835,7 +1919,8 @@
     "spawn_chance": {
       "base": 70,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "EMPEROR_WIGHT",
@@ -1861,7 +1946,8 @@
     "spawn_chance": {
       "base": 87,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "EVIL_IGGY",
@@ -1889,7 +1975,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "EYE_FLOATING",
@@ -1913,7 +2000,8 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "FILTHY_STREET_URCHIN",
@@ -1942,7 +2030,8 @@
     "spawn_chance": {
       "base": 100,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "FIRE_GIANT",
@@ -1969,7 +2058,8 @@
     "spawn_chance": {
       "base": 88,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "FIRE_SPIRIT",
@@ -1995,7 +2085,8 @@
     "spawn_chance": {
       "base": 83,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "FLESH_GOLEM",
@@ -2019,7 +2110,8 @@
     "spawn_chance": {
       "base": 88,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "FLY_GIANT_HOUSE",
@@ -2043,7 +2135,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "FOREST_WIGHT",
@@ -2069,7 +2162,8 @@
     "spawn_chance": {
       "base": 87,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "FROG_GIANT_GREEN",
@@ -2095,7 +2189,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "FROST_GIANT",
@@ -2122,7 +2217,8 @@
     "spawn_chance": {
       "base": 88,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GHOST",
@@ -2148,7 +2244,8 @@
     "spawn_chance": {
       "base": 88,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "GHOST_INVISIBLE_STALKER",
@@ -2174,7 +2271,8 @@
     "spawn_chance": {
       "base": 82,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "GIANT_BLACK_ANT_LION",
@@ -2200,7 +2298,8 @@
     "spawn_chance": {
       "base": 92,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_BLACK_BAT",
@@ -2226,7 +2325,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "GIANT_BLACK_CENTIPEDE",
@@ -2252,7 +2352,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_BLACK_DRAGON_FLY",
@@ -2276,7 +2377,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "GIANT_BLACK_FROG",
@@ -2302,7 +2404,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_BLACK_LOUSE",
@@ -2326,7 +2429,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_BLACK_RAT",
@@ -2352,7 +2456,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "GIANT_BLUE_CENTIPEDE",
@@ -2378,7 +2483,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_BLUE_DRAGON_FLY",
@@ -2402,7 +2508,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "GIANT_BROWN_SCORPION",
@@ -2428,7 +2535,8 @@
     "spawn_chance": {
       "base": 91,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_CLEAR_ANT",
@@ -2454,7 +2562,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_CLEAR_CENTIPEDE",
@@ -2480,7 +2589,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_EBONY_ANT",
@@ -2506,7 +2616,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_FIRE_TICK",
@@ -2530,7 +2641,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_FLEA",
@@ -2554,7 +2666,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_FRUIT_FLY",
@@ -2578,7 +2691,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_GLOWING_RAT",
@@ -2604,7 +2718,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "GIANT_GNAT",
@@ -2628,7 +2743,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_GREEN_DRAGON_FLY",
@@ -2652,7 +2768,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "GIANT_GREEN_FLY",
@@ -2676,7 +2793,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_GREY_BAT",
@@ -2702,7 +2820,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "GIANT_HILL",
@@ -2729,7 +2848,8 @@
     "spawn_chance": {
       "base": 88,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_HUNTER_ANT",
@@ -2755,7 +2875,11 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20,
+    "ranged_attack": "acid spit",
+    "ranged_damage": "1d4",
+    "ranged_range": 4
   },
   {
     "id": "GIANT_LIGHTNING_BAT",
@@ -2781,7 +2905,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "GIANT_LONG_EARED_BAT",
@@ -2807,7 +2932,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "GIANT_MOTTLED_ANT_LION",
@@ -2833,7 +2959,8 @@
     "spawn_chance": {
       "base": 92,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_PURPLE_WORM",
@@ -2859,7 +2986,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_RED_ANT_LION",
@@ -2885,7 +3013,8 @@
     "spawn_chance": {
       "base": 92,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_RED_BAT",
@@ -2911,7 +3040,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "GIANT_RED_DRAGON_FLY",
@@ -2935,7 +3065,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "GIANT_RED_FROG",
@@ -2961,7 +3092,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_RED_SCORPION",
@@ -2987,7 +3119,8 @@
     "spawn_chance": {
       "base": 91,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_RED_SPECKLED_FROG",
@@ -3013,7 +3146,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_SILVER_ANT",
@@ -3039,7 +3173,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_SPOTTED_RAT",
@@ -3065,7 +3200,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "GIANT_STATIC_ANT",
@@ -3091,7 +3227,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_TAN_BAT",
@@ -3117,7 +3254,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "GIANT_TROLL",
@@ -3144,7 +3282,8 @@
     "spawn_chance": {
       "base": 90,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_WHITE_ANT",
@@ -3170,7 +3309,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_WHITE_ANT_LION",
@@ -3196,7 +3336,8 @@
     "spawn_chance": {
       "base": 92,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_WHITE_CENTIPEDE",
@@ -3222,7 +3363,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_WHITE_DRAGON_FLY",
@@ -3246,7 +3388,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "GIANT_WHITE_MOUSE",
@@ -3272,7 +3415,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_WHITE_RAT",
@@ -3298,7 +3442,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "GIANT_WHITE_TICK",
@@ -3322,7 +3467,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_YELLOW_CENTIPEDE",
@@ -3348,7 +3494,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_YELLOW_SCORPION",
@@ -3374,7 +3521,8 @@
     "spawn_chance": {
       "base": 91,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GIANT_YELLOW_TICK",
@@ -3398,7 +3546,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "GOLEM_CLAY",
@@ -3422,7 +3571,8 @@
     "spawn_chance": {
       "base": 88,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "GRAPE_JELLY",
@@ -3448,7 +3598,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "GRAVE_WIGHT",
@@ -3474,7 +3625,8 @@
     "spawn_chance": {
       "base": 87,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "GREEDY_LITTLE_GNOME",
@@ -3502,7 +3654,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "GREEN_DRAGON_BAT",
@@ -3528,7 +3681,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "GREEN_GLUTTON_GHOST",
@@ -3554,7 +3708,8 @@
     "spawn_chance": {
       "base": 88,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "GREEN_ICKY_THING",
@@ -3580,7 +3735,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "GREEN_OOZE",
@@ -3606,7 +3762,8 @@
     "spawn_chance": {
       "base": 92,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "GREY_ICKY_THING",
@@ -3632,7 +3789,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "GREY_MUSHROOM_PATCH",
@@ -3658,7 +3816,8 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "GUARDIAN_NAGA",
@@ -3685,7 +3844,8 @@
     "spawn_chance": {
       "base": 86,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "HAIRY_MOLD",
@@ -3711,7 +3871,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "HARPY_GREY",
@@ -3738,7 +3899,8 @@
     "spawn_chance": {
       "base": 91,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "HOBGOBLIN",
@@ -3766,7 +3928,8 @@
     "spawn_chance": {
       "base": 95,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "HUGE_BROWN_BAT",
@@ -3792,7 +3955,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "HUGE_WHITE_BAT",
@@ -3818,7 +3982,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "HUMAN_BANDIT",
@@ -3846,7 +4011,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "HUMAN_MAGE_NOVICE",
@@ -3874,7 +4040,10 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50,
+    "mana": 15,
+    "max_mana": 15
   },
   {
     "id": "ICE_TROLL",
@@ -3901,7 +4070,8 @@
     "spawn_chance": {
       "base": 90,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "ICKY_THING_BLUE",
@@ -3927,7 +4097,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "IRIDESCENT_BEETLE",
@@ -3953,7 +4124,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "IRON_GOLEM",
@@ -3977,7 +4149,8 @@
     "spawn_chance": {
       "base": 88,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "JACKAL",
@@ -4003,7 +4176,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "JELLY_GREEN",
@@ -4029,7 +4203,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "KILLER_BLACK_BEETLE",
@@ -4055,7 +4230,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "KILLER_BLUE_BEETLE",
@@ -4081,7 +4257,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "KILLER_BORING_BEETLE",
@@ -4107,7 +4284,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "KILLER_BROWN_BEETLE",
@@ -4133,7 +4311,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "KILLER_GREEN_BEETLE",
@@ -4159,7 +4338,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "KILLER_RED_BEETLE",
@@ -4185,7 +4365,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "KILLER_SLICER_BEETLE",
@@ -4211,7 +4392,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "KILLER_STAG_BEETLE",
@@ -4237,7 +4419,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "KING_LICH",
@@ -4265,7 +4448,8 @@
     "spawn_chance": {
       "base": 70,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "KING_VAMPIRE",
@@ -4292,7 +4476,10 @@
     "spawn_chance": {
       "base": 76,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0,
+    "mana": 60,
+    "max_mana": 60
   },
   {
     "id": "KOBOLD",
@@ -4319,7 +4506,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "LARGE_BLACK_SNAKE",
@@ -4345,7 +4533,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "LARGE_BROWN_SNAKE",
@@ -4371,7 +4560,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "LARGE_GREEN_SNAKE",
@@ -4397,7 +4587,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "LARGE_GREY_SNAKE",
@@ -4423,7 +4614,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "LARGE_WHITE_SNAKE",
@@ -4449,7 +4641,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "LICH",
@@ -4477,7 +4670,10 @@
     "spawn_chance": {
       "base": 70,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0,
+    "mana": 60,
+    "max_mana": 60
   },
   {
     "id": "LOST_SOUL",
@@ -4503,7 +4699,8 @@
     "spawn_chance": {
       "base": 88,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "LOUSE_GIANT_WHITE",
@@ -4527,7 +4724,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "MAGE",
@@ -4555,7 +4753,10 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50,
+    "mana": 30,
+    "max_mana": 30
   },
   {
     "id": "MAGIC_USER",
@@ -4583,7 +4784,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "MANGY_LOOKING_LEPER",
@@ -4611,7 +4813,8 @@
     "spawn_chance": {
       "base": 100,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "MASTER_VAMPIRE",
@@ -4638,7 +4841,10 @@
     "spawn_chance": {
       "base": 76,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0,
+    "mana": 55,
+    "max_mana": 55
   },
   {
     "id": "MASTER_YEEK",
@@ -4664,7 +4870,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "MATURE_BLACK_DRAGON",
@@ -4693,7 +4900,8 @@
     "spawn_chance": {
       "base": 63,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "MATURE_BLUE_DRAGON",
@@ -4722,7 +4930,8 @@
     "spawn_chance": {
       "base": 63,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "MATURE_GREEN_DRAGON",
@@ -4751,7 +4960,8 @@
     "spawn_chance": {
       "base": 63,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "MATURE_RED_DRAGON",
@@ -4780,7 +4990,8 @@
     "spawn_chance": {
       "base": 63,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "MATURE_WHITE_DRAGON",
@@ -4809,7 +5020,8 @@
     "spawn_chance": {
       "base": 63,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "MEAN_LOOKING_MERCENARY",
@@ -4838,7 +5050,8 @@
     "spawn_chance": {
       "base": 100,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "METALLIC_BLUE_CENTIPEDE",
@@ -4864,7 +5077,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "METALLIC_GREEN_CENTIPEDE",
@@ -4890,7 +5104,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "METALLIC_RED_CENTIPEDE",
@@ -4916,7 +5131,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "MOANING_SPIRIT",
@@ -4942,7 +5158,8 @@
     "spawn_chance": {
       "base": 83,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "MOLD_GREEN",
@@ -4968,7 +5185,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "MUMMIFIED_KOBOLD",
@@ -4994,7 +5212,8 @@
     "spawn_chance": {
       "base": 90,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "MUMMIFIED_ORC",
@@ -5020,7 +5239,8 @@
     "spawn_chance": {
       "base": 90,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "MUMMIFIED_TROLL",
@@ -5046,7 +5266,8 @@
     "spawn_chance": {
       "base": 90,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "MUMMY_HUMAN",
@@ -5072,7 +5293,8 @@
     "spawn_chance": {
       "base": 90,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "MUSHROOM_PATCH_SHRIEKER",
@@ -5098,7 +5320,8 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "NAGA_GREEN",
@@ -5125,7 +5348,8 @@
     "spawn_chance": {
       "base": 86,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "NASTY_LITTLE_GNOME",
@@ -5153,7 +5377,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "NECROMANCER",
@@ -5181,7 +5406,10 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50,
+    "mana": 40,
+    "max_mana": 40
   },
   {
     "id": "NETHER_WRAITH",
@@ -5207,7 +5435,8 @@
     "spawn_chance": {
       "base": 85,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "NINJA",
@@ -5235,7 +5464,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "NOVICE_PRIEST",
@@ -5263,7 +5493,10 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50,
+    "mana": 15,
+    "max_mana": 15
   },
   {
     "id": "NOVICE_ROGUE",
@@ -5291,7 +5524,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "NOVICE_WARRIOR",
@@ -5319,7 +5553,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "OGRE",
@@ -5347,7 +5582,8 @@
     "spawn_chance": {
       "base": 91,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "OGRE_MAGE",
@@ -5375,7 +5611,10 @@
     "spawn_chance": {
       "base": 91,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50,
+    "mana": 30,
+    "max_mana": 30
   },
   {
     "id": "OOZE_GREY",
@@ -5401,7 +5640,8 @@
     "spawn_chance": {
       "base": 92,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "ORC",
@@ -5429,7 +5669,8 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "ORC_SHAMAN",
@@ -5457,7 +5698,10 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20,
+    "mana": 20,
+    "max_mana": 20
   },
   {
     "id": "ORC_WARRIOR",
@@ -5485,7 +5729,8 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "ORC_ZOMBIE",
@@ -5511,7 +5756,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "PITIFUL_LOOKING_BEGGAR",
@@ -5540,7 +5786,8 @@
     "spawn_chance": {
       "base": 100,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "POLTERGEIST",
@@ -5566,7 +5813,8 @@
     "spawn_chance": {
       "base": 88,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "PRIEST",
@@ -5594,7 +5842,10 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50,
+    "mana": 25,
+    "max_mana": 25
   },
   {
     "id": "PURPLE_MUSHROOM_PATCH",
@@ -5620,7 +5871,8 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "QUASIT",
@@ -5646,7 +5898,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "QUYLTHULG",
@@ -5672,7 +5925,8 @@
     "spawn_chance": {
       "base": 87,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "RADIATION_EYE",
@@ -5696,7 +5950,8 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "RATTLESNAKE",
@@ -5722,7 +5977,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "RAT_GIANT_GREY",
@@ -5748,7 +6004,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 70
   },
   {
     "id": "RED_DRAGON_BAT",
@@ -5774,7 +6031,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "RED_ICKY_THING",
@@ -5800,7 +6058,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "RED_JELLY",
@@ -5826,7 +6085,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "RED_MOLD",
@@ -5852,7 +6112,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "RED_NAGA",
@@ -5879,7 +6140,8 @@
     "spawn_chance": {
       "base": 86,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "RED_WORM_MASS",
@@ -5905,7 +6167,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "REPTILE_KING_COBRA",
@@ -5931,7 +6194,8 @@
     "spawn_chance": {
       "base": 93,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "ROTTING_QUYLTHULG",
@@ -5957,7 +6221,8 @@
     "spawn_chance": {
       "base": 87,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "ROT_JELLY",
@@ -5983,7 +6248,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "SCORPION_GIANT_BLACK",
@@ -6009,7 +6275,8 @@
     "spawn_chance": {
       "base": 91,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "SCRUFFY_LOOKING_HOBBIT",
@@ -6037,7 +6304,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "SEEDY_LOOKING_HUMAN",
@@ -6065,7 +6333,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "SHIMMERING_MOLD",
@@ -6091,7 +6360,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "SILVER_JELLY",
@@ -6117,7 +6387,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "SILVER_MOUSE",
@@ -6143,7 +6414,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "SINGING_HAPPY_DRUNK",
@@ -6172,7 +6444,8 @@
     "spawn_chance": {
       "base": 100,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "SKELETON_2_HEADED_TROLL",
@@ -6199,7 +6472,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "SKELETON_HOBGOBLIN",
@@ -6226,7 +6500,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "SKELETON_HUMAN",
@@ -6253,7 +6528,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "SKELETON_KOBOLD",
@@ -6280,7 +6556,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "SKELETON_ORC",
@@ -6307,7 +6584,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "SKELETON_TROLL",
@@ -6334,7 +6612,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "SORCERER",
@@ -6362,7 +6641,10 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20,
+    "mana": 35,
+    "max_mana": 35
   },
   {
     "id": "SPIRIT_TROLL",
@@ -6388,7 +6670,8 @@
     "spawn_chance": {
       "base": 83,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "SPOTTED_MUSHROOM_PATCH",
@@ -6414,7 +6697,8 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "SQUINT_EYED_ROGUE",
@@ -6442,7 +6726,8 @@
     "spawn_chance": {
       "base": 100,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "STONE_GIANT",
@@ -6469,7 +6754,8 @@
     "spawn_chance": {
       "base": 88,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "STONE_GOLEM",
@@ -6493,7 +6779,8 @@
     "spawn_chance": {
       "base": 88,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "SWORDSMAN",
@@ -6521,7 +6808,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "TICK_GIANT_BROWN",
@@ -6545,7 +6833,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "TROLL",
@@ -6572,7 +6861,8 @@
     "spawn_chance": {
       "base": 90,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "TWO_HEADED_TROLL",
@@ -6599,7 +6889,8 @@
     "spawn_chance": {
       "base": 90,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "TUNNELING_HORROR",
@@ -6625,7 +6916,8 @@
     "spawn_chance": {
       "base": 78,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "ORC_ELITE_WARRIOR",
@@ -6653,7 +6945,8 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "VAMPIRE",
@@ -6680,7 +6973,10 @@
     "spawn_chance": {
       "base": 76,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0,
+    "mana": 50,
+    "max_mana": 50
   },
   {
     "id": "VIOLET_MOLD",
@@ -6706,7 +7002,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "VORPAL_BUNNY",
@@ -6732,7 +7029,8 @@
     "spawn_chance": {
       "base": 88,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "WARRIOR",
@@ -6760,7 +7058,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 20
   },
   {
     "id": "WATER_ELEMENTAL",
@@ -6786,7 +7085,10 @@
     "spawn_chance": {
       "base": 83,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50,
+    "mana": 40,
+    "max_mana": 40
   },
   {
     "id": "WATER_SPIRIT",
@@ -6812,7 +7114,8 @@
     "spawn_chance": {
       "base": 83,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "WHITE_DRAGON_BAT",
@@ -6838,7 +7141,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "WHITE_HARPY",
@@ -6865,7 +7169,8 @@
     "spawn_chance": {
       "base": 91,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "WHITE_ICKY_THING",
@@ -6891,7 +7196,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "WHITE_JELLY",
@@ -6917,7 +7223,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "WHITE_MUSHROOM_PATCH",
@@ -6943,7 +7250,8 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "WHITE_WORM_MASS",
@@ -6969,7 +7277,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "WHITE_WRAITH",
@@ -6995,7 +7304,8 @@
     "spawn_chance": {
       "base": 85,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "WIGHT_BARROW",
@@ -7021,7 +7331,8 @@
     "spawn_chance": {
       "base": 87,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "WOODEN_MOLD",
@@ -7047,7 +7358,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "WORM_MASS_GREEN",
@@ -7073,7 +7385,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "WRAITH_GREY",
@@ -7099,7 +7412,8 @@
     "spawn_chance": {
       "base": 85,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "XORN",
@@ -7125,7 +7439,8 @@
     "spawn_chance": {
       "base": 81,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "YEEK_BROWN",
@@ -7151,7 +7466,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "YELLOW_JELLY",
@@ -7177,7 +7493,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "YELLOW_MOLD",
@@ -7203,7 +7520,8 @@
     "spawn_chance": {
       "base": 98,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "YELLOW_MUSHROOM_PATCH",
@@ -7229,7 +7547,8 @@
     "spawn_chance": {
       "base": 97,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "YELLOW_WORM_MASS",
@@ -7255,7 +7574,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "YETI",
@@ -7281,7 +7601,8 @@
     "spawn_chance": {
       "base": 88,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 50
   },
   {
     "id": "YOUNG_BLACK_DRAGON",
@@ -7309,7 +7630,8 @@
     "spawn_chance": {
       "base": 82,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "YOUNG_BLUE_DRAGON",
@@ -7337,7 +7659,8 @@
     "spawn_chance": {
       "base": 82,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "YOUNG_GREEN_DRAGON",
@@ -7365,7 +7688,8 @@
     "spawn_chance": {
       "base": 82,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "YOUNG_MULTI_HUED_DRAGON",
@@ -7393,7 +7717,8 @@
     "spawn_chance": {
       "base": 82,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "YOUNG_WHITE_DRAGON",
@@ -7421,7 +7746,8 @@
     "spawn_chance": {
       "base": 82,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "ZOMBIE_HUMAN",
@@ -7447,7 +7773,8 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
   },
   {
     "id": "ZOMBIE_KOBOLD",
@@ -7473,6 +7800,299 @@
     "spawn_chance": {
       "base": 96,
       "per_depth": -0.5
-    }
+    },
+    "flee_chance": 0
+  },
+  {
+    "id": "GOBLIN_ARCHER",
+    "name": "Goblin Archer",
+    "char": "g",
+    "hp_base": 8,
+    "hp_per_level": 2,
+    "attack_base": 3,
+    "attack_per_level": 1,
+    "defense_base": 2,
+    "defense_per_level": 0,
+    "ai_type": "aggressive",
+    "hostile": true,
+    "detection_range": 8,
+    "ranged_attack": {
+      "name": "arrow",
+      "damage": "1d6"
+    },
+    "ranged_range": 6,
+    "gold_min_mult": 2,
+    "gold_max_mult": 8,
+    "drops": {
+      "ARROW": 80,
+      "BOW_SHORT": 5
+    },
+    "depth": 50,
+    "min_depth": 25,
+    "max_depth": 150,
+    "spawn_chance": {
+      "base": 70,
+      "per_depth": -0.3
+    },
+    "flee_chance": 70
+  },
+  {
+    "id": "KOBOLD_SLINGER",
+    "name": "Kobold Slinger",
+    "char": "k",
+    "hp_base": 5,
+    "hp_per_level": 1,
+    "attack_base": 2,
+    "attack_per_level": 1,
+    "defense_base": 1,
+    "defense_per_level": 0,
+    "ai_type": "aggressive",
+    "hostile": true,
+    "detection_range": 7,
+    "ranged_attack": {
+      "name": "stone",
+      "damage": "1d4"
+    },
+    "ranged_range": 5,
+    "gold_min_mult": 1,
+    "gold_max_mult": 5,
+    "drops": {
+      "SHOT_IRON": 60
+    },
+    "depth": 25,
+    "min_depth": 10,
+    "max_depth": 100,
+    "spawn_chance": {
+      "base": 80,
+      "per_depth": -0.4
+    },
+    "flee_chance": 70
+  },
+  {
+    "id": "ORC_CROSSBOWMAN",
+    "name": "Orc Crossbowman",
+    "char": "o",
+    "hp_base": 15,
+    "hp_per_level": 3,
+    "attack_base": 5,
+    "attack_per_level": 2,
+    "defense_base": 4,
+    "defense_per_level": 1,
+    "ai_type": "aggressive",
+    "hostile": true,
+    "detection_range": 10,
+    "ranged_attack": {
+      "name": "crossbow bolt",
+      "damage": "1d8"
+    },
+    "ranged_range": 7,
+    "gold_min_mult": 5,
+    "gold_max_mult": 15,
+    "drops": {
+      "ARROW": 70,
+      "CROSSBOW_LIGHT": 10,
+      "POTION_CURE_LIGHT": 15
+    },
+    "depth": 100,
+    "min_depth": 75,
+    "max_depth": 250,
+    "spawn_chance": {
+      "base": 60,
+      "per_depth": -0.3
+    },
+    "flee_chance": 20
+  },
+  {
+    "id": "WOLF_DIRE",
+    "name": "Dire Wolf",
+    "char": "w",
+    "hp_base": 18,
+    "hp_per_level": 3,
+    "attack_base": 6,
+    "attack_per_level": 2,
+    "defense_base": 3,
+    "defense_per_level": 1,
+    "ai_type": "pack",
+    "pack_id": "wolf_pack",
+    "pack_coordination": true,
+    "hostile": true,
+    "detection_range": 8,
+    "gold_min_mult": 0,
+    "gold_max_mult": 2,
+    "drops": {
+      "POTION_CURE_LIGHT": 10
+    },
+    "depth": 50,
+    "min_depth": 25,
+    "max_depth": 150,
+    "spawn_chance": {
+      "base": 65,
+      "per_depth": -0.3
+    },
+    "flee_chance": 50
+  },
+  {
+    "id": "HYENA_PACK",
+    "name": "Hyena",
+    "char": "h",
+    "hp_base": 12,
+    "hp_per_level": 2,
+    "attack_base": 4,
+    "attack_per_level": 1,
+    "defense_base": 2,
+    "defense_per_level": 0,
+    "ai_type": "pack",
+    "pack_id": "hyena_pack",
+    "pack_coordination": true,
+    "hostile": true,
+    "detection_range": 7,
+    "gold_min_mult": 0,
+    "gold_max_mult": 1,
+    "drops": {},
+    "depth": 35,
+    "min_depth": 15,
+    "max_depth": 100,
+    "spawn_chance": {
+      "base": 70,
+      "per_depth": -0.4
+    },
+    "flee_chance": 50
+  },
+  {
+    "id": "GOBLIN_RAIDER",
+    "name": "Goblin Raider",
+    "char": "g",
+    "hp_base": 10,
+    "hp_per_level": 2,
+    "attack_base": 4,
+    "attack_per_level": 1,
+    "defense_base": 2,
+    "defense_per_level": 1,
+    "ai_type": "pack",
+    "pack_id": "goblin_raiders",
+    "pack_coordination": true,
+    "hostile": true,
+    "detection_range": 7,
+    "gold_min_mult": 3,
+    "gold_max_mult": 10,
+    "drops": {
+      "DAGGER": 20,
+      "POTION_CURE_LIGHT": 10
+    },
+    "depth": 40,
+    "min_depth": 20,
+    "max_depth": 120,
+    "spawn_chance": {
+      "base": 68,
+      "per_depth": -0.35
+    },
+    "flee_chance": 70
+  },
+  {
+    "id": "GOBLIN_SHAMAN",
+    "name": "Goblin Shaman",
+    "char": "g",
+    "hp_base": 12,
+    "hp_per_level": 2,
+    "attack_base": 3,
+    "attack_per_level": 1,
+    "defense_base": 1,
+    "defense_per_level": 0,
+    "mana": 20,
+    "spells": [
+      "magic_missile",
+      "detect_evil",
+      "cure_light_wounds"
+    ],
+    "ai_type": "aggressive",
+    "hostile": true,
+    "detection_range": 8,
+    "gold_min_mult": 5,
+    "gold_max_mult": 15,
+    "drops": {
+      "POTION_CURE_LIGHT": 20,
+      "SCROLL_MAGIC_MISSILE": 15
+    },
+    "depth": 60,
+    "min_depth": 30,
+    "max_depth": 150,
+    "spawn_chance": {
+      "base": 55,
+      "per_depth": -0.3
+    },
+    "flee_chance": 70,
+    "max_mana": 20
+  },
+  {
+    "id": "ORC_WARLOCK",
+    "name": "Orc Warlock",
+    "char": "o",
+    "hp_base": 20,
+    "hp_per_level": 3,
+    "attack_base": 4,
+    "attack_per_level": 2,
+    "defense_base": 3,
+    "defense_per_level": 1,
+    "mana": 30,
+    "spells": [
+      "magic_missile",
+      "lightning_bolt",
+      "cure_serious_wounds"
+    ],
+    "ai_type": "aggressive",
+    "hostile": true,
+    "detection_range": 9,
+    "gold_min_mult": 10,
+    "gold_max_mult": 30,
+    "drops": {
+      "POTION_RESTORE_MANA": 25,
+      "WAND_MAGIC_MISSILES": 10,
+      "SCROLL_LIGHTNING_BOLT": 15
+    },
+    "depth": 120,
+    "min_depth": 80,
+    "max_depth": 250,
+    "spawn_chance": {
+      "base": 50,
+      "per_depth": -0.25
+    },
+    "flee_chance": 20,
+    "max_mana": 30
+  },
+  {
+    "id": "DARK_PRIEST",
+    "name": "Dark Priest",
+    "char": "p",
+    "hp_base": 18,
+    "hp_per_level": 3,
+    "attack_base": 3,
+    "attack_per_level": 1,
+    "defense_base": 4,
+    "defense_per_level": 1,
+    "mana": 40,
+    "spells": [
+      "cure_critical_wounds",
+      "protection_from_evil",
+      "bless"
+    ],
+    "ai_type": "aggressive",
+    "hostile": true,
+    "detection_range": 8,
+    "gold_min_mult": 8,
+    "gold_max_mult": 25,
+    "drops": {
+      "POTION_CURE_SERIOUS": 30,
+      "POTION_RESTORE_MANA": 20,
+      "PRAYER_BOOK": 5
+    },
+    "depth": 100,
+    "min_depth": 70,
+    "max_depth": 200,
+    "spawn_chance": {
+      "base": 45,
+      "per_depth": -0.2
+    },
+    "flee_chance": 50,
+    "max_mana": 40
   }
 ]

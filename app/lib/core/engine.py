@@ -1575,17 +1575,39 @@ class Engine:
                 self.game_map[ty][tx] = FLOOR; self.update_fov(); self.log_event("Dug through rock."); return True
         return False
 
+    def is_in_darkness(self, x: int, y: int) -> bool:
+        """Check if a position is in darkness (not lit)."""
+        # In town during day, nothing is dark
+        if self.player.depth == 0 and self.get_time_of_day() == "Day":
+            return False
+        # Check if position is visible (lit)
+        if 0 <= y < self.map_height and 0 <= x < self.map_width:
+            return self.visibility[y][x] < 2  # Not currently visible means in darkness
+        return True
+
     def handle_player_attack(self, target: Entity) -> bool:
         # --- Player attack logic --- (omitted for brevity, keep your existing logic)
         str_mod = (self.player.stats.get('STR', 10) - 10) // 2
         prof = 2 + (self.player.level - 1) // 4
         roll = random.randint(1, 20); total_atk = roll + str_mod + prof
+        
+        # Apply darkness penalty to attack roll
+        tx, ty = target.position
+        if self.is_in_darkness(tx, ty):
+            darkness_penalty = 2
+            total_atk -= darkness_penalty
+            self.log_event(f"Attacking in darkness! (-{darkness_penalty} to hit)")
+        
         target_ac = 10 + target.defense
         is_crit = (roll == 20); is_miss = (roll == 1 or total_atk < target_ac)
         if is_miss: self.log_event(f"You miss {target.name}."); return False
+        
         # Calculate weapon damage (including crits)
         wpn_dmg = 0
         wpn_name = self.player.equipment.get('weapon')
+        weapon_effect = None
+        weapon_effect_damage = 0
+        
         if wpn_name:
             wpn_tmpl = GameData().get_item_by_name(wpn_name)
             if wpn_tmpl and 'damage' in wpn_tmpl:
@@ -1596,7 +1618,36 @@ class Engine:
                         wpn_dmg = sum(random.randint(1, die) for _ in range(num))
                     else: wpn_dmg = int(dmg_str) * 2 if is_crit else int(dmg_str)
                 except: wpn_dmg = 1 * 2 if is_crit else 1 # fallback
+                
+                # Check for weapon special effects
+                if 'weapon_effect' in wpn_tmpl:
+                    effect_type = wpn_tmpl['weapon_effect'].get('type')
+                    effect_dmg_str = wpn_tmpl['weapon_effect'].get('damage', '1d6')
+                    try:
+                        if 'd' in effect_dmg_str:
+                            num, die = map(int, effect_dmg_str.split('d'))
+                            weapon_effect_damage = sum(random.randint(1, die) for _ in range(num))
+                        else:
+                            weapon_effect_damage = int(effect_dmg_str)
+                    except:
+                        weapon_effect_damage = random.randint(1, 6)
+                    weapon_effect = effect_type
+        
         total_dmg = max(1, wpn_dmg + str_mod) # Add modifier only once
+        
+        # Add weapon effect damage
+        if weapon_effect and weapon_effect_damage > 0:
+            total_dmg += weapon_effect_damage
+            effect_name = weapon_effect.replace('_', ' ').title()
+            self.log_event(f"{effect_name} damage! (+{weapon_effect_damage})")
+        
+        # Check for backstab bonus (Rogue attacking unaware enemy)
+        if self.player.class_ == "Rogue" and not target.aware_of_player:
+            backstab_multiplier = 2.0
+            total_dmg = int(total_dmg * backstab_multiplier)
+            self.log_event(f"Backstab! ({backstab_multiplier}x damage)")
+            target.aware_of_player = True  # Enemy is now aware after being attacked
+        
         if is_crit: self.log_event(f"Crit! Hit {target.name} for {total_dmg} dmg!")
         else: self.log_event(f"Hit {target.name} for {total_dmg} dmg.")
         is_dead = target.take_damage(total_dmg)
@@ -1609,6 +1660,13 @@ class Engine:
     def handle_entity_attack(self, entity: Entity) -> bool:
         # --- Entity attack logic --- (omitted for brevity, keep your existing logic)
         roll = random.randint(1, 20); total_atk = roll + entity.attack
+        
+        # Apply darkness penalty to entity attack roll
+        px, py = self.player.position
+        if self.is_in_darkness(px, py):
+            darkness_penalty = 2
+            total_atk -= darkness_penalty
+        
         dex_mod = (self.player.stats.get('DEX', 10) - 10) // 2; player_ac = 10 + dex_mod
         armor_name = self.player.equipment.get('armor')
         if armor_name: armor_tmpl = GameData().get_item_by_name(armor_name); player_ac += armor_tmpl.get('defense_bonus', 0) if armor_tmpl else 0
@@ -1621,6 +1679,103 @@ class Engine:
         if is_dead: self.log_event("You have been slain!")
         return is_dead
 
+    def handle_entity_ranged_attack(self, entity: Entity) -> bool:
+        """Handle a ranged attack from an entity to the player."""
+        if not entity.ranged_attack:
+            return False
+        
+        roll = random.randint(1, 20)
+        total_atk = roll + entity.attack
+        
+        # Apply darkness penalty to ranged attack roll
+        px, py = self.player.position
+        if self.is_in_darkness(px, py):
+            darkness_penalty = 2
+            total_atk -= darkness_penalty
+        
+        dex_mod = (self.player.stats.get('DEX', 10) - 10) // 2
+        player_ac = 10 + dex_mod
+        armor_name = self.player.equipment.get('armor')
+        if armor_name:
+            armor_tmpl = GameData().get_item_by_name(armor_name)
+            player_ac += armor_tmpl.get('defense_bonus', 0) if armor_tmpl else 0
+        
+        is_crit = (roll == 20)
+        is_miss = (roll == 1 or total_atk < player_ac)
+        
+        if is_miss:
+            self.log_event(f"{entity.name}'s {entity.ranged_attack['name']} misses!")
+            return False
+        
+        # Calculate ranged damage
+        damage_str = entity.ranged_attack.get('damage', '1d4')
+        try:
+            if 'd' in damage_str:
+                num, die = map(int, damage_str.split('d'))
+                num *= 2 if is_crit else 1
+                damage = sum(random.randint(1, die) for _ in range(num))
+            else:
+                damage = int(damage_str) * 2 if is_crit else int(damage_str)
+        except:
+            damage = random.randint(1, 4)
+        
+        damage = max(1, damage)
+        
+        if is_crit:
+            self.log_event(f"Crit! {entity.name}'s {entity.ranged_attack['name']} hits for {damage} dmg!")
+        else:
+            self.log_event(f"{entity.name}'s {entity.ranged_attack['name']} hits for {damage} dmg!")
+        
+        is_dead = self.player.take_damage(damage)
+        if is_dead:
+            self.log_event("You have been slain!")
+        return is_dead
+
+    def handle_entity_cast_spell(self, entity: Entity) -> bool:
+        """Handle spell casting from an entity."""
+        if not entity.spell_list or entity.mana <= 0:
+            return False
+        
+        # Choose a random spell from the entity's spell list
+        spell_id = random.choice(entity.spell_list)
+        spell_data = GameData().get_spell(spell_id)
+        
+        if not spell_data:
+            return False
+        
+        # Simple spell cost (assume 5 mana for most spells)
+        mana_cost = 5
+        if entity.mana < mana_cost:
+            return False
+        
+        entity.mana -= mana_cost
+        
+        # Handle different spell types
+        effect_type = spell_data.get('effect_type', 'damage')
+        
+        if effect_type == 'damage':
+            # Damage spell - attack player
+            damage = random.randint(3, 10)  # Simplified damage
+            self.log_event(f"{entity.name} casts {spell_data['name']}!")
+            self.player.take_damage(damage)
+            self.log_event(f"The spell hits you for {damage} damage!")
+            return True
+        elif effect_type == 'heal':
+            # Healing spell - heal self
+            heal_amount = random.randint(5, 15)
+            old_hp = entity.hp
+            entity.hp = min(entity.max_hp, entity.hp + heal_amount)
+            actual_heal = entity.hp - old_hp
+            if actual_heal > 0:
+                self.log_event(f"{entity.name} casts {spell_data['name']} and heals {actual_heal} HP!")
+                return True
+        elif effect_type == 'buff':
+            # Buff spell - simplified (just log it)
+            self.log_event(f"{entity.name} casts {spell_data['name']}!")
+            return True
+        
+        return False
+
     def update_entities(self) -> None:
         # --- Entity update logic --- (omitted for brevity, keep your existing logic)
         for entity in self.entities[:]:
@@ -1632,6 +1787,15 @@ class Engine:
             # Check if entity is asleep or fleeing
             if entity.status_manager.has_behavior("asleep"):
                 continue  # Skip turn if asleep
+            
+            # Auto-flee if HP is critically low (below 25% of max HP)
+            # Flee based on flee_chance percentage (0-100)
+            if entity.hostile and entity.hp < entity.max_hp * 0.25:
+                if not entity.status_manager.has_behavior("flee"):
+                    # Roll against flee_chance (0% = never flee, 100% = always flee)
+                    if random.randint(1, 100) <= entity.flee_chance:
+                        entity.status_manager.add_effect("Fleeing", 10)
+                        self.log_event(f"{entity.name} looks terrified and tries to flee!")
             
             entity.move_counter += 1
             if entity.move_counter < 2: continue
@@ -1649,6 +1813,7 @@ class Engine:
                  if entity.status_manager.has_behavior("flee"):
                      # Move away from player
                      if distance <= entity.detection_range:
+                         entity.aware_of_player = True  # Player detected
                          dx = 0 if px == ex else (-1 if px > ex else 1); dy = 0 if py == ey else (-1 if py > ey else 1)
                          nx, ny = ex + dx, ey + dy
                          if (0 <= ny < self.map_height and 0 <= nx < self.map_width and self.game_map[ny][nx] == FLOOR and
@@ -1656,12 +1821,95 @@ class Engine:
                  else:
                      # Normal aggressive behavior
                      if distance <= entity.detection_range:
-                         if distance <= 1.5: self.handle_entity_attack(entity)
-                         else: # Move towards player
+                         entity.aware_of_player = True  # Player detected
+                         
+                         # Check if entity can cast spells (30% chance if has spells and mana)
+                         can_cast = entity.spell_list and entity.mana >= 5
+                         will_cast = can_cast and random.random() < 0.3
+                         
+                         if will_cast and distance <= 6:
+                             # Cast a spell
+                             self.handle_entity_cast_spell(entity)
+                         elif entity.ranged_attack and entity.ranged_range >= distance > 1.5:
+                             # Use ranged attack
+                             self.handle_entity_ranged_attack(entity)
+                         elif distance <= 1.5:
+                             # Use melee attack
+                             self.handle_entity_attack(entity)
+                         else:
+                             # Move towards player
                              dx = 0 if px == ex else (1 if px > ex else -1); dy = 0 if py == ey else (1 if py > ey else -1)
                              nx, ny = ex + dx, ey + dy
                              if (0 <= ny < self.map_height and 0 <= nx < self.map_width and self.game_map[ny][nx] == FLOOR and
                                  not self.get_entity_at(nx, ny) and [nx, ny] != self.player.position): entity.position = [nx, ny]
+            elif entity.ai_type == "pack":
+                # Pack behavior - coordinate with other pack members
+                if entity.status_manager.has_behavior("flee"):
+                    # Flee even when in pack
+                    if distance <= entity.detection_range:
+                        entity.aware_of_player = True
+                        dx = 0 if px == ex else (-1 if px > ex else 1)
+                        dy = 0 if py == ey else (-1 if py > ey else 1)
+                        nx, ny = ex + dx, ey + dy
+                        if (0 <= ny < self.map_height and 0 <= nx < self.map_width and 
+                            self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and 
+                            [nx, ny] != self.player.position):
+                            entity.position = [nx, ny]
+                else:
+                    # Check for pack members nearby
+                    pack_members = [e for e in self.entities if e != entity and 
+                                   e.pack_id == entity.pack_id and e.hp > 0]
+                    
+                    if distance <= entity.detection_range:
+                        entity.aware_of_player = True
+                        
+                        # Check if we have pack support nearby (within 3 tiles)
+                        nearby_pack = [e for e in pack_members 
+                                      if math.sqrt((e.position[0] - ex)**2 + (e.position[1] - ey)**2) <= 3]
+                        
+                        # More aggressive when pack is nearby
+                        if distance <= 1.5:
+                            self.handle_entity_attack(entity)
+                        elif nearby_pack and distance <= 4:
+                            # Advance with pack support
+                            dx = 0 if px == ex else (1 if px > ex else -1)
+                            dy = 0 if py == ey else (1 if py > ey else -1)
+                            nx, ny = ex + dx, ey + dy
+                            if (0 <= ny < self.map_height and 0 <= nx < self.map_width and 
+                                self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and 
+                                [nx, ny] != self.player.position):
+                                entity.position = [nx, ny]
+                        elif not nearby_pack:
+                            # Try to regroup with pack if alone
+                            if pack_members:
+                                nearest_pack = min(pack_members, 
+                                                 key=lambda e: math.sqrt((e.position[0] - ex)**2 + (e.position[1] - ey)**2))
+                                npx, npy = nearest_pack.position
+                                dx = 0 if npx == ex else (1 if npx > ex else -1)
+                                dy = 0 if npy == ey else (1 if npy > ey else -1)
+                                nx, ny = ex + dx, ey + dy
+                                if (0 <= ny < self.map_height and 0 <= nx < self.map_width and 
+                                    self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and 
+                                    [nx, ny] != self.player.position):
+                                    entity.position = [nx, ny]
+                            else:
+                                # No pack left, act like aggressive
+                                dx = 0 if px == ex else (1 if px > ex else -1)
+                                dy = 0 if py == ey else (1 if py > ey else -1)
+                                nx, ny = ex + dx, ey + dy
+                                if (0 <= ny < self.map_height and 0 <= nx < self.map_width and 
+                                    self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and 
+                                    [nx, ny] != self.player.position):
+                                    entity.position = [nx, ny]
+                        else:
+                            # Move toward player
+                            dx = 0 if px == ex else (1 if px > ex else -1)
+                            dy = 0 if py == ey else (1 if py > ey else -1)
+                            nx, ny = ex + dx, ey + dy
+                            if (0 <= ny < self.map_height and 0 <= nx < self.map_width and 
+                                self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and 
+                                [nx, ny] != self.player.position):
+                                entity.position = [nx, ny]
             elif entity.ai_type == "thief": self._process_beggar_ai(entity, distance)
 
 

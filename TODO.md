@@ -7,49 +7,49 @@ This document tracks all partial implementations, stubs, and missing features.
 
 ### Light Sources and Vision
 
-- [ ] **Darkness Effects**
+- [x] **Darkness Effects**
   - Required: Limited vision when out of light
   - Penalty: Reduced FOV, combat penalties
 
 ### Monster AI Enhancements
 
-- [ ] **Spell Casting Monsters**
+- [x] **Spell Casting Monsters**
   - Required: Monsters with spell lists
-  - Current: Only melee and special abilities
+  - Implementation: 3 spell-casting monsters with mana system
 
-- [ ] **Ranged Attacks**
+- [x] **Ranged Attacks**
   - Required: Monsters shooting arrows, throwing rocks
-  - Current: Only melee attacks
+  - Current: Implemented with 3 ranged monsters
 
-- [ ] **Group Behavior**
+- [x] **Group Behavior**
   - Required: Pack monsters moving together
-  - Enhancement: Coordinated attacks
+  - Enhancement: Coordinated attacks implemented
 
-- [ ] **Fleeing Behavior**
+- [x] **Fleeing Behavior**
   - Required: Low HP monsters flee
   - Enhancement: More tactical AI
 
 ### Advanced Combat
 
-- [ ] **Backstab Bonus**
+- [x] **Backstab Bonus**
   - Class: Rogue special ability
   - Required: Damage multiplier when attacking unaware enemies
 
-- [ ] **Weapon Special Effects**
+- [x] **Weapon Special Effects**
   - Types: Flame tongue, frost brand, vorpal blades
   - Required: Additional damage types, effects on hit
 
 ### Town Enhancements
 
-- [ ] **Shop Inventory Restocking**
+- [x] **Shop Inventory Restocking**
   - Required: Shops refresh stock over time
-  - Current: Static inventory
+  - Implementation: Time-based restocking system
 
-- [ ] **Shop Pricing Variance**
+- [x] **Shop Pricing Variance**
   - Required: Charisma affects prices
   - Enhancement: Haggling system
 
-- [ ] **Inn/Tavern Services**
+- [x] **Inn/Tavern Services**
   - Services: Rest (restore HP/MP), rumors, quests
-  - Current: Basic implementation
+  - Implementation: Enhanced tavern with rest service
 

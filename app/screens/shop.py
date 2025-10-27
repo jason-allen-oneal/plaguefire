@@ -39,13 +39,18 @@ class BaseShopScreen(Screen):
         catchphrases: Optional[List[str]] = None,
         items_for_sale: Optional[List[ShopItem]] = None,
         allowed_actions: Optional[List[str]] = None, # Add 'haggle' if desired per shop
+        restock_interval: int = 100,  # Time units between restocks
         **kwargs
     ):
         super().__init__(**kwargs)
         self.shop_name = shop_name
         self.owner_name = owner_name
         self.catchphrases = catchphrases or ["Welcome!", "Looking for something?", "Fine wares."]
-        self.items_for_sale: List[ShopItem] = list(items_for_sale) if items_for_sale is not None else self._generate_default_items()
+        self.initial_items_for_sale: List[ShopItem] = list(items_for_sale) if items_for_sale is not None else self._generate_default_items()
+        self.items_for_sale: List[ShopItem] = list(self.initial_items_for_sale)
+        self.restock_interval = restock_interval
+        self.last_restock_time: int = 0
+        
         # Ensure 'haggle' is included if buying or selling is allowed
         # --- Refined allowed_actions logic ---
         # Start with the list provided by the subclass, or a default
@@ -69,6 +74,61 @@ class BaseShopScreen(Screen):
         self.haggle_attempted_this_selection: bool = False
 
     # --- Helper Methods ---
+    
+    def _get_charisma_price_modifier(self) -> float:
+        """
+        Calculate price modifier based on player's charisma (0.85 to 1.15 range).
+        
+        The formula is: modifier = 1.0 - ((CHA - 10) * 0.02)
+        - Each point of CHA above 10 gives a 2% discount
+        - Each point of CHA below 10 adds a 2% markup
+        - The modifier is clamped between 0.85 (15% discount) and 1.15 (15% markup)
+        
+        Examples:
+        - CHA 18: 1.0 - (8 * 0.02) = 0.84, clamped to 0.85 (15% discount)
+        - CHA 10: 1.0 - (0 * 0.02) = 1.00 (no change)
+        - CHA 3: 1.0 - (-7 * 0.02) = 1.14 (14% markup)
+        """
+        if not self.app.player:
+            return 1.0
+        
+        cha_stat = self.app.player.stats.get('CHA', 10)
+        # Lower prices for high charisma, higher prices for low charisma
+        modifier = 1.0 - ((cha_stat - 10) * 0.02)
+        return max(0.85, min(1.15, modifier))
+    
+    def _apply_charisma_to_price(self, base_price: int) -> int:
+        """Apply charisma modifier to a price."""
+        modifier = self._get_charisma_price_modifier()
+        return max(1, int(base_price * modifier))
+    
+    def _check_and_restock(self) -> bool:
+        """
+        Check if shop should restock and restock if needed.
+        Returns True if restocking occurred.
+        """
+        if not self.app.player:
+            return False
+        
+        current_time = self.app.player.time
+        
+        # Initialize last_restock_time if this is the first visit
+        if self.last_restock_time == 0:
+            self.last_restock_time = current_time
+            return False
+        
+        # Check if enough time has passed
+        time_since_restock = current_time - self.last_restock_time
+        
+        if time_since_restock >= self.restock_interval:
+            # Restock the shop
+            debug(f"[{self.shop_name}] Restocking inventory (time: {current_time}, last: {self.last_restock_time})")
+            self.items_for_sale = list(self.initial_items_for_sale)
+            self.last_restock_time = current_time
+            self.notify(f"{self.owner_name} has restocked the shelves!", severity="information")
+            return True
+        
+        return False
 
     def _generate_default_items(self) -> List[ShopItem]:
         debug(f"[{self.shop_name}] Generating default items (subclass should override).")
@@ -162,9 +222,12 @@ class BaseShopScreen(Screen):
             item_name = selected_item_data
             sell_price, _ = self._get_item_sell_price(item_name); base_price = sell_price
         else:
-            item: ShopItem = selected_item_data; base_price = item.cost; item_name = item.name
+            item: ShopItem = selected_item_data
+            # Use charisma-adjusted price as base for haggling
+            base_price = self._apply_charisma_to_price(item.cost)
+            item_name = item.name
 
-        debug(f"Attempting haggle on '{item_name}'. Base price: {base_price}gp.")
+        debug(f"Attempting haggle on '{item_name}'. Base price (CHA-adjusted): {base_price}gp.")
         self.haggle_attempted_this_selection = True # Mark attempt immediately
 
         cha_modifier = self.app.player._get_modifier('CHA')
@@ -189,17 +252,20 @@ class BaseShopScreen(Screen):
 
 
     def _buy_selected_item(self):
-        """Logic to buy the currently selected shop item, considering haggled price."""
+        """Logic to buy the currently selected shop item, considering haggled price and charisma."""
         current_list, selected_item = self._get_current_list_and_item()
         if not isinstance(selected_item, ShopItem): # Ensure we're in buy mode with a valid item
              self.notify("Cannot buy this.", severity="warning"); return
 
         self.player_gold = self.app.player.gold
 
-        # Use haggled price if available for this specific selection
-        price_to_pay = self.haggled_price if self.haggled_price is not None else selected_item.cost
+        # Apply charisma modifier to base price
+        charisma_adjusted_price = self._apply_charisma_to_price(selected_item.cost)
+        
+        # Use haggled price if available, otherwise use charisma-adjusted price
+        price_to_pay = self.haggled_price if self.haggled_price is not None else charisma_adjusted_price
 
-        debug(f"Buy: '{selected_item.name}' ({price_to_pay}gp, Base: {selected_item.cost}gp). Has: {self.player_gold}gp.")
+        debug(f"Buy: '{selected_item.name}' (Pay: {price_to_pay}gp, CHA-adjusted: {charisma_adjusted_price}gp, Base: {selected_item.cost}gp). Has: {self.player_gold}gp.")
 
         if self.player_gold >= price_to_pay:
             try:
@@ -266,6 +332,10 @@ class BaseShopScreen(Screen):
         debug(f"Mounting {self.shop_name} screen.")
         self.focus()
         if self.app.player: self.player_gold = self.app.player.gold
+        
+        # Check for restocking
+        self._check_and_restock()
+        
         self.current_greeting = self.get_shop_greeting()
         self.data_changed = False
         self.selling_mode = False
@@ -304,8 +374,11 @@ class BaseShopScreen(Screen):
                 for index, item in enumerate(shop_list):
                     prefix = "> " if index == self.selected_index else "  "
                     letter = chr(ord('a') + index)
-                    # Show haggled price if applicable, else normal buy cost
-                    display_price = self.haggled_price if index == self.selected_index and self.haggled_price is not None else item.cost
+                    # Show haggled price if applicable, else charisma-adjusted price
+                    if index == self.selected_index and self.haggled_price is not None:
+                        display_price = self.haggled_price
+                    else:
+                        display_price = self._apply_charisma_to_price(item.cost)
                     lines.append(f"{prefix}[{letter}] {item.name:<20} ({display_price}gp)")
 
         lines.append("-" * 30)
