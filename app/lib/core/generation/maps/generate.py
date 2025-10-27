@@ -196,6 +196,16 @@ def _place_doors(dungeon: MapData, rooms: List[Rect], map_width: int, map_height
     doors_placed = 0
     secret_doors_placed = 0
     placed_positions = set()  # Track where we've placed doors to avoid duplicates
+    MIN_DOOR_SPACING = 3  # Minimum distance between doors (prevents clustering)
+    
+    def _is_too_close_to_existing_door(x: int, y: int) -> bool:
+        """Check if position is too close to an existing door."""
+        for px, py in placed_positions:
+            # Calculate Manhattan distance
+            distance = abs(x - px) + abs(y - py)
+            if distance < MIN_DOOR_SPACING:
+                return True
+        return False
     
     for room in rooms:
         # Find all entrance points for this room
@@ -203,7 +213,8 @@ def _place_doors(dungeon: MapData, rooms: List[Rect], map_width: int, map_height
         
         for entrance in entrances:
             x, y, direction = entrance
-            if (x, y) not in placed_positions:
+            # Skip if position already has a door or is too close to another door
+            if (x, y) not in placed_positions and not _is_too_close_to_existing_door(x, y):
                 # 10% chance of secret door, otherwise regular door
                 if random.random() < 0.1:
                     door_type = SECRET_DOOR
@@ -217,6 +228,11 @@ def _place_doors(dungeon: MapData, rooms: List[Rect], map_width: int, map_height
                 dungeon[y][x] = door_type
                 placed_positions.add((x, y))
                 doors_placed += 1
+            else:
+                if (x, y) in placed_positions:
+                    debug(f"Skipped door at ({x},{y}) - position already occupied")
+                else:
+                    debug(f"Skipped door at ({x},{y}) - too close to existing door")
     
     debug(f"Total doors placed: {doors_placed} ({secret_doors_placed} secret)")
 
