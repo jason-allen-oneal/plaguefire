@@ -68,6 +68,7 @@ class Entity:
 
         self.move_counter: int = random.randint(0, 1)
         self.status_manager = StatusEffectManager()
+        self.aware_of_player: bool = False  # Track if entity has detected the player
 
     def take_damage(self, amount: int) -> bool:
         """

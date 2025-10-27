@@ -31,7 +31,7 @@ This document tracks all partial implementations, stubs, and missing features.
 
 ### Advanced Combat
 
-- [ ] **Backstab Bonus**
+- [x] **Backstab Bonus**
   - Class: Rogue special ability
   - Required: Damage multiplier when attacking unaware enemies
 

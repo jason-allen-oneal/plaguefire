@@ -1601,6 +1601,7 @@ class Engine:
         target_ac = 10 + target.defense
         is_crit = (roll == 20); is_miss = (roll == 1 or total_atk < target_ac)
         if is_miss: self.log_event(f"You miss {target.name}."); return False
+        
         # Calculate weapon damage (including crits)
         wpn_dmg = 0
         wpn_name = self.player.equipment.get('weapon')
@@ -1615,6 +1616,14 @@ class Engine:
                     else: wpn_dmg = int(dmg_str) * 2 if is_crit else int(dmg_str)
                 except: wpn_dmg = 1 * 2 if is_crit else 1 # fallback
         total_dmg = max(1, wpn_dmg + str_mod) # Add modifier only once
+        
+        # Check for backstab bonus (Rogue attacking unaware enemy)
+        if self.player.class_ == "Rogue" and not target.aware_of_player:
+            backstab_multiplier = 2.0
+            total_dmg = int(total_dmg * backstab_multiplier)
+            self.log_event(f"Backstab! ({backstab_multiplier}x damage)")
+            target.aware_of_player = True  # Enemy is now aware after being attacked
+        
         if is_crit: self.log_event(f"Crit! Hit {target.name} for {total_dmg} dmg!")
         else: self.log_event(f"Hit {target.name} for {total_dmg} dmg.")
         is_dead = target.take_damage(total_dmg)
@@ -1680,6 +1689,7 @@ class Engine:
                  if entity.status_manager.has_behavior("flee"):
                      # Move away from player
                      if distance <= entity.detection_range:
+                         entity.aware_of_player = True  # Player detected
                          dx = 0 if px == ex else (-1 if px > ex else 1); dy = 0 if py == ey else (-1 if py > ey else 1)
                          nx, ny = ex + dx, ey + dy
                          if (0 <= ny < self.map_height and 0 <= nx < self.map_width and self.game_map[ny][nx] == FLOOR and
@@ -1687,6 +1697,7 @@ class Engine:
                  else:
                      # Normal aggressive behavior
                      if distance <= entity.detection_range:
+                         entity.aware_of_player = True  # Player detected
                          if distance <= 1.5: self.handle_entity_attack(entity)
                          else: # Move towards player
                              dx = 0 if px == ex else (1 if px > ex else -1); dy = 0 if py == ey else (1 if py > ey else -1)
