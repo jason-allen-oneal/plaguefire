@@ -6,58 +6,6 @@ Last Updated: 2025-10-26
 
 ---
 
-## 🔴 High Priority – Core Game Actions (Partially Implemented)
-
-### Item Usage Commands
-
-- [ ] **Aim/Zap Wand** (`action_aim_wand`, `action_zap_wand`)
-  - Location: `app/screens/game.py:637-640, 684-686`
-  - Status: Shows notification "Aim wand: Not yet implemented."
-  - Required: Wand targeting system, charge consumption, spell effects
-  - Dependencies: Item instance tracking for charges
-
-- [ ] **Use/Zap Staff** (`action_use_staff`, `action_zap_staff`)
-  - Location: `app/screens/game.py:675-678, 680-682`
-  - Status: Shows notification "Use staff: Not yet implemented."
-  - Required: Staff usage system, charge consumption, area effects
-  - Dependencies: Item instance tracking for charges
-
-- [ ] **Drop Item** (`action_drop_item`)
-  - Location: `app/screens/game.py:647-650`
-  - Status: Shows notification "Drop item: Not yet implemented."
-  - Required: Item selection UI, ground item placement, weight recalculation
-  - Related: Items can be picked up but not dropped
-
-- [ ] **Fire/Throw Item** (`action_fire_throw`, `action_throw_item`)
-  - Location: `app/screens/game.py:656-659, 661-663`
-  - Status: Shows notification "Fire/throw: Not yet implemented."
-  - Required: Projectile system, range calculation, accuracy checks
-  - Items: Arrows, darts, throwing weapons
-
-### Equipment Management
-
-- [ ] **Exchange Weapon** (`action_exchange_weapon`)
-  - Location: `app/screens/game.py:698-701`
-  - Status: Shows notification "Exchange weapon: Not yet implemented."
-  - Required: Quick weapon swap between primary and secondary
-  - Moria feature: Swap between two wielded weapons
-
-### Utility Commands
-
-- [ ] **Disarm Trap** (`_disarm_direction`)
-  - Location: `app/screens/game.py:876-879`
-  - Status: Shows notification "Disarm: Not yet implemented."
-  - Required: Trap detection, disarming skill check, trap types
-  - Related: Chest trap disarming exists but general trap disarming doesn't
-
-- [ ] **Fill Lamp** (`action_fill_lamp`)
-  - Location: `app/screens/game.py:708-711`
-  - Status: Shows notification "Fill lamp: Not yet implemented."
-  - Required: Lamp fuel tracking, oil consumption
-  - Items: Brass Lantern, flasks of oil
-
----
-
 ## 🟡 Medium Priority – Item Systems
 
 **Remaining Work**:
@@ -238,7 +186,6 @@ Last Updated: 2025-10-26
 
 - [ ] **Traps**
 - [ ] **Monster Pits**
-- [ ] **Vaults**
 
 #### Magic System
 
