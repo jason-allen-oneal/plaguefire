@@ -43,23 +43,6 @@ Last Updated: 2025-10-27
   - Required: Limited vision when out of light
   - Penalty: Reduced FOV, combat penalties
 
-### Status Effects (Partially Implemented)
-
-**Completed**:
-
-- [x] **Blindness**
-  - Effect: Reduces attack/defense by 4, sets blind behavior flag
-  - Implemented: 2025-10-27
-
-- [x] **Paralysis**
-  - Effect: Cannot move or act, paralyzed behavior flag
-  - Implemented: 2025-10-27
-
-- [x] **Resistance Tracking**
-  - Types: Fire, Cold, Acid, Lightning, Poison
-  - Implementation: has_resistance() method in StatusEffectManager
-  - Implemented: 2025-10-27
-
 **Missing**:
 
 - [ ] **Sleep/Slow**
@@ -86,11 +69,6 @@ Last Updated: 2025-10-27
   - Enhancement: More tactical AI
 
 ### Advanced Combat
-
-- [x] **Critical Hits**
-  - Status: Already implemented in combat system
-  - Implementation: Natural 20 rolls, double damage dice
-  - Verified: 2025-10-27
 
 - [ ] **Backstab Bonus**
   - Class: Rogue special ability
@@ -137,23 +115,6 @@ Last Updated: 2025-10-27
 
 #### Object Handling
 
-- [x] **Ring Equipment Slots**
-  - Implementation: Dual ring slots (ring_left, ring_right)
-  - Implemented: 2025-10-27
-
-- [x] **Amulet Equipment Slot**
-  - Implementation: Single amulet slot
-  - Implemented: 2025-10-27
-
-- [x] **Shield Equipment Slot**
-  - Implementation: Single shield slot
-  - Implemented: 2025-10-27
-
-- [x] **Object Stacking**
-  - Implementation: Stackable items (potion, scroll, food, ammunition)
-  - Features: Auto-merge by item_id, quantity tracking, partial removal
-  - Implemented: 2025-10-27
-
 - [ ] **Multiple Armor Slots**
 - [ ] **Ammunition System**
 
@@ -166,11 +127,6 @@ Last Updated: 2025-10-27
 
 - [ ] **Spell Books as Findable Items**
 - [ ] **Spell Failure**
-
-- [x] **Mana Regeneration**
-  - Implementation: Base 1 + (stat_modifier // 2) per turn
-  - Integrated: _end_player_turn() in engine
-  - Implemented: 2025-10-27
 
 #### Character Progression
 
