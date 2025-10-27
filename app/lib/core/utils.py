@@ -1,6 +1,9 @@
 from typing import List, Optional
 from rich.text import Text
 from textual.widgets import Static
+import random
+from config import FLOOR
+from debugtools import debug
 
 def colored_text(content: str, color: str, align: str = "center", **styles) -> Static:
     """
