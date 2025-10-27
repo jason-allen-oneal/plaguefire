@@ -1789,11 +1789,13 @@ class Engine:
                 continue  # Skip turn if asleep
             
             # Auto-flee if HP is critically low (below 25% of max HP)
-            # Only flee if the entity is capable of fleeing (can_flee=True)
-            if entity.hostile and entity.can_flee and entity.hp < entity.max_hp * 0.25:
+            # Flee based on flee_chance percentage (0-100)
+            if entity.hostile and entity.hp < entity.max_hp * 0.25:
                 if not entity.status_manager.has_behavior("flee"):
-                    entity.status_manager.add_effect("Fleeing", 10)
-                    self.log_event(f"{entity.name} looks terrified and tries to flee!")
+                    # Roll against flee_chance (0% = never flee, 100% = always flee)
+                    if random.randint(1, 100) <= entity.flee_chance:
+                        entity.status_manager.add_effect("Fleeing", 10)
+                        self.log_event(f"{entity.name} looks terrified and tries to flee!")
             
             entity.move_counter += 1
             if entity.move_counter < 2: continue

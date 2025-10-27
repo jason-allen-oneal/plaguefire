@@ -14,7 +14,7 @@ from unittest.mock import MagicMock
 
 
 def test_low_hp_fleeing():
-    """Test that monsters flee when HP is below 25%."""
+    """Test that monsters can flee when HP is below 25%."""
     print("\nTest: Low HP fleeing behavior...")
     
     # Create a minimal mock app
@@ -52,13 +52,14 @@ def test_low_hp_fleeing():
     
     engine = Engine(mock_app, player, map_override=test_map)
     
-    # Create a hostile entity near player with max HP
+    # Create a hostile entity near player with max HP and 100% flee chance
     entity = Entity("goblin", 1, [6, 5])
     entity.max_hp = 100
     entity.hp = 100
     entity.hostile = True
     entity.ai_type = "aggressive"
     entity.detection_range = 10
+    entity.flee_chance = 100  # Always flees to ensure deterministic test
     engine.entities.append(entity)
     
     # Verify entity is not fleeing initially
@@ -67,7 +68,7 @@ def test_low_hp_fleeing():
     # Damage entity to below 25% HP
     entity.hp = 20  # 20% of max HP
     
-    # Update entities (should trigger flee)
+    # Update entities (should trigger flee with 100% chance)
     initial_log_len = len(engine.combat_log)
     engine.update_entities()
     
@@ -79,7 +80,7 @@ def test_low_hp_fleeing():
                          for msg in engine.combat_log[initial_log_len:])
     assert flee_mentioned, "Flee message should be logged"
     
-    print("✓ Entity flees when HP below 25%")
+    print("✓ Entity flees when HP below 25% (with 100% flee_chance)")
     print("✓ Flee message logged correctly")
     print("✓ Test passed!\n")
 
@@ -254,12 +255,13 @@ def test_fearless_entity_never_flees():
     skeleton.detection_range = 10
     engine.entities.append(skeleton)
     
-    # Check that skeleton has can_flee set to False
-    assert skeleton.can_flee == False, "Skeleton should have can_flee=False"
+    # Check that skeleton has flee_chance set to 0
+    assert skeleton.flee_chance == 0, f"Skeleton should have flee_chance=0, got {skeleton.flee_chance}"
     
-    # Update entities (should NOT trigger flee for skeleton)
+    # Update entities multiple times (should NEVER trigger flee for skeleton)
     initial_log_len = len(engine.combat_log)
-    engine.update_entities()
+    for _ in range(10):  # Multiple updates to ensure no random flee
+        engine.update_entities()
     
     # Skeleton should NOT be fleeing despite low HP
     assert not skeleton.status_manager.has_behavior("flee"), "Fearless entity should never flee"
@@ -269,8 +271,82 @@ def test_fearless_entity_never_flees():
                          for msg in engine.combat_log[initial_log_len:])
     assert not flee_mentioned, "Fearless entity should not generate flee message"
     
-    print("✓ Skeleton with 10% HP does not flee (can_flee=False)")
+    print("✓ Skeleton with 10% HP does not flee (flee_chance=0%)")
     print("✓ No flee message logged for fearless entity")
+    print("✓ Test passed!\n")
+
+
+def test_flee_chance_percentage():
+    """Test that flee chance works as a percentage."""
+    print("\nTest: Flee chance percentage...")
+    
+    # Create a minimal mock app
+    mock_app = MagicMock(spec=RogueApp)
+    mock_app.sound = MagicMock()
+    mock_app.sound.play_music = MagicMock()
+    mock_app._music_enabled = False
+    
+    # Create a player
+    player_data = {
+        "name": "Test Warrior",
+        "class": "Warrior",
+        "race": "Human",
+        "stats": {"STR": 16, "INT": 10, "WIS": 10, "DEX": 12, "CON": 14, "CHA": 10},
+        "position": [5, 5],
+        "depth": 1,
+        "level": 5
+    }
+    player = Player(player_data)
+    
+    # Create a small test map
+    test_map = [
+        ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
+        ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+        ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+        ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+        ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+        ['#', '.', '.', '.', '.', '@', '.', '.', '.', '.', '#'],  # Player at [5, 5]
+        ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+        ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+        ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+        ['#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'],
+        ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
+    ]
+    
+    engine = Engine(mock_app, player, map_override=test_map)
+    
+    # Test entity with 100% flee chance
+    entity_100 = Entity("goblin", 1, [6, 5])
+    entity_100.max_hp = 100
+    entity_100.hp = 20  # 20% HP
+    entity_100.hostile = True
+    entity_100.ai_type = "aggressive"
+    entity_100.detection_range = 10
+    entity_100.flee_chance = 100  # Always flees
+    engine.entities.append(entity_100)
+    
+    # Update - should always flee with 100% chance
+    engine.update_entities()
+    assert entity_100.status_manager.has_behavior("flee"), "Entity with 100% flee_chance should flee"
+    print("✓ Entity with 100% flee_chance flees")
+    
+    # Test entity with 0% flee chance
+    engine.entities.clear()
+    entity_0 = Entity("goblin", 1, [6, 5])
+    entity_0.max_hp = 100
+    entity_0.hp = 20  # 20% HP
+    entity_0.hostile = True
+    entity_0.ai_type = "aggressive"
+    entity_0.detection_range = 10
+    entity_0.flee_chance = 0  # Never flees
+    engine.entities.append(entity_0)
+    
+    # Update multiple times - should never flee with 0% chance
+    for _ in range(10):
+        engine.update_entities()
+    assert not entity_0.status_manager.has_behavior("flee"), "Entity with 0% flee_chance should never flee"
+    print("✓ Entity with 0% flee_chance never flees")
+    
     print("✓ Test passed!\n")
 
 
@@ -279,4 +355,5 @@ if __name__ == "__main__":
     test_fleeing_movement()
     test_healthy_entity_no_flee()
     test_fearless_entity_never_flees()
+    test_flee_chance_percentage()
     print("All fleeing behavior tests passed!")
