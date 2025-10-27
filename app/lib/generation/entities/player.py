@@ -7,6 +7,7 @@ from typing import Dict, List, Optional, Tuple
 
 # --- Added Imports ---
 from app.lib.core.data_loader import GameData
+from app.lib.core.inventory_manager import InventoryManager
 from app.lib.generation.core.status_effects import StatusEffectManager
 from config import VIEWPORT_HEIGHT, VIEWPORT_WIDTH
 from debugtools import debug
@@ -494,9 +495,16 @@ class Player:
                 self.inventory_manager.add_item(item_name)
             for slot, item_name in data.get("equipment", {}).items():
                 if item_name:
-                    # This is a bit tricky as we need to create an instance to equip
-                    # This part of the logic will need to be more robust
-                    pass
+                    # Create an instance and equip it
+                    # First add to inventory, then equip
+                    if self.inventory_manager.add_item(item_name):
+                        # Get the instance we just added
+                        instances = self.inventory_manager.get_instances_by_name(item_name)
+                        if instances:
+                            # Move it to equipment by removing from inventory and placing in slot
+                            instance = instances[-1]  # Get the one we just added
+                            self.inventory_manager.remove_instance(instance.instance_id)
+                            self.inventory_manager.equipment[slot] = instance
 
         race_def = get_race_definition(self.race)
         con_modifier = self._get_modifier("CON")
@@ -545,6 +553,16 @@ class Player:
         9: 64000, 10: 85000, 11: 100000, 12: 120000, 13: 140000, 14: 165000, 15: 195000,
         16: 225000, 17: 265000, 18: 305000, 19: 355000, 20: 0,
     }
+
+    @property
+    def inventory(self) -> List[str]:
+        """Get inventory as list of item names (backward compatibility)."""
+        return self.inventory_manager.get_legacy_inventory()
+    
+    @property
+    def equipment(self) -> Dict[str, Optional[str]]:
+        """Get equipment as dict of item names (backward compatibility)."""
+        return self.inventory_manager.get_legacy_equipment()
 
     def _xp_threshold_for_level(self, level: int) -> int:
         if level >= 20: return 0
@@ -1004,23 +1022,8 @@ class Player:
         Returns:
             Current carried weight (in pounds * 10)
         """
-        data_loader = GameData()
-        total_weight = 0
-        
-        # Weight of inventory items
-        for item_name in self.inventory:
-            item_data = data_loader.get_item_by_name(item_name)
-            if item_data:
-                total_weight += item_data.get("weight", 10)
-        
-        # Weight of equipped items
-        for slot, item_name in self.equipment.items():
-            if item_name:
-                item_data = data_loader.get_item_by_name(item_name)
-                if item_data:
-                    total_weight += item_data.get("weight", 10)
-        
-        return total_weight
+        # Use the inventory_manager's built-in weight calculation
+        return self.inventory_manager.get_total_weight()
     
     def is_overweight(self) -> bool:
         """Check if player is carrying more than their capacity."""
@@ -1062,6 +1065,31 @@ class Player:
         Returns:
             Inscription string or empty if no inscription
         """
+        # Try to find the item instance in inventory or equipment
+        instances = self.inventory_manager.get_instances_by_name(item_name)
+        
+        # Check equipment if not in inventory
+        if not instances:
+            for slot, instance in self.inventory_manager.equipment.items():
+                if instance and instance.item_name == item_name:
+                    instances = [instance]
+                    break
+        
+        if instances:
+            # Use the ItemInstance's built-in inscription method
+            # This handles empty charges, tried status, and cursed items automatically
+            instance = instances[0]
+            inscription = instance.get_inscription()
+            
+            # Add magical detection for high-level characters
+            if self.level >= 5 and instance.effect and not inscription:
+                inscription = "magik"
+            elif self.level >= 5 and instance.effect and inscription:
+                inscription = f"{inscription}, magik"
+            
+            return inscription
+        
+        # Fallback for items not yet in inventory_manager (backward compatibility)
         data_loader = GameData()
         item_data = data_loader.get_item_by_name(item_name)
         if not item_data:
@@ -1074,13 +1102,6 @@ class Player:
         if effect and isinstance(effect, list) and len(effect) > 0:
             if effect[0] == "cursed":
                 inscriptions.append("damned")
-        
-        # Check if wand/staff is empty (has charges)
-        item_type = item_data.get("type", "")
-        if item_type in ["wand", "staff"]:
-            # Would need to track individual item charges - for now just show structure
-            # In full implementation, track charges per item instance
-            pass
         
         # High-level characters notice magic items
         if self.level >= 5:
@@ -1128,8 +1149,14 @@ class Player:
         Returns:
             True if successfully inscribed
         """
-        # Check if item exists in inventory or equipment
-        if item_name not in self.inventory and item_name not in self.equipment.values():
+        # Check if item exists in inventory or equipment using inventory_manager
+        found_in_inventory = len(self.inventory_manager.get_instances_by_name(item_name)) > 0
+        found_in_equipment = any(
+            inst and inst.item_name == item_name 
+            for inst in self.inventory_manager.equipment.values()
+        )
+        
+        if not found_in_inventory and not found_in_equipment:
             debug(f"Cannot inscribe {item_name} - not found")
             return False
         

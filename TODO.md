@@ -64,27 +64,30 @@ Last Updated: 2025-10-26
 
 **Remaining Work**:
 
-- [ ] **Migrate Player class to use InventoryManager**
+- [x] **Migrate Player class to use InventoryManager** ✅
   - Location: `app/lib/generation/entities/player.py`
-  - Current: Uses simple list of item names
-  - Required: Use ItemInstance objects instead of strings
+  - Status: COMPLETED - Added InventoryManager import and properties
+  - Date: 2025-10-26
 
-- [ ] **Charge Tracking Implementation**
-  - Location: `app/lib/generation/entities/player.py:1095-1098`
-  - Current: Comment says "Would need to track individual item charges"
-  - Required: Integrate ItemInstance charge system into player
+- [x] **Charge Tracking Implementation** ✅
+  - Location: `app/lib/generation/entities/player.py:1065-1120`
+  - Status: COMPLETED - Using ItemInstance.get_inscription() method
+  - Date: 2025-10-26
 
-- [ ] **"empty" Inscription**
-  - Required: Show {empty} on depleted wands/staves
-  - Blocked by: Charge tracking integration
+- [x] **"empty" Inscription** ✅
+  - Status: COMPLETED - Handled by ItemInstance.get_inscription()
+  - Shows {empty} on depleted wands/staves automatically
+  - Date: 2025-10-26
 
-- [ ] **"tried" Inscription**
-  - Required: Show {tried} on used but unidentified items
-  - Blocked by: Item instance tracking integration
+- [x] **"tried" Inscription** ✅
+  - Status: COMPLETED - Handled by ItemInstance.get_inscription()
+  - Shows {tried} on used but unidentified items
+  - Date: 2025-10-26
 
-- [ ] **Save/Load ItemInstance Serialization**
-  - Required: Serialize ItemInstance objects in save files
-  - Current: Only saves item names
+- [x] **Save/Load ItemInstance Serialization** ✅
+  - Status: COMPLETED - InventoryManager.to_dict() and from_dict() already implemented
+  - Player.to_dict() saves inventory_manager, Player.__init__ loads it
+  - Date: 2025-10-26
 
 ### Identification System
 
@@ -242,8 +245,8 @@ Last Updated: 2025-10-26
 
 ### Pass Statements (Intentional Stubs)
 
-1. **Player.py:1098** – Item charge tracking stub  
-   Resolution: Integrate ItemInstance charge system
+1. **Player.py:1065-1120** – Item charge tracking stub  
+   Status: ✅ RESOLVED - Integrated ItemInstance charge system (2025-10-26)
 
 2. **Engine.py:372** – Book consumption decision  
    Resolution: Decide on book consumption policy
