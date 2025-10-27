@@ -1,6 +1,6 @@
 # Visual Effects System
 
-This document describes the visual effects system added to Plaguefire, including projectile animations, item physics, and ammo recovery.
+This document describes the visual effects system added to Plaguefire, including projectile animations, item physics simulation, and ammo recovery.
 
 ## Features
 
@@ -75,7 +75,7 @@ Projectiles and animating items are rendered in the `DungeonView`:
    - Magic spells: magenta `*`
    - Arrows/bolts: yellow `/`
    - Fire: red `*`
-   - Ice: bright cyan `*`
+   - Ice: cyan `*`
 
 2. **Animating items**: Displayed as yellow `*` while rolling
 

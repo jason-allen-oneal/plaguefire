@@ -1,7 +1,7 @@
 # Summary of Changes
 
 ## Overview
-This PR implements visual projectile effects, item physics simulation, and an ammo recovery system as requested in issue #[number].
+This PR implements visual projectile effects, item physics simulation, and an ammo recovery system as requested in the issue.
 
 ## What's New
 
