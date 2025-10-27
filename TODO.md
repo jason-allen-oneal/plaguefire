@@ -83,7 +83,6 @@ Last Updated: 2025-10-27
 
 #### Dungeon Features
 
-- [ ] **Traps**
 - [ ] **Monster Pits**
 
 #### Magic System

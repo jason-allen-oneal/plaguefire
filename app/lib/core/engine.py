@@ -1409,6 +1409,34 @@ class Engine:
                 self.player.mana -= actual_drain
                 self.log_event(f"Your mana is drained! (-{actual_drain} mana)")
         
+        elif trap_type == 'pit':
+            damage = random.randint(2, 8)
+            self.player.take_damage(damage)
+            self.log_event(f"You fall into a pit! ({damage} damage)")
+        
+        elif trap_type == 'spiked_pit':
+            damage = random.randint(5, 15)
+            self.player.take_damage(damage)
+            self.log_event(f"You fall into a spiked pit! ({damage} damage)")
+        
+        elif trap_type == 'teleport':
+            self.log_event("You are teleported!")
+            # Teleport player to random location
+            # Find a random floor position
+            valid_positions = []
+            for y in range(self.map_height):
+                for x in range(self.map_width):
+                    if self.current_map[y][x] == '.':
+                        valid_positions.append([x, y])
+            if valid_positions:
+                new_pos = random.choice(valid_positions)
+                self.player.position = new_pos
+                self.update_fov()
+        
+        elif trap_type == 'paralysis':
+            self.player.status_manager.add_effect('Paralyzed', 5)
+            self.log_event("You are paralyzed!")
+        
         else:
             self.log_event("The trap activates!")
 
