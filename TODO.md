@@ -12,9 +12,10 @@ Last Updated: 2025-10-27
 
 **Remaining Work**:
 
-- [ ] **Vein Detection Spell**
-  - Items: Staff/Scroll of Treasure Location
-  - Required: Highlight veins on map
+- [x] **Vein Detection Spell**
+  - Items: Staff/Scroll of Treasure Location ✓
+  - Required: Highlight veins on map ✓
+  - Status: COMPLETED - Added detect_treasure spell, Staff/Scroll of Treasure Location, and detection logic
 
 - [ ] **Mining Statistics**
   - Required: Track gems found, veins mined

@@ -13,13 +13,15 @@ from app.lib.core.generation.maps.generate import (
 )
 from app.lib.core.utils import find_tile, find_start_pos
 from app.lib.core.generation.spawn import spawn_entities_for_depth, spawn_chests_for_depth
+from app.lib.core.mining import get_mining_system
 from app.lib.fov import update_visibility
 from config import (
     WALL, FLOOR, STAIRS_DOWN, STAIRS_UP,
     DOOR_CLOSED, DOOR_OPEN, SECRET_DOOR, SECRET_DOOR_FOUND,
     VIEWPORT_WIDTH, VIEWPORT_HEIGHT, # Use viewport for fallback center
     MIN_MAP_WIDTH, MAX_MAP_WIDTH, MIN_MAP_HEIGHT, MAX_MAP_HEIGHT,
-    LARGE_DUNGEON_THRESHOLD, MAX_LARGE_MAP_WIDTH, MAX_LARGE_MAP_HEIGHT
+    LARGE_DUNGEON_THRESHOLD, MAX_LARGE_MAP_WIDTH, MAX_LARGE_MAP_HEIGHT,
+    QUARTZ_VEIN, MAGMA_VEIN
 )
 from debugtools import debug, log_exception
 
@@ -577,6 +579,26 @@ class Engine:
         elif target == 'traps':
             found = self._perform_search(log_success=False)
             self.log_event("Detect hidden traps!" if found else "Detect no traps.")
+        elif target == 'treasure':
+            # Detect treasure veins (quartz and magma)
+            mining_system = get_mining_system()
+            px, py = self.player.position
+            veins = mining_system.detect_veins(self.game_map, px, py, radius=15)
+            
+            if veins:
+                # Count vein types
+                quartz_count = sum(1 for _, _, vein_type in veins if vein_type == QUARTZ_VEIN)
+                magma_count = sum(1 for _, _, vein_type in veins if vein_type == MAGMA_VEIN)
+                
+                vein_desc = []
+                if quartz_count > 0:
+                    vein_desc.append(f"{quartz_count} quartz vein{'s' if quartz_count > 1 else ''}")
+                if magma_count > 0:
+                    vein_desc.append(f"{magma_count} magma vein{'s' if magma_count > 1 else ''}")
+                
+                self.log_event(f"You sense treasure! Detected: {', '.join(vein_desc)}.")
+            else:
+                self.log_event("You sense no treasure veins nearby.")
         else: self.log_event("Sense something.")
 
 

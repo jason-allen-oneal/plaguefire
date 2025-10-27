@@ -2897,6 +2897,21 @@
       },
       "weight": 5
     },
+    "SCROLL_TREASURE_LOCATION": {
+      "name": "Scroll of Treasure Location",
+      "type": "scroll",
+      "base_cost": 90,
+      "description": "Detects treasure veins and ore deposits.",
+      "effect": [
+        "detect",
+        "treasure"
+      ],
+      "rarity_depth": {
+        "min": 50,
+        "max": 200
+      },
+      "weight": 5
+    },
     "SCROLL_DISPEL_UNDEAD": {
       "name": "Scroll of Dispel Undead",
       "type": "scroll",
@@ -3467,6 +3482,25 @@
       "rarity_depth": {
         "min": 100,
         "max": 300
+      },
+      "weight": 50
+    },
+    "STAFF_TREASURE_LOCATION": {
+      "name": "Staff of Treasure Location",
+      "type": "staff",
+      "base_cost": 180,
+      "description": "Detects treasure veins and ore deposits.",
+      "effect": [
+        "detect",
+        "treasure"
+      ],
+      "charges": [
+        10,
+        20
+      ],
+      "rarity_depth": {
+        "min": 100,
+        "max": 400
       },
       "weight": 50
     },
