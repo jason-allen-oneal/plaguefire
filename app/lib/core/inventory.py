@@ -64,21 +64,29 @@ class InventoryManager:
         
         return True
     
-    def add_item(self, item_id: str, quantity: int = 1) -> bool:
+    def add_item(self, item_id_or_name: str, quantity: int = 1) -> bool:
         """
-        Add an item to inventory by template ID.
+        Add an item to inventory by template ID or item name.
         
         Args:
-            item_id: Item template ID (e.g., "STAFF_CURE_LIGHT_WOUNDS")
+            item_id_or_name: Item template ID (e.g., "STAFF_CURE_LIGHT_WOUNDS") 
+                            or item name (e.g., "Staff of Cure Light Wounds")
             quantity: Number of items to add (for stackable items)
         
         Returns:
             True if item was added
         """
-        # Get item template
-        item_data = self._data_loader.get_item(item_id)
+        # Get item template - try by ID first, then by name for backward compatibility
+        item_data = self._data_loader.get_item(item_id_or_name)
         if not item_data:
-            return False
+            # Try getting by name for backward compatibility
+            item_data = self._data_loader.get_item_by_name(item_id_or_name)
+            if item_data:
+                item_id_or_name = item_data['id']
+            else:
+                return False
+        
+        item_id = item_id_or_name
         
         # Check if this item can stack with existing items
         item_type = item_data.get("type", "misc")

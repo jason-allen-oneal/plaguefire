@@ -115,7 +115,7 @@ def test_equip_unequip():
         "stats": {"STR": 18, "INT": 8, "WIS": 10, "DEX": 12, "CON": 16, "CHA": 10},
         "level": 1,
         "inventory": ["Dagger (Bodkin)", "Chain Mail"],
-        "equipment": {"weapon": None, "armor": None},
+        "equipment": {"weapon": None, "armor_body": None},
     }
     player = Player(player_data)
     
@@ -142,7 +142,7 @@ def test_equip_unequip():
     success = engine.handle_equip_item(0)  # Equip armor (now first item)
     
     assert success, "Failed to equip armor"
-    assert player.equipment.get("armor") == "Chain Mail", "Armor not in armor slot"
+    assert player.equipment.get("armor_body") == "Chain Mail", "Armor not in armor_body slot"
     print(f"✓ Equipped armor successfully")
     
     # Unequip weapon
