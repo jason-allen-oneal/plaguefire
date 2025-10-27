@@ -7570,5 +7570,88 @@
       "base": 60,
       "per_depth": -0.3
     }
+  },
+  {
+    "id": "WOLF_DIRE",
+    "name": "Dire Wolf",
+    "char": "w",
+    "hp_base": 18,
+    "hp_per_level": 3,
+    "attack_base": 6,
+    "attack_per_level": 2,
+    "defense_base": 3,
+    "defense_per_level": 1,
+    "ai_type": "pack",
+    "pack_id": "wolf_pack",
+    "pack_coordination": true,
+    "hostile": true,
+    "detection_range": 8,
+    "gold_min_mult": 0,
+    "gold_max_mult": 2,
+    "drops": {
+      "POTION_CURE_LIGHT": 10
+    },
+    "depth": 50,
+    "min_depth": 25,
+    "max_depth": 150,
+    "spawn_chance": {
+      "base": 65,
+      "per_depth": -0.3
+    }
+  },
+  {
+    "id": "HYENA_PACK",
+    "name": "Hyena",
+    "char": "h",
+    "hp_base": 12,
+    "hp_per_level": 2,
+    "attack_base": 4,
+    "attack_per_level": 1,
+    "defense_base": 2,
+    "defense_per_level": 0,
+    "ai_type": "pack",
+    "pack_id": "hyena_pack",
+    "pack_coordination": true,
+    "hostile": true,
+    "detection_range": 7,
+    "gold_min_mult": 0,
+    "gold_max_mult": 1,
+    "drops": {},
+    "depth": 35,
+    "min_depth": 15,
+    "max_depth": 100,
+    "spawn_chance": {
+      "base": 70,
+      "per_depth": -0.4
+    }
+  },
+  {
+    "id": "GOBLIN_RAIDER",
+    "name": "Goblin Raider",
+    "char": "g",
+    "hp_base": 10,
+    "hp_per_level": 2,
+    "attack_base": 4,
+    "attack_per_level": 1,
+    "defense_base": 2,
+    "defense_per_level": 1,
+    "ai_type": "pack",
+    "pack_id": "goblin_raiders",
+    "pack_coordination": true,
+    "hostile": true,
+    "detection_range": 7,
+    "gold_min_mult": 3,
+    "gold_max_mult": 10,
+    "drops": {
+      "DAGGER": 20,
+      "POTION_CURE_LIGHT": 10
+    },
+    "depth": 40,
+    "min_depth": 20,
+    "max_depth": 120,
+    "spawn_chance": {
+      "base": 68,
+      "per_depth": -0.35
+    }
   }
 ]

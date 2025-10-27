@@ -69,6 +69,10 @@ class Entity:
         # Ranged attack capabilities
         self.ranged_attack: Optional[Dict] = template.get("ranged_attack", None)
         self.ranged_range: int = template.get("ranged_range", 0) if self.ranged_attack else 0
+        
+        # Group/pack behavior
+        self.pack_id: Optional[str] = template.get("pack_id", None)
+        self.pack_coordination: bool = template.get("pack_coordination", False)
 
         self.move_counter: int = random.randint(0, 1)
         self.status_manager = StatusEffectManager()

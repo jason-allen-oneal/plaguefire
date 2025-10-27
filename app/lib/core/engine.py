@@ -1788,6 +1788,74 @@ class Engine:
                              nx, ny = ex + dx, ey + dy
                              if (0 <= ny < self.map_height and 0 <= nx < self.map_width and self.game_map[ny][nx] == FLOOR and
                                  not self.get_entity_at(nx, ny) and [nx, ny] != self.player.position): entity.position = [nx, ny]
+            elif entity.ai_type == "pack":
+                # Pack behavior - coordinate with other pack members
+                if entity.status_manager.has_behavior("flee"):
+                    # Flee even when in pack
+                    if distance <= entity.detection_range:
+                        entity.aware_of_player = True
+                        dx = 0 if px == ex else (-1 if px > ex else 1)
+                        dy = 0 if py == ey else (-1 if py > ey else 1)
+                        nx, ny = ex + dx, ey + dy
+                        if (0 <= ny < self.map_height and 0 <= nx < self.map_width and 
+                            self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and 
+                            [nx, ny] != self.player.position):
+                            entity.position = [nx, ny]
+                else:
+                    # Check for pack members nearby
+                    pack_members = [e for e in self.entities if e != entity and 
+                                   e.pack_id == entity.pack_id and e.hp > 0]
+                    
+                    if distance <= entity.detection_range:
+                        entity.aware_of_player = True
+                        
+                        # Check if we have pack support nearby (within 3 tiles)
+                        nearby_pack = [e for e in pack_members 
+                                      if math.sqrt((e.position[0] - ex)**2 + (e.position[1] - ey)**2) <= 3]
+                        
+                        # More aggressive when pack is nearby
+                        if distance <= 1.5:
+                            self.handle_entity_attack(entity)
+                        elif nearby_pack and distance <= 4:
+                            # Advance with pack support
+                            dx = 0 if px == ex else (1 if px > ex else -1)
+                            dy = 0 if py == ey else (1 if py > ey else -1)
+                            nx, ny = ex + dx, ey + dy
+                            if (0 <= ny < self.map_height and 0 <= nx < self.map_width and 
+                                self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and 
+                                [nx, ny] != self.player.position):
+                                entity.position = [nx, ny]
+                        elif not nearby_pack:
+                            # Try to regroup with pack if alone
+                            if pack_members:
+                                nearest_pack = min(pack_members, 
+                                                 key=lambda e: math.sqrt((e.position[0] - ex)**2 + (e.position[1] - ey)**2))
+                                npx, npy = nearest_pack.position
+                                dx = 0 if npx == ex else (1 if npx > ex else -1)
+                                dy = 0 if npy == ey else (1 if npy > ey else -1)
+                                nx, ny = ex + dx, ey + dy
+                                if (0 <= ny < self.map_height and 0 <= nx < self.map_width and 
+                                    self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and 
+                                    [nx, ny] != self.player.position):
+                                    entity.position = [nx, ny]
+                            else:
+                                # No pack left, act like aggressive
+                                dx = 0 if px == ex else (1 if px > ex else -1)
+                                dy = 0 if py == ey else (1 if py > ey else -1)
+                                nx, ny = ex + dx, ey + dy
+                                if (0 <= ny < self.map_height and 0 <= nx < self.map_width and 
+                                    self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and 
+                                    [nx, ny] != self.player.position):
+                                    entity.position = [nx, ny]
+                        else:
+                            # Move toward player
+                            dx = 0 if px == ex else (1 if px > ex else -1)
+                            dy = 0 if py == ey else (1 if py > ey else -1)
+                            nx, ny = ex + dx, ey + dy
+                            if (0 <= ny < self.map_height and 0 <= nx < self.map_width and 
+                                self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and 
+                                [nx, ny] != self.player.position):
+                                entity.position = [nx, ny]
             elif entity.ai_type == "thief": self._process_beggar_ai(entity, distance)
 
 

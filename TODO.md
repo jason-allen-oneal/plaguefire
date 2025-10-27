@@ -21,9 +21,9 @@ This document tracks all partial implementations, stubs, and missing features.
   - Required: Monsters shooting arrows, throwing rocks
   - Current: Implemented with 3 ranged monsters
 
-- [ ] **Group Behavior**
+- [x] **Group Behavior**
   - Required: Pack monsters moving together
-  - Enhancement: Coordinated attacks
+  - Enhancement: Coordinated attacks implemented
 
 - [x] **Fleeing Behavior**
   - Required: Low HP monsters flee
