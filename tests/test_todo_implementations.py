@@ -168,12 +168,61 @@ def test_amulet_slot():
     return True
 
 
+def test_object_stacking():
+    """Test object stacking for consumables."""
+    print("Test: Object stacking...")
+    
+    manager = InventoryManager()
+    
+    # Add multiple potions of the same type
+    manager.add_item("POTION_CURE_LIGHT", quantity=3)
+    assert len(manager.instances) == 1, "Should have 1 stack"
+    assert manager.instances[0].quantity == 3, "Stack should have 3 potions"
+    print("✓ Added 3 potions in one stack")
+    
+    # Add more of the same potion (should stack)
+    manager.add_item("POTION_CURE_LIGHT", quantity=2)
+    assert len(manager.instances) == 1, "Should still have 1 stack"
+    assert manager.instances[0].quantity == 5, "Stack should now have 5 potions"
+    print("✓ Added 2 more potions to existing stack (5 total)")
+    
+    # Add a different potion (should create new stack)
+    manager.add_item("POTION_RESTORE_MANA", quantity=2)
+    assert len(manager.instances) == 2, "Should have 2 stacks"
+    print("✓ Different potion type creates new stack")
+    
+    # Add scrolls (another stackable type)
+    manager.add_item("SCROLL_LIGHT", quantity=4)
+    assert len(manager.instances) == 3, "Should have 3 stacks"
+    scroll_stack = [inst for inst in manager.instances if inst.item_id == "SCROLL_LIGHT"][0]
+    assert scroll_stack.quantity == 4, "Scroll stack should have 4 scrolls"
+    print("✓ Scrolls stack correctly")
+    
+    # Test removing partial quantity
+    potion_stack = [inst for inst in manager.instances if inst.item_id == "POTION_CURE_LIGHT"][0]
+    removed = manager.remove_instance(potion_stack.instance_id, quantity=2)
+    assert removed.quantity == 2, "Should remove 2 potions"
+    assert potion_stack.quantity == 3, "Stack should have 3 potions remaining"
+    print("✓ Partial stack removal works")
+    
+    # Test that non-stackable items don't stack
+    manager.add_item("DAGGER_BODKIN")
+    manager.add_item("DAGGER_BODKIN")
+    dagger_instances = [inst for inst in manager.instances if "Dagger" in inst.item_name]
+    assert len(dagger_instances) == 2, "Daggers should not stack"
+    print("✓ Non-stackable items don't stack")
+    
+    print("✓ Test passed!\n")
+    return True
+
+
 if __name__ == "__main__":
     try:
         test_mana_regeneration()
         test_ring_slots()
         test_shield_slot()
         test_amulet_slot()
+        test_object_stacking()
         
         print("=" * 60)
         print("✓ ALL TODO IMPLEMENTATION TESTS PASSED!")
