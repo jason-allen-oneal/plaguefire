@@ -4273,7 +4273,8 @@
         "min": 0,
         "max": 75
       },
-      "weight": 1
+      "weight": 1,
+      "slot": "quiver"
     },
     "AWL_PIKE": {
       "name": "Awl-Pike",
@@ -4376,7 +4377,8 @@
         "min": 0,
         "max": 75
       },
-      "weight": 1
+      "weight": 1,
+      "slot": "quiver"
     },
     "BOW_COMPOSITE": {
       "name": "Composite Bow",
@@ -4389,7 +4391,8 @@
         "min": 100,
         "max": 300
       },
-      "weight": 30
+      "weight": 30,
+      "ammo_type": "ARROW"
     },
     "BOW_LONG": {
       "name": "Long Bow",
@@ -4402,7 +4405,8 @@
         "min": 100,
         "max": 300
       },
-      "weight": 30
+      "weight": 30,
+      "ammo_type": "ARROW"
     },
     "BOW_SHORT": {
       "name": "Short Bow",
@@ -4415,7 +4419,8 @@
         "min": 50,
         "max": 150
       },
-      "weight": 30
+      "weight": 30,
+      "ammo_type": "ARROW"
     },
     "BROADSWORD": {
       "name": "Broadsword",
@@ -4481,7 +4486,8 @@
         "min": 100,
         "max": 300
       },
-      "weight": 45
+      "weight": 45,
+      "ammo_type": "BOLT"
     },
     "CROSSBOW_LIGHT": {
       "name": "Light Crossbow",
@@ -4494,7 +4500,8 @@
         "min": 100,
         "max": 300
       },
-      "weight": 21
+      "weight": 21,
+      "ammo_type": "BOLT"
     },
     "CUTLASS": {
       "name": "Cutlass",
@@ -4766,7 +4773,8 @@
         "min": 0,
         "max": 75
       },
-      "weight": 1
+      "weight": 1,
+      "slot": "quiver"
     },
     "PICK": {
       "name": "Pick",
@@ -4859,7 +4867,8 @@
         "min": 0,
         "max": 75
       },
-      "weight": 1
+      "weight": 1,
+      "slot": "quiver"
     },
     "SHOVEL": {
       "name": "Shovel",
@@ -4950,7 +4959,8 @@
         "min": 0,
         "max": 75
       },
-      "weight": 30
+      "weight": 30,
+      "ammo_type": "SHOT_IRON"
     },
     "SMALL_SWORD": {
       "name": "Small Sword",

@@ -79,7 +79,7 @@ Last Updated: 2025-10-27
 
 #### Object Handling
 
-- [ ] **Ammunition System**
+(All basic object handling features implemented)
 
 #### Dungeon Features
 
