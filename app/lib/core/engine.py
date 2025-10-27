@@ -1605,6 +1605,9 @@ class Engine:
         # Calculate weapon damage (including crits)
         wpn_dmg = 0
         wpn_name = self.player.equipment.get('weapon')
+        weapon_effect = None
+        weapon_effect_damage = 0
+        
         if wpn_name:
             wpn_tmpl = GameData().get_item_by_name(wpn_name)
             if wpn_tmpl and 'damage' in wpn_tmpl:
@@ -1615,7 +1618,28 @@ class Engine:
                         wpn_dmg = sum(random.randint(1, die) for _ in range(num))
                     else: wpn_dmg = int(dmg_str) * 2 if is_crit else int(dmg_str)
                 except: wpn_dmg = 1 * 2 if is_crit else 1 # fallback
+                
+                # Check for weapon special effects
+                if 'weapon_effect' in wpn_tmpl:
+                    effect_type = wpn_tmpl['weapon_effect'].get('type')
+                    effect_dmg_str = wpn_tmpl['weapon_effect'].get('damage', '1d6')
+                    try:
+                        if 'd' in effect_dmg_str:
+                            num, die = map(int, effect_dmg_str.split('d'))
+                            weapon_effect_damage = sum(random.randint(1, die) for _ in range(num))
+                        else:
+                            weapon_effect_damage = int(effect_dmg_str)
+                    except:
+                        weapon_effect_damage = random.randint(1, 6)
+                    weapon_effect = effect_type
+        
         total_dmg = max(1, wpn_dmg + str_mod) # Add modifier only once
+        
+        # Add weapon effect damage
+        if weapon_effect and weapon_effect_damage > 0:
+            total_dmg += weapon_effect_damage
+            effect_name = weapon_effect.replace('_', ' ').title()
+            self.log_event(f"{effect_name} damage! (+{weapon_effect_damage})")
         
         # Check for backstab bonus (Rogue attacking unaware enemy)
         if self.player.class_ == "Rogue" and not target.aware_of_player:

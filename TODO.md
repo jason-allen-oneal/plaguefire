@@ -35,7 +35,7 @@ This document tracks all partial implementations, stubs, and missing features.
   - Class: Rogue special ability
   - Required: Damage multiplier when attacking unaware enemies
 
-- [ ] **Weapon Special Effects**
+- [x] **Weapon Special Effects**
   - Types: Flame tongue, frost brand, vorpal blades
   - Required: Additional damage types, effects on hit
 

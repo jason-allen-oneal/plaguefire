@@ -5117,6 +5117,91 @@
         "max": 300
       },
       "weight": 30
+    },
+    "LONGSWORD_FLAME_TONGUE": {
+      "name": "Flame Tongue Longsword",
+      "type": "weapon",
+      "slot": "weapon",
+      "base_cost": 5000,
+      "description": "A longsword wreathed in flames.",
+      "damage": "1d10",
+      "weapon_effect": {
+        "type": "flame",
+        "damage": "1d6"
+      },
+      "rarity_depth": {
+        "min": 250,
+        "max": 600
+      },
+      "weight": 30
+    },
+    "LONGSWORD_FROST_BRAND": {
+      "name": "Frost Brand Longsword",
+      "type": "weapon",
+      "slot": "weapon",
+      "base_cost": 5000,
+      "description": "A longsword that radiates freezing cold.",
+      "damage": "1d10",
+      "weapon_effect": {
+        "type": "frost",
+        "damage": "1d6"
+      },
+      "rarity_depth": {
+        "min": 250,
+        "max": 600
+      },
+      "weight": 30
+    },
+    "LONGSWORD_VORPAL": {
+      "name": "Vorpal Longsword",
+      "type": "weapon",
+      "slot": "weapon",
+      "base_cost": 8000,
+      "description": "A blade of devastating sharpness.",
+      "damage": "1d12",
+      "weapon_effect": {
+        "type": "vorpal",
+        "damage": "2d6"
+      },
+      "rarity_depth": {
+        "min": 400,
+        "max": 800
+      },
+      "weight": 30
+    },
+    "DAGGER_FLAME": {
+      "name": "Flaming Dagger",
+      "type": "weapon",
+      "slot": "weapon",
+      "base_cost": 2000,
+      "description": "A dagger with a blade of fire.",
+      "damage": "1d4",
+      "weapon_effect": {
+        "type": "flame",
+        "damage": "1d4"
+      },
+      "rarity_depth": {
+        "min": 150,
+        "max": 400
+      },
+      "weight": 10
+    },
+    "DAGGER_FROST": {
+      "name": "Frost Dagger",
+      "type": "weapon",
+      "slot": "weapon",
+      "base_cost": 2000,
+      "description": "A dagger that freezes on contact.",
+      "damage": "1d4",
+      "weapon_effect": {
+        "type": "frost",
+        "damage": "1d4"
+      },
+      "rarity_depth": {
+        "min": 150,
+        "max": 400
+      },
+      "weight": 10
     }
   }
 }
