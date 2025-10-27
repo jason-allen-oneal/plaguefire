@@ -1039,18 +1039,11 @@ class Engine:
                     self.player.equipment[slot] = None
                     self.log_event(f"You remove {item_name}.")
         
-        # Initialize ground items storage if not exists
-        if not hasattr(self, 'ground_items'):
-            self.ground_items = {}
-        
         # Drop item at player's position
         px, py = self.player.position
         pos_key = (px, py)
         
-        if pos_key not in self.ground_items:
-            self.ground_items[pos_key] = []
-        
-        self.ground_items[pos_key].append(item_name)
+        self.ground_items.setdefault(pos_key, []).append(item_name)
         
         # Remove from inventory using inventory manager
         self._remove_item_from_inventory(item_name)
@@ -1193,14 +1186,8 @@ class Engine:
                     self.log_event(f"You miss {target.name}!")
                 
                 # Drop item at target location if it doesn't break
-                if not hasattr(self, 'ground_items'):
-                    self.ground_items = {}
-                
                 pos_key = (next_x, next_y)
-                if pos_key not in self.ground_items:
-                    self.ground_items[pos_key] = []
-                
-                self.ground_items[pos_key].append(item_name)
+                self.ground_items.setdefault(pos_key, []).append(item_name)
                 self._remove_item_from_inventory(item_name)
                 self._end_player_turn()
                 return True
@@ -1210,14 +1197,8 @@ class Engine:
         # Item lands on ground at final position
         self.log_event(f"You throw {item_name}.")
         
-        if not hasattr(self, 'ground_items'):
-            self.ground_items = {}
-        
         pos_key = (tx, ty)
-        if pos_key not in self.ground_items:
-            self.ground_items[pos_key] = []
-        
-        self.ground_items[pos_key].append(item_name)
+        self.ground_items.setdefault(pos_key, []).append(item_name)
         self._remove_item_from_inventory(item_name)
         
         self._end_player_turn()
@@ -1439,10 +1420,8 @@ class Engine:
         
         # Drop gold on ground if any
         if gold > 0:
-            if pos_key not in self.ground_items:
-                self.ground_items[pos_key] = []
             # Use a special marker for gold
-            self.ground_items[pos_key].append(f"${gold}")
+            self.ground_items.setdefault(pos_key, []).append(f"${gold}")
             self.log_event(f"{entity.name} drops {gold} gold.")
         
         # Drop items on ground
@@ -1450,9 +1429,7 @@ class Engine:
             template = GameData().get_item(item_id)
             if template:
                 item_name = template.get("name", item_id)
-                if pos_key not in self.ground_items:
-                    self.ground_items[pos_key] = []
-                self.ground_items[pos_key].append(item_name)
+                self.ground_items.setdefault(pos_key, []).append(item_name)
                 self.log_event(f"{entity.name} drops a {item_name}.")
             else:
                 debug(f"Warn: Unknown item ID '{item_id}'")

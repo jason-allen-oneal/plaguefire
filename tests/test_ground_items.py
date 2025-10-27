@@ -33,12 +33,9 @@ def create_mock_app():
     return MockApp()
 
 
-def test_entity_drops_on_ground():
-    """Test that items and gold drop on ground when entity dies."""
-    print("Test: Entity drops on ground...")
-    
-    # Create test player
-    player_data = {
+def create_test_player_data():
+    """Create standard test player data."""
+    return {
         "name": "Test Warrior",
         "race": "Human",
         "class": "Warrior",
@@ -54,19 +51,29 @@ def test_entity_drops_on_ground():
         "depth": 1,
         "time": 0,
     }
-    player = Player(player_data)
-    
-    # Create minimal engine
-    app = create_mock_app()
-    
-    # Create simple test map
-    test_map = [
+
+
+def create_test_map():
+    """Create a simple test map."""
+    return [
         ['#', '#', '#', '#', '#'],
         ['#', '.', '.', '.', '#'],
         ['#', '.', '.', '.', '#'],
         ['#', '.', '.', '.', '#'],
         ['#', '#', '#', '#', '#']
     ]
+
+
+def test_entity_drops_on_ground():
+    """Test that items and gold drop on ground when entity dies."""
+    print("Test: Entity drops on ground...")
+    
+    # Create test player
+    player = Player(create_test_player_data())
+    
+    # Create minimal engine
+    app = create_mock_app()
+    test_map = create_test_map()
     player.position = [2, 2]
     
     engine = Engine(app, player, map_override=test_map)
@@ -111,35 +118,11 @@ def test_gold_auto_pickup():
     print("Test: Gold auto-pickup...")
     
     # Create test player
-    player_data = {
-        "name": "Test Warrior",
-        "race": "Human",
-        "class": "Warrior",
-        "sex": "Male",
-        "stats": {"STR": 16, "DEX": 12, "CON": 14, "INT": 8, "WIS": 8, "CHA": 10},
-        "level": 1,
-        "xp": 0,
-        "hp": 15,
-        "max_hp": 15,
-        "gold": 50,
-        "inventory": [],
-        "equipment": {},
-        "depth": 1,
-        "time": 0,
-    }
-    player = Player(player_data)
+    player = Player(create_test_player_data())
     
     # Create minimal engine
     app = create_mock_app()
-    
-    # Create simple test map
-    test_map = [
-        ['#', '#', '#', '#', '#'],
-        ['#', '.', '.', '.', '#'],
-        ['#', '.', '.', '.', '#'],
-        ['#', '.', '.', '.', '#'],
-        ['#', '#', '#', '#', '#']
-    ]
+    test_map = create_test_map()
     player.position = [2, 2]
     
     engine = Engine(app, player, map_override=test_map)
@@ -176,35 +159,11 @@ def test_manual_pickup():
     print("Test: Manual pickup...")
     
     # Create test player
-    player_data = {
-        "name": "Test Warrior",
-        "race": "Human",
-        "class": "Warrior",
-        "sex": "Male",
-        "stats": {"STR": 16, "DEX": 12, "CON": 14, "INT": 8, "WIS": 8, "CHA": 10},
-        "level": 1,
-        "xp": 0,
-        "hp": 15,
-        "max_hp": 15,
-        "gold": 50,
-        "inventory": [],
-        "equipment": {},
-        "depth": 1,
-        "time": 0,
-    }
-    player = Player(player_data)
+    player = Player(create_test_player_data())
     
     # Create minimal engine
     app = create_mock_app()
-    
-    # Create simple test map
-    test_map = [
-        ['#', '#', '#', '#', '#'],
-        ['#', '.', '.', '.', '#'],
-        ['#', '.', '.', '.', '#'],
-        ['#', '.', '.', '.', '#'],
-        ['#', '#', '#', '#', '#']
-    ]
+    test_map = create_test_map()
     player.position = [2, 2]
     
     engine = Engine(app, player, map_override=test_map)
@@ -243,23 +202,7 @@ def test_pickup_with_full_inventory():
     print("Test: Pickup with full inventory...")
     
     # Create test player
-    player_data = {
-        "name": "Test Warrior",
-        "race": "Human",
-        "class": "Warrior",
-        "sex": "Male",
-        "stats": {"STR": 16, "DEX": 12, "CON": 14, "INT": 8, "WIS": 8, "CHA": 10},
-        "level": 1,
-        "xp": 0,
-        "hp": 15,
-        "max_hp": 15,
-        "gold": 50,
-        "inventory": [],
-        "equipment": {},
-        "depth": 1,
-        "time": 0,
-    }
-    player = Player(player_data)
+    player = Player(create_test_player_data())
     
     # Fill inventory to max (22 items)
     for i in range(22):
@@ -267,15 +210,7 @@ def test_pickup_with_full_inventory():
     
     # Create minimal engine
     app = create_mock_app()
-    
-    # Create simple test map
-    test_map = [
-        ['#', '#', '#', '#', '#'],
-        ['#', '.', '.', '.', '#'],
-        ['#', '.', '.', '.', '#'],
-        ['#', '.', '.', '.', '#'],
-        ['#', '#', '#', '#', '#']
-    ]
+    test_map = create_test_map()
     player.position = [2, 2]
     
     engine = Engine(app, player, map_override=test_map)
