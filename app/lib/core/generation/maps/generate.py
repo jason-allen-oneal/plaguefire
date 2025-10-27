@@ -3,7 +3,7 @@
 import random
 from typing import List, Optional, Tuple
 from config import (
-    WALL, FLOOR, STAIRS_DOWN, STAIRS_UP, SECRET_DOOR,
+    WALL, FLOOR, STAIRS_DOWN, STAIRS_UP, SECRET_DOOR, DOOR_CLOSED, DOOR_OPEN,
     MIN_MAP_WIDTH, MAX_MAP_WIDTH, MIN_MAP_HEIGHT, MAX_MAP_HEIGHT
 )
 from debugtools import debug
@@ -127,6 +127,9 @@ def generate_room_corridor_dungeon(
         down_pos = find_random_floor(dungeon)
         if down_pos and down_pos != up_pos: dungeon[down_pos[1]][down_pos[0]] = STAIRS_DOWN
 
+    # Place regular doors at corridor-room junctions
+    _place_doors(dungeon, rooms, map_width, map_height)
+    
     # Place secret doors
     _place_secret_doors(dungeon, rooms, map_width, map_height)
 
@@ -183,6 +186,134 @@ def generate_cellular_automata_dungeon(
     _place_secret_doors(grid, None, width, height)
 
     return grid
+
+
+def _place_doors(dungeon: MapData, rooms: List[Rect], map_width: int, map_height: int):
+    """Place regular doors where corridors meet rooms."""
+    if not rooms:
+        return  # Only place doors in room-based dungeons
+    
+    doors_placed = 0
+    placed_positions = set()  # Track where we've placed doors to avoid duplicates
+    
+    for room in rooms:
+        # Find all entrance points for this room
+        entrances = _find_room_entrances(dungeon, room, map_width, map_height)
+        
+        for entrance in entrances:
+            x, y, direction = entrance
+            if (x, y) not in placed_positions:
+                # Place a door (70% closed, 30% open for variety)
+                door_type = DOOR_CLOSED if random.random() < 0.7 else DOOR_OPEN
+                dungeon[y][x] = door_type
+                placed_positions.add((x, y))
+                doors_placed += 1
+                debug(f"Placed {'closed' if door_type == DOOR_CLOSED else 'open'} door at ({x},{y}) - {direction} entrance")
+    
+    debug(f"Total doors placed: {doors_placed}")
+
+
+def _find_room_entrances(dungeon: MapData, room: Rect, map_width: int, map_height: int) -> List[Tuple[int, int, str]]:
+    """Find entrance points where corridors meet the room.
+    Returns list of (x, y, direction) tuples."""
+    entrances = []
+    
+    # Check north wall
+    if room.y1 > 0:
+        entrance_spans = []
+        in_entrance = False
+        start_x = None
+        
+        for x in range(room.x1, room.x2):
+            if x <= 0 or x >= map_width - 1:
+                continue
+            # Check if there's a corridor connection here
+            if dungeon[room.y1][x] == FLOOR and dungeon[room.y1 - 1][x] == FLOOR:
+                if not in_entrance:
+                    in_entrance = True
+                    start_x = x
+            else:
+                if in_entrance:
+                    # End of entrance span - place door at the middle
+                    mid_x = (start_x + x - 1) // 2
+                    entrances.append((mid_x, room.y1, "north"))
+                    in_entrance = False
+        
+        # Handle entrance that extends to the end
+        if in_entrance:
+            mid_x = (start_x + room.x2 - 1) // 2
+            entrances.append((mid_x, room.y1, "north"))
+    
+    # Check south wall
+    if room.y2 < map_height - 1:
+        entrance_spans = []
+        in_entrance = False
+        start_x = None
+        y_check = room.y2 - 1
+        
+        for x in range(room.x1, room.x2):
+            if x <= 0 or x >= map_width - 1:
+                continue
+            if dungeon[y_check][x] == FLOOR and dungeon[room.y2][x] == FLOOR:
+                if not in_entrance:
+                    in_entrance = True
+                    start_x = x
+            else:
+                if in_entrance:
+                    mid_x = (start_x + x - 1) // 2
+                    entrances.append((mid_x, y_check, "south"))
+                    in_entrance = False
+        
+        if in_entrance:
+            mid_x = (start_x + room.x2 - 1) // 2
+            entrances.append((mid_x, y_check, "south"))
+    
+    # Check west wall
+    if room.x1 > 0:
+        in_entrance = False
+        start_y = None
+        
+        for y in range(room.y1, room.y2):
+            if y <= 0 or y >= map_height - 1:
+                continue
+            if dungeon[y][room.x1] == FLOOR and dungeon[y][room.x1 - 1] == FLOOR:
+                if not in_entrance:
+                    in_entrance = True
+                    start_y = y
+            else:
+                if in_entrance:
+                    mid_y = (start_y + y - 1) // 2
+                    entrances.append((room.x1, mid_y, "west"))
+                    in_entrance = False
+        
+        if in_entrance:
+            mid_y = (start_y + room.y2 - 1) // 2
+            entrances.append((room.x1, mid_y, "west"))
+    
+    # Check east wall
+    if room.x2 < map_width - 1:
+        in_entrance = False
+        start_y = None
+        x_check = room.x2 - 1
+        
+        for y in range(room.y1, room.y2):
+            if y <= 0 or y >= map_height - 1:
+                continue
+            if dungeon[y][x_check] == FLOOR and dungeon[y][room.x2] == FLOOR:
+                if not in_entrance:
+                    in_entrance = True
+                    start_y = y
+            else:
+                if in_entrance:
+                    mid_y = (start_y + y - 1) // 2
+                    entrances.append((x_check, mid_y, "east"))
+                    in_entrance = False
+        
+        if in_entrance:
+            mid_y = (start_y + room.y2 - 1) // 2
+            entrances.append((x_check, mid_y, "east"))
+    
+    return entrances
 
 
 def _place_secret_doors(dungeon: MapData, rooms: List[Rect], map_width: int, map_height: int):
