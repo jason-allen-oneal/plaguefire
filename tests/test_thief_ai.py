@@ -35,11 +35,11 @@ def create_test_player_data():
         "race": "Human",
         "class": "Warrior",
         "sex": "Male",
-        "stats": {"STR": 10, "DEX": 10, "CON": 10, "INT": 10, "WIS": 10, "CHA": 10},
-        "level": 1,
+        "stats": {"STR": 18, "DEX": 18, "CON": 10, "INT": 10, "WIS": 10, "CHA": 10},  # High STR for reliable hits
+        "level": 5,  # Higher level for better proficiency bonus
         "xp": 0,
-        "hp": 20,
-        "max_hp": 20,
+        "hp": 50,  # More HP so we can take a hit
+        "max_hp": 50,
         "gold": 100,
         "inventory": [],
         "equipment": {},
@@ -70,15 +70,23 @@ def test_rogue_attacks_when_attacked():
     rogue = Entity("SQUINT_EYED_ROGUE", 0, [2, 3])
     engine.entities.append(rogue)
 
+    # Keep attacking until the rogue becomes hostile (attack hits)
+    max_attempts = 20
+    for _ in range(max_attempts):
+        engine.handle_player_attack(rogue)
+        if rogue.hostile:
+            break
+    
+    assert rogue.hostile, "Rogue should become hostile when attacked"
+    
+    # Now let the rogue attack back - keep updating until player takes damage
     initial_hp = player.hp
-
-    # Attack the rogue
-    engine.handle_player_attack(rogue)
-
-    # Let the rogue have a turn
-    engine.update_entities()
-
-    assert player.hp < initial_hp, "Rogue should attack back"
+    for _ in range(max_attempts):
+        engine.update_entities()
+        if player.hp < initial_hp:
+            break
+    
+    assert player.hp < initial_hp, "Rogue should attack back and deal damage"
 
     print("✓ Rogue attacked back")
     print("✓ Test passed!")

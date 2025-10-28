@@ -25,8 +25,8 @@ def test_dungeon_generation():
     
     width, height = 80, 40
     
-    # Generate dungeon - returns the map directly as a list
-    game_map = generate_room_corridor_dungeon(width, height, max_rooms=8)
+    # Generate dungeon - returns (map, rooms) tuple
+    game_map, rooms = generate_room_corridor_dungeon(width, height, max_rooms=8)
     
     # Validate map
     assert game_map is not None, "Map should not be None"
@@ -42,7 +42,7 @@ def test_map_contains_floors():
     print("Test: Map contains floors...")
     
     width, height = 60, 30
-    game_map = generate_room_corridor_dungeon(width, height, max_rooms=6)
+    game_map, rooms = generate_room_corridor_dungeon(width, height, max_rooms=6)
     
     # Count floor tiles
     floor_count = sum(row.count(FLOOR) for row in game_map)
@@ -59,7 +59,7 @@ def test_map_contains_walls():
     print("Test: Map contains walls...")
     
     width, height = 60, 30
-    game_map = generate_room_corridor_dungeon(width, height, max_rooms=6)
+    game_map, rooms = generate_room_corridor_dungeon(width, height, max_rooms=6)
     
     # Count wall tiles
     wall_count = sum(row.count(WALL) for row in game_map)
@@ -89,7 +89,7 @@ def test_different_depths():
     width, height = 50, 25
     
     for max_rooms in [3, 5, 10, 15]:
-        game_map = generate_room_corridor_dungeon(width, height, max_rooms=max_rooms)
+        game_map, rooms = generate_room_corridor_dungeon(width, height, max_rooms=max_rooms)
         
         assert game_map is not None, f"Should generate map with {max_rooms} rooms"
         print(f"  Max rooms {max_rooms}: ✓")
@@ -103,7 +103,7 @@ def test_map_boundaries():
     print("Test: Map boundaries...")
     
     width, height = 40, 20
-    game_map = generate_room_corridor_dungeon(width, height, max_rooms=4)
+    game_map, rooms = generate_room_corridor_dungeon(width, height, max_rooms=4)
     
     # Just verify map dimensions are correct
     assert len(game_map) == height, f"Height should be {height}"

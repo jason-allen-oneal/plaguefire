@@ -64,13 +64,13 @@ def test_failure_decreases_with_stats():
     """Test that higher stats reduce failure chance."""
     print("Test: Failure decreases with stats...")
     
-    # Low INT mage
+    # Low INT mage (INT 8 for higher failure rate)
     low_int_data = {
         "name": "Low INT Mage",
         "race": "Human",
         "class": "Mage",
-        "stats": {"STR": 8, "INT": 10, "WIS": 8, "DEX": 8, "CON": 8, "CHA": 8},
-        "level": 5,
+        "stats": {"STR": 8, "INT": 8, "WIS": 8, "DEX": 8, "CON": 8, "CHA": 8},
+        "level": 1,  # Lower level so failures aren't reduced by level
         "known_spells": ["magic_missile"],
     }
     low_int_mage = Player(low_int_data)
@@ -81,7 +81,7 @@ def test_failure_decreases_with_stats():
         "race": "Human",
         "class": "Mage",
         "stats": {"STR": 8, "INT": 18, "WIS": 8, "DEX": 8, "CON": 8, "CHA": 8},
-        "level": 5,
+        "level": 1,  # Same level to isolate INT effect
         "known_spells": ["magic_missile"],
     }
     high_int_mage = Player(high_int_data)
@@ -89,7 +89,7 @@ def test_failure_decreases_with_stats():
     # Count failures for each
     low_int_failures = 0
     high_int_failures = 0
-    trials = 50
+    trials = 500  # Large sample to reduce statistical variance
     
     for _ in range(trials):
         low_int_mage.mana = low_int_mage.max_mana
@@ -105,11 +105,13 @@ def test_failure_decreases_with_stats():
     low_int_rate = (low_int_failures / trials) * 100
     high_int_rate = (high_int_failures / trials) * 100
     
-    print(f"  Low INT (10): {low_int_failures}/{trials} failures ({low_int_rate:.1f}%)")
+    print(f"  Low INT (8): {low_int_failures}/{trials} failures ({low_int_rate:.1f}%)")
     print(f"  High INT (18): {high_int_failures}/{trials} failures ({high_int_rate:.1f}%)")
     
-    # High INT should have fewer failures
-    assert high_int_failures <= low_int_failures, "High INT should fail less often"
+    # High INT should have significantly fewer failures
+    # INT 8: 10-(-1*3)-(0) = 13%, INT 18: 10-(4*3)-(0) = -2% → 5%
+    # Should show clear difference: ~13% vs ~5%
+    assert high_int_failures < low_int_failures, f"High INT should fail less often, got INT8={low_int_failures} vs INT18={high_int_failures}"
     
     print("✓ Higher stats reduce failure chance")
     print("✓ Test passed!\n")
@@ -120,24 +122,24 @@ def test_failure_decreases_with_level():
     """Test that higher level reduces failure chance."""
     print("Test: Failure decreases with level...")
     
-    # Low level mage
+    # Low level mage with lower INT so failure rates stay above minimum
     low_level_data = {
         "name": "Novice Mage",
         "race": "Human",
         "class": "Mage",
-        "stats": {"STR": 10, "INT": 14, "WIS": 10, "DEX": 10, "CON": 10, "CHA": 10},
+        "stats": {"STR": 10, "INT": 8, "WIS": 10, "DEX": 10, "CON": 10, "CHA": 10},  # INT 8 for higher failure rate
         "level": 1,
         "known_spells": ["magic_missile"],
     }
     low_level_mage = Player(low_level_data)
     
-    # High level mage (same stats)
+    # High level mage (same stats, much higher level)
     high_level_data = {
         "name": "Master Mage",
         "race": "Human",
         "class": "Mage",
-        "stats": {"STR": 10, "INT": 14, "WIS": 10, "DEX": 10, "CON": 10, "CHA": 10},
-        "level": 10,
+        "stats": {"STR": 10, "INT": 8, "WIS": 10, "DEX": 10, "CON": 10, "CHA": 10},  # INT 8 for higher failure rate
+        "level": 20,
         "known_spells": ["magic_missile"],
     }
     high_level_mage = Player(high_level_data)
@@ -145,7 +147,7 @@ def test_failure_decreases_with_level():
     # Count failures
     low_level_failures = 0
     high_level_failures = 0
-    trials = 50
+    trials = 500  # Large sample to reduce statistical variance
     
     for _ in range(trials):
         low_level_mage.mana = low_level_mage.max_mana
@@ -162,10 +164,12 @@ def test_failure_decreases_with_level():
     high_level_rate = (high_level_failures / trials) * 100
     
     print(f"  Level 1: {low_level_failures}/{trials} failures ({low_level_rate:.1f}%)")
-    print(f"  Level 10: {high_level_failures}/{trials} failures ({high_level_rate:.1f}%)")
+    print(f"  Level 20: {high_level_failures}/{trials} failures ({high_level_rate:.1f}%)")
     
     # Higher level should have fewer failures
-    assert high_level_failures <= low_level_failures, "Higher level should fail less often"
+    # With INT 8: L1 = 10-(-1*3)-(0) = 13%, L20 = 10-(-1*3)-(19) = -6% → 5%
+    # So L1 should have ~13% and L20 should have ~5%
+    assert high_level_failures < low_level_failures, f"Higher level should fail less often, got L1={low_level_failures} vs L20={high_level_failures}"
     
     print("✓ Higher level reduces failure chance")
     print("✓ Test passed!\n")
@@ -257,7 +261,7 @@ def test_minimum_failure_chance():
         "name": "Archmage",
         "race": "Human",
         "class": "Mage",
-        "stats": {"STR": 18, "INT": 18, "WIS": 18, "DEX": 18, "CON": 18, "CHA": 18"},
+        "stats": {"STR": 18, "INT": 18, "WIS": 18, "DEX": 18, "CON": 18, "CHA": 18},
         "level": 50,
         "known_spells": ["magic_missile"],
     }

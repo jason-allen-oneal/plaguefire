@@ -24,6 +24,35 @@ from tests import test_item_instances
 from tests import test_item_usage
 from tests import test_mining
 from tests import test_ground_items
+# Additional test modules (previously not registered)
+from tests import test_ammunition_system
+from tests import test_backstab
+from tests import test_darkness_effects
+from tests import test_door_system
+from tests import test_fleeing_behavior
+from tests import test_light_fuel
+from tests import test_lockpicking
+from tests import test_mining_stats
+from tests import test_monster_pits
+from tests import test_multiple_armor_slots
+from tests import test_pack_behavior
+from tests import test_pending_mechanics
+from tests import test_projectile_system
+from tests import test_ranged_attacks
+from tests import test_shop_pricing
+from tests import test_shop_restocking
+from tests import test_sleep_effect
+from tests import test_spell_books_findable
+from tests import test_spell_casters
+from tests import test_spell_failure
+from tests import test_tavern_rest
+from tests import test_thief_ai
+from tests import test_thief_behavior
+from tests import test_todo_implementations
+from tests import test_trap_system
+from tests import test_vein_detection
+from tests import test_visual_effects_integration
+from tests import test_weapon_effects
 
 
 def run_all_tests():
@@ -144,6 +173,199 @@ def run_all_tests():
             test_ground_items.test_gold_auto_pickup,
             test_ground_items.test_manual_pickup,
             test_ground_items.test_pickup_with_full_inventory,
+        ]),
+        ("Ammunition System Tests", [
+            test_ammunition_system.test_quiver_slot,
+            test_ammunition_system.test_ammunition_types,
+            test_ammunition_system.test_ammunition_stacking_in_quiver,
+            test_ammunition_system.test_ammunition_replacement,
+            test_ammunition_system.test_unequip_ammunition,
+            test_ammunition_system.test_weapon_ammunition_compatibility,
+            test_ammunition_system.test_ammunition_weight,
+            test_ammunition_system.test_quiver_with_other_equipment,
+        ]),
+        ("Backstab Tests", [
+            test_backstab.test_rogue_backstab,
+            test_backstab.test_non_rogue_no_backstab,
+            test_backstab.test_aware_enemy_no_backstab,
+            test_backstab.test_entity_awareness_on_detection,
+        ]),
+        ("Darkness Effects Tests", [
+            test_darkness_effects.test_darkness_detection,
+            test_darkness_effects.test_darkness_combat_penalties,
+            test_darkness_effects.test_town_daytime_no_darkness,
+        ]),
+        ("Door System Tests", [
+            test_door_system.test_doors_placed_in_dungeons,
+            test_door_system.test_secret_doors_still_placed,
+            test_door_system.test_door_states,
+            test_door_system.test_auto_open_door,
+            test_door_system.test_door_placement_not_excessive,
+        ]),
+        ("Fleeing Behavior Tests", [
+            test_fleeing_behavior.test_low_hp_fleeing,
+            test_fleeing_behavior.test_fleeing_movement,
+            test_fleeing_behavior.test_healthy_entity_no_flee,
+            test_fleeing_behavior.test_fearless_entity_never_flees,
+            test_fleeing_behavior.test_flee_chance_percentage,
+        ]),
+        ("Light Fuel Tests", [
+            test_light_fuel.test_torch_lantern_items_exist,
+            test_light_fuel.test_light_tracking_on_player,
+            test_light_fuel.test_light_duration_persistence,
+            test_light_fuel.test_different_light_sources,
+        ]),
+        ("Lockpicking Tests", [
+            test_lockpicking.test_lockpicking_items_exist,
+            test_lockpicking.test_get_lockpick_bonus,
+            test_lockpicking.test_lockpick_bonus_on_chest_opening,
+            test_lockpicking.test_lockpick_bonus_on_trap_disarming,
+            test_lockpicking.test_backward_compatibility,
+        ]),
+        ("Mining Stats Tests", [
+            test_mining_stats.test_mining_stats_initialization,
+            test_mining_stats.test_vein_mining_tracking,
+            test_mining_stats.test_gem_finding_tracking,
+            test_mining_stats.test_mining_stats_persistence,
+            test_mining_stats.test_mining_without_player,
+        ]),
+        ("Monster Pits Tests", [
+            test_monster_pits.test_pit_themes,
+            test_monster_pits.test_pit_creation,
+            test_monster_pits.test_pit_spawn_positions,
+            test_monster_pits.test_monster_selection,
+            test_monster_pits.test_pit_generation,
+            test_monster_pits.test_pit_depth_scaling,
+            test_monster_pits.test_pit_at_position,
+            test_monster_pits.test_pit_serialization,
+        ]),
+        ("Multiple Armor Slots Tests", [
+            test_multiple_armor_slots.test_armor_slot_types,
+            test_multiple_armor_slots.test_equip_multiple_armor,
+            test_multiple_armor_slots.test_armor_slot_replacement,
+            test_multiple_armor_slots.test_unequip_armor,
+            test_multiple_armor_slots.test_armor_with_shield,
+            test_multiple_armor_slots.test_full_armor_set,
+            test_multiple_armor_slots.test_armor_weight_calculation,
+        ]),
+        ("Pack Behavior Tests", [
+            test_pack_behavior.test_pack_entity_properties,
+            test_pack_behavior.test_pack_coordination,
+            test_pack_behavior.test_pack_regrouping,
+        ]),
+        ("Pending Mechanics Tests", [
+            test_pending_mechanics.test_speed_penalty,
+            test_pending_mechanics.test_pickup_weight_limit,
+            test_pending_mechanics.test_deepest_depth_tracking,
+        ]),
+        ("Projectile System Tests", [
+            test_projectile_system.test_projectile_creation,
+            test_projectile_system.test_projectile_path,
+            test_projectile_system.test_projectile_advance,
+            test_projectile_system.test_projectile_colors,
+            test_projectile_system.test_dropped_item_creation,
+            test_projectile_system.test_dropped_item_physics,
+            test_projectile_system.test_dropped_item_friction,
+            test_projectile_system.test_dropped_item_settling,
+        ]),
+        ("Ranged Attacks Tests", [
+            test_ranged_attacks.test_ranged_attack_entity,
+            test_ranged_attacks.test_ranged_attack_combat,
+            test_ranged_attacks.test_ranged_attack_ai,
+            test_ranged_attacks.test_multiple_ranged_monsters,
+        ]),
+        ("Shop Pricing Tests", [
+            test_shop_pricing.test_charisma_price_calculations,
+            test_shop_pricing.test_charisma_range,
+        ]),
+        ("Shop Restocking Tests", [
+            test_shop_restocking.test_restock_interval_logic,
+            test_shop_restocking.test_inventory_restoration,
+            test_shop_restocking.test_restock_with_different_intervals,
+        ]),
+        ("Sleep Effect Tests", [
+            test_sleep_effect.test_asleep_status_effect_exists,
+            test_sleep_effect.test_sleep_status_application,
+            test_sleep_effect.test_sleep_spell_exists,
+            test_sleep_effect.test_sleep_items_exist,
+            test_sleep_effect.test_entity_sleep_behavior,
+            test_sleep_effect.test_slow_effect_exists,
+        ]),
+        ("Spell Books Findable Tests", [
+            test_spell_books_findable.test_book_data,
+            test_spell_books_findable.test_book_generation,
+            test_spell_books_findable.test_book_depth_scaling,
+            test_spell_books_findable.test_book_findability,
+            test_spell_books_findable.test_beginner_books,
+            test_spell_books_findable.test_advanced_books,
+            test_spell_books_findable.test_book_spell_content,
+        ]),
+        ("Spell Casters Tests", [
+            test_spell_casters.test_spell_caster_entity,
+            test_spell_casters.test_spell_casting,
+            test_spell_casters.test_spell_caster_ai,
+            test_spell_casters.test_mana_depletion,
+        ]),
+        ("Spell Failure Tests", [
+            test_spell_failure.test_spell_failure_exists,
+            test_spell_failure.test_failure_decreases_with_stats,
+            test_spell_failure.test_failure_decreases_with_level,
+            test_spell_failure.test_failure_causes_confusion,
+            test_spell_failure.test_success_grants_xp,
+            test_spell_failure.test_minimum_failure_chance,
+            test_spell_failure.test_spell_failure_data,
+        ]),
+        ("Tavern Rest Tests", [
+            test_tavern_rest.test_rest_restores_hp,
+            test_tavern_rest.test_rest_restores_mana,
+            test_tavern_rest.test_rest_restores_both_hp_and_mana,
+            test_tavern_rest.test_rest_cost_deducted,
+            test_tavern_rest.test_no_rest_when_at_full,
+        ]),
+        ("Thief AI Tests", [
+            test_thief_ai.test_rogue_attacks_when_attacked,
+        ]),
+        ("Thief Behavior Tests", [
+            test_thief_behavior.test_thief_entities_have_correct_config,
+            test_thief_behavior.test_urchin_never_becomes_hostile,
+            test_thief_behavior.test_rogue_becomes_hostile_when_damaged,
+            test_thief_behavior.test_thief_steals_gold,
+        ]),
+        ("TODO Implementations Tests", [
+            test_todo_implementations.test_mana_regeneration,
+            test_todo_implementations.test_ring_slots,
+            test_todo_implementations.test_shield_slot,
+            test_todo_implementations.test_amulet_slot,
+            test_todo_implementations.test_object_stacking,
+        ]),
+        ("Trap System Tests", [
+            test_trap_system.test_trap_types,
+            test_trap_system.test_trap_generation,
+            test_trap_system.test_trap_detection,
+            test_trap_system.test_trap_triggering,
+            test_trap_system.test_trap_disarming,
+            test_trap_system.test_trap_visibility,
+            test_trap_system.test_trap_depth_scaling,
+            test_trap_system.test_trap_serialization,
+        ]),
+        ("Vein Detection Tests", [
+            test_vein_detection.test_detect_treasure_spell_exists,
+            test_vein_detection.test_treasure_location_items_exist,
+            test_vein_detection.test_vein_detection_logic,
+            test_vein_detection.test_vein_detection_radius,
+        ]),
+        ("Visual Effects Integration Tests", [
+            test_visual_effects_integration.test_spell_creates_projectile,
+            test_visual_effects_integration.test_throw_item_creates_projectile,
+            test_visual_effects_integration.test_ammo_recovery_on_miss,
+            test_visual_effects_integration.test_item_drop_with_physics,
+            test_visual_effects_integration.test_entity_death_items_with_physics,
+        ]),
+        ("Weapon Effects Tests", [
+            test_weapon_effects.test_flame_tongue_weapon,
+            test_weapon_effects.test_frost_brand_weapon,
+            test_weapon_effects.test_vorpal_weapon,
+            test_weapon_effects.test_normal_weapon_no_effect,
         ]),
     ]
     
