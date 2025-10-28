@@ -1840,49 +1840,6 @@ class Engine:
                     self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and [nx, ny] != self.player.position):
                     entity.position = [nx, ny]
 
-    def _process_thief_ai(self, entity: Entity, distance: float) -> None:
-        print(f"Processing thief AI for {entity.name}")
-        behavior = getattr(entity, "behavior", "")
-        px, py = self.player.position
-        ex, ey = entity.position
-
-        if entity.status_manager.has_behavior("flee"):
-            print(f"{entity.name} is fleeing")
-            # Move away from player
-            if distance <= entity.detection_range:
-                dx = 0 if px == ex else (-1 if px > ex else 1)
-                dy = 0 if py == ey else (-1 if py > ey else 1)
-                nx, ny = ex + dx, ey + dy
-                if (0 <= ny < self.map_height and 0 <= nx < self.map_width and
-                    self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and [nx, ny] != self.player.position):
-                    entity.position = [nx, ny]
-            return
-
-        if distance <= entity.detection_range:
-            print(f"{entity.name} is in detection range")
-            if distance <= 1.5:
-                print(f"{entity.name} is adjacent to player")
-                # Attempt to steal
-                if self.player.gold > 0 and random.random() < 0.5:
-                    stolen = min(random.randint(1, 10), self.player.gold)
-                    self.player.gold -= stolen
-                    self.log_event(f"{entity.name} steals {stolen} gold!")
-                    print(f"{entity.name} stole {stolen} gold")
-                else:
-                    self.log_event(f"{entity.name} tries to steal from you but fails!")
-                    print(f"{entity.name} failed to steal")
-                # Flee after stealing
-                entity.status_manager.add_effect("Fleeing", 20)
-            else:
-                print(f"{entity.name} is moving towards player")
-                # Move towards player
-                dx = 0 if px == ex else (1 if px > ex else -1)
-                dy = 0 if py == ey else (1 if py > ey else -1)
-                nx, ny = ex + dx, ey + dy
-                if (0 <= ny < self.map_height and 0 <= nx < self.map_width and
-                    self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and [nx, ny] != self.player.position):
-                    entity.position = [nx, ny]
-
     def _handle_beggar_interaction(self, entity: Entity) -> None:
         # --- Beggar interaction logic --- (omitted for brevity, keep your existing logic)
         if self.player.gold > 0 and random.random() < 0.6:
@@ -2416,11 +2373,13 @@ class Engine:
         """Remove projectiles that have finished animating."""
         self.active_projectiles = [p for p in self.active_projectiles if p.is_active()]
     
+    
     def update_dropped_items(self) -> None:
         """
-        Update the state of dropped items, like despawn timers.
+        Legacy placeholder for dropped item physics simulation.
+        This method was never implemented but is called by tests.
+        Currently a no-op.
         """
-        # This is a placeholder for future logic, such as items despawning over time
         pass
     
     def add_item_to_floor(self, x: int, y: int, item_id: str) -> bool:
