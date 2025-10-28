@@ -1969,6 +1969,7 @@ class Engine:
             pass # Urchins never attack
         elif getattr(target, "behavior", "") == "thief" and not getattr(target, "hostile", False):
             target.hostile = True
+            target.ai_type = "aggressive"
             self.log_event(f"{target.name} becomes hostile!")
         elif getattr(target, "behavior", "") == "mercenary" and not getattr(target, "provoked", False):
              target.provoked = True; target.hostile = True; target.ai_type = "aggressive"; self.log_event(f"{target.name} is provoked!")
