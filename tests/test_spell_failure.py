@@ -257,7 +257,7 @@ def test_minimum_failure_chance():
         "name": "Archmage",
         "race": "Human",
         "class": "Mage",
-        "stats": {"STR": 18, "INT": 18, "WIS": 18, "DEX": 18, "CON": 18, "CHA": 18"},
+        "stats": {"STR": 18, "INT": 18, "WIS": 18, "DEX": 18, "CON": 18, "CHA": 18},
         "level": 50,
         "known_spells": ["magic_missile"],
     }
