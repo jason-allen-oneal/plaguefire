@@ -24,7 +24,7 @@ def test_doors_placed_in_dungeons():
     print("Test: Doors placed in dungeons...")
     
     width, height = 80, 40
-    game_map = generate_room_corridor_dungeon(width, height, max_rooms=15)
+    game_map, rooms = generate_room_corridor_dungeon(width, height, max_rooms=15)
     
     # Count doors
     closed_doors = sum(row.count(DOOR_CLOSED) for row in game_map)
@@ -42,7 +42,7 @@ def test_secret_doors_still_placed():
     print("Test: Secret doors still placed...")
     
     width, height = 80, 40
-    game_map = generate_room_corridor_dungeon(width, height, max_rooms=15)
+    game_map, rooms = generate_room_corridor_dungeon(width, height, max_rooms=15)
     
     # Count secret doors
     secret_doors = sum(row.count(SECRET_DOOR) for row in game_map)
@@ -63,7 +63,7 @@ def test_door_states():
     
     for _ in range(5):
         width, height = 60, 30
-        game_map = generate_room_corridor_dungeon(width, height, max_rooms=10)
+        game_map, rooms = generate_room_corridor_dungeon(width, height, max_rooms=10)
         
         closed_doors = sum(row.count(DOOR_CLOSED) for row in game_map)
         open_doors = sum(row.count(DOOR_OPEN) for row in game_map)
@@ -101,7 +101,7 @@ def test_door_placement_not_excessive():
     print("Test: Door placement not excessive...")
     
     width, height = 60, 30
-    game_map = generate_room_corridor_dungeon(width, height, max_rooms=10)
+    game_map, rooms = generate_room_corridor_dungeon(width, height, max_rooms=10)
     
     closed_doors = sum(row.count(DOOR_CLOSED) for row in game_map)
     open_doors = sum(row.count(DOOR_OPEN) for row in game_map)

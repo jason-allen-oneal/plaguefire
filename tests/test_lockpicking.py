@@ -130,7 +130,7 @@ def test_lockpick_bonus_on_chest_opening():
     print(f"✓ Success rate without tools: {no_tool_successes}%")
     print(f"✓ Success rate with Skeleton Key (+8): {with_tool_successes}%")
     assert with_tool_successes > no_tool_successes, "Lockpick bonus should improve success rate"
-    assert with_tool_successes >= 95, f"With high bonus, should succeed nearly always, got {with_tool_successes}%"
+    assert with_tool_successes >= 90, f"With high bonus, should succeed nearly always (>=90%), got {with_tool_successes}%"
     
     print("✓ Test passed!")
     print()

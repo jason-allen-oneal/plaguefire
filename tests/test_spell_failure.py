@@ -89,7 +89,7 @@ def test_failure_decreases_with_stats():
     # Count failures for each
     low_int_failures = 0
     high_int_failures = 0
-    trials = 50
+    trials = 500  # Large sample to reduce statistical variance
     
     for _ in range(trials):
         low_int_mage.mana = low_int_mage.max_mana
@@ -108,8 +108,9 @@ def test_failure_decreases_with_stats():
     print(f"  Low INT (10): {low_int_failures}/{trials} failures ({low_int_rate:.1f}%)")
     print(f"  High INT (18): {high_int_failures}/{trials} failures ({high_int_rate:.1f}%)")
     
-    # High INT should have fewer failures
-    assert high_int_failures <= low_int_failures, "High INT should fail less often"
+    # High INT should have significantly fewer failures on average
+    # With 500 trials, we expect the difference to be clear
+    assert high_int_failures < low_int_failures, f"High INT should fail less often, got INT10={low_int_failures} vs INT18={high_int_failures}"
     
     print("✓ Higher stats reduce failure chance")
     print("✓ Test passed!\n")
@@ -145,7 +146,7 @@ def test_failure_decreases_with_level():
     # Count failures
     low_level_failures = 0
     high_level_failures = 0
-    trials = 50
+    trials = 500  # Large sample to reduce statistical variance
     
     for _ in range(trials):
         low_level_mage.mana = low_level_mage.max_mana
@@ -164,8 +165,9 @@ def test_failure_decreases_with_level():
     print(f"  Level 1: {low_level_failures}/{trials} failures ({low_level_rate:.1f}%)")
     print(f"  Level 10: {high_level_failures}/{trials} failures ({high_level_rate:.1f}%)")
     
-    # Higher level should have fewer failures
-    assert high_level_failures <= low_level_failures, "Higher level should fail less often"
+    # Higher level should have fewer failures on average
+    # With 500 trials, we expect the difference to be clear
+    assert high_level_failures < low_level_failures, f"Higher level should fail less often, got L1={low_level_failures} vs L10={high_level_failures}"
     
     print("✓ Higher level reduces failure chance")
     print("✓ Test passed!\n")
