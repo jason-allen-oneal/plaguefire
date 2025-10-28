@@ -1,4 +1,3 @@
-# app/screens/weapon.py
 
 from app.screens.shop import BaseShopScreen, ShopItem
 from typing import List
@@ -22,6 +21,5 @@ class WeaponShopScreen(BaseShopScreen):
             ShopItem(name="Short Sword", cost=75, description="A standard sidearm."),
             ShopItem(name="Mace", cost=100, description="Good against armor."),
             ShopItem(name="Short Bow", cost=150, description="For ranged attacks (needs arrows)."),
-            # ShopItem(name="Arrows (20)", cost=10, description="Ammunition for bows."),
         ]
         return inventory

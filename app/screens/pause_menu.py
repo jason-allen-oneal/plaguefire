@@ -1,4 +1,3 @@
-# app/screens/pause_menu.py
 
 from textual.containers import Vertical
 from textual.screen import Screen

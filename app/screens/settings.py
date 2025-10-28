@@ -19,7 +19,6 @@ def colored_text(content: str, color: str, align: str = "center", **styles) -> S
     widget = Static(Text.from_markup(f"[{color}]{content}[/{color}]"))
     widget.styles.text_align = align
 
-    # Apply any extra styles you pass as kwargs
     for key, value in styles.items():
         setattr(widget.styles, key, value)
 

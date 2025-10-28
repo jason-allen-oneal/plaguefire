@@ -135,13 +135,11 @@ class DroppedItem:
         """
         self.item_name = item_name
         self.symbol = GameData().get_item_symbol(item_name)
-        self.position = list(start_pos)  # Current position as floats
+        self.position = list(start_pos)
         self.final_position: Optional[Tuple[int, int]] = None
         
-        # Physics properties
         if velocity is None:
             import random
-            # Random velocity for rolling effect
             angle = random.uniform(0, 2 * 3.14159)
             speed = random.uniform(0.5, 2.0)
             self.velocity = [speed * __import__('math').cos(angle), 
@@ -149,10 +147,10 @@ class DroppedItem:
         else:
             self.velocity = list(velocity)
         
-        self.friction = 0.85  # Friction coefficient
+        self.friction = 0.85
         self.settled = False
         self.animation_steps = 0
-        self.max_steps = 20  # Maximum animation steps
+        self.max_steps = 20
     
     def update(self) -> bool:
         """
@@ -164,17 +162,14 @@ class DroppedItem:
         if self.settled:
             return False
         
-        # Update position
         self.position[0] += self.velocity[0]
         self.position[1] += self.velocity[1]
         
-        # Apply friction
         self.velocity[0] *= self.friction
         self.velocity[1] *= self.friction
         
         self.animation_steps += 1
         
-        # Check if settled (velocity very low or max steps reached)
         speed = (self.velocity[0]**2 + self.velocity[1]**2)**0.5
         if speed < 0.1 or self.animation_steps >= self.max_steps:
             self.settled = True

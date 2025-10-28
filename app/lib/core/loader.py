@@ -60,8 +60,8 @@ class GameData:
         self.spells: Dict[str, Dict] = {}
         self.config: Dict[str, Any] = {}
         self.unknown_names: Dict[str, List[str]] = {}
-        self.identified_types: Dict[str, bool] = {}  # Track globally identified item types
-        self.unknown_name_mapping: Dict[str, str] = {}  # Map item_id to unknown name
+        self.identified_types: Dict[str, bool] = {}
+        self.unknown_name_mapping: Dict[str, str] = {}
 
         self.load_all()
 
@@ -237,7 +237,6 @@ class GameData:
         if data:
             self.unknown_names = data
             debug(f"Loaded unknown names for {len(data)} item categories")
-            # Initialize the unknown name mapping
             self._assign_unknown_names()
         else:
             self.unknown_names = {}
@@ -251,7 +250,6 @@ class GameData:
         """
         import random
         
-        # Get lists of items by type
         identifiable_types = {
             "potion": "potions",
             "scroll": "scrolls", 
@@ -262,23 +260,19 @@ class GameData:
         }
         
         for item_type, unknown_category in identifiable_types.items():
-            # Get all items of this type
             items_of_type = [
                 item_id for item_id, item_data in self.items.items()
                 if item_data.get("type") == item_type
             ]
             
-            # Get unknown names for this category
             unknown_list = self.unknown_names.get(unknown_category, [])
             if not unknown_list or not items_of_type:
                 continue
             
-            # Shuffle and assign
             shuffled_names = unknown_list.copy()
             random.shuffle(shuffled_names)
             
             for i, item_id in enumerate(items_of_type):
-                # Use modulo to handle more items than names
                 unknown_name = shuffled_names[i % len(shuffled_names)]
                 self.unknown_name_mapping[item_id] = unknown_name
 
@@ -396,7 +390,6 @@ class GameData:
         if not item:
             item = self.get_item_by_name(identifier)
         if not item:
-            # Allow gold strings like "$50" to short-circuit
             if isinstance(identifier, str) and identifier.startswith("$"):
                 return "$"
             return "~"
@@ -424,7 +417,6 @@ class GameData:
         slot = (item.get("slot") or "").lower()
         category = (item.get("category") or "").upper()
         
-        # Direct mappings based on known item types
         match item_type:
             case "potion":
                 return "!"
@@ -449,7 +441,6 @@ class GameData:
             case "missile":
                 return "{"
         
-        # Armor handling
         if item_type == "armor":
             if slot == "shield":
                 return ")"
@@ -467,37 +458,28 @@ class GameData:
                     return "["
                 if any(word in name for word in soft_keywords):
                     return "("
-                # Default to hard armor glyph when uncertain
                 return "["
             
-            # Misc armor pieces (boots, helms, gloves)
             return "]"
         
-        # Weapons and related gear
         if item_type == "weapon":
-            # Launchers
             if any(word in name for word in ("bow", "sling", "crossbow", "launcher")):
                 return "}"
             
-            # Pole-arms
             if any(word in name for word in ("halberd", "pike", "glaive", "trident", "spear", "lance", "pole")):
                 return "/"
             
-            # Hafted weapons
             if any(word in name for word in ("mace", "hammer", "club", "flail", "maul", "morningstar", "pick")):
                 return "\\"
             
-            # Swords and daggers default
             if any(word in name for word in ("sword", "dagger", "knife", "rapier", "sabre", "saber", "katana", "blade", "scimitar")):
                 return "|"
             
-            # Fallback to sword/dagger glyph
             return "|"
         
         if item_type == "tool":
             return "~"
         
-        # Category-based fallbacks
         if category == "GEMS":
             return "*"
         if category == "MISC":
@@ -507,7 +489,6 @@ class GameData:
         if category == "FOOD":
             return ","
         
-        # Default unknown symbol
         return "~"
     
     def get_item_id_by_name(self, name: str) -> Optional[str]:

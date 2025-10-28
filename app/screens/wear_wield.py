@@ -1,4 +1,3 @@
-# app/screens/wear_wield.py
 
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical
@@ -26,7 +25,6 @@ class WearWieldScreen(Screen):
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
         self.data_loader = GameData()
-        # --- Map letters to item indices that can be equipped ---
         self.equip_options: Dict[str, int] = {}
         self._setup_options()
 
@@ -40,12 +38,10 @@ class WearWieldScreen(Screen):
         if not inventory:
             return
 
-        # Generate letter-to-item mapping for equippable items only
         letter_idx = 0
         for i, item in enumerate(inventory):
             item_data = self.data_loader.get_item_by_name(item)
             if item_data and item_data.get("slot"):
-                # This item has an equipment slot, so it can be equipped
                 if letter_idx < len(letters):
                     letter = letters[letter_idx]
                     self.equip_options[letter] = i
@@ -71,11 +67,9 @@ class WearWieldScreen(Screen):
                 item_name = self.player.inventory[item_idx]
                 inscribed_name = self.player.get_inscribed_item_name(item_name)
                 
-                # Get item slot info
                 item_data = self.data_loader.get_item_by_name(item_name)
                 slot = item_data.get("slot", "unknown") if item_data else "unknown"
                 
-                # Check if something is already equipped in that slot
                 current_in_slot = self.player.equipment.get(slot)
                 status = ""
                 if current_in_slot:
@@ -96,11 +90,9 @@ class WearWieldScreen(Screen):
             item_name = self.player.inventory[item_idx]
             debug(f"Player selected item to equip: {item_name}")
             
-            # Equip the item
             if self.player.equip(item_name):
                 self.notify(f"You equip {item_name}.")
                 
-                # Get the game screen and refresh UI
                 game_screen = None
                 for screen in self.app.screen_stack:
                     if screen.__class__.__name__ == "GameScreen":
@@ -112,7 +104,6 @@ class WearWieldScreen(Screen):
                 
                 self.app.pop_screen()
             else:
-                # Check if it's because of a cursed item
                 item_data = self.data_loader.get_item_by_name(item_name)
                 slot = item_data.get("slot") if item_data else None
                 if slot and self.player.equipment.get(slot):

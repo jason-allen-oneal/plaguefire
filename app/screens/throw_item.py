@@ -1,4 +1,3 @@
-# app/screens/throw_item.py
 
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical
@@ -24,7 +23,6 @@ class ThrowItemScreen(Screen):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
-        # --- Map letters to throwable item indices ---
         self.item_options: Dict[str, int] = {}
         self._setup_options()
 
@@ -38,14 +36,11 @@ class ThrowItemScreen(Screen):
         if not inventory:
             return
 
-        # Throwable items include weapons, daggers, darts, potions, etc.
         throwable_keywords = ["Dagger", "Dart", "Spear", "Javelin", "Throwing", "Potion", "Flask"]
         
         letter_idx = 0
         for i, item in enumerate(inventory):
-            # Check if item is throwable
             is_throwable = any(keyword in item for keyword in throwable_keywords)
-            # Weapons can generally be thrown too
             is_weapon = any(keyword in item for keyword in ["Sword", "Axe", "Mace", "Hammer"])
             
             if is_throwable or is_weapon:
@@ -89,7 +84,6 @@ class ThrowItemScreen(Screen):
             item_idx = self.item_options[key]
             debug(f"Player selected item to throw at index {item_idx}")
             
-            # Get the game screen and its engine
             game_screen = None
             for screen in self.app.screen_stack:
                 if screen.__class__.__name__ == "GameScreen":
@@ -97,16 +91,12 @@ class ThrowItemScreen(Screen):
                     break
             
             if game_screen and hasattr(game_screen, 'engine'):
-                # For now, pop this screen and let player select direction
-                # In the future, we could open a direction selector or targeting screen
                 self.app.pop_screen()
                 
-                # Store the selected item for throwing
                 if hasattr(game_screen, '_pending_throw_item'):
                     game_screen._pending_throw_item = item_idx
                     game_screen.notify("Select a direction to throw (use arrow keys or hjkl)", severity="info")
                 else:
-                    # Fallback: throw immediately in a default direction
                     engine = game_screen.engine
                     if engine.handle_throw_item(item_idx):
                         if hasattr(game_screen, '_refresh_ui'):

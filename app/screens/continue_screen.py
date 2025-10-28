@@ -1,4 +1,3 @@
-# app/screens/continue_screen.py
 
 from textual.screen import Screen
 from textual.widgets import Static
@@ -24,9 +23,9 @@ class ContinueScreen(Screen):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.save_files = []      # List of full paths to save files
-        self.character_names = [] # List of character names from save files
-        self.selected_index = 0   # Index of the currently highlighted save file
+        self.save_files = []
+        self.character_names = []
+        self.selected_index = 0
 
     def on_mount(self):
         """Called when the screen is mounted."""
@@ -37,10 +36,9 @@ class ContinueScreen(Screen):
     def compose(self):
         """Create child widgets for the screen."""
         yield Static(Text.from_markup("[chartreuse1]=== LOAD CHARACTER ===[/chartreuse1]"), id="continue_title")
-        yield Static(Text.from_markup("[yellow1]Loading saves...[/yellow1]"), id="save_list") # Placeholder
+        yield Static(Text.from_markup("[yellow1]Loading saves...[/yellow1]"), id="save_list")
         yield Static(Text.from_markup("\n[↑/↓] Select  [Enter] Load  [Esc] Back"))
 
-    # --- Helper Methods ---
 
     def _load_save_files(self):
         """Finds save files and extracts character names."""
@@ -55,15 +53,12 @@ class ContinueScreen(Screen):
             try:
                 with open(filepath, "r") as f:
                     data = json.load(f)
-                    # Use filename if name is missing in json
                     name = data.get("name", os.path.basename(filepath).replace('.json', ''))
                     self.character_names.append(name)
             except (json.JSONDecodeError, IOError) as e:
                 debug(f"Error reading save file {filepath}: {e}")
-                # Add placeholder for corrupted/unreadable files
                 self.character_names.append(f"[Error: {os.path.basename(filepath)}]")
         
-        # Clamp selected index just in case files were deleted
         self.selected_index = max(0, min(self.selected_index, len(self.save_files) - 1))
         debug(f"Found saves: {self.character_names}")
 
@@ -76,7 +71,7 @@ class ContinueScreen(Screen):
         lines = []
         for index, name in enumerate(self.character_names):
             if index == self.selected_index:
-                lines.append(f"[chartreuse1]>[/chartreuse1] [bright_white]{name}[/bright_white] [chartreuse1]<[/chartreuse1]") # Highlight selected
+                lines.append(f"[chartreuse1]>[/chartreuse1] [bright_white]{name}[/bright_white] [chartreuse1]<[/chartreuse1]")
             else:
                 lines.append(f"  [gray42]{name}[/gray42]")
         return "\n" + "\n".join(lines) + "\n"
@@ -85,7 +80,6 @@ class ContinueScreen(Screen):
         """Refreshes the displayed list of saves."""
         self.query_one("#save_list").update(Text.from_markup(self._render_save_list()))
 
-    # --- Actions ---
 
     def action_select_prev(self):
         """Select the previous save file."""
@@ -109,23 +103,20 @@ class ContinueScreen(Screen):
             with open(load_path, "r") as f:
                 player_data_dict = json.load(f)
 
-            # --- Basic validation ---
             if "name" not in player_data_dict or "stats" not in player_data_dict:
                  raise ValueError("Save missing essential data.")
 
-            # --- Create Player object and assign to app ---
             self.app.player = Player(player_data_dict)
 
             self.notify(f"Loaded: {self.app.player.name}")
-            debug(f"Successfully loaded player object: {self.app.player.to_dict()}") # Log loaded data
-            # Clear level cache when loading a game
+            debug(f"Successfully loaded player object: {self.app.player.to_dict()}")
             self.app.dungeon_levels = {}
             self.app.push_screen("dungeon")
 
-        except (json.JSONDecodeError, ValueError, IOError, TypeError) as e: # Catch TypeError too
+        except (json.JSONDecodeError, ValueError, IOError, TypeError) as e:
             self.notify(f"Error loading '{os.path.basename(load_path)}': {e}", severity="error")
             debug(f"Error loading file {load_path}: {e}")
-            self._load_save_files(); self._update_list_display() # Refresh list
+            self._load_save_files(); self._update_list_display()
         except Exception as e:
             self.notify(f"Unexpected error: {e}", severity="error")
             debug(f"Unexpected error loading file {load_path}: {e}")

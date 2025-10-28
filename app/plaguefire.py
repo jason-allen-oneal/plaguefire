@@ -1,25 +1,21 @@
-# app/rogue.py
 
 import os
 import json
-from typing import Dict, List, Any, Optional, Tuple  # Add Optional
+from typing import Dict, List, Any, Optional, Tuple
 from textual import log
 
-# --- UPDATED: Import Player class ---
 from app.lib.player import Player
 from app.lib.entity import Entity
 from app.lib.core.loader import GameData
 from app.lib.core.sound import SoundManager
 
 
-# Import shop screens
 from app.screens.shops.armor import ArmorShopScreen
 from app.screens.shops.magic import MagicShopScreen
 from app.screens.shops.tavern import TavernScreen
 from app.screens.shops.temple import TempleScreen
 from app.screens.shops.weapon import WeaponShopScreen
 from app.screens.shops.general_store import GeneralStoreScreen
-# Import core screens
 from textual.app import App
 from app.screens.title import TitleScreen
 from app.screens.game import GameScreen
@@ -35,7 +31,6 @@ from debugtools import debug, log_exception
 from textual.drivers.linux_driver import LinuxDriver
 
 
-# Type alias for map grid (used by cache)
 MapData = List[List[str]]
 
 class TruecolorLinuxDriver(LinuxDriver):
@@ -46,7 +41,7 @@ class TruecolorLinuxDriver(LinuxDriver):
         self.console.force_terminal = True
         
 
-class RogueApp(App[None]): # Specify return type for run()
+class RogueApp(App[None]):
     DRIVER_CLASS = TruecolorLinuxDriver
     CSS = CSS
     color_system = "truecolor"
@@ -57,12 +52,11 @@ class RogueApp(App[None]): # Specify return type for run()
         "continue": ContinueScreen,
         "settings": SettingsScreen,
         "character_creation": CharacterCreationScreen,
-        "dungeon": GameScreen, # Use GameScreen here
+        "dungeon": GameScreen,
         "inventory": InventoryScreen,
         "learn_spell": SpellLearningScreen,
         "cast_spell": CastSpellScreen,
         "pause_menu": PauseMenuScreen,
-        # Shops
         "armory": ArmorShopScreen,
         "general_store": GeneralStoreScreen,
         "magic_shop": MagicShopScreen,
@@ -71,17 +65,11 @@ class RogueApp(App[None]): # Specify return type for run()
         "weapon_smith": WeaponShopScreen,
     }
 
-    # Cache for dungeon levels {depth: map_data}
     dungeon_levels: Dict[int, MapData] = {}
-    # Cache for entities per level {depth: [entities]}
     dungeon_entities: Dict[int, List[Entity]] = {}
-    # Cache for room definitions per level {depth: [Rect]}
     dungeon_rooms: Dict[int, List] = {}
-    # Cache for ground items per level {depth: {(x, y): [items]}}
     dungeon_ground_items: Dict[int, Dict[Tuple[int, int], List[str]]] = {}
-    # Cache for death drop logs per level {depth: [records]}
     dungeon_death_drops: Dict[int, List[Dict[str, Any]]] = {}
-    # --- Store the Player object instance ---
     player: Optional[Player] = None
 
     def __init__(self, **kwargs):
@@ -97,7 +85,6 @@ class RogueApp(App[None]): # Specify return type for run()
         self.sound.set_music_enabled(self._music_enabled)
         self.sound.set_sfx_enabled(self._sfx_enabled)
 
-        # Preload a few example SFX
         self.sound.load_sfx("title", "title.wav")
         self.sound.load_sfx("whoosh", "whoosh.mp3")
     
@@ -149,15 +136,13 @@ class RogueApp(App[None]): # Specify return type for run()
         self.data.config["difficulty"] = self._difficulty
         self.data.save_config()
     
-    # --- UPDATED: Save method uses Player object ---
     def save_character(self):
         """Saves the current app.player object state to a JSON file."""
         if not self.player:
              debug("Save called but no player object exists.")
-             # self.notify("Failed to save: No player data.", severity="error")
              return
 
-        player_data = self.player.to_dict() # Convert player object to dict
+        player_data = self.player.to_dict()
 
         os.makedirs(self.SAVE_DIR, exist_ok=True)
         char_name = player_data.get("name", "hero")
@@ -167,11 +152,8 @@ class RogueApp(App[None]): # Specify return type for run()
 
         try:
             with open(save_path, "w") as f:
-                # No need to manually add pos/time/depth here,
-                # as the Player object should be kept up-to-date by the Engine/GameScreen
                 json.dump(player_data, f, indent=4)
                 debug(f"Character saved: {save_path}")
-                # self.notify(f"Game saved: {filename}") # Optional feedback
         except Exception as e:
             log_exception(e)
             self.notify(f"Error saving character: {e}", severity="error", timeout=10)

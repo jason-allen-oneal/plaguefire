@@ -5,7 +5,6 @@ from textual.containers import VerticalScroll
 from textual.screen import Screen
 from textual.widgets import Static
 
-# Command reference data per control scheme
 COMMAND_REFERENCE: Dict[str, List[Tuple[str, str]]] = {
     "original": [
         ("1-9", "Move (numpad); 5 waits in place"),

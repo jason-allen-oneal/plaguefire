@@ -1,4 +1,3 @@
-# app/screens/drop_item.py
 
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical
@@ -24,7 +23,6 @@ class DropItemScreen(Screen):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
-        # --- Map letters to item indices ---
         self.item_options: Dict[str, int] = {}
         self._setup_options()
 
@@ -38,7 +36,6 @@ class DropItemScreen(Screen):
         if not inventory:
             return
 
-        # Generate letter-to-item mapping for all items
         for i, item in enumerate(inventory):
             if i < len(letters):
                 letter = letters[i]
@@ -64,7 +61,6 @@ class DropItemScreen(Screen):
                 item_name = self.player.inventory[item_idx]
                 inscribed_name = self.player.get_inscribed_item_name(item_name)
                 
-                # Check if item is equipped
                 equipped_marker = ""
                 if hasattr(self.player, 'equipment'):
                     for slot, equipped_item in self.player.equipment.items():
@@ -87,7 +83,6 @@ class DropItemScreen(Screen):
             item_idx = self.item_options[key]
             debug(f"Player selected item to drop at index {item_idx}")
             
-            # Get the game screen and its engine
             game_screen = None
             for screen in self.app.screen_stack:
                 if screen.__class__.__name__ == "GameScreen":
@@ -97,14 +92,11 @@ class DropItemScreen(Screen):
             if game_screen and hasattr(game_screen, 'engine'):
                 engine = game_screen.engine
                 
-                # Drop the item
                 if engine.handle_drop_item(item_idx):
-                    # Refresh UI on game screen
                     if hasattr(game_screen, '_refresh_ui'):
                         game_screen._refresh_ui()
                     self.app.pop_screen()
                 else:
-                    # Item couldn't be dropped (cursed equipment)
                     pass
             else:
                 self.notify("Error: Game engine not found.", severity="error")

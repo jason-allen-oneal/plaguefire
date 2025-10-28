@@ -1,4 +1,3 @@
-# app/screens/read_scroll.py
 
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical
@@ -24,7 +23,6 @@ class ReadScrollScreen(Screen):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
-        # --- Map letters to scroll indices ---
         self.scroll_options: Dict[str, int] = {}
         self._setup_options()
 
@@ -38,7 +36,6 @@ class ReadScrollScreen(Screen):
         if not inventory:
             return
 
-        # Generate letter-to-scroll mapping for scrolls only
         letter_idx = 0
         for i, item in enumerate(inventory):
             if "Scroll" in item:
@@ -81,7 +78,6 @@ class ReadScrollScreen(Screen):
             item_idx = self.scroll_options[key]
             debug(f"Player selected scroll at index {item_idx}")
             
-            # Get the game screen and its engine
             game_screen = None
             for screen in self.app.screen_stack:
                 if screen.__class__.__name__ == "GameScreen":
@@ -90,9 +86,7 @@ class ReadScrollScreen(Screen):
             
             if game_screen and hasattr(game_screen, 'engine'):
                 engine = game_screen.engine
-                # Use the engine's handle_use_item method
                 if engine.handle_use_item(item_idx):
-                    # Refresh UI on game screen
                     if hasattr(game_screen, '_refresh_ui'):
                         game_screen._refresh_ui()
                     self.app.pop_screen()

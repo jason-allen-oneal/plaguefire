@@ -63,13 +63,12 @@ class Entity:
         self.detection_range: int = template.get("detection_range", 5)
         self.target_pos: Optional[List[int]] = None
         self.provoked: bool = False
-        self.flee_chance: int = template.get("flee_chance", 50)  # Percentage chance to flee when HP < 25% (0-100)
+        self.flee_chance: int = template.get("flee_chance", 50)
 
         self.drop_table: Dict[str, int] = template.get("drops", {})
         self.gold_min_mult: int = template.get("gold_min_mult", 0)
         self.gold_max_mult: int = template.get("gold_max_mult", 0)
 
-        # Ranged attack capabilities
         ranged_attack_data = template.get("ranged_attack")
         if isinstance(ranged_attack_data, str):
             ranged_attack_data = {
@@ -83,16 +82,13 @@ class Entity:
         self.ranged_attack: Optional[Dict] = ranged_attack_data
         self.ranged_range: int = template.get("ranged_range", 0) if self.ranged_attack else 0
         
-        # Group/pack behavior
         self.pack_id: Optional[str] = template.get("pack_id", None)
         self.pack_coordination: bool = template.get("pack_coordination", False)
         
-        # Spell casting
         self.spell_list: List[str] = template.get("spells", [])
         self.mana: int = template.get("mana", 0)
         self.max_mana: int = self.mana
 
-        # Self-cloning behaviour (breeders) configured per template ID.
         clone_rate = template.get("clone_rate")
         self.clone_rate: float = float(clone_rate) if clone_rate is not None else 0.0
         clone_cap_value = template.get("clone_max_population")
@@ -104,9 +100,8 @@ class Entity:
 
         self.move_counter: int = random.randint(0, 1)
         self.status_manager = StatusEffectManager()
-        self.aware_of_player: bool = False  # Track if entity has detected the player
+        self.aware_of_player: bool = False
         
-        # Sleeping behavior
         self.sleeps_during_day: bool = template.get("sleeps_during_day", False)
         self.sleeps_during_night: bool = template.get("sleeps_during_night", False)
         self.is_sleeping: bool = False

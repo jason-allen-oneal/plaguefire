@@ -1,4 +1,3 @@
-# app/screens/temple.py
 
 from app.screens.shop import BaseShopScreen, ShopItem
 from typing import List
@@ -22,7 +21,6 @@ class TempleScreen(BaseShopScreen):
             owner_name="Sister Elara",
             catchphrases=["May the light guide you.", "Need healing, traveler?", "Blessings upon you."],
             items_for_sale=self._generate_temple_inventory(),
-            # Temple offers healing service in addition to buying
             allowed_actions=['buy', 'heal', 'leave'],
             **kwargs
         )
@@ -33,17 +31,16 @@ class TempleScreen(BaseShopScreen):
             ShopItem(name="Blessing", cost=25, description="A prayer for your safety."),
             ShopItem(name="Cure Light Wounds (Service)", cost=30, description="Heals minor injuries."),
             ShopItem(name="Remove Curse (Service)", cost=100, description="Lifts malevolent effects."),
-            ShopItem(name="Potion of Healing", cost=50, description="Restores health."), # Can still sell potions
+            ShopItem(name="Potion of Healing", cost=50, description="Restores health."),
         ]
         return inventory
 
-    # --- Temple-specific actions ---
     def action_heal_action(self):
         """Handle the 'E' key to heal the player."""
         if 'heal' not in self.allowed_actions or not self.app.player:
             return
         
-        heal_cost = 30  # Cost for healing service
+        heal_cost = 30
         
         if self.app.player.hp >= self.app.player.max_hp:
             self.notify("You are already at full health.", severity="warning")
@@ -53,7 +50,6 @@ class TempleScreen(BaseShopScreen):
             self.notify(f"Not enough gold. Healing costs {heal_cost} gold.", severity="error")
             return
         
-        # Calculate healing amount (full heal for temple service)
         heal_amount = self.app.player.max_hp - self.app.player.hp
         self.app.player.gold -= heal_cost
         self.player_gold = self.app.player.gold

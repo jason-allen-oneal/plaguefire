@@ -15,12 +15,11 @@ class MonsterPitTheme:
     def __init__(self, theme_id: str, name: str, monster_types: List[str], min_depth: int = 1, max_depth: int = 99):
         self.theme_id = theme_id
         self.name = name
-        self.monster_types = monster_types  # List of monster IDs
+        self.monster_types = monster_types
         self.min_depth = min_depth
         self.max_depth = max_depth
 
 
-# Define monster pit themes
 PIT_THEMES = {
     'orc': MonsterPitTheme(
         'orc', 'Orc Pit',
@@ -109,7 +108,6 @@ class MonsterPit:
         Returns:
             List of monster IDs
         """
-        # Randomly select from theme's monster types
         monsters = []
         for _ in range(num_monsters):
             monster_id = random.choice(self.theme.monster_types)
@@ -159,7 +157,6 @@ class MonsterPitManager:
             num_pits: Number of pits to generate (None = auto-calculate)
         """
         if num_pits is None:
-            # Chance of pit increases with depth
             if depth < 5:
                 num_pits = 0
             elif depth < 15:
@@ -169,7 +166,6 @@ class MonsterPitManager:
             else:
                 num_pits = random.randint(1, 3)
         
-        # Get available themes for this depth
         available_themes = [
             theme for theme in PIT_THEMES.values()
             if theme.min_depth <= depth <= theme.max_depth
@@ -178,20 +174,16 @@ class MonsterPitManager:
         if not available_themes:
             return
         
-        # Find potential pit centers (preferably in rooms)
         potential_centers = self._find_pit_centers(dungeon_map)
         
-        # Generate pits
         for _ in range(num_pits):
             if not potential_centers:
                 break
             
-            # Pick random theme and center
             theme = random.choice(available_themes)
             center = random.choice(potential_centers)
             potential_centers.remove(center)
             
-            # Create pit
             pit_size = random.randint(2, 4)
             pit = MonsterPit(theme, center, pit_size)
             self.pits.append(pit)
@@ -207,14 +199,12 @@ class MonsterPitManager:
         for y in range(2, len(dungeon_map) - 2):
             for x in range(2, len(dungeon_map[0]) - 2):
                 if dungeon_map[y][x] == '.':
-                    # Check if there's enough space around this position
                     open_count = 0
                     for dy in [-1, 0, 1]:
                         for dx in [-1, 0, 1]:
                             if dungeon_map[y + dy][x + dx] == '.':
                                 open_count += 1
                     
-                    # If at least 5 tiles around are floor, it's a good center
                     if open_count >= 5:
                         centers.append((x, y))
         

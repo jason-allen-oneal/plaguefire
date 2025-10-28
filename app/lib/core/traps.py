@@ -19,7 +19,6 @@ class TrapType:
         self.max_depth = max_depth
 
 
-# Define standard trap types
 TRAP_TYPES = {
     'dart': TrapType('dart', 'dart trap', 5, min_depth=1, max_depth=20),
     'poison_needle': TrapType('poison_needle', 'poison needle trap', 8, min_depth=3, max_depth=30),
@@ -52,10 +51,8 @@ class TrapManager:
             num_traps: Number of traps to generate (None = auto-calculate based on depth)
         """
         if num_traps is None:
-            # More traps at deeper levels
             num_traps = min(3 + depth // 5, 15)
         
-        # Get available trap types for this depth
         available_traps = [
             trap for trap in TRAP_TYPES.values()
             if trap.min_depth <= depth <= trap.max_depth
@@ -64,26 +61,21 @@ class TrapManager:
         if not available_traps:
             return
         
-        # Find valid floor positions
         valid_positions = []
         for y in range(len(dungeon_map)):
             for x in range(len(dungeon_map[y])):
-                if dungeon_map[y][x] == '.':  # Floor tile
+                if dungeon_map[y][x] == '.':
                     valid_positions.append((x, y))
         
-        # Place traps
         for _ in range(num_traps):
             if not valid_positions:
                 break
             
-            # Pick random position
             pos = random.choice(valid_positions)
             valid_positions.remove(pos)
             
-            # Pick random trap type (weighted by difficulty)
             trap_type = random.choice(available_traps)
             
-            # Create trap
             self.traps[pos] = {
                 'type': trap_type.trap_id,
                 'name': trap_type.name,
@@ -106,7 +98,6 @@ class TrapManager:
         px, py = player_pos
         
         for (tx, ty), trap_data in self.traps.items():
-            # Calculate distance
             distance = abs(tx - px) + abs(ty - py)
             
             if distance <= detection_range and not trap_data.get('visible', False):
@@ -176,12 +167,10 @@ class TrapManager:
         """Deserialize traps from dictionary."""
         manager = cls()
         
-        # Load traps
         for pos_str, trap_data in data.get('traps', {}).items():
             x, y = map(int, pos_str.split(','))
             manager.traps[(x, y)] = trap_data
         
-        # Load detected traps
         for pos_str in data.get('detected', []):
             x, y = map(int, pos_str.split(','))
             manager.detected_traps.add((x, y))

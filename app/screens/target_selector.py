@@ -1,4 +1,3 @@
-# app/screens/target_selector.py
 
 from textual.app import ComposeResult
 from textual.containers import Container
@@ -43,7 +42,6 @@ class TargetSelectorScreen(Screen):
         if not self.targets:
             return
 
-        # Generate letter-to-target mapping
         for i, target in enumerate(self.targets):
             if i < len(letters):
                 letter = letters[i]
@@ -66,13 +64,11 @@ class TargetSelectorScreen(Screen):
             lines.append("[yellow2]No valid targets in sight.[/yellow2]")
         else:
             for letter, target in self.target_map.items():
-                # Calculate distance from player
                 player = self.app.player
                 tx, ty = target.position
                 px, py = player.position
                 distance = abs(tx - px) + abs(ty - py)
                 
-                # Rich Text formatting with colors
                 hp_status = "LOW" if target.hp < target.max_hp // 2 else "OK"
                 hp_color = "red" if hp_status == "LOW" else "green"
                 
@@ -87,23 +83,19 @@ class TargetSelectorScreen(Screen):
         """Handle key presses for target selection."""
         key = event.key.lower()
         
-        # Always stop the event from propagating to underlying screens
         event.stop()
         
         if key == "escape":
             self.action_cancel()
             return
         
-        # Check if the key corresponds to a target
         if key in self.target_map:
             target = self.target_map[key]
             debug(f"Player pressed '{key}' to select target: {target.name}")
             self.action_select_target(key)
         else:
-            # Invalid key
             debug(f"Invalid target selection key: {key}")
         
-        # Don't call refresh_display() here as action methods handle screen changes
 
     def action_select_target(self, letter: str) -> None:
         """Handle target selection via letter key."""

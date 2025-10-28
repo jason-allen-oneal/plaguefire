@@ -1,4 +1,3 @@
-# app/screens/armor.py
 
 from app.screens.shop import BaseShopScreen, ShopItem
 from typing import List

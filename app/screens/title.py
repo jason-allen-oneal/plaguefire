@@ -1,4 +1,3 @@
-# app/screens/title.py
 
 from textual.screen import Screen
 from textual.widgets import Static
@@ -21,7 +20,6 @@ class TitleScreen(Screen):
 
 
     def compose(self):
-        # --- Green flame gradient banner ---
         banner = (
             "[lime]"
             "             ███████████  ████                                         ███████████  ███                    \n"
@@ -53,16 +51,14 @@ class TitleScreen(Screen):
         menu = Static(menu_text, markup=False, id="title_menu")
         copyright_line = Static(copyright_text, markup=False, id="copyright")
 
-        # --- Center all text ---
         menu.styles.text_align = "center"
         copyright_line.styles.text_align = "center"
 
         layout = Vertical(title_banner, menu, copyright_line, id="title_layout")
 
-        # --- Alignment & styling ---
         layout.styles.align_horizontal = "center"
         layout.styles.align_vertical = "middle"
-        layout.styles.content_align = ("center", "middle")  # tuple instead of string
+        layout.styles.content_align = ("center", "middle")
 
         copyright_line.styles.color = "gray"
         copyright_line.styles.margin_top = 1
