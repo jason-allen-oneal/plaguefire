@@ -1,4 +1,3 @@
-# app/screens/browse_book.py
 
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical, VerticalScroll
@@ -23,10 +22,10 @@ class BrowseBookScreen(Screen):
     ]
 
     def __init__(self, **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
         self.data_loader = GameData()
-        # --- Map letters to book indices ---
         self.book_options: Dict[str, int] = {}
         self.selected_book_idx: Optional[int] = None
         self._setup_options()
@@ -41,7 +40,6 @@ class BrowseBookScreen(Screen):
         if not inventory:
             return
 
-        # Generate letter-to-book mapping for books only
         letter_idx = 0
         for i, item in enumerate(inventory):
             if ("Handbook" in item or "Magik" in item or "Chants" in item or 
@@ -54,11 +52,10 @@ class BrowseBookScreen(Screen):
                     break
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         if self.selected_book_idx is None:
-            # Show book selection
             yield Static(Text.from_markup(self._render_book_list()), id="book-list")
         else:
-            # Show book contents
             with VerticalScroll(id="book-scroll"):
                 yield Static(Text.from_markup(self._render_book_contents()), id="book-contents")
 
@@ -90,7 +87,6 @@ class BrowseBookScreen(Screen):
         
         book_name = self.player.inventory[self.selected_book_idx]
         
-        # Map book names to spell lists (same as in player.py)
         book_spells_map = {
             "Beginners Handbook": ["detect_evil", "cure_light_wounds"],
             "Beginners-Magik": ["magic_missile", "detect_monsters"],
@@ -118,11 +114,9 @@ class BrowseBookScreen(Screen):
                     mana_cost = class_info.get("mana", "?")
                     min_level = class_info.get("min_level", "?")
                     
-                    # Check if player knows this spell
                     known = spell_id in self.player.known_spells
                     status = "[green]Known[/green]" if known else "[yellow]Unknown[/yellow]"
                     
-                    # Check if player can learn it
                     can_learn = self.player.level >= min_level
                     level_text = f"[green]Level {min_level}[/green]" if can_learn else f"[red]Level {min_level}[/red]"
                     
@@ -143,11 +137,8 @@ class BrowseBookScreen(Screen):
         key = event.key
         
         if self.selected_book_idx is None:
-            # In book selection mode
             if key in self.book_options:
                 self.selected_book_idx = self.book_options[key]
                 debug(f"Player selected book at index {self.selected_book_idx}")
-                # Refresh to show book contents
                 self.refresh()
                 await self.recompose()
-        # If viewing book contents, escape will close (handled by binding)

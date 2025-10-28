@@ -32,7 +32,7 @@
 - **Mining System**: Dig through veins to find gems and treasure
 - **Locked Chests**: Pick locks, disarm traps, or force them open
 - **Town Hub**: Visit shops, rest at the tavern, receive blessings at the temple
-- **Dual Command Schemes**: Classic Moria/Angband style or Rogue/NetHack style
+- **Dual Command Schemes**: Classic numeric keypad style or traditional vi-keys style
 - **Dynamic Lighting**: Field of view system with light sources
 - **Save/Load System**: Continue your adventure across sessions
 
@@ -265,7 +265,7 @@ Plaguefire supports two command schemes that you can toggle in the settings menu
 ### Command Modes
 
 Press `=` during gameplay to access settings and switch between:
-- **Original Mode**: Classic Moria/Angband numeric keypad commands
+- **Original Mode**: Classic numeric keypad commands
 - **Roguelike Mode**: Traditional vi-keys (hjkl) controls
 
 You can also press `K` to toggle between modes quickly.

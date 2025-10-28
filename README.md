@@ -39,11 +39,10 @@ Plaguefire is a traditional roguelike game where players explore procedurally ge
 - pip package manager
 
 ### Setup
-
 1. Clone the repository:
 ```bash
-git clone https://github.com/jason-allen-oneal/rogue.git
-cd rogue
+git clone https://github.com/jason-allen-oneal/plaguefire.git
+cd plaguefire
 ```
 
 2. Install dependencies:
@@ -59,59 +58,79 @@ python main.py
 ## Project Structure
 
 ```
-rogue/
+plaguefire/
 ├── app/                          # Main application code
 │   ├── lib/                      # Core library modules
 │   │   ├── core/                 # Core game systems
-│   │   │   ├── data_loader.py   # JSON data loading
-│   │   │   ├── engine.py        # Main game engine
-│   │   │   ├── sound_manager.py # Audio management
-│   │   │   └── utils.py         # Utility functions
-│   │   └── generation/          # Procedural generation systems
-│   │       ├── core/            # Generation core systems
-│   │       │   ├── spawning.py  # Entity spawning logic
-│   │       │   └── status_effects.py # Status effect management
-│   │       ├── entities/        # Entity generation
-│   │       │   ├── entity.py    # NPC/Monster entities
-│   │       │   └── player.py    # Player character
-│   │       ├── items/           # Item generation
-│   │       │   └── item_generation.py
-│   │       └── maps/            # Map generation
-│   │           ├── fov.py       # Field of view calculations
-│   │           ├── generate.py  # Dungeon generation
-│   │           ├── town.py      # Town layout
-│   │           └── utils.py     # Map utilities
-│   ├── screens/                 # UI screen definitions
-│   │   ├── cast_spell.py        # Spell casting interface
-│   │   ├── continue_screen.py   # Continue/load game
-│   │   ├── creation.py          # Character creation
-│   │   ├── game.py              # Main game screen
-│   │   ├── inventory.py         # Inventory management
-│   │   ├── learn_spell.py       # Spell learning interface
-│   │   ├── settings.py          # Game settings
-│   │   ├── shop.py              # Shop base screen
-│   │   ├── shops/               # Individual shop screens
-│   │   ├── target_selector.py   # Targeting system
-│   │   └── title.py             # Title screen
-│   ├── ui/                      # UI components
-│   │   ├── dungeon_view.py      # Dungeon rendering
-│   │   └── hud_view.py          # HUD display
-│   ├── rogue.py                 # Main application class
-│   └── themes.py                # UI themes
-├── data/                        # Game data files
-│   ├── config.json             # Game configuration
-│   ├── entities.json           # Monster/NPC definitions
-│   ├── items.json              # Item definitions
-│   └── spells.json             # Spell definitions
-├── tests/                       # Unit tests
-│   ├── test_scrolls_books.py   # Scroll/book system tests
-│   ├── test_spell_learning.py  # Spell learning tests
-│   └── test_status_effects.py  # Status effect tests
-├── assets/                      # Game assets (sounds, etc.)
-├── saves/                       # Save game files
-├── config.py                    # Application configuration
-├── main.py                      # Entry point
-└── requirements.txt             # Python dependencies
+│   │   │   ├── engine.py         # Main game engine (1584 lines)
+│   │   │   ├── loader.py         # JSON data loading (GameData class)
+│   │   │   ├── sound.py          # SoundManager for audio
+│   │   │   ├── utils.py          # Utility functions
+│   │   │   ├── mining.py         # Mining system
+│   │   │   ├── chests.py         # Chest interaction system
+│   │   │   ├── inventory.py      # Inventory management
+│   │   │   ├── item.py           # Item classes and logic
+│   │   │   ├── traps.py          # Trap system
+│   │   │   ├── projectile.py     # Projectile animation
+│   │   │   ├── monster_pits.py   # Monster pit generation
+│   │   │   └── generation/       # Procedural generation
+│   │   │       ├── spawn.py      # Entity spawning
+│   │   │       ├── items.py      # Item generation
+│   │   │       └── maps/         # Map generation
+│   │   │           ├── generate.py  # Dungeon generation
+│   │   │           ├── town.py      # Town layout
+│   │   │           └── __init__.py
+│   │   ├── player.py             # Player class (1173 lines)
+│   │   ├── entity.py             # Entity/Monster class (112 lines)
+│   │   ├── status_effects.py     # Status effect management
+│   │   └── fov.py                # Field of View calculations
+│   ├── screens/                  # Textual screen definitions
+│   │   ├── game.py               # Main game screen (1200 lines)
+│   │   ├── title.py              # Title screen
+│   │   ├── creation.py           # Character creation
+│   │   ├── continue_screen.py    # Load game
+│   │   ├── inventory.py          # Inventory UI
+│   │   ├── cast_spell.py         # Spell casting interface
+│   │   ├── learn_spell.py        # Spell learning interface
+│   │   ├── target_selector.py    # Targeting system
+│   │   ├── settings.py           # Game settings
+│   │   ├── pause_menu.py         # Pause menu
+│   │   ├── shop.py               # Base shop screen
+│   │   └── shops/                # Individual shop screens
+│   │       ├── armor.py
+│   │       ├── weapon.py
+│   │       ├── magic.py
+│   │       ├── general_store.py
+│   │       ├── tavern.py
+│   │       └── temple.py
+│   ├── ui/                       # UI components
+│   │   ├── dungeon_view.py       # Dungeon rendering widget
+│   │   └── hud_view.py           # HUD display widget
+│   ├── plaguefire.py             # Main RogueApp class
+│   └── themes.py                 # UI color themes
+├── data/                         # Game data (JSON files)
+│   ├── config.json               # Game configuration
+│   ├── entities.json             # Monster/NPC definitions (291 templates)
+│   ├── items.json                # Item definitions (350 templates)
+│   ├── spells.json               # Spell definitions (30 templates)
+│   └── unknown_names.json        # Unknown item names for identification
+├── tests/                        # Unit tests (40+ test files)
+│   ├── run_tests.py              # Test runner
+│   ├── test_spell_learning.py    # Spell learning tests
+│   ├── test_status_effects.py    # Status effect tests
+│   ├── test_scrolls_books.py     # Scroll/book tests
+│   ├── test_combat.py            # Combat tests
+│   ├── test_identification.py    # Item ID tests
+│   ├── test_mining.py            # Mining system tests
+│   ├── test_chests.py            # Chest system tests
+│   └── ...                       # Additional test files
+├── assets/                       # Game assets (sounds, etc.)
+├── saves/                        # Save game files
+├── config.py                     # Application configuration constants
+├── css.py                        # Textual CSS styles
+├── debugtools.py                 # Debug utilities
+├── main.py                       # Entry point
+└── requirements.txt              # Python dependencies
 ```
 
 ## Gameplay Guide
@@ -175,7 +194,7 @@ The game follows a modular architecture:
 
 ## Functionality Highlights
 
-- **Dual Command Schemes**: Switch between classic Moria-style numeric commands and roguelike `hjkl` bindings at runtime via the settings menu or `K` toggle.
+- **Dual Command Schemes**: Switch between classic numeric keypad commands and roguelike `hjkl` bindings at runtime via the settings menu or `K` toggle.
 - **Persistent World State**: Each dungeon depth caches its generated layout and entities, allowing you to revisit floors without regeneration and to resume from save files stored under `saves/`.
 - **Dynamic Field of View**: The engine recalculates visibility every turn with support for day/night cycles in town, light sources that burn out, and search mode for revealing secret doors.
 - **Rich Magic Flow**: Character creation surfaces class-specific starter spells, level-ups queue new spells to learn, and two dedicated Textual screens handle learning and casting with letter shortcuts plus targeting UI.
@@ -200,9 +219,9 @@ Built with:
 - [Rich](https://rich.readthedocs.io/) - Terminal formatting
 - [Pygame](https://www.pygame.org/) - Sound effects
 
-### Moria-Style Object System
+### Classic Object System
 
-Plaguefire faithfully implements classic Moria/Angband object mechanics:
+Plaguefire faithfully implements classic roguelike object mechanics:
 
 - **Weight System**: Carrying capacity based on STR stat. Example: STR 16 = 460 lbs capacity (formula: [3000 + STR × 100] / 10)
 - **Inventory Limit**: Maximum 22 different items in backpack

@@ -1,11 +1,9 @@
-# app/systems/item_generation.py
 
 import random
 from typing import Dict, List, Optional
 from app.lib.core.loader import GameData
 from debugtools import debug
 
-# Legacy fallback templates kept for procedural stat flavoring when needed.
 LEGACY_ITEM_TEMPLATES = {
     "Rusty Dagger": {"type": "weapon", "attack": (1, 3)},
     "Dagger": {"type": "weapon", "attack": (2, 5)},
@@ -36,7 +34,6 @@ def _weight_for_depth(item: Dict, depth: int) -> float:
     center = (min_depth + max_depth) / 2
     half_span = (max_depth - min_depth) / 2
     distance = abs(depth - center)
-    # Invert distance to create a loose bell curve weight
     weight = max(0.1, (half_span - distance) / half_span)
     return weight
 
@@ -88,7 +85,6 @@ def generate_item_stats(base_name: str) -> str:
     For catalog items, the provided name is returned unchanged.
     """
     data = GameData()
-    # If the item already exists in our catalog, return its official name.
     if data.get_item_by_name(base_name):
         return base_name
 

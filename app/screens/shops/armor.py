@@ -1,11 +1,12 @@
-# app/screens/armor.py
 
 from app.screens.shop import BaseShopScreen, ShopItem
 from typing import List
 
 class ArmorShopScreen(BaseShopScreen):
 
+    """ArmorShopScreen class."""
     def __init__(self, **kwargs):
+        """Initialize the instance."""
         super().__init__(
             shop_name="Guardian Plate Armory",
             owner_name="Grunnur Stonehand",

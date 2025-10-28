@@ -1,4 +1,3 @@
-# app/screens/reduced_map.py
 
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical, VerticalScroll
@@ -22,10 +21,12 @@ class ReducedMapScreen(Screen):
     ]
 
     def __init__(self, engine: 'Engine', **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.engine = engine
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         with VerticalScroll(id="reduced-map-scroll"):
             yield Static(Text.from_markup(self._render_reduced_map()), id="reduced-map-display")
 
@@ -44,22 +45,17 @@ class ReducedMapScreen(Screen):
             lines.append("[yellow2]No map data available.[/yellow2]")
             return "\n".join(lines)
         
-        # Get map dimensions
         map_height = len(game_map)
         map_width = len(game_map[0]) if map_height > 0 else 0
         
-        # Render the full map with player position
         for y, row in enumerate(game_map):
             row_chars = []
             for x, tile in enumerate(row):
-                # Check if this is the player's position
                 if [x, y] == player_pos:
                     row_chars.append("[bright_yellow]@[/bright_yellow]")
-                # Check if there's an entity here
                 elif self._has_entity_at(x, y):
                     row_chars.append("[red]E[/red]")
                 else:
-                    # Render the tile with appropriate color
                     row_chars.append(self._render_tile(tile))
             
             lines.append("".join(row_chars))
@@ -95,8 +91,8 @@ class ReducedMapScreen(Screen):
             "'": "[green]'[/green]",
             '<': "[cyan]<[/cyan]",
             '>': "[cyan]>[/cyan]",
-            '%': "[yellow]%[/yellow]",  # quartz vein
-            '~': "[red]~[/red]",  # magma vein
+            '%': "[yellow]%[/yellow]",
+            '~': "[red]~[/red]",
             '1': "[bright_blue]1[/bright_blue]",
             '2': "[bright_blue]2[/bright_blue]",
             '3': "[bright_blue]3[/bright_blue]",

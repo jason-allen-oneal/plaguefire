@@ -1,25 +1,35 @@
-# app/rogue.py
+"""
+Plaguefire - Main application module.
+
+This module contains the RogueApp class which is the main Textual application.
+It manages:
+- Screen navigation and state
+- Global settings (sound, difficulty, command mode)
+- Save/load coordination
+- Theme management
+- Audio system integration
+
+The RogueApp serves as the entry point and coordinator for the entire game,
+delegating game logic to the Engine class and UI rendering to screen classes.
+"""
 
 import os
 import json
-from typing import Dict, List, Any, Optional, Tuple  # Add Optional
+from typing import Dict, List, Any, Optional, Tuple
 from textual import log
 
-# --- UPDATED: Import Player class ---
 from app.lib.player import Player
 from app.lib.entity import Entity
 from app.lib.core.loader import GameData
 from app.lib.core.sound import SoundManager
 
 
-# Import shop screens
 from app.screens.shops.armor import ArmorShopScreen
 from app.screens.shops.magic import MagicShopScreen
 from app.screens.shops.tavern import TavernScreen
 from app.screens.shops.temple import TempleScreen
 from app.screens.shops.weapon import WeaponShopScreen
 from app.screens.shops.general_store import GeneralStoreScreen
-# Import core screens
 from textual.app import App
 from app.screens.title import TitleScreen
 from app.screens.game import GameScreen
@@ -35,18 +45,19 @@ from debugtools import debug, log_exception
 from textual.drivers.linux_driver import LinuxDriver
 
 
-# Type alias for map grid (used by cache)
 MapData = List[List[str]]
 
 class TruecolorLinuxDriver(LinuxDriver):
     """Force Rich console to always use truecolor."""
     def __init__(self, *args, **kwargs):
+        """Initialize the instance."""
         super().__init__(*args, **kwargs)
         self.console.color_system = "truecolor"
         self.console.force_terminal = True
         
 
-class RogueApp(App[None]): # Specify return type for run()
+class RogueApp(App[None]):
+    """RogueApp class."""
     DRIVER_CLASS = TruecolorLinuxDriver
     CSS = CSS
     color_system = "truecolor"
@@ -57,12 +68,11 @@ class RogueApp(App[None]): # Specify return type for run()
         "continue": ContinueScreen,
         "settings": SettingsScreen,
         "character_creation": CharacterCreationScreen,
-        "dungeon": GameScreen, # Use GameScreen here
+        "dungeon": GameScreen,
         "inventory": InventoryScreen,
         "learn_spell": SpellLearningScreen,
         "cast_spell": CastSpellScreen,
         "pause_menu": PauseMenuScreen,
-        # Shops
         "armory": ArmorShopScreen,
         "general_store": GeneralStoreScreen,
         "magic_shop": MagicShopScreen,
@@ -71,20 +81,15 @@ class RogueApp(App[None]): # Specify return type for run()
         "weapon_smith": WeaponShopScreen,
     }
 
-    # Cache for dungeon levels {depth: map_data}
     dungeon_levels: Dict[int, MapData] = {}
-    # Cache for entities per level {depth: [entities]}
     dungeon_entities: Dict[int, List[Entity]] = {}
-    # Cache for room definitions per level {depth: [Rect]}
     dungeon_rooms: Dict[int, List] = {}
-    # Cache for ground items per level {depth: {(x, y): [items]}}
     dungeon_ground_items: Dict[int, Dict[Tuple[int, int], List[str]]] = {}
-    # Cache for death drop logs per level {depth: [records]}
     dungeon_death_drops: Dict[int, List[Dict[str, Any]]] = {}
-    # --- Store the Player object instance ---
     player: Optional[Player] = None
 
     def __init__(self, **kwargs):
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.data = GameData()
         self.sound = SoundManager()
@@ -97,23 +102,32 @@ class RogueApp(App[None]): # Specify return type for run()
         self.sound.set_music_enabled(self._music_enabled)
         self.sound.set_sfx_enabled(self._sfx_enabled)
 
-        # Preload a few example SFX
         self.sound.load_sfx("title", "title.wav")
         self.sound.load_sfx("whoosh", "whoosh.mp3")
     
     def get_music(self) -> bool:
+        """Get music."""
         return self._music_enabled
 
     def get_sfx(self) -> bool:
+        """Get sfx."""
         return self._sfx_enabled
 
     def get_difficulty(self) -> str:
+        """Get difficulty."""
         return self._difficulty
 
     def get_command_mode(self) -> str:
+        """Get command mode."""
         return self._command_mode
 
     def set_command_mode(self, mode: str):
+        """
+                Set command mode.
+                
+                Args:
+                    mode: TODO
+                """
         if mode in ["original", "roguelike"]:
             self._command_mode = mode
             self.data.config["command_mode"] = mode
@@ -131,33 +145,34 @@ class RogueApp(App[None]): # Specify return type for run()
         self.push_screen("title")
     
     def toggle_music(self):
+        """Toggle music."""
         self._music_enabled = not self._music_enabled
         self.data.config["music_enabled"] = self._music_enabled
         self.data.save_config()
         self.sound.set_music_enabled(self._music_enabled)
 
     def toggle_sfx(self):
+        """Toggle sfx."""
         self._sfx_enabled = not self._sfx_enabled
         self.data.config["sfx_enabled"] = self._sfx_enabled
         self.data.save_config()
         self.sound.set_sfx_enabled(self._sfx_enabled)
 
     def cycle_difficulty(self):
+        """Cycle difficulty."""
         order = ["Easy", "Normal", "Hard", "Nightmare"]
         i = order.index(self._difficulty)
         self._difficulty = order[(i + 1) % len(order)]
         self.data.config["difficulty"] = self._difficulty
         self.data.save_config()
     
-    # --- UPDATED: Save method uses Player object ---
     def save_character(self):
         """Saves the current app.player object state to a JSON file."""
         if not self.player:
              debug("Save called but no player object exists.")
-             # self.notify("Failed to save: No player data.", severity="error")
              return
 
-        player_data = self.player.to_dict() # Convert player object to dict
+        player_data = self.player.to_dict()
 
         os.makedirs(self.SAVE_DIR, exist_ok=True)
         char_name = player_data.get("name", "hero")
@@ -167,17 +182,15 @@ class RogueApp(App[None]): # Specify return type for run()
 
         try:
             with open(save_path, "w") as f:
-                # No need to manually add pos/time/depth here,
-                # as the Player object should be kept up-to-date by the Engine/GameScreen
                 json.dump(player_data, f, indent=4)
                 debug(f"Character saved: {save_path}")
-                # self.notify(f"Game saved: {filename}") # Optional feedback
         except Exception as e:
             log_exception(e)
             self.notify(f"Error saving character: {e}", severity="error", timeout=10)
 
 
 def main():
+    """Main."""
     RogueApp().run()
 
 if __name__ == "__main__":

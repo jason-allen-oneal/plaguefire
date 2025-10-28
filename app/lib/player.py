@@ -1,4 +1,19 @@
-# app/player.py
+"""
+Player character management for Plaguefire roguelike.
+
+This module handles player character creation, stats, abilities, inventory,
+equipment, spells, and progression. It implements classic roguelike character
+mechanics including races, classes, ability scores, and skill proficiencies.
+
+Key Features:
+    - Character creation with race and class selection
+    - Stat rolling and ability score calculation
+    - Inventory and equipment management (22 item limit, weight-based)
+    - Spell learning and casting system
+    - Experience points and level progression
+    - Status effect integration
+    - Save/load serialization
+"""
 
 from __future__ import annotations
 
@@ -17,10 +32,30 @@ from config import (
 from debugtools import debug
 
 def get_race_definition(race_name: str) -> Dict:
+    """
+    Get race definition from configuration.
+    
+    Args:
+        race_name: Name of the race (e.g., "Human", "Elf", "Dwarf")
+        
+    Returns:
+        Dictionary containing race stats, abilities, and modifiers.
+        Defaults to Human if race not found.
+    """
     return RACE_DEFINITIONS.get(race_name, RACE_DEFINITIONS["Human"])
 
 
 def get_class_definition(class_name: str) -> Dict:
+    """
+    Get class definition from configuration.
+    
+    Args:
+        class_name: Name of the class (e.g., "Warrior", "Mage", "Rogue")
+        
+    Returns:
+        Dictionary containing class stats, abilities, and spell lists.
+        Defaults to Warrior if class not found.
+    """
     return CLASS_DEFINITIONS.get(class_name, CLASS_DEFINITIONS["Warrior"])
 
 
@@ -35,6 +70,25 @@ def calculate_ability_profile(
     class_name: str,
     stats: Dict[str, float],
 ) -> Dict[str, float]:
+    """
+    Calculate character ability scores based on race, class, and stats.
+    
+    Combines racial and class proficiencies to determine skill levels in various
+    abilities (fighting, stealth, magic devices, etc.). Applies bonuses from high
+    ability scores.
+    
+    Args:
+        race_name: Character's race
+        class_name: Character's class
+        stats: Dictionary of ability scores (STR, DEX, INT, WIS, CON, CHA)
+        
+    Returns:
+        Dictionary of ability scores (1.0-10.0 scale) including:
+        - fighting, bows, throwing: Combat abilities
+        - stealth, perception, searching: Exploration
+        - disarming, magic_device, saving_throw: Special abilities
+        - infravision: Vision range in darkness (in feet)
+    """
     race = get_race_definition(race_name)
     class_def = get_class_definition(class_name)
 
@@ -117,6 +171,20 @@ def build_character_profile(
     sex: str,
     seed: Optional[int] = None,
 ) -> Dict:
+    """
+            Build character profile.
+            
+            Args:
+                race_name: TODO
+                class_name: TODO
+                stats: TODO
+                stat_percentiles: TODO
+                sex: TODO
+                seed: TODO
+            
+            Returns:
+                TODO
+            """
     rng = random.Random(seed)
     stat_values = {
         stat: _effective_stat(stats.get(stat, 10), stat_percentiles.get(stat, 0))
@@ -137,11 +205,12 @@ def build_character_profile(
 
 
 class Player:
-    """Represents the player character with Moria-inspired attributes."""
+    """Represents the player character with classic roguelike attributes."""
 
     STATS_ORDER = STAT_NAMES
 
     def __init__(self, data: Dict):
+        """Initialize the instance."""
         self.name: str = data.get("name", "Hero")
         self.race: str = data.get("race", "Human")
         self.class_: str = data.get("class", "Warrior")
@@ -186,18 +255,15 @@ class Player:
 
         self.inventory_manager: InventoryManager = InventoryManager.from_dict(data.get("inventory_manager", {}))
 
-        # For backward compatibility, populate inventory manager from old format if needed
         if not data.get("inventory_manager") and "inventory" in data:
             for item_name in data.get("inventory", []):
                 self.inventory_manager.add_item(item_name)
             for slot, item_name in data.get("equipment", {}).items():
                 if item_name:
-                    # Add item to inventory and then equip it properly
                     if self.inventory_manager.add_item(item_name):
-                        # Get the instance we just added and equip it
                         instances = self.inventory_manager.get_instances_by_name(item_name)
                         if instances:
-                            instance = instances[-1]  # Get the one we just added
+                            instance = instances[-1]
                             self.inventory_manager.equip_instance(instance.instance_id)
 
         race_def = get_race_definition(self.race)
@@ -214,7 +280,7 @@ class Player:
 
         self.position: Optional[List[int]] = data.get("position", [VIEWPORT_WIDTH // 2, VIEWPORT_HEIGHT // 2])
         self.depth: int = data.get("depth", 0)
-        self.deepest_depth: int = data.get("deepest_depth", max(1, self.depth))  # Track deepest dungeon level visited
+        self.deepest_depth: int = data.get("deepest_depth", max(1, self.depth))
         self.time: int = data.get("time", 0)
 
         infravision = self.abilities.get("infravision", 0)
@@ -224,27 +290,20 @@ class Player:
         self.light_duration: int = data.get("light_duration", 0)
 
         self.status_effects: List[str] = data.get("status_effects", [])
-        # Initialize status effect manager
         self.status_manager = StatusEffectManager()
-        # Restore active effects from save data
         for effect_name in self.status_effects:
-            # Default duration when loading from save (will be managed by system)
             self.status_manager.add_effect(effect_name, duration=10)
 
-        self.known_spells: List[str] = data.get("known_spells", []) # Load if exists
-        # --- List to track spells available to learn (for level up) ---
+        self.known_spells: List[str] = data.get("known_spells", [])
         self.spells_available_to_learn: List[str] = data.get("spells_available_to_learn", [])
-        # --- Dictionary to track custom inscriptions on items ---
         self.custom_inscriptions: Dict[str, str] = data.get("custom_inscriptions", {})
         
-        # --- Mining statistics ---
         self.mining_stats: Dict[str, int] = data.get("mining_stats", {
             "veins_mined": 0,
             "gems_found": 0,
             "total_treasure_value": 0
         })
         
-        # Note: Starting spells should be provided via character creation, not auto-learned
         if self.known_spells:
             debug(f"Loaded known_spells: {self.known_spells}")
 
@@ -280,26 +339,25 @@ class Player:
             self.xp -= self.next_level_xp
             self.level += 1
             self.next_level_xp = self._xp_threshold_for_level(self.level)
-            # --- Check for spells BEFORE applying other level up benefits ---
             if self._check_for_new_spells(self.level):
-                 new_spells_available = True # Flag that choices are pending
-            self._on_level_up() # Apply stat/hp/mana gains
+                 new_spells_available = True
+            self._on_level_up()
             leveled_up = True
 
         if leveled_up: debug(f"{self.name} reached level {self.level}!")
-        return new_spells_available # Return flag
+        return new_spells_available
     
     def finalize_spell_learning(self, spell_id_to_learn: str) -> bool:
         """Moves a spell from available to known. Returns True on success."""
         if spell_id_to_learn in self.spells_available_to_learn:
             self.spells_available_to_learn.remove(spell_id_to_learn)
-            if spell_id_to_learn not in self.known_spells: # Double check
+            if spell_id_to_learn not in self.known_spells:
                 self.known_spells.append(spell_id_to_learn)
                 debug(f"Successfully learned spell: {spell_id_to_learn}")
                 return True
             else:
                  debug(f"Warning: Tried to finalize learning '{spell_id_to_learn}' which was already known?")
-                 return False # Indicate potential issue
+                 return False
         else:
             debug(f"Error: Tried to finalize learning '{spell_id_to_learn}' which was not available.")
             return False
@@ -315,16 +373,14 @@ class Player:
 
     def _check_for_new_spells(self, check_level: int) -> bool:
         """Finds spells available at check_level and adds them to spells_available_to_learn. Returns True if new spells were added."""
-        if not self.mana_stat: return False # Warriors don't learn spells
+        if not self.mana_stat: return False
             
         data_loader = GameData()
         newly_available = []
         for spell_id, spell_data in data_loader.spells.items():
             if self.class_ in spell_data.get("classes", {}):
                 spell_class_info = spell_data["classes"][self.class_]
-                # Check if the spell's minimum level matches the level we are checking
                 if spell_class_info.get("min_level") == check_level:
-                    # Check if player doesn't already know it and it's not already pending
                     if spell_id not in self.known_spells and spell_id not in self.spells_available_to_learn:
                         newly_available.append(spell_id)
                         
@@ -341,6 +397,15 @@ class Player:
         return int((effective - 10) // 2)
 
     def get_stat_display(self, stat_name: str) -> str:
+        """
+                Get stat display.
+                
+                Args:
+                    stat_name: TODO
+                
+                Returns:
+                    TODO
+                """
         score = self.stats.get(stat_name, 10)
         percentile = self.stat_percentiles.get(stat_name, 0)
         if score < 18:
@@ -351,7 +416,6 @@ class Player:
         if not mana_stat:
             return 0
         modifier = self._get_modifier(mana_stat)
-        # Moria-like mana: (Stat modifier * Level) + 5
         return max(0, 5 + (modifier * max(1, self.level)))
 
     def _apply_item_effects(self, item_name: str, equipping: bool = True) -> None:
@@ -402,7 +466,6 @@ class Player:
         Returns:
             True if successfully equipped
         """
-        # Find the instance in the inventory manager
         instances = self.inventory_manager.get_instances_by_name(item_name)
         if not instances:
             debug(f"Cannot equip {item_name} - not in inventory")
@@ -410,11 +473,9 @@ class Player:
         
         instance_to_equip = instances[0]
         
-        # Use the inventory manager to equip the instance
         success, message = self.inventory_manager.equip_instance(instance_to_equip.instance_id)
         
         if success:
-            # Apply item effects
             self._apply_item_effects(item_name, equipping=True)
             debug(f"Equipped {item_name} in {instance_to_equip.slot} slot")
         else:
@@ -436,8 +497,7 @@ class Player:
         success, message = self.inventory_manager.unequip_slot(slot)
         
         if success:
-            # Remove item effects
-            item_name = message.split(" ")[-1] # A bit hacky, but works for now
+            item_name = message.split(" ")[-1]
             self._apply_item_effects(item_name, equipping=False)
             debug(f"Unequipped {item_name} from {slot} slot")
         else:
@@ -454,21 +514,17 @@ class Player:
             List of item names that had curses removed
         """
         uncursed = []
-        # Note: In a full implementation, we'd track which specific instances
-        # are cursed. For now, we just identify cursed items in equipment.
         for slot, item_name in self.equipment.items():
             if item_name and self.is_item_cursed(item_name):
                 uncursed.append(item_name)
         
-        # In a real implementation, we'd mark these items as no longer cursed
-        # For now, this just identifies them
         if uncursed:
             debug(f"Remove Curse affects: {', '.join(uncursed)}")
         
         return uncursed
 
     def to_dict(self) -> Dict:
-        # --- UPDATED: Save active status effects ---
+        """To dict."""
         data = {
             "name": self.name, "race": self.race, "class": self.class_, "sex": self.sex,
             "stats": self.stats, "base_stats": self.base_stats, "stat_percentiles": self.stat_percentiles,
@@ -477,18 +533,27 @@ class Player:
             "level": self.level, "xp": self.xp, "next_level_xp": self.next_level_xp, "gold": self.gold,
             "inventory_manager": self.inventory_manager.to_dict(),
             "position": self.position, "depth": self.depth,
-            "deepest_depth": self.deepest_depth,  # Save deepest depth visited
+            "deepest_depth": self.deepest_depth,
             "time": self.time, "base_light_radius": self.base_light_radius, "light_radius": self.light_radius,
             "light_duration": self.light_duration, 
-            "status_effects": self.status_manager.get_active_effects_display(),  # Save active effects
+            "status_effects": self.status_manager.get_active_effects_display(),
             "known_spells": self.known_spells,
-            "spells_available_to_learn": self.spells_available_to_learn, # Save pending choices
-            "mining_stats": self.mining_stats,  # Save mining statistics
+            "spells_available_to_learn": self.spells_available_to_learn,
+            "mining_stats": self.mining_stats,
         }
         return data
 
 
     def heal(self, amount: int) -> int:
+        """
+                Heal.
+                
+                Args:
+                    amount: TODO
+                
+                Returns:
+                    TODO
+                """
         if amount <= 0: return 0
         amount_healed = min(amount, self.max_hp - self.hp)
         self.hp += amount_healed
@@ -496,6 +561,15 @@ class Player:
         return amount_healed
 
     def restore_mana(self, amount: int) -> int:
+        """
+                Restore mana.
+                
+                Args:
+                    amount: TODO
+                
+                Returns:
+                    TODO
+                """
         if amount <= 0: return 0
         restored = min(amount, self.max_mana - self.mana)
         self.mana += restored
@@ -503,6 +577,15 @@ class Player:
         return restored
 
     def take_damage(self, amount: int) -> bool:
+        """
+                Take damage.
+                
+                Args:
+                    amount: TODO
+                
+                Returns:
+                    TODO
+                """
         if amount <= 0: return False
         self.hp -= amount
         debug(f"{self.name} takes {amount} damage ({self.hp}/{self.max_hp})")
@@ -523,25 +606,20 @@ class Player:
         """
         data_loader = GameData()
         
-        # Note: Stackable items of the same type count as one slot
         if len(self.inventory_manager.instances) >= 22:
-            # Check if this item can stack with an existing item
             item_data = data_loader.get_item_by_name(item_name)
             if item_data:
                 item_id = data_loader.get_item_id_by_name(item_name)
                 
-                # Check if we can stack with existing items
                 if item_id:
                     item_type = item_data.get("type", "misc")
                     if item_type in self.inventory_manager.stackable_types:
                         for instance in self.inventory_manager.instances:
                             if instance.item_id == item_id:
-                                # Can stack, so pickup is allowed
                                 return True, ""
             
             return False, "Your backpack is full (22 item limit)."
         
-        # Check weight limit
         item_data = data_loader.get_item_by_name(item_name)
         if item_data:
             item_weight = item_data.get("weight", 10)
@@ -554,6 +632,15 @@ class Player:
         return True, ""
 
     def spend_mana(self, amount: int) -> bool:
+        """
+                Spend mana.
+                
+                Args:
+                    amount: TODO
+                
+                Returns:
+                    TODO
+                """
         if amount <= 0: return True
         if self.mana < amount:
             debug(f"{self.name} lacks mana ({self.mana}/{self.max_mana}) for cost {amount}")
@@ -572,12 +659,9 @@ class Player:
         if self.max_mana <= 0 or self.mana >= self.max_mana:
             return 0
         
-        # Base regeneration: 1 mana per turn for classes with mana
-        # Bonus from mana stat modifier (INT for Mage, WIS for Priest)
         base_regen = 1
         if self.mana_stat:
             stat_modifier = self._get_modifier(self.mana_stat)
-            # Add bonus regeneration for high stat (every 2 points of modifier = +1 regen/turn)
             bonus_regen = max(0, stat_modifier // 2)
             total_regen = base_regen + bonus_regen
         else:
@@ -614,12 +698,10 @@ class Player:
         debug(f"Cast {spell_name}: BaseFail({base_failure}) - StatMod({stat_modifier}*3) - LvlDiff({self.level - min_level}) = {failure_chance}%")
 
         if random.randint(1, 100) <= failure_chance:
-            # Apply failure side-effects via the status manager so durations persist correctly
             self.status_manager.add_effect("Confused", duration=3)
             return False, f"You failed to cast {spell_name}!", None
 
         xp_gain = max(1, min_level)
-        # Note: gain_xp returns a flag now, but we don't need it *during* casting
         _ = self.gain_xp(xp_gain) 
         
         return True, f"You cast {spell_name}!", spell_data
@@ -634,13 +716,12 @@ class Player:
         Returns:
             (success, message, spell_data) - similar to cast_spell
         """
-        # Map scroll names to spell IDs
         scroll_to_spell_map = {
             "Scroll of Identify": "identify",
             "Scroll of Magic Missile": "magic_missile",
             "Scroll of Blessing": "bless",
             "Scroll of Light": "light",
-            "Scroll of Darkness": None,  # Custom effect, not a spell
+            "Scroll of Darkness": None,
             "Scroll of Phase Door": "phase_door",
             "Scroll of Teleport": "teleport",
             "Scroll of Word of Recall": "word_of_recall",
@@ -652,10 +733,8 @@ class Player:
         spell_id = scroll_to_spell_map.get(scroll_name)
         
         if spell_id is None:
-            # Scroll has a custom effect, not a spell
             return False, f"The {scroll_name} crumbles but nothing happens.", None
         
-        # Check if scroll maps to a valid spell
         data_loader = GameData()
         spell_data = data_loader.get_spell(spell_id)
         
@@ -664,8 +743,6 @@ class Player:
         
         spell_name = spell_data.get("name", "a spell")
         
-        # Scrolls always succeed (no failure chance) and don't cost mana
-        # Grant minimal XP for using scroll (less than casting)
         xp_gain = 1
         self.gain_xp(xp_gain)
         
@@ -681,7 +758,6 @@ class Player:
         Returns:
             (success, newly_learned_spells, message)
         """
-        # Map book names to spell lists (this should ideally come from item data)
         book_spells_map = {
             "Beginners Handbook": ["detect_evil", "cure_light_wounds"],
             "Beginners-Magik": ["magic_missile", "detect_monsters"],
@@ -694,7 +770,6 @@ class Player:
         if not spell_ids:
             return False, [], f"The {book_name} is written in an unknown language."
         
-        # Check if any spells can be learned
         data_loader = GameData()
         newly_learned = []
         already_known = []
@@ -706,17 +781,14 @@ class Player:
             if not spell_data:
                 continue
             
-            # Check if already known
             if spell_id in self.known_spells:
                 already_known.append(spell_data.get("name", spell_id))
                 continue
             
-            # Check if player's class can learn this spell
             if self.class_ not in spell_data.get("classes", {}):
                 cannot_learn.append(spell_data.get("name", spell_id))
                 continue
             
-            # Check if player meets level requirement
             spell_class_info = spell_data["classes"][self.class_]
             min_level = spell_class_info.get("min_level", 1)
             
@@ -724,12 +796,10 @@ class Player:
                 cannot_learn.append(f"{spell_data.get('name', spell_id)} (requires level {min_level})")
                 continue
             
-            # Learn the spell!
             self.known_spells.append(spell_id)
             newly_learned.append(spell_data.get("name", spell_id))
             debug(f"Learned {spell_id} from {book_name}")
         
-        # Build message
         messages = []
         if newly_learned:
             messages.append(f"You learned: {', '.join(newly_learned)}!")
@@ -749,7 +819,7 @@ class Player:
     def get_carrying_capacity(self) -> int:
         """
         Calculate carrying capacity in pounds * 10 based on STR stat.
-        Follows Moria formula: base 3000 + STR * 100.
+        Formula: base 3000 + STR * 100.
         
         Returns:
             Maximum weight player can carry without penalty (in pounds * 10)
@@ -764,7 +834,6 @@ class Player:
         Returns:
             Current carried weight (in pounds * 10)
         """
-        # Use the inventory_manager's built-in weight calculation
         return self.inventory_manager.get_total_weight()
     
     def is_overweight(self) -> bool:
@@ -782,18 +851,15 @@ class Player:
         if current_weight <= capacity:
             return 1.0
         
-        # Calculate excess weight as percentage of capacity
         excess_percent = ((current_weight - capacity) / capacity) * 100
         
-        # Progressive penalty: 0.1x slower per 10% excess, max 2.0x
-        # 10% excess = 1.1x, 20% = 1.2x, ..., 100% excess = 2.0x
         penalty = 1.0 + min(excess_percent / 100, 1.0)
         
         return penalty
     
     def get_item_inscription(self, item_name: str) -> str:
         """
-        Get automatic inscription for an item following Moria conventions.
+        Get automatic inscription for an item following classic roguelike conventions.
         Returns inscriptions like "damned", "empty", "tried", or "magik".
         
         Args:
@@ -802,10 +868,8 @@ class Player:
         Returns:
             Inscription string or empty if no inscription
         """
-        # Try to find the item instance in inventory or equipment
         instances = self.inventory_manager.get_instances_by_name(item_name)
         
-        # Check equipment if not in inventory
         if not instances:
             for slot, instance in self.inventory_manager.equipment.items():
                 if instance and instance.item_name == item_name:
@@ -813,12 +877,9 @@ class Player:
                     break
         
         if instances:
-            # Use the ItemInstance's built-in inscription method
-            # This handles empty charges, tried status, and cursed items automatically
             instance = instances[0]
             inscription = instance.get_inscription()
             
-            # Add magical detection for high-level characters
             if self.level >= 5 and instance.effect and not inscription:
                 inscription = "magik"
             elif self.level >= 5 and instance.effect and inscription:
@@ -826,7 +887,6 @@ class Player:
             
             return inscription
         
-        # Fallback for items not yet in inventory_manager (backward compatibility)
         data_loader = GameData()
         item_data = data_loader.get_item_by_name(item_name)
         if not item_data:
@@ -834,15 +894,12 @@ class Player:
         
         inscriptions = []
         
-        # Check if cursed
         effect = item_data.get("effect")
         if effect and isinstance(effect, list) and len(effect) > 0:
             if effect[0] == "cursed":
                 inscriptions.append("damned")
         
-        # High-level characters notice magic items
         if self.level >= 10:
-            # Check if item has magical properties
             if any(key in item_data for key in ["effect", "stat_bonus", "defense_bonus", "damage_bonus"]):
                 if "cursed" not in str(item_data.get("effect", "")):
                     inscriptions.append("magik")
@@ -861,12 +918,10 @@ class Player:
         """
         inscriptions = []
         
-        # Add automatic inscriptions
         auto_inscription = self.get_item_inscription(item_name)
         if auto_inscription:
             inscriptions.append(auto_inscription)
         
-        # Add custom inscription if exists
         custom_inscription = self.custom_inscriptions.get(item_name)
         if custom_inscription:
             inscriptions.append(custom_inscription)
@@ -886,7 +941,6 @@ class Player:
         Returns:
             True if successfully inscribed
         """
-        # Check if item exists in inventory or equipment using inventory_manager
         found_in_inventory = len(self.inventory_manager.get_instances_by_name(item_name)) > 0
         found_in_equipment = any(
             inst and inst.item_name == item_name 
@@ -897,12 +951,10 @@ class Player:
             debug(f"Cannot inscribe {item_name} - not found")
             return False
         
-        # Set or update the custom inscription
         if inscription.strip():
             self.custom_inscriptions[item_name] = inscription.strip()
             debug(f"Inscribed {item_name} with: {inscription.strip()}")
         else:
-            # Remove inscription if empty
             if item_name in self.custom_inscriptions:
                 del self.custom_inscriptions[item_name]
                 debug(f"Removed inscription from {item_name}")
@@ -919,13 +971,11 @@ class Player:
         data_loader = GameData()
         bonus = 0
         
-        # Check all items in inventory
         for instance in self.inventory_manager.instances:
             item_data = data_loader.get_item(instance.item_id)
             if item_data and "lockpick_bonus" in item_data:
                 bonus += item_data["lockpick_bonus"]
         
-        # Also check equipped items (in case lockpicks can be equipped)
         for instance in self.inventory_manager.equipment.values():
             if instance:
                 item_data = data_loader.get_item(instance.item_id)

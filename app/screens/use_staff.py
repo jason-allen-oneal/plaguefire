@@ -1,4 +1,3 @@
-# app/screens/use_staff.py
 
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical
@@ -22,9 +21,9 @@ class UseStaffScreen(Screen):
     ]
 
     def __init__(self, **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
-        # --- Map letters to staff indices ---
         self.staff_options: Dict[str, int] = {}
         self._setup_options()
 
@@ -38,7 +37,6 @@ class UseStaffScreen(Screen):
         if not inventory:
             return
 
-        # Generate letter-to-staff mapping for staves only
         letter_idx = 0
         for i, item in enumerate(inventory):
             if "Staff" in item:
@@ -50,6 +48,7 @@ class UseStaffScreen(Screen):
                     break
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         yield Static(Text.from_markup(self._render_staff_list()), id="staff-list")
 
     def _render_staff_list(self) -> str:
@@ -81,7 +80,6 @@ class UseStaffScreen(Screen):
             item_idx = self.staff_options[key]
             debug(f"Player selected staff at index {item_idx}")
             
-            # Get the game screen and its engine
             game_screen = None
             for screen in self.app.screen_stack:
                 if screen.__class__.__name__ == "GameScreen":
@@ -91,14 +89,11 @@ class UseStaffScreen(Screen):
             if game_screen and hasattr(game_screen, 'engine'):
                 engine = game_screen.engine
                 
-                # Use the staff
                 if engine.handle_use_staff(item_idx):
-                    # Refresh UI on game screen
                     if hasattr(game_screen, '_refresh_ui'):
                         game_screen._refresh_ui()
                     self.app.pop_screen()
                 else:
-                    # Don't pop screen if staff is empty - let player see the message
                     pass
             else:
                 self.notify("Error: Game engine not found.", severity="error")

@@ -1,7 +1,6 @@
-# app/lib/core/chest_system.py
 
 """
-Chest interaction system for Moria-style roguelike.
+Chest interaction system for classic roguelike gameplay.
 
 This module implements chest mechanics including locks, traps, disarming,
 force-opening, and contents generation.
@@ -47,20 +46,17 @@ class ChestInstance:
         self.y = y
         self.depth = depth
         
-        # Lock properties
         self.locked = True
         self.lock_difficulty = self._calculate_lock_difficulty(chest_id, depth)
         
-        # Trap properties
         self.trapped = random.random() < self._trap_chance(chest_id, depth)
         self.trap_type = self._random_trap_type() if self.trapped else None
         self.trap_difficulty = self._calculate_trap_difficulty(depth) if self.trapped else 0
         self.trap_disarmed = False
         
-        # Contents
-        self.contents: Optional[List[str]] = None  # Generated on open
+        self.contents: Optional[List[str]] = None
         self.opened = False
-        self.destroyed = False  # If force-opened and destroyed
+        self.destroyed = False
     
     def _calculate_lock_difficulty(self, chest_id: str, depth: int) -> int:
         """
@@ -71,7 +67,6 @@ class ChestInstance:
         """
         base_difficulty = 5
         
-        # Adjust for chest type
         if "WOODEN" in chest_id:
             base_difficulty = 3
         elif "IRON" in chest_id:
@@ -79,11 +74,9 @@ class ChestInstance:
         elif "STEEL" in chest_id:
             base_difficulty = 10
         
-        # Adjust for chest size
         if "LARGE" in chest_id:
             base_difficulty += 2
         
-        # Adjust for depth (deeper = harder)
         depth_modifier = min(depth // 5, 5)
         
         return min(20, base_difficulty + depth_modifier)
@@ -97,7 +90,6 @@ class ChestInstance:
         """
         base_chance = 0.3
         
-        # Better chests more likely to be trapped
         if "WOODEN" in chest_id:
             base_chance = 0.2
         elif "IRON" in chest_id:
@@ -105,7 +97,6 @@ class ChestInstance:
         elif "STEEL" in chest_id:
             base_chance = 0.5
         
-        # Higher depths more likely trapped
         depth_modifier = min(depth / 100, 0.3)
         
         return min(0.8, base_chance + depth_modifier)
@@ -128,13 +119,13 @@ class ChestInstance:
             Trap type string
         """
         traps = [
-            "poison_needle",     # Damage + poison
-            "poison_gas",        # Area poison
-            "summon_monster",    # Spawns monster
-            "alarm",             # Wakes nearby monsters
-            "explosion",         # Fire damage
-            "dart",              # Physical damage
-            "magic_drain",       # Drains mana
+            "poison_needle",
+            "poison_gas",
+            "summon_monster",
+            "alarm",
+            "explosion",
+            "dart",
+            "magic_drain",
         ]
         return random.choice(traps)
     
@@ -155,8 +146,6 @@ class ChestInstance:
         if self.trap_disarmed:
             return True, "The trap has already been disarmed."
         
-        # Calculate success chance
-        # Base 50% + (skill + bonus - difficulty) * 5%
         total_skill = player_disarm_skill + lockpick_bonus
         success_chance = 50 + (total_skill - self.trap_difficulty) * 5
         success_chance = max(5, min(95, success_chance))
@@ -167,7 +156,6 @@ class ChestInstance:
             self.trap_disarmed = True
             return True, f"You successfully disarm the {self.trap_type} trap!"
         else:
-            # Failed - trigger trap
             return False, f"You fail to disarm the trap and trigger it!"
     
     def open_chest(self, player_disarm_skill: int, lockpick_bonus: int = 0) -> Tuple[bool, str, Optional[str]]:
@@ -187,13 +175,10 @@ class ChestInstance:
         if self.destroyed:
             return False, "The chest is ruined and cannot be opened.", None
         
-        # Check for trap
         if self.trapped and not self.trap_disarmed:
-            # Trap triggers!
             self.opened = True
             return True, f"You trigger a {self.trap_type} trap as you open the chest!", self.trap_type
         
-        # Try to pick the lock
         if self.locked:
             total_skill = player_disarm_skill + lockpick_bonus
             success_chance = 50 + (total_skill - self.lock_difficulty) * 5
@@ -208,7 +193,6 @@ class ChestInstance:
             else:
                 return False, "You fail to pick the lock.", None
         else:
-            # Unlocked
             self.opened = True
             return True, "You open the chest.", None
     
@@ -228,7 +212,6 @@ class ChestInstance:
         if self.destroyed:
             return False, "The chest is already ruined.", None
         
-        # Calculate success chance based on strength and chest type
         base_chance = 50
         strength_bonus = (player_strength - 10) * 3
         
@@ -244,19 +227,16 @@ class ChestInstance:
         
         roll = random.randint(1, 100)
         
-        # Check for trap trigger
         trap_triggered = None
         if self.trapped and not self.trap_disarmed:
-            # Force opening usually triggers traps
-            if random.random() < 0.7:  # 70% chance to trigger
+            if random.random() < 0.7:
                 trap_triggered = self.trap_type
         
         if roll <= success_chance:
             self.locked = False
             self.opened = True
             
-            # Risk of destroying contents
-            if random.random() < 0.3:  # 30% chance to destroy items
+            if random.random() < 0.3:
                 self.destroyed = True
                 msg = "You break open the chest, but damage the contents!"
             else:
@@ -279,10 +259,8 @@ class ChestInstance:
             return self.contents
         
         if self.destroyed:
-            # Destroyed chests have fewer/damaged items
             num_items = random.randint(0, 2)
         else:
-            # Determine number of items based on chest size
             if "SMALL" in self.chest_id:
                 num_items = random.randint(2, 4)
             elif "LARGE" in self.chest_id:
@@ -290,37 +268,35 @@ class ChestInstance:
             else:
                 num_items = random.randint(3, 6)
         
-        # Generate items
         contents = []
         data_loader = GameData()
         
         for _ in range(num_items):
-            # Random item type distribution
             roll = random.random()
             
-            if roll < 0.3:  # 30% coins
+            if roll < 0.3:
                 contents.append(self._random_coin())
-            elif roll < 0.5:  # 20% potions
+            elif roll < 0.5:
                 eligible = data_loader.get_items_for_depth(self.depth, "POTIONS")
                 if eligible:
                     contents.append(random.choice(eligible)["id"])
-            elif roll < 0.65:  # 15% scrolls
+            elif roll < 0.65:
                 eligible = data_loader.get_items_for_depth(self.depth, "SCROLLS")
                 if eligible:
                     contents.append(random.choice(eligible)["id"])
-            elif roll < 0.75:  # 10% weapons
+            elif roll < 0.75:
                 eligible = data_loader.get_items_for_depth(self.depth, "WEAPONS")
                 if eligible:
                     contents.append(random.choice(eligible)["id"])
-            elif roll < 0.85:  # 10% armor
+            elif roll < 0.85:
                 eligible = data_loader.get_items_for_depth(self.depth, "ARMOR")
                 if eligible:
                     contents.append(random.choice(eligible)["id"])
-            elif roll < 0.95:  # 10% wands/staves
+            elif roll < 0.95:
                 eligible = data_loader.get_items_for_depth(self.depth, "WANDS_STAVES")
                 if eligible:
                     contents.append(random.choice(eligible)["id"])
-            else:  # 5% gems
+            else:
                 contents.append(self._random_gem())
         
         self.contents = contents
@@ -415,7 +391,6 @@ class ChestSystem:
         return system
 
 
-# Global chest system instance
 _chest_system = None
 
 

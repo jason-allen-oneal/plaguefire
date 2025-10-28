@@ -2,7 +2,7 @@
 """
 Tests for multiple armor slots implementation.
 
-This tests the Moria/Angband-style armor system with separate slots for:
+This tests the classic roguelike armor system with separate slots for:
 - Head (helmet/cap)
 - Body (armor)
 - Hands (gloves/gauntlets)

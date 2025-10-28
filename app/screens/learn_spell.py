@@ -1,4 +1,3 @@
-# app/screens/learn_spell.py
 
 from textual.app import ComposeResult
 from textual.screen import Screen
@@ -25,33 +24,34 @@ class SpellLearningScreen(Screen):
     ]
 
     def __init__(self, **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
         self.data_loader = GameData()
-        # --- Map letters to spell IDs ---
         self.spell_options: Dict[str, str] = {}
         self.selected_index = 0
         self._setup_spell_options()
 
     def _setup_spell_options(self):
         """Creates the letter-to-spell_id mapping for available spells."""
-        self.spell_options.clear() # Clear previous options
+        self.spell_options.clear()
         
         available_spells = self.player.spells_available_to_learn
         letters = string.ascii_lowercase
         
         if not available_spells:
-            return # No spells, no bindings needed
+            return
 
         for i, spell_id in enumerate(available_spells):
             if i < len(letters):
                 letter = letters[i]
                 self.spell_options[letter] = spell_id
             else:
-                break # Ran out of letters
+                break
 
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         yield Header()
         yield Static(f"[deep_sky_blue3]Level {self.player.level}![/deep_sky_blue3] [chartreuse1]Choose a spell to learn:[/chartreuse1]", id="spell_title")
         yield Static("[yellow1]Loading spells...[/yellow1]", id="spell_list")
@@ -88,7 +88,6 @@ class SpellLearningScreen(Screen):
             fail_chance = class_info.get("base_failure", "?")
             
             if index == self.selected_index:
-                # Highlight selected
                 lines.append(f"[chartreuse1]>[/chartreuse1] [bright_white]{spell_name}[/bright_white] [chartreuse1]<[/chartreuse1]")
                 lines.append(f"   Lvl {min_level} | Mana: {mana_cost} | Fail: {fail_chance}%")
             else:
@@ -126,7 +125,6 @@ class SpellLearningScreen(Screen):
         success = self.player.finalize_spell_learning(spell_id)
         
         if success:
-            # Get the game screen engine to log the event
             game_screen = None
             for screen in self.app.screen_stack:
                 if hasattr(screen, 'engine'):
@@ -138,13 +136,11 @@ class SpellLearningScreen(Screen):
             else:
                 debug(f"LOG: Learned {spell_name}")
             
-            # Check if more spells remain
             self._setup_spell_options()
             items = self._get_spell_list_items()
             if not items:
                 self.app.pop_screen()
             else:
-                # Reset selection and update display
                 self.selected_index = min(self.selected_index, len(items) - 1)
                 self._update_list_display()
         else:
@@ -157,5 +153,5 @@ class SpellLearningScreen(Screen):
             
             if game_screen:
                 game_screen.engine.log_event(f"Error learning {spell_id}.")
-            self.app.pop_screen()  # Exit on error
+            self.app.pop_screen()
 

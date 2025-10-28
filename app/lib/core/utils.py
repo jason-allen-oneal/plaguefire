@@ -4,9 +4,6 @@ from config import FLOOR
 from debugtools import debug
 
 
-# ======================================================================
-# Functions for map utilities
-# ======================================================================
 
 def find_tile(map_data: List[List[str]], tile_char: str) -> Optional[List[int]]:
     """Find the coordinates [x, y] of the first occurrence of tile_char."""

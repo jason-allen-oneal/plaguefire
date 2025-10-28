@@ -1,4 +1,3 @@
-# app/screens/use_wand.py
 
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical
@@ -22,9 +21,9 @@ class UseWandScreen(Screen):
     ]
 
     def __init__(self, **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
-        # --- Map letters to wand indices ---
         self.wand_options: Dict[str, int] = {}
         self._setup_options()
 
@@ -38,7 +37,6 @@ class UseWandScreen(Screen):
         if not inventory:
             return
 
-        # Generate letter-to-wand mapping for wands only
         letter_idx = 0
         for i, item in enumerate(inventory):
             if "Wand" in item:
@@ -50,6 +48,7 @@ class UseWandScreen(Screen):
                     break
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         yield Static(Text.from_markup(self._render_wand_list()), id="wand-list")
 
     def _render_wand_list(self) -> str:
@@ -81,7 +80,6 @@ class UseWandScreen(Screen):
             item_idx = self.wand_options[key]
             debug(f"Player selected wand at index {item_idx}")
             
-            # Get the game screen and its engine
             game_screen = None
             for screen in self.app.screen_stack:
                 if screen.__class__.__name__ == "GameScreen":
@@ -91,17 +89,13 @@ class UseWandScreen(Screen):
             if game_screen and hasattr(game_screen, 'engine'):
                 engine = game_screen.engine
                 
-                # Check if wand is empty before targeting
                 wand_name = self.player.inventory[item_idx]
                 
-                # For now, use the wand without targeting (will be enhanced later)
                 if engine.handle_use_wand(item_idx):
-                    # Refresh UI on game screen
                     if hasattr(game_screen, '_refresh_ui'):
                         game_screen._refresh_ui()
                     self.app.pop_screen()
                 else:
-                    # Don't pop screen if wand is empty - let player see the message
                     pass
             else:
                 self.notify("Error: Game engine not found.", severity="error")

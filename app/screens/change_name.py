@@ -1,4 +1,3 @@
-# app/screens/change_name.py
 
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical
@@ -21,11 +20,13 @@ class ChangeNameScreen(Screen):
     ]
 
     def __init__(self, **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
         self.input_widget: Optional[Input] = None
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         with Vertical(id="change-name-container"):
             yield Static(Text.from_markup(self._render_prompt()), id="change-name-prompt")
             self.input_widget = Input(
@@ -68,7 +69,6 @@ class ChangeNameScreen(Screen):
         self.notify(f"Character renamed from '{old_name}' to '{new_name}'.")
         debug(f"Character renamed: {old_name} -> {new_name}")
         
-        # Get the game screen and refresh UI
         game_screen = None
         for screen in self.app.screen_stack:
             if screen.__class__.__name__ == "GameScreen":

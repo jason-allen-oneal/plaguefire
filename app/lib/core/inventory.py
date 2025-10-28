@@ -1,4 +1,3 @@
-# app/lib/core/inventory_manager.py
 
 """
 Inventory management system using item instances.
@@ -21,10 +20,10 @@ class InventoryManager:
     """
     
     def __init__(self):
+        """Initialize the instance."""
         self.instances: List[ItemInstance] = []
         self.equipment: Dict[str, Optional[ItemInstance]] = {}
         self._data_loader = GameData()
-        # Define stackable item types
         self.stackable_types = ["potion", "scroll", "food", "ammunition"]
     
     def _can_stack(self, item1: ItemInstance, item2: ItemInstance) -> bool:
@@ -50,15 +49,12 @@ class InventoryManager:
         if item1.item_type not in self.stackable_types:
             return False
         
-        # Must have same identification status
         if item1.identified != item2.identified:
             return False
         
-        # Don't stack if either has custom inscriptions
         if item1.custom_inscription or item2.custom_inscription:
             return False
         
-        # Don't stack items with charges (wands/staves shouldn't be stackable anyway)
         if item1.charges is not None or item2.charges is not None:
             return False
         
@@ -76,10 +72,8 @@ class InventoryManager:
         Returns:
             True if item was added
         """
-        # Get item template - try by ID first, then by name for backward compatibility
         item_data = self._data_loader.get_item(item_id_or_name)
         if not item_data:
-            # Try getting by name for backward compatibility
             item_data = self._data_loader.get_item_by_name(item_id_or_name)
             if item_data:
                 item_id_or_name = item_data['id']
@@ -88,19 +82,14 @@ class InventoryManager:
         
         item_id = item_id_or_name
         
-        # Check if this item can stack with existing items
         item_type = item_data.get("type", "misc")
         if item_type in self.stackable_types:
-            # Try to find an existing stack with same item_id
             for instance in self.instances:
                 if instance.item_id == item_id:
-                    # Items match - check if they can stack based on identification
-                    # For now, only stack if both are unidentified (default state)
                     if not instance.identified and not instance.custom_inscription:
                         instance.quantity += quantity
                         return True
         
-        # Create new instance
         instance = ItemInstance.from_template(item_id, item_data)
         instance.quantity = quantity
         self.instances.append(instance)
@@ -133,12 +122,9 @@ class InventoryManager:
         for i, instance in enumerate(self.instances):
             if instance.instance_id == instance_id:
                 if quantity is None or instance.quantity <= quantity:
-                    # Remove entire stack
                     return self.instances.pop(i)
                 else:
-                    # Remove partial stack
                     instance.quantity -= quantity
-                    # Return a copy with the removed quantity
                     removed = ItemInstance.from_dict(instance.to_dict())
                     removed.quantity = quantity
                     return removed
@@ -172,37 +158,29 @@ class InventoryManager:
         if not instance.slot:
             return False, "Item cannot be equipped"
         
-        # Handle ring slots specially - support two ring slots
         if instance.slot == "ring":
-            # Try to equip to first available ring slot
             if not self.equipment.get("ring_left"):
                 slot = "ring_left"
             elif not self.equipment.get("ring_right"):
                 slot = "ring_right"
             else:
-                # Both ring slots occupied, unequip left ring
                 self.unequip_slot("ring_left")
                 slot = "ring_left"
-        # Handle quiver slot specially - stack same ammunition types
         elif instance.slot == "quiver":
             slot = "quiver"
             current_ammo = self.equipment.get("quiver")
             
             if current_ammo and current_ammo.item_id == instance.item_id:
-                # Same ammunition type - stack them
                 current_ammo.quantity += instance.quantity
                 self.remove_instance(instance_id)
                 return True, f"Added {instance.quantity} {instance.item_name} to quiver ({current_ammo.quantity} total)"
             elif current_ammo:
-                # Different ammunition type - unequip current
                 self.unequip_slot("quiver")
         else:
             slot = instance.slot
-            # Unequip current item in slot
             if self.equipment.get(slot):
                 self.unequip_slot(slot)
         
-        # Remove from inventory and add to equipment
         self.remove_instance(instance_id)
         self.equipment[slot] = instance
         
@@ -222,12 +200,10 @@ class InventoryManager:
         if not instance:
             return False, "Nothing equipped in that slot"
         
-        # Check if cursed
         if instance.effect and isinstance(instance.effect, list):
             if len(instance.effect) > 0 and instance.effect[0] == "cursed":
                 return False, "Item is cursed! You need Remove Curse."
         
-        # Move to inventory
         self.equipment[slot] = None
         self.instances.append(instance)
         
@@ -260,12 +236,10 @@ class InventoryManager:
         """Deserialize from dictionary."""
         manager = cls()
         
-        # Load instances
         for inst_data in data.get("instances", []):
             instance = ItemInstance.from_dict(inst_data)
             manager.instances.append(instance)
         
-        # Load equipment
         for slot, inst_data in data.get("equipment", {}).items():
             if inst_data:
                 instance = ItemInstance.from_dict(inst_data)

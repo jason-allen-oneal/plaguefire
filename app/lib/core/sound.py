@@ -69,7 +69,7 @@ class SoundManager:
                 debug(f"Missing music file: {path}")
                 return
             if self.music_playing == filename:
-                return  # Already playing
+                return
             pygame.mixer.music.load(path)
             pygame.mixer.music.set_volume(volume)
             pygame.mixer.music.play(-1 if loop else 0)

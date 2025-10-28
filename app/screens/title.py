@@ -1,4 +1,3 @@
-# app/screens/title.py
 
 from textual.screen import Screen
 from textual.widgets import Static
@@ -7,6 +6,7 @@ from debugtools import debug
 
 
 class TitleScreen(Screen):
+    """TitleScreen class."""
     BINDINGS = [
         ("n", "new_game", "New Game"),
         ("c", "continue_game", "Continue"),
@@ -15,13 +15,14 @@ class TitleScreen(Screen):
     ]
 
     def on_mount(self):
+        """On mount."""
         debug("Mounting TitleScreen...")
         self.app.sound.play_music("title.mp3")
         self.app.sound.play_sfx("title")
 
 
     def compose(self):
-        # --- Green flame gradient banner ---
+        """Compose."""
         banner = (
             "[lime]"
             "             ███████████  ████                                         ███████████  ███                    \n"
@@ -53,16 +54,14 @@ class TitleScreen(Screen):
         menu = Static(menu_text, markup=False, id="title_menu")
         copyright_line = Static(copyright_text, markup=False, id="copyright")
 
-        # --- Center all text ---
         menu.styles.text_align = "center"
         copyright_line.styles.text_align = "center"
 
         layout = Vertical(title_banner, menu, copyright_line, id="title_layout")
 
-        # --- Alignment & styling ---
         layout.styles.align_horizontal = "center"
         layout.styles.align_vertical = "middle"
-        layout.styles.content_align = ("center", "middle")  # tuple instead of string
+        layout.styles.content_align = ("center", "middle")
 
         copyright_line.styles.color = "gray"
         copyright_line.styles.margin_top = 1
@@ -70,13 +69,17 @@ class TitleScreen(Screen):
         yield layout
 
     def action_settings(self):
+        """Action settings."""
         self.app.push_screen("settings")
 
     def action_continue_game(self):
+        """Action continue game."""
         self.app.push_screen("continue")
 
     def action_new_game(self):
+        """Action new game."""
         self.app.push_screen("character_creation")
 
     def action_quit_app(self):
+        """Action quit app."""
         self.app.exit()

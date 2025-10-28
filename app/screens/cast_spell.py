@@ -1,4 +1,3 @@
-# app/screens/cast_spell.py
 
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical
@@ -23,10 +22,10 @@ class CastSpellScreen(Screen):
     ]
 
     def __init__(self, **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
         self.data_loader = GameData()
-        # --- Map letters to spell IDs ---
         self.spell_options: Dict[str, str] = {}
         self._setup_bindings_and_options()
 
@@ -40,7 +39,6 @@ class CastSpellScreen(Screen):
         if not known_spells:
             return
 
-        # Generate letter-to-spell mapping
         for i, spell_id in enumerate(known_spells):
             if i < len(letters):
                 letter = letters[i]
@@ -49,6 +47,7 @@ class CastSpellScreen(Screen):
                 break
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         yield Static(Text.from_markup(self._render_spell_list_ascii()), id="spell-list")
 
     def _render_spell_list_ascii(self) -> str:
@@ -72,7 +71,6 @@ class CastSpellScreen(Screen):
                     min_level = class_info.get("min_level", "?")
                     description = spell_data.get("description", "")
                     
-                    # Calculate actual failure chance
                     if self.player.mana_stat:
                         stat_modifier = self.player._get_modifier(self.player.mana_stat)
                         actual_fail = fail_chance - (stat_modifier * 3) - (self.player.level - min_level)
@@ -80,10 +78,8 @@ class CastSpellScreen(Screen):
                     else:
                         actual_fail = fail_chance
 
-                    # Check if player has enough mana
                     can_cast = self.player.mana >= mana_cost
                     
-                    # Rich Text formatting with colors
                     status_color = "green" if can_cast else "red"
                     status_text = "CAN CAST" if can_cast else "NO MANA"
                     
@@ -101,23 +97,19 @@ class CastSpellScreen(Screen):
         """Handle key presses for spell selection."""
         key = event.key.lower()
         
-        # Always stop the event from propagating to underlying screens
         event.stop()
         
         if key == "escape":
             self.app.pop_screen()
             return
         
-        # Check if the key corresponds to a spell
         if key in self.spell_options:
             spell_id = self.spell_options[key]
             debug(f"Player pressed '{key}' to cast spell: {spell_id}")
             self.action_cast_spell(key)
         else:
-            # Invalid key - could add a bell sound here
             debug(f"Invalid spell selection key: {key}")
         
-        # Don't call refresh_display() here as action_cast_spell handles screen changes
 
     def action_cast_spell(self, letter: str) -> None:
         """Handles casting a spell via its assigned letter."""
@@ -126,7 +118,6 @@ class CastSpellScreen(Screen):
         if spell_id:
             debug(f"Player chose to cast spell via letter '{letter}': {spell_id}")
             
-            # Get the game engine from the game screen
             game_screen = None
             for screen in self.app.screen_stack:
                 if hasattr(screen, 'engine'):
@@ -138,12 +129,10 @@ class CastSpellScreen(Screen):
                 self.app.pop_screen()
                 return
             
-            # Get spell data to check if it requires a target
             spell_data = self.data_loader.get_spell(spell_id)
             requires_target = spell_data.get("requires_target", False) if spell_data else False
             
             if requires_target:
-                # Open target selection UI
                 engine = game_screen.engine
                 visible_enemies = [e for e in engine.get_visible_entities() if engine.is_attackable(e)]
                 
@@ -152,11 +141,15 @@ class CastSpellScreen(Screen):
                     self.app.pop_screen()
                     return
                 
-                # Define callback for when target is selected
                 def on_target_selected(target):
+                    """
+                            On target selected.
+                            
+                            Args:
+                                target: TODO
+                            """
                     if target:
                         game_screen.engine.handle_cast_spell(spell_id, target)
-                        # Update the game screen UI after spell casting
                         if hasattr(game_screen, 'dungeon_view'):
                             game_screen.dungeon_view.update_map()
                         if hasattr(game_screen, 'hud_view'):
@@ -164,17 +157,13 @@ class CastSpellScreen(Screen):
                     else:
                         engine.log_event("Spell cancelled.")
                 
-                # Import and instantiate target selector
                 from app.screens.target_selector import TargetSelectorScreen
                 target_screen = TargetSelectorScreen(targets=visible_enemies, callback=on_target_selected)
                 
-                # Close spell menu and open target selector
                 self.app.pop_screen()
                 self.app.push_screen(target_screen)
             else:
-                # Cast the spell without target
                 game_screen.engine.handle_cast_spell(spell_id)
-                # Update the game screen UI after spell casting
                 if hasattr(game_screen, 'dungeon_view'):
                     game_screen.dungeon_view.update_map()
                 if hasattr(game_screen, 'hud_view'):

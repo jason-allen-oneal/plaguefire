@@ -1,4 +1,3 @@
-# app/screens/magic.py
 
 from app.screens.shop import BaseShopScreen, ShopItem
 from typing import List
@@ -6,6 +5,7 @@ import random
 
 class MagicShopScreen(BaseShopScreen):
 
+    """MagicShopScreen class."""
     BINDINGS = [
         ("up", "cursor_up", "Cursor Up"),
         ("down", "cursor_down", "Cursor Down"),
@@ -18,6 +18,7 @@ class MagicShopScreen(BaseShopScreen):
     ]
 
     def __init__(self, **kwargs):
+        """Initialize the instance."""
         super().__init__(
             shop_name="Arcane Curiosities",
             owner_name="Elara Meadowlight",
@@ -40,7 +41,6 @@ class MagicShopScreen(BaseShopScreen):
             inventory.append(ShopItem(name="Wand of Sparking (5)", cost=200, description="Shoots small sparks."))
         return inventory
 
-    # --- Magic Shop-specific actions ---
     def action_identify_action(self):
         """Handle the 'I' key to identify an item from player's inventory."""
         if 'identify' not in self.allowed_actions or not self.app.player:
@@ -54,8 +54,6 @@ class MagicShopScreen(BaseShopScreen):
             self.notify(f"Not enough gold. Identification costs {self.identify_cost} gold.", severity="error")
             return
         
-        # For now, just identify the first item in inventory
-        # In a full implementation, this would open a menu to select which item
         item_to_identify = self.app.player.inventory[0] if self.app.player.inventory else None
         
         if item_to_identify:
@@ -63,8 +61,6 @@ class MagicShopScreen(BaseShopScreen):
             self.player_gold = self.app.player.gold
             self.data_changed = True
             
-            # Since we don't have a full identification system yet,
-            # just provide flavor text
             self.notify(f"Elara examines '{item_to_identify}' closely... It appears to be a {item_to_identify}! (-{self.identify_cost} gold)")
             self.app.bell()
             self._update_display()

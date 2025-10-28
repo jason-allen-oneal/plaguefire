@@ -19,7 +19,6 @@ def colored_text(content: str, color: str, align: str = "center", **styles) -> S
     widget = Static(Text.from_markup(f"[{color}]{content}[/{color}]"))
     widget.styles.text_align = align
 
-    # Apply any extra styles you pass as kwargs
     for key, value in styles.items():
         setattr(widget.styles, key, value)
 
@@ -45,6 +44,7 @@ class SettingsScreen(Screen):
     """
 
     def compose(self):
+        """Compose."""
         header = colored_text("====== Settings ======", color="chartreuse1")
         self.settings_display = Static(self.render_settings(), markup=False)
         self.settings_display.styles.text_align = "center"
@@ -56,6 +56,7 @@ class SettingsScreen(Screen):
         yield layout
 
     def render_settings(self) -> str:
+        """Render settings."""
         music = "ON" if self.app.get_music() else "OFF"
         sfx = "ON" if self.app.get_sfx() else "OFF"
         diff = self.app.get_difficulty()
@@ -69,9 +70,11 @@ class SettingsScreen(Screen):
         )
 
     def refresh_display(self):
+        """Refresh display."""
         self.settings_display.update(self.render_settings())
 
     def action_toggle_music(self):
+        """Action toggle music."""
         self.app.toggle_music()
         if self.app.get_sfx():
             self.app.sound.play_sfx("title")
@@ -80,6 +83,7 @@ class SettingsScreen(Screen):
         self.notify(f"[bright_yellow]Music {state}[/bright_yellow]", timeout=2)
 
     def action_toggle_sfx(self):
+        """Action toggle sfx."""
         self.app.toggle_sfx()
         if self.app.get_sfx():
             self.app.sound.play_sfx("title")
@@ -88,6 +92,7 @@ class SettingsScreen(Screen):
         self.notify(f"[bright_yellow]Sound Effects {state}[/bright_yellow]", timeout=2)
 
     def action_cycle_difficulty(self):
+        """Action cycle difficulty."""
         self.app.cycle_difficulty()
         if self.app.get_sfx():
             self.app.sound.play_sfx("title")
@@ -95,6 +100,7 @@ class SettingsScreen(Screen):
         self.notify(f"[bright_yellow]Difficulty: {self.app.get_difficulty()}[/bright_yellow]", timeout=2)
 
     def action_toggle_command_mode(self):
+        """Action toggle command mode."""
         current = self.app.get_command_mode()
         new_mode = "roguelike" if current == "original" else "original"
         self.app.set_command_mode(new_mode)
@@ -104,6 +110,7 @@ class SettingsScreen(Screen):
         self.notify(f"[bright_yellow]Command Keys: {new_mode.capitalize()}[/bright_yellow]", timeout=2)
 
     def action_back_to_title(self):
+        """Action back to title."""
         self.app.pop_screen()
         self.app.push_screen("title")
 

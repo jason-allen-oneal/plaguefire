@@ -1,4 +1,3 @@
-# app/screens/tavern.py
 
 from app.screens.shop import BaseShopScreen, ShopItem
 from typing import List
@@ -6,6 +5,7 @@ import random
 
 class TavernScreen(BaseShopScreen):
 
+    """TavernScreen class."""
     BINDINGS = [
         ("up", "cursor_up", "Cursor Up"),
         ("down", "cursor_down", "Cursor Down"),
@@ -18,6 +18,7 @@ class TavernScreen(BaseShopScreen):
     ]
 
     def __init__(self, **kwargs):
+        """Initialize the instance."""
         super().__init__(
             shop_name="The Drunken Dragon",
             owner_name="Barkeep Bill",
@@ -27,7 +28,7 @@ class TavernScreen(BaseShopScreen):
             **kwargs
         )
         self.rumor_cost = 10
-        self.rest_cost = 20  # Cost to rest and restore HP/MP
+        self.rest_cost = 20
 
     def _generate_tavern_inventory(self) -> List[ShopItem]:
         """Generate items/services for the tavern."""
@@ -37,7 +38,6 @@ class TavernScreen(BaseShopScreen):
         ]
         return inventory
 
-    # --- Tavern-specific actions ---
     def action_rumor_action(self):
         """Handle the 'R' key to get a rumor."""
         if 'rumor' not in self.allowed_actions or not self.app.player:
@@ -47,12 +47,10 @@ class TavernScreen(BaseShopScreen):
             self.notify(f"Not enough gold. Rumors cost {self.rumor_cost} gold.", severity="error")
             return
         
-        # Deduct gold
         self.app.player.gold -= self.rumor_cost
         self.player_gold = self.app.player.gold
         self.data_changed = True
         
-        # List of possible rumors
         rumors = [
             "They say the dungeon holds ancient treasures...",
             "I heard strange noises coming from below last night.",
@@ -79,7 +77,6 @@ class TavernScreen(BaseShopScreen):
             self.notify(f"Not enough gold. Rest costs {self.rest_cost} gold.", severity="error")
             return
         
-        # Check if player needs healing or mana
         needs_hp = self.app.player.hp < self.app.player.max_hp
         needs_mana = self.app.player.mana < self.app.player.max_mana
         
@@ -87,12 +84,10 @@ class TavernScreen(BaseShopScreen):
             self.notify("You're already at full health and mana!", severity="warning")
             return
         
-        # Deduct gold
         self.app.player.gold -= self.rest_cost
         self.player_gold = self.app.player.gold
         self.data_changed = True
         
-        # Restore HP and MP
         old_hp = self.app.player.hp
         old_mana = self.app.player.mana
         

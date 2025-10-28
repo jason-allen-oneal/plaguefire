@@ -1,9 +1,8 @@
-# app/screens/creation.py
 
 from __future__ import annotations
 
 import random
-import string # For letters a-z
+import string
 from typing import Dict, List, Optional, Tuple
 
 from textual import events
@@ -11,7 +10,6 @@ from textual.screen import Screen
 from textual.widgets import Static
 from rich.text import Text
 
-# --- Added GameData import ---
 from app.lib.core.loader import GameData
 from app.lib.player import (
     Player,
@@ -21,15 +19,14 @@ from app.lib.player import (
     HISTORY_TABLES,
     build_character_profile,
     get_race_definition,
-    get_class_definition, # Need this too
+    get_class_definition,
 )
 from debugtools import debug
 
 CLASS_ORDER = ["Warrior", "Mage", "Priest", "Rogue", "Ranger", "Paladin"]
 SEX_OPTIONS = ["Male", "Female"]
 
-# --- Constants for Spell Selection ---
-MAX_STARTER_SPELLS = 1 # How many spells a starting caster can choose
+MAX_STARTER_SPELLS = 1
 
 def _format_stat(total: int, percentile: int) -> str:
     if total < 18:
@@ -43,7 +40,9 @@ def _format_height(height_in_inches: int) -> str:
 
 
 class CharacterCreationScreen(Screen):
+    """CharacterCreationScreen class."""
     def __init__(self, **kwargs):
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.character_name: str = ""
         self.race_names: List[str] = list(RACE_DEFINITIONS.keys())
@@ -64,20 +63,19 @@ class CharacterCreationScreen(Screen):
             len("History: ") + self.max_history_width + 5,
         )
 
-        # --- NEW: State Management and Spell Data ---
-        self.creation_step: str = "base" # "base" or "spell_select"
-        self.available_starter_spells: List[Tuple[str, Dict]] = [] # (spell_id, spell_data)
-        self.spell_selection_map: Dict[str, str] = {} # Map 'a' -> 'spell_id', etc.
+        self.creation_step: str = "base"
+        self.available_starter_spells: List[Tuple[str, Dict]] = []
+        self.spell_selection_map: Dict[str, str] = {}
         self.chosen_starter_spells: List[str] = []
 
-        # Initial setup
-        self.update_total_stats() # Also calls _recalculate_profile which now checks for spells
+        self.update_total_stats()
 
     def compose(self):
+        """Compose."""
         yield Static(self.render_text(), id="creation_text", markup=True)
 
-    # --- Core generators -------------------------------------------------
     def roll_stats(self) -> Dict[str, int]:
+        """Roll stats."""
         stats = {}
         for stat in STAT_NAMES:
             rolls = sorted(random.randint(1, 6) for _ in range(4))
@@ -107,6 +105,7 @@ class CharacterCreationScreen(Screen):
         return max(3, min(25, value))
 
     def update_total_stats(self):
+        """Update total stats."""
         race = self.race_names[self.current_race]
         race_mods = get_race_definition(race).get("stat_mods", {})
         totals: Dict[str, int] = {}
@@ -126,7 +125,7 @@ class CharacterCreationScreen(Screen):
                 percentiles[stat] = min(100, max(1, base_percent + random.randint(1, 20)))
         self.total_stats = totals
         self.stat_percentiles = percentiles
-        self._recalculate_profile() # This now handles spell list updates too
+        self._recalculate_profile()
 
     def _recalculate_profile(self):
         """Recalculates profile info AND checks for starter spells if class changed."""
@@ -142,20 +141,18 @@ class CharacterCreationScreen(Screen):
             sex,
             seed=self.profile_seed,
         )
-        # --- NEW: Check and fetch starter spells ---
         self._check_for_starter_spells()
 
-    # --- NEW: Fetch Starter Spells ---
     def _check_for_starter_spells(self):
         """Fetches level 1 spells if the current class is a spellcaster."""
         self.available_starter_spells = []
         self.spell_selection_map = {}
-        self.chosen_starter_spells = [] # Reset choices when class/race changes
+        self.chosen_starter_spells = []
 
         current_class_name = self.available_classes[self.current_class_index]
         class_def = get_class_definition(current_class_name)
 
-        if class_def.get("mana_stat"): # Check if it's a spellcasting class
+        if class_def.get("mana_stat"):
             data_loader = GameData()
             letters = string.ascii_lowercase
             spell_index = 0
@@ -169,17 +166,15 @@ class CharacterCreationScreen(Screen):
                             self.spell_selection_map[letter] = spell_id
                             spell_index += 1
                         else:
-                            break # No more letters
+                            break
             debug(f"Found {len(self.available_starter_spells)} starter spells for {current_class_name}")
         else:
              debug(f"{current_class_name} is not a spellcaster.")
 
-    # --- Rendering -------------------------------------------------------
-    def render_text(self) -> Text: # Return Rich Text
-        # --- Render Base Creation Step ---
+    def render_text(self) -> Text:
+        """Render text."""
         if self.creation_step == "base":
             return self._render_base_creation()
-        # --- Render Spell Selection Step ---
         elif self.creation_step == "spell_select":
             spell_markup = self._render_spell_selection()
             return Text.from_markup(spell_markup)
@@ -193,7 +188,6 @@ class CharacterCreationScreen(Screen):
         sex = SEX_OPTIONS[self.sex_index]
         race_mods = get_race_definition(race).get("stat_mods", {})
 
-        # --- Stat Block ---
         stat_lines = [Text.assemble(("  STAT ", "bold"), "|", (" BASE ", "bold"), "|", (" RACE ", "bold"), "|", (" TOTAL ", "bold"))]
         stat_lines.append(Text("  -----+------+-----+-------"))
         for stat in STAT_NAMES:
@@ -204,7 +198,6 @@ class CharacterCreationScreen(Screen):
             stat_lines.append(Text.assemble(f"  {stat:<4} | {base:>4} | ", (f"{race_bonus:+3}", "cyan" if race_bonus != 0 else ""), f" | {display:>5}"))
         stat_block = Text("\n").join(stat_lines)
 
-        # --- Ability Block ---
         abilities = self.current_profile.get("abilities", {})
         ability_lines = []
         if abilities:
@@ -224,7 +217,7 @@ class CharacterCreationScreen(Screen):
                  "Save:", (f"{abilities['saving_throw']:>4.1f}", "white"),
                  "  Infra:", (f"{abilities.get('infravision', 0):>3} ft", "white")
              ))
-        else: # Fallback if abilities somehow missing
+        else:
             ability_lines.append(Text("Fgt: -. - Bow: -. - Thr: -. - Stl: -. -"))
         ability_block = Text("\n").join(ability_lines)
 
@@ -241,7 +234,6 @@ class CharacterCreationScreen(Screen):
         )
 
         available = ", ".join(self.available_classes)
-        # Pad available classes for alignment (using Text.cell_len for accuracy)
         available_text = Text(available)
         pad_width = max(0, self.max_choices_width - available_text.cell_len)
         available_text.pad_right(pad_width)
@@ -267,7 +259,6 @@ class CharacterCreationScreen(Screen):
             Text.from_markup(instructions),
         ]
 
-        # Combine lines and pad width
         final_text = Text()
         for idx, line_text in enumerate(lines):
             pad = max(0, self.panel_width - line_text.cell_len)
@@ -282,10 +273,8 @@ class CharacterCreationScreen(Screen):
         """Renders the spell selection step."""
         cls = self.available_classes[self.current_class_index]
         
-        # Build Rich Text spell selection with proper markup
         spell_text = self._render_spell_selection_markup()
         
-        # Return the markup string directly for Static widget to render
         return spell_text
     
     def _render_spell_selection_markup(self) -> str:
@@ -298,7 +287,6 @@ class CharacterCreationScreen(Screen):
             ""
         ]
 
-        # List available spells
         if not self.spell_selection_map:
             lines.append("[yellow2]No starter spells available for this class.[/yellow2]")
         else:
@@ -310,7 +298,6 @@ class CharacterCreationScreen(Screen):
                     mana_cost = class_info.get("mana", "?")
                     fail_chance = class_info.get("base_failure", "?")
 
-                    # Rich Text formatting with colors
                     prefix = "[X]" if spell_id in self.chosen_starter_spells else "[ ]"
                     lines.append(f"{prefix} [yellow]{letter})[/yellow] [bold white]{spell_name}[/bold white] ([bright_cyan]{mana_cost} Mana[/bright_cyan], Fail: {fail_chance}%)")
                 else:
@@ -323,94 +310,89 @@ class CharacterCreationScreen(Screen):
 
 
     def refresh_display(self):
+        """Refresh display."""
         try:
             widget = self.query_one("#creation_text", Static)
             widget.update(self.render_text())
         except Exception as exc:
             debug(f"Error refreshing creation display: {exc}")
 
-    # --- Input handling --------------------------------------------------
     async def on_key(self, event: events.Key):
+        """
+                On key.
+                
+                Args:
+                    event: TODO
+                """
         key = event.key
         key_lower = key.lower()
 
-        # --- Base Creation Step Input ---
         if self.creation_step == "base":
             if key == "escape":
                 self.app.pop_screen()
                 self.app.push_screen("title")
                 return
             if key == "enter":
-                # --- Transition to spell select OR finalize ---
                 self._enter_pressed_base()
                 return
             if key_lower == "r":
                 self.base_stats = self.roll_stats()
-                self.update_total_stats() # Updates profile & checks spells
+                self.update_total_stats()
             elif key_lower == "g":
                 self.sex_index = (self.sex_index + 1) % len(SEX_OPTIONS)
-                self._recalculate_profile() # Checks spells
+                self._recalculate_profile()
             elif key == "left":
                 self.current_race = (self.current_race - 1) % len(self.race_names)
                 self.available_classes = self._allowed_classes(self.race_names[self.current_race])
                 self.current_class_index = 0
-                self.update_total_stats() # Updates profile & checks spells
+                self.update_total_stats()
             elif key == "right":
                 self.current_race = (self.current_race + 1) % len(self.race_names)
                 self.available_classes = self._allowed_classes(self.race_names[self.current_race])
                 self.current_class_index = 0
-                self.update_total_stats() # Updates profile & checks spells
+                self.update_total_stats()
             elif key == "up":
                 self.current_class_index = (self.current_class_index - 1) % len(self.available_classes)
-                self._recalculate_profile() # Checks spells
+                self._recalculate_profile()
             elif key == "down":
                 self.current_class_index = (self.current_class_index + 1) % len(self.available_classes)
-                self._recalculate_profile() # Checks spells
+                self._recalculate_profile()
             elif key == "backspace":
                 self.character_name = self.character_name[:-1]
-            elif len(key) == 1 and key.isprintable() and not key.isspace(): # Allow spaces?
+            elif len(key) == 1 and key.isprintable() and not key.isspace():
                 self.character_name += key
 
-        # --- Spell Selection Step Input ---
         elif self.creation_step == "spell_select":
             if key == "escape":
-                # Go back to base creation
                 self.creation_step = "base"
-                # Keep chosen spells? Let's reset them for simplicity
                 self.chosen_starter_spells = []
             elif key == "enter":
-                # --- Finalize if enough spells chosen ---
                 if len(self.chosen_starter_spells) == MAX_STARTER_SPELLS:
                     self._create_and_start_player()
                 else:
-                    self.app.bell() # Signal error - not enough spells
+                    self.app.bell()
             elif key_lower in self.spell_selection_map:
-                # --- Toggle spell selection ---
                 spell_id = self.spell_selection_map[key_lower]
                 if spell_id in self.chosen_starter_spells:
                     self.chosen_starter_spells.remove(spell_id)
                 elif len(self.chosen_starter_spells) < MAX_STARTER_SPELLS:
                     self.chosen_starter_spells.append(spell_id)
                 else:
-                    self.app.bell() # Signal error - max spells reached
-            elif len(key) == 1: # Bell for other keys
+                    self.app.bell()
+            elif len(key) == 1:
                  self.app.bell()
 
 
         self.refresh_display()
 
-    # --- Finalization ----------------------------------------------------
     def _enter_pressed_base(self):
         """Handles Enter key press during the base creation step."""
-        # Check if the chosen class is a spellcaster AND has starter spells
         if self.available_starter_spells:
-            # Transition to spell selection step
             self.creation_step = "spell_select"
-            self.chosen_starter_spells = [] # Ensure it's reset
+            self.chosen_starter_spells = []
             debug("Transitioning to starter spell selection.")
-            self.refresh_display() # Show the spell selection UI
+            self.refresh_display()
         else:
-            # Not a spellcaster or no starter spells defined, finalize immediately
             debug("Finalizing character directly (no spell selection needed).")
             self._create_and_start_player()
 
@@ -437,39 +419,27 @@ class CharacterCreationScreen(Screen):
             "weight": profile.get("weight"),
             "abilities": profile.get("abilities"),
             "gold": profile.get("starting_gold", 100),
-            # --- Use chosen spells if available, otherwise empty list ---
             "known_spells": self.chosen_starter_spells if self.chosen_starter_spells else [],
-            # Standard starting gear
             "inventory": ["Rations (3)", "Torch (5)", "Dagger"],
             "equipment": {"weapon": "Dagger", "armor": None},
-            # Game state defaults
             "depth": 0,
             "time": 0,
             "level": 1,
             "xp": 0,
-             # HP/Mana will be calculated by Player.__init__
-            # Light will be calculated by Player.__init__ based on infra/gear
         }
 
-        # Remove potentially unset light values if they rely on init calculation
-        # player_data.pop("light_radius", None)
-        # player_data.pop("base_light_radius", None)
-        # player_data.pop("light_duration", None)
 
 
         try:
             self.app.player = Player(player_data)
             self.app.save_character()
             self.app.notify(f"{self.app.player.name} created and saved.")
-            # --- Clear creation state before pushing dungeon ---
             self.creation_step = "base"
             self.chosen_starter_spells = []
             self.available_starter_spells = []
             self.spell_selection_map = {}
-            # --- Push dungeon screen ---
             self.app.push_screen("dungeon")
         except Exception as e:
             debug(f"Error finalizing player: {e}")
             self.app.notify(f"Error creating character: {e}", severity="error", timeout=10)
-            # Stay on creation screen on error
             self.refresh_display()

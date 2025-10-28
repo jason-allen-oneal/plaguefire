@@ -5,7 +5,6 @@ from textual.containers import VerticalScroll
 from textual.screen import Screen
 from textual.widgets import Static
 
-# Command reference data per control scheme
 COMMAND_REFERENCE: Dict[str, List[Tuple[str, str]]] = {
     "original": [
         ("1-9", "Move (numpad); 5 waits in place"),
@@ -106,10 +105,12 @@ class CommandHelpScreen(Screen):
     ]
 
     def __init__(self, mode: str):
+        """Initialize the instance."""
         super().__init__()
         self.mode = mode if mode in COMMAND_REFERENCE else "original"
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         entries = COMMAND_REFERENCE[self.mode]
         title = f"{self.mode.title()} Command Reference"
         lines = [
@@ -127,4 +128,5 @@ class CommandHelpScreen(Screen):
         yield VerticalScroll(Static(content, id="command-help-content", expand=True))
 
     def action_close(self) -> None:
+        """Action close."""
         self.app.pop_screen()

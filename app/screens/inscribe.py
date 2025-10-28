@@ -1,4 +1,3 @@
-# app/screens/inscribe.py
 
 from textual.app import ComposeResult
 from textual.containers import Container, Vertical
@@ -22,9 +21,9 @@ class InscribeScreen(Screen):
     ]
 
     def __init__(self, **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
-        # --- Map letters to item indices ---
         self.item_options: Dict[str, int] = {}
         self.selected_item_idx: Optional[int] = None
         self.input_widget: Optional[Input] = None
@@ -34,34 +33,28 @@ class InscribeScreen(Screen):
         """Creates the letter-to-item-index mapping for all items."""
         self.item_options.clear()
         
-        # Combine inventory and equipped items
         all_items = []
-        # Add inventory items
         for item in self.player.inventory:
             all_items.append(("inventory", item))
         
-        # Add equipped items
         for slot, item in self.player.equipment.items():
             if item:
                 all_items.append(("equipment", item))
         
         letters = string.ascii_lowercase
         
-        # Generate letter-to-item mapping
         for i, (source, item) in enumerate(all_items):
             if i < len(letters):
                 letter = letters[i]
-                # Store as (source, item_name) tuple
                 self.item_options[letter] = (source, item)
             else:
                 break
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         if self.selected_item_idx is None:
-            # Show item selection
             yield Static(Text.from_markup(self._render_item_list()), id="inscribe-list")
         else:
-            # Show inscription input
             with Vertical(id="inscribe-input-container"):
                 yield Static(Text.from_markup(self._render_input_prompt()), id="inscribe-prompt")
                 self.input_widget = Input(placeholder="Enter inscription (15 chars max)", max_length=15)
@@ -116,11 +109,9 @@ class InscribeScreen(Screen):
         key = event.key
         
         if self.selected_item_idx is None:
-            # In item selection mode
             if key in self.item_options:
                 self.selected_item_idx = list(self.item_options.keys()).index(key)
                 debug(f"Player selected item to inscribe at index {self.selected_item_idx}")
-                # Refresh to show input
                 await self.recompose()
 
     async def on_input_submitted(self, event: Input.Submitted):
@@ -131,14 +122,12 @@ class InscribeScreen(Screen):
         source, item_name = list(self.item_options.values())[self.selected_item_idx]
         inscription = event.value.strip()
         
-        # Set the custom inscription
         if self.player.set_custom_inscription(item_name, inscription):
             if inscription:
                 self.notify(f"Inscribed '{inscription}' on {item_name}.")
             else:
                 self.notify(f"Removed inscription from {item_name}.")
             
-            # Get the game screen and refresh UI
             game_screen = None
             for screen in self.app.screen_stack:
                 if screen.__class__.__name__ == "GameScreen":

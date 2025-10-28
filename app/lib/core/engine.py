@@ -1,4 +1,19 @@
-# app/engine.py
+"""
+Main game engine for Plaguefire roguelike.
+
+This module contains the Engine class which manages core game state, including:
+- Map generation and caching
+- Player and entity (monster/NPC) management
+- Field of View (FOV) calculations
+- Turn-based game loop
+- Combat resolution
+- Item and spell effects
+- Time tracking and day/night cycle
+- Save/load functionality
+
+The Engine coordinates between all game systems and provides the interface
+for the UI layer to interact with game logic.
+"""
 
 import random
 import math
@@ -20,7 +35,7 @@ from app.lib.core.projectile import Projectile
 from config import (
     WALL, FLOOR, STAIRS_DOWN, STAIRS_UP,
     DOOR_CLOSED, DOOR_OPEN, SECRET_DOOR, SECRET_DOOR_FOUND,
-    VIEWPORT_WIDTH, VIEWPORT_HEIGHT, # Use viewport for fallback center
+    VIEWPORT_WIDTH, VIEWPORT_HEIGHT,
     MIN_MAP_WIDTH, MAX_MAP_WIDTH, MIN_MAP_HEIGHT, MAX_MAP_HEIGHT,
     LARGE_DUNGEON_THRESHOLD, MAX_LARGE_MAP_WIDTH, MAX_LARGE_MAP_HEIGHT,
     QUARTZ_VEIN, MAGMA_VEIN, DAY_NIGHT_CYCLE_LENGTH, DAY_DURATION
@@ -30,24 +45,24 @@ from debugtools import debug, log_exception
 INSIGNIFICANT_DROP_IDS = {"ICKY_GOO"}
 
 if TYPE_CHECKING:
-    from app.plaguefire import RogueApp # Assuming rogue.py contains your main App class
+    from app.plaguefire import RogueApp
 
 MapData = List[List[str]]
 VisibilityData = List[List[int]]
 BUILDING_KEY = [
-    None,            # Index 0
-    'General Goods', # Index 1
-    'Temple',        # Index 2
-    'Tavern',        # Index 3
-    'Armory',        # Index 4
-    'Weapon Smith',  # Index 5
-    'Magic Shop',    # Index 6
+    None,
+    'General Goods',
+    'Temple',
+    'Tavern',
+    'Armory',
+    'Weapon Smith',
+    'Magic Shop',
 ]
 
 
 class Engine:
     """Manages the game state, map, player, FOV, entities, and time."""
-    STATS_ORDER = ["STR", "DEX", "CON", "INT", "WIS", "CHA"] # Keep stat order accessible
+    STATS_ORDER = ["STR", "DEX", "CON", "INT", "WIS", "CHA"]
 
     @staticmethod
     def _find_tile_on_map(map_data: Optional[MapData], tile_char: str) -> List[int] | None:
@@ -73,6 +88,7 @@ class Engine:
         ground_items_override: Optional[Dict[Tuple[int, int], List[str]]] = None,
         death_log_override: Optional[List[Dict[str, Any]]] = None
     ):
+        """Initialize the instance."""
         self.app = app
         self.player = player
         if self.player.depth == 0:
@@ -95,8 +111,8 @@ class Engine:
         self.combat_log: List[str] = []
         
         generated_new_map = False
-        self.rooms = []  # Initialize rooms list
-        self.lit_rooms = set()  # Track which rooms have been lit
+        self.rooms = []
+        self.lit_rooms = set()
         if map_override:
             self.game_map = map_override
             if rooms_override:
@@ -105,12 +121,11 @@ class Engine:
                 self.rooms = []
         else:
             result = self._generate_map(self.player.depth)
-            # Handle both tuple (new format) and single value (old format) returns
             if isinstance(result, tuple):
                 self.game_map, self.rooms = result
             else:
                 self.game_map = result
-                self.rooms = []  # No rooms for non-room-based dungeons
+                self.rooms = []
             generated_new_map = True
         self.map_height = len(self.game_map)
         self.map_width = len(self.game_map[0]) if self.map_height > 0 else 0
@@ -139,8 +154,6 @@ class Engine:
 
         self.visibility = [[0 for _ in range(self.map_width)] for _ in range(self.map_height)]
         
-        # Track light colors (for torches and lanterns)
-        # 0 = no light color, 1 = yellow (torch/lantern)
         self.light_colors = [[0 for _ in range(self.map_width)] for _ in range(self.map_height)]
 
         if entities_override is not None:
@@ -150,7 +163,6 @@ class Engine:
             debug("Spawning entities for current depth.")
             self.entities = spawn_entities_for_depth(self.game_map, self.player.depth, self.player.position)
             
-            # Spawn chests for dungeon levels
             if generated_new_map:
                 entity_positions = [entity.position for entity in self.entities]
                 spawn_chests_for_depth(self.game_map, self.player.depth, self.player.position, entity_positions)
@@ -160,17 +172,14 @@ class Engine:
         self.searching = False
         self.search_timer = 0
         
-        # Word of Recall tracking
         self.recall_active = False
         self.recall_timer = 0
-        self.recall_turns = 20  # Number of turns before recall activates
+        self.recall_turns = 20
         self.recall_target_depth = None
         
-        # Overweight warning tracking
         self.last_overweight_warning = 0
-        self.overweight_warning_interval = 50  # Warn every 50 turns when overweight
+        self.overweight_warning_interval = 50
         
-        # Ground items tracking {(x, y): [item_name, ...]}
         if ground_items_override:
             self.ground_items = {tuple(pos): list(items) for pos, items in ground_items_override.items()}
         else:
@@ -184,12 +193,12 @@ class Engine:
             for record in (death_log_override or [])
         ]
         
-        # Projectile animation tracking
         self.active_projectiles: List[Projectile] = []
         
         self.update_fov()
 
     def get_time_of_day(self) -> str:
+        """Get time of day."""
         time_in_cycle = self.player.time % 200
         return "Day" if 0 <= time_in_cycle < 100 else "Night"
 
@@ -210,19 +219,17 @@ class Engine:
                 height = random.randint(MIN_MAP_HEIGHT, max_height)
 
             if depth <= 375:
-                 # This now returns (map_data, rooms)
                  return generate_room_corridor_dungeon(map_width=width, map_height=height)
             else:
-                 # Cellular automata doesn't have defined rooms, so just return map
                  return generate_cellular_automata_dungeon(width=width, height=height)
 
     def update_fov(self):
+        """Update fov."""
         map_h = self.map_height; map_w = self.map_width
         for y in range(map_h):
              for x in range(map_w):
                  if self.visibility[y][x] == 2: self.visibility[y][x] = 1
         
-        # Clear light colors
         self.light_colors = [[0 for _ in range(map_w)] for _ in range(map_h)]
 
         if self.player.depth == 0 and self.get_time_of_day() == "Day":
@@ -235,17 +242,14 @@ class Engine:
         else:
              self.visibility = update_visibility(self.visibility, self.player.position, self.game_map, self.player.light_radius)
         
-        # Apply light colors for torch/lantern
         self._apply_light_colors()
     
     def _apply_light_colors(self):
         """Apply colored lighting for torches and lanterns."""
         from app.lib.fov import line_of_sight
         
-        # Check player equipment for light sources
         equipped_lantern = self.player.equipment.get('light', '')
         
-        # Determine light radius and color based on equipment
         light_radius = 0
         if 'Lantern' in equipped_lantern:
             light_radius = 6
@@ -256,14 +260,12 @@ class Engine:
             px, py = self.player.position
             for y in range(max(0, py - light_radius), min(self.map_height, py + light_radius + 1)):
                 for x in range(max(0, px - light_radius), min(self.map_width, px + light_radius + 1)):
-                    # Simple distance check (square FOV)
                     dx = abs(x - px)
                     dy = abs(y - py)
                     if max(dx, dy) <= light_radius:
-                        # Check line of sight
                         if line_of_sight(self.game_map, px, py, x, y):
-                            if self.visibility[y][x] == 2:  # Only color visible tiles
-                                self.light_colors[y][x] = 1  # Yellow light
+                            if self.visibility[y][x] == 2:
+                                self.light_colors[y][x] = 1
 
         if self.player.depth > 0 and self.rooms and self.lit_rooms:
             for room_index in list(self.lit_rooms):
@@ -275,11 +277,22 @@ class Engine:
         return find_tile(self.game_map, tile_char)
 
     def get_tile_at_coords(self, x: int, y: int) -> str | None:
+         """
+                 Get tile at coords.
+                 
+                 Args:
+                     x: TODO
+                     y: TODO
+                 
+                 Returns:
+                     TODO
+                 """
          if 0 <= y < self.map_height and 0 <= x < self.map_width:
              return self.game_map[y][x]
          return None
 
     def get_tile_at_player(self) -> str | None:
+        """Get tile at player."""
         px, py = self.player.position
         return self.get_tile_at_coords(px, py)
     
@@ -294,12 +307,9 @@ class Engine:
             return
         
         if self.player.depth > 0:
-            # In dungeon - recall to town
             self.recall_target_depth = 0
             self.log_event("You begin to recall to the surface...")
         else:
-            # In town - recall to deepest dungeon level visited
-            # For now, use depth 1 as a placeholder (full implementation would track deepest depth)
             deepest_depth = getattr(self.player, 'deepest_depth', 1)
             if deepest_depth > 0:
                 self.recall_target_depth = deepest_depth
@@ -318,14 +328,11 @@ class Engine:
         
         self.log_event("The world spins around you...")
         
-        # Trigger depth change through the app
         if hasattr(self.app, 'change_depth'):
             self.app.change_depth(self.recall_target_depth)
         else:
-            # Fallback: just log the event
             self.log_event(f"You are recalled! (Target depth: {self.recall_target_depth})")
         
-        # Reset recall state
         self.recall_active = False
         self.recall_timer = 0
         self.recall_target_depth = None
@@ -335,18 +342,14 @@ class Engine:
         self.player.time += 1
         debug(f"--- Turn {self.player.time} ---")
         
-        # Update projectiles
         self.clear_inactive_projectiles()
         
-        # Regenerate mana each turn
         self.player.regenerate_mana()
         
-        # Tick status effects
         expired = self.player.status_manager.tick_effects()
         for effect_name in expired:
             self.log_event(f"{effect_name} effect wore off.")
         
-        # Handle Word of Recall countdown
         if self.recall_active:
             self.recall_timer += 1
             remaining = self.recall_turns - self.recall_timer
@@ -355,7 +358,6 @@ class Engine:
             elif self.recall_timer >= self.recall_turns:
                 self._execute_recall()
         
-        # Check for overweight penalty and warn player
         if self.player.is_overweight():
             turns_since_warning = self.player.time - self.last_overweight_warning
             if turns_since_warning >= self.overweight_warning_interval:
@@ -369,7 +371,6 @@ class Engine:
             if self.search_timer >= 3:
                 self.search_timer = 0
                 self._perform_search()
-        # Update entity sleep states based on time of day
         time_of_day = self.get_time_of_day()
         for entity in self.entities:
             entity.update_sleep_state(time_of_day)
@@ -378,6 +379,16 @@ class Engine:
         self.update_fov()
 
     def handle_player_move(self, dx: int, dy: int) -> bool:
+        """
+                Handle player move.
+                
+                Args:
+                    dx: TODO
+                    dy: TODO
+                
+                Returns:
+                    TODO
+                """
         px, py = self.player.position; nx, ny = px + dx, py + dy
         target_entity = self.get_entity_at(nx, ny)
         action_taken = False
@@ -386,7 +397,6 @@ class Engine:
         else:
             target_tile = self.get_tile_at_coords(nx, ny)
             
-            # Auto-open closed doors when trying to walk into them
             if target_tile == DOOR_CLOSED:
                 self.game_map[ny][nx] = DOOR_OPEN
                 self.update_fov()
@@ -403,84 +413,66 @@ class Engine:
                 time_after_move_check = self.get_time_of_day()
                 if self.player.depth == 0 and time_before_move != time_after_move_check: self.update_fov()
                 
-                # Auto-pickup gold on the tile
                 pos_key = (nx, ny)
                 if pos_key in self.ground_items:
                     items_to_remove = []
                     for item in self.ground_items[pos_key]:
                         if item.startswith("$"):
-                            # It's gold - auto-pickup
                             gold_amount = int(item[1:])
                             self.player.gold += gold_amount
                             self.log_event(f"You pick up {gold_amount} gold.")
                             items_to_remove.append(item)
                     
-                    # Remove picked up gold
                     for item in items_to_remove:
                         self.ground_items[pos_key].remove(item)
                     
-                    # Clean up empty ground item lists
                     if not self.ground_items[pos_key]:
                         del self.ground_items[pos_key]
                 
-                # Check for room auto-lighting
                 if self.rooms and self.player.depth > 0 and self.player.depth <= 375:
                     self._check_and_light_room(nx, ny)
                 
                 action_taken = True
-            # else: Bumping doesn't take a turn
         if action_taken: self._end_player_turn()
         return action_taken
 
     def _check_and_light_room(self, x: int, y: int):
         """Check if player entered a room and auto-light it if applicable."""
         from app.lib.core.generation.maps.generate import Rect
-        # Find which room the player is in
         for i, room in enumerate(self.rooms):
             if room.x1 <= x < room.x2 and room.y1 <= y < room.y2:
-                # Player is in a room
                 if i not in self.lit_rooms:
-                    # Room hasn't been lit yet
-                    # 90% chance to light it
                     if random.random() < 0.9:
                         self.lit_rooms.add(i)
                 if i in self.lit_rooms:
-                    # Ensure the brightness applies immediately when moving
                     self._light_room(room)
                 break
     
     def _light_room(self, room):
         """Light an entire room including walls by setting visibility to 2 (currently visible)."""
-        # Light the room interior
         for y in range(room.y1, room.y2):
             for x in range(room.x1, room.x2):
                 if 0 <= y < self.map_height and 0 <= x < self.map_width:
-                    # Set visibility to 2 (currently visible)
                     self.visibility[y][x] = 2
         
-        # Light the walls around the room
-        # North wall (row above the room)
         if room.y1 > 0:
             for x in range(max(0, room.x1 - 1), min(self.map_width, room.x2 + 1)):
                 y = room.y1 - 1
                 if 0 <= y < self.map_height:
                     self.visibility[y][x] = 2
         
-        # South wall (row below the room)
         if room.y2 < self.map_height:
             for x in range(max(0, room.x1 - 1), min(self.map_width, room.x2 + 1)):
                 y = room.y2
                 if 0 <= y < self.map_height:
                     self.visibility[y][x] = 2
         
-        # West wall (column to the left of the room)
         if room.x1 > 0:
             for y in range(max(0, room.y1), min(self.map_height, room.y2)):
                 x = room.x1 - 1
                 if 0 <= x < self.map_width:
                     self.visibility[y][x] = 2
         
-        # East wall (column to the right of the room)
         if room.x2 < self.map_width:
             for y in range(max(0, room.y1), min(self.map_height, room.y2)):
                 x = room.x2
@@ -511,20 +503,25 @@ class Engine:
         return self.player.inventory_manager.remove_instance(instance.instance_id) is not None
 
     def handle_use_item(self, item_index: int) -> bool:
-        # --- Use item logic --- (omitted for brevity, keep your existing logic)
+         """
+                 Handle use item.
+                 
+                 Args:
+                     item_index: TODO
+                 
+                 Returns:
+                     TODO
+                 """
          if not (0 <= item_index < len(self.player.inventory)): return False
          item_name = self.player.inventory[item_index]
          
-         # Check if it's a scroll
          if "Scroll" in item_name:
              success, message, spell_data = self.player.use_scroll(item_name)
              self.log_event(message)
              
              if success and spell_data:
-                 # Remove scroll from inventory
                  self._remove_item_by_index(item_index)
                  
-                 # Apply spell effects (similar to cast_spell but without target selection for now)
                  effect_type = spell_data.get('effect_type', 'unknown')
                  spell_name = spell_data.get('name', 'the spell')
                  
@@ -539,7 +536,6 @@ class Engine:
                  elif effect_type == 'teleport':
                      max_range = spell_data.get('range', 10)
                      if max_range > 1000:
-                         # Word of Recall - delayed teleport
                          self.activate_recall()
                      else:
                          self._handle_teleport_spell(max_range)
@@ -559,34 +555,28 @@ class Engine:
                          self.log_event(f"The {status_to_remove} effect is removed!")
                      else:
                          self.log_event(f"Nothing happens.")
-                 # Note: attack and debuff scrolls would need target selection
                  elif effect_type == 'utility':
                      self._handle_utility_spell(spell_data)
                  
                  self._end_player_turn()
                  return True
              elif success:
-                 # Scroll used but no spell data (custom effect scrolls)
                  self._remove_item_by_index(item_index)
                  self._end_player_turn()
                  return True
              else:
-                 # Scroll failed (shouldn't happen normally)
                  self._end_player_turn()
                  return False
          
-         # Check if it's a spell book
          if "Handbook" in item_name or "Magik" in item_name or "Chants" in item_name or "book" in item_name.lower():
              success, learned_spells, message = self.player.read_spellbook(item_name)
              self.log_event(message)
              
-             # Consume the book after reading
              self._remove_item_by_index(item_index)
              
              self._end_player_turn()
              return True
          
-         # Check if it's a potion
          if "Potion" in item_name:
              success = self._use_potion(item_name)
              if success:
@@ -596,7 +586,6 @@ class Engine:
              else:
                  return False
          
-         # Check if it's food
          if "Food" in item_name or "Ration" in item_name:
              success = self._use_food(item_name)
              if success:
@@ -606,7 +595,6 @@ class Engine:
              else:
                  return False
          
-         # Unknown/unimplemented item type
          self.log_event(f"You can't use {item_name} that way.")
          return False
 
@@ -632,7 +620,16 @@ class Engine:
             return False
 
     def handle_cast_spell(self, spell_id: str, target_entity: Optional[Entity] = None) -> bool:
-        # --- Cast spell logic --- (omitted for brevity, keep your existing logic)
+        """
+                Handle cast spell.
+                
+                Args:
+                    spell_id: TODO
+                    target_entity: TODO
+                
+                Returns:
+                    TODO
+                """
         success, message, spell_data = self.player.cast_spell(spell_id)
         self.log_event(message)
         if not success: self._end_player_turn(); return False
@@ -641,29 +638,26 @@ class Engine:
             spell_name = spell_data.get('name', 'the spell')
             if effect_type == 'attack':
                 if target_entity:
-                    # Add projectile animation for targeted spells
                     px, py = self.player.position
                     tx, ty = target_entity.position
                     projectile_char = spell_data.get('projectile_char', '*')
                     projectile_type = spell_data.get('damage_type', 'magic')
                     self.add_projectile((px, py), (tx, ty), projectile_char, projectile_type)
                     
-                    # ... (damage calculation logic remains the same) ...
                     damage_str = spell_data.get('damage', '1d6')
-                    damage = 0 # Calculate damage based on damage_str
-                    try: # Add error handling for damage string parsing
+                    damage = 0
+                    try:
                         if 'd' in damage_str:
                             num_dice, die_size = map(int, damage_str.split('d'))
                             damage = sum(random.randint(1, die_size) for _ in range(num_dice))
                         else: damage = int(damage_str)
-                    except ValueError: damage = random.randint(1, 6) # Fallback
+                    except ValueError: damage = random.randint(1, 6)
 
                     is_dead = target_entity.take_damage(damage)
                     self.log_event(f"{target_entity.name} takes {damage} {spell_data.get('damage_type', 'spell')} damage!")
                     if is_dead: self.handle_entity_death(target_entity); self.log_event(f"{target_entity.name} is defeated!")
                 else: self.log_event(f"{spell_name} fizzles.")
             elif effect_type == 'area_attack':
-                # Area damage - damage all visible enemies
                 damage_str = spell_data.get('damage', '1d6')
                 damage_type = spell_data.get('damage_type', 'physical')
                 visible_enemies = [e for e in self.get_visible_entities() if e.hostile]
@@ -699,7 +693,6 @@ class Engine:
             elif effect_type == 'teleport':
                 max_range = spell_data.get('range', 10)
                 if max_range > 1000:
-                    # Word of Recall - delayed teleport
                     self.activate_recall()
                 else:
                     self._handle_teleport_spell(max_range)
@@ -715,7 +708,6 @@ class Engine:
                 status = spell_data.get('status', 'Debuffed')
                 duration = spell_data.get('duration', 20)
                 if target_entity:
-                    # Apply to entity (we'll need to add status manager to entities too)
                     if hasattr(target_entity, 'status_manager'):
                         target_entity.status_manager.add_effect(status, duration)
                         self.log_event(f"{target_entity.name} is affected by {spell_name}!")
@@ -736,7 +728,6 @@ class Engine:
         return True
 
     def _handle_detection_spell(self, spell_data: Dict) -> None:
-        # --- Detection logic --- (omitted for brevity, keep your existing logic)
         target = spell_data.get('effect_target', 'monsters')
         if target == 'monsters':
             names = [e.name for e in self.get_visible_entities()]
@@ -750,13 +741,11 @@ class Engine:
             found = self._perform_search(log_success=False)
             self.log_event("Detect hidden traps!" if found else "Detect no traps.")
         elif target == 'treasure':
-            # Detect treasure veins (quartz and magma)
             mining_system = get_mining_system()
             px, py = self.player.position
             veins = mining_system.detect_veins(self.game_map, px, py, radius=15)
             
             if veins:
-                # Count vein types
                 quartz_count = sum(1 for _, _, vein_type in veins if vein_type == QUARTZ_VEIN)
                 magma_count = sum(1 for _, _, vein_type in veins if vein_type == MAGMA_VEIN)
                 
@@ -773,7 +762,6 @@ class Engine:
 
 
     def _handle_teleport_spell(self, max_range: int) -> None:
-        # --- Teleport logic --- (omitted for brevity, keep your existing logic)
         px, py = self.player.position
         for _ in range(20):
             nx, ny = px + random.randint(-max_range, max_range), py + random.randint(-max_range, max_range)
@@ -794,10 +782,8 @@ class Engine:
         subtype = spell_data.get('subtype', '')
         
         if spell_id == 'identify' or subtype == 'identify':
-            # Identify spell - identify a single unknown item
             self._handle_identify_spell()
         elif spell_id == 'detect_magic' or subtype == 'detect_magic':
-            # Detect Magic spell - reveal magical items in inventory
             self._handle_detect_magic_spell()
         else:
             self.log_event(f"{spell_name} has no effect.")
@@ -810,10 +796,8 @@ class Engine:
         """
         from app.lib.core.item import ItemInstance
         
-        # Find first unidentified item in inventory
         unidentified_item = None
         
-        # Check if player has item instances
         if hasattr(self.player, 'inventory_manager') and self.player.inventory_manager:
             for instance in self.player.inventory_manager.instances:
                 if not instance.identified:
@@ -831,7 +815,6 @@ class Engine:
         Handle the Detect Magic spell - reveals magical properties of items.
         Sets a temporary flag that causes items to show {magik} inscription.
         """
-        # Count magical items in inventory
         magical_count = 0
         
         if hasattr(self.player, 'inventory_manager') and self.player.inventory_manager:
@@ -839,7 +822,6 @@ class Engine:
                 if instance.effect:
                     magical_count += 1
         
-        # Also check equipped items
         if hasattr(self.player, 'inventory_manager') and self.player.inventory_manager:
             for slot, instance in self.player.inventory_manager.equipment.items():
                 if instance and instance.effect:
@@ -847,9 +829,8 @@ class Engine:
         
         if magical_count > 0:
             self.log_event(f"You sense {magical_count} magical item(s) in your possession!")
-            # Set a temporary detect magic flag on player for display purposes
             if hasattr(self.player, 'status_manager'):
-                self.player.status_manager.add_effect("Detect_Magic", 100)  # Lasts 100 turns
+                self.player.status_manager.add_effect("Detect_Magic", 100)
         else:
             self.log_event("You sense no magical items.")
 
@@ -869,21 +850,18 @@ class Engine:
         
         effect_type = effect[0]
         
-        # Healing potions
         if effect_type == 'heal':
             heal_amount = effect[1] if len(effect) > 1 else 10
             amount_healed = self.player.heal(heal_amount)
             self.log_event(f"You drink {potion_name}. (+{amount_healed} HP)")
             return True
         
-        # Mana restoration
         elif effect_type == 'restore_mana':
             mana_amount = effect[1] if len(effect) > 1 else 20
             amount_restored = self.player.restore_mana(mana_amount)
             self.log_event(f"You drink {potion_name}. (+{amount_restored} mana)")
             return True
         
-        # Status effects (negative)
         elif effect_type == 'status':
             status_name = effect[1] if len(effect) > 1 else 'Unknown'
             duration = effect[2] if len(effect) > 2 else 10
@@ -891,10 +869,8 @@ class Engine:
             self.log_event(f"You drink {potion_name}. You feel {status_name}!")
             return True
         
-        # Buffs (positive effects)
         elif effect_type == 'buff':
             if len(effect) >= 3:
-                # Stat buff: ['buff', 'CHA', bonus, duration]
                 stat_name = effect[1]
                 bonus = effect[2] if len(effect) > 2 else 1
                 duration = effect[3] if len(effect) > 3 else 30
@@ -902,14 +878,12 @@ class Engine:
                 self.player.status_manager.add_effect(buff_name, duration)
                 self.log_event(f"You drink {potion_name}. You feel enhanced!")
             else:
-                # Named buff: ['buff', 'bold', duration]
                 buff_name = effect[1] if len(effect) > 1 else 'Buffed'
                 duration = effect[2] if len(effect) > 2 else 30
                 self.player.status_manager.add_effect(buff_name.capitalize(), duration)
                 self.log_event(f"You drink {potion_name}. You feel {buff_name}!")
             return True
         
-        # Debuffs
         elif effect_type == 'debuff':
             debuff_name = effect[1] if len(effect) > 1 else 'Weakened'
             duration = effect[3] if len(effect) > 3 else 20
@@ -917,7 +891,6 @@ class Engine:
             self.log_event(f"You drink {potion_name}. You feel {debuff_name}!")
             return True
         
-        # Permanent stat increases
         elif effect_type == 'perm_stat_increase':
             stat_name = effect[1] if len(effect) > 1 else 'STR'
             increase = effect[2] if len(effect) > 2 else 1
@@ -926,7 +899,6 @@ class Engine:
                 self.log_event(f"You drink {potion_name}. Your {stat_name} increases!")
             return True
         
-        # Temporary stat drain
         elif effect_type == 'temp_stat_drain':
             stat_name = effect[1] if len(effect) > 1 else 'STR'
             drain = effect[2] if len(effect) > 2 else 1
@@ -936,10 +908,8 @@ class Engine:
             self.log_event(f"You drink {potion_name}. Your {stat_name} feels drained!")
             return True
         
-        # Restore stat (removes drain)
         elif effect_type == 'restore_stat':
             stat_name = effect[1] if len(effect) > 1 else 'STR'
-            # Remove any stat drain effects
             debuff_name = f"{stat_name}_drain"
             if self.player.status_manager.remove_effect(debuff_name):
                 self.log_event(f"You drink {potion_name}. Your {stat_name} is restored!")
@@ -947,7 +917,6 @@ class Engine:
                 self.log_event(f"You drink {potion_name}. Nothing happens.")
             return True
         
-        # Cure status condition
         elif effect_type == 'cure_status':
             status_to_cure = effect[1] if len(effect) > 1 else 'poisoned'
             if self.player.status_manager.remove_effect(status_to_cure.capitalize()):
@@ -956,7 +925,6 @@ class Engine:
                 self.log_event(f"You drink {potion_name}. Nothing happens.")
             return True
         
-        # Experience gain/loss
         elif effect_type == 'gain_xp':
             xp_amount = effect[1] if len(effect) > 1 else 100
             self.player.gain_xp(xp_amount)
@@ -969,9 +937,7 @@ class Engine:
             self.log_event(f"You drink {potion_name}. You feel less experienced! (-{xp_loss} XP)")
             return True
         
-        # Satiation (food value)
         elif effect_type == 'satiate':
-            # This would affect a hunger system if implemented
             satiate_value = effect[1] if len(effect) > 1 else 10
             if satiate_value > 0:
                 self.log_event(f"You drink {potion_name}. Refreshing!")
@@ -979,21 +945,17 @@ class Engine:
                 self.log_event(f"You drink {potion_name}. It makes you thirsty!")
             return True
         
-        # Special effects
         elif effect_type == 'restore_level':
-            # Restore drained experience levels (placeholder)
             self.log_event(f"You drink {potion_name}. Your life force is restored!")
             return True
         
         elif effect_type == 'slow_poison':
-            # Slow poison effect
             if self.player.status_manager.has_effect('Poisoned'):
                 self.log_event(f"You drink {potion_name}. The poison slows down.")
             else:
                 self.log_event(f"You drink {potion_name}. Nothing happens.")
             return True
         
-        # Unknown effect
         else:
             self.log_event(f"You drink {potion_name}. Strange sensations!")
             return True
@@ -1007,7 +969,6 @@ class Engine:
             self.log_event(f"Unknown food: {food_name}")
             return False
         
-        # Food primarily restores satiation and may have minor healing
         effect = item_data.get('effect')
         if effect and isinstance(effect, list) and len(effect) > 0:
             effect_type = effect[0]
@@ -1023,7 +984,6 @@ class Engine:
                 self.log_event(f"You eat {food_name}. (+{amount_healed} HP)")
                 return True
         
-        # Default food behavior
         self.log_event(f"You eat {food_name}. Tasty!")
         return True
     
@@ -1034,12 +994,10 @@ class Engine:
         
         item_name = self.player.inventory[item_index]
         
-        # Verify it's a wand
         if "Wand" not in item_name:
             self.log_event(f"That's not a wand!")
             return False
         
-        # Get item data
         data_loader = GameData()
         item_data = data_loader.get_item_by_name(item_name)
         
@@ -1047,7 +1005,6 @@ class Engine:
             self.log_event(f"Unknown wand: {item_name}")
             return False
         
-        # Get the item instance to check/consume charges
         instances = self.player.inventory_manager.get_instances_by_name(item_name)
         if not instances:
             self.log_event(f"Cannot find {item_name}.")
@@ -1055,12 +1012,10 @@ class Engine:
         
         wand_instance = instances[0]
         
-        # Check if wand has charges
         if wand_instance.is_empty():
             self.log_event(f"{item_name} has no charges left!")
             return False
         
-        # Consume a charge
         wand_instance.use_charge()
         
         effect = item_data.get('effect')
@@ -1071,9 +1026,7 @@ class Engine:
         
         effect_type = effect[0]
         
-        # Apply wand effect (similar to scroll but needs targeting)
         if effect_type == 'attack':
-            # For now, apply to nearest enemy
             visible_entities = self.get_visible_entities()
             if visible_entities:
                 target = visible_entities[0]
@@ -1118,12 +1071,10 @@ class Engine:
         
         item_name = self.player.inventory[item_index]
         
-        # Verify it's a staff
         if "Staff" not in item_name:
             self.log_event(f"That's not a staff!")
             return False
         
-        # Get item data
         data_loader = GameData()
         item_data = data_loader.get_item_by_name(item_name)
         
@@ -1131,7 +1082,6 @@ class Engine:
             self.log_event(f"Unknown staff: {item_name}")
             return False
         
-        # Get the item instance to check/consume charges
         instances = self.player.inventory_manager.get_instances_by_name(item_name)
         if not instances:
             self.log_event(f"Cannot find {item_name}.")
@@ -1139,12 +1089,10 @@ class Engine:
         
         staff_instance = instances[0]
         
-        # Check if staff has charges
         if staff_instance.is_empty():
             self.log_event(f"{item_name} has no charges left!")
             return False
         
-        # Consume a charge
         staff_instance.use_charge()
         
         effect = item_data.get('effect')
@@ -1155,9 +1103,7 @@ class Engine:
         
         effect_type = effect[0]
         
-        # Apply staff effect (area effects)
         if effect_type == 'attack':
-            # Area attack - affects all visible enemies
             visible_entities = self.get_visible_entities()
             damage = effect[1] if len(effect) > 1 else 10
             
@@ -1187,13 +1133,11 @@ class Engine:
             self.log_event(f"You use {item_name}. You feel {buff_name}!")
         
         elif effect_type == 'debuff':
-            # Apply debuff to all visible enemies
             visible_entities = self.get_visible_entities()
             debuff_name = effect[1] if len(effect) > 1 else 'Slowed'
             duration = effect[2] if len(effect) > 2 else 20
             
             for target in visible_entities:
-                # TODO: Add status effects to entities
                 self.log_event(f"{target.name} is affected by {debuff_name}!")
         
         elif effect_type == 'light':
@@ -1217,11 +1161,9 @@ class Engine:
         
         item_name = self.player.inventory[item_index]
         
-        # Check if item is equipped and cursed
         if hasattr(self.player, 'equipment'):
             for slot, equipped_item in self.player.equipment.items():
                 if equipped_item == item_name:
-                    # Check if cursed
                     data_loader = GameData()
                     item_data = data_loader.get_item_by_name(item_name)
                     if item_data and item_data.get('effect'):
@@ -1230,18 +1172,15 @@ class Engine:
                             self.log_event(f"{item_name} is cursed! You cannot remove it!")
                             return False
                     
-                    # Unequip the item first
                     self.player.equipment[slot] = None
                     self.log_event(f"You remove {item_name}.")
         
-        # Drop item at player's position with physics
         px, py = self.player.position
         
         if not self._place_ground_item(item_name, (px, py), allow_player_tile=True):
             self.log_event("There is no space to drop that.")
             return False
         
-        # Remove from inventory using inventory manager
         self._remove_item_from_inventory(item_name)
         
         self.log_event(f"You drop {item_name}.")
@@ -1253,28 +1192,23 @@ class Engine:
         px, py = self.player.position
         pos_key = (px, py)
         
-        # Check if there are items on the ground
         if pos_key not in self.ground_items or not self.ground_items[pos_key]:
             self.log_event("There is nothing here to pick up.")
             return False
         
-        # Filter out gold (already auto-picked up)
         non_gold_items = [item for item in self.ground_items[pos_key] if not item.startswith("$")]
         
         if not non_gold_items:
             self.log_event("There is nothing here to pick up.")
             return False
         
-        # Pick up the first non-gold item
         item_name = non_gold_items[0]
         
-        # Check if player can pick up the item
         can_pickup, reason = self.player.can_pickup_item(item_name)
         if not can_pickup:
             self.log_event(f"You cannot pick up {item_name}: {reason}")
             return False
         
-        # Get item ID from name for inventory manager
         item_data = GameData().get_item_by_name(item_name)
         if not item_data:
             self.log_event(f"Unknown item: {item_name}")
@@ -1283,11 +1217,9 @@ class Engine:
         
         item_id = item_data.get('id', item_name)
         
-        # Add to inventory using inventory manager
         if self.player.inventory_manager.add_item(item_id):
             self.ground_items[pos_key].remove(item_name)
             
-            # Clean up empty ground item lists
             if not self.ground_items[pos_key]:
                 del self.ground_items[pos_key]
             
@@ -1379,7 +1311,6 @@ class Engine:
         
         item_name = self.player.inventory[item_index]
         
-        # Get item data
         data_loader = GameData()
         item_data = data_loader.get_item_by_name(item_name)
         
@@ -1387,48 +1318,39 @@ class Engine:
             self.log_event(f"Cannot throw {item_name}.")
             return False
         
-        # Calculate throw range based on item weight and player STR
         weight = item_data.get('weight', 10)
         player_str = self.player.stats.get('STR', 10)
         max_range = max(3, min(10, player_str // 2 - weight // 10))
         
-        # Trace projectile path
         px, py = self.player.position
         tx, ty = px, py
         hit_entity = False
         broke_on_impact = False
         
-        # Determine if this is ammo (arrows, bolts, darts, etc.)
         is_ammo = any(keyword in item_name for keyword in ["Arrow", "Bolt", "Dart", "Javelin"])
         
         for step in range(1, max_range + 1):
             next_x = px + dx * step
             next_y = py + dy * step
             
-            # Check bounds
             if not (0 <= next_x < self.map_width and 0 <= next_y < self.map_height):
                 break
             
-            # Check for wall
             if self.game_map[next_y][next_x] == WALL:
                 break
             
-            # Check for entity
             target = self.get_entity_at(next_x, next_y)
             if target:
-                # Calculate hit chance based on DEX
                 player_dex = self.player.stats.get('DEX', 10)
                 hit_chance = 50 + (player_dex - 10) * 3
                 
                 if random.randint(1, 100) <= hit_chance:
-                    # Hit! Calculate damage
                     base_damage = item_data.get('damage', [1, 4])
                     if isinstance(base_damage, list) and len(base_damage) == 2:
                         damage = random.randint(base_damage[0], base_damage[1])
                     else:
                         damage = 5
                     
-                    # Add projectile animation
                     self.add_projectile((px, py), (next_x, next_y), '/', 'arrow' if is_ammo else 'item')
                     
                     target.take_damage(damage)
@@ -1438,9 +1360,7 @@ class Engine:
                     if target.hp <= 0:
                         self.handle_entity_death(target)
                     
-                    # Ammo has different recovery rules
                     if is_ammo:
-                        # 50% chance to recover ammo on hit
                         if random.random() < 0.5:
                             pos_key = (next_x, next_y)
                             self.ground_items.setdefault(pos_key, []).append(item_name)
@@ -1449,13 +1369,11 @@ class Engine:
                             broke_on_impact = True
                             self.log_event(f"{item_name} breaks on impact!")
                     else:
-                        # Non-ammo items break on hit
                         if "Potion" not in item_name:
-                            if random.random() < 0.5:  # 50% chance to break
+                            if random.random() < 0.5:
                                 broke_on_impact = True
                                 self.log_event(f"{item_name} breaks!")
                         else:
-                            # Potions splash on impact
                             pos_key = (next_x, next_y)
                             self.ground_items.setdefault(pos_key, []).append(item_name)
                     
@@ -1463,15 +1381,11 @@ class Engine:
                     self._end_player_turn()
                     return True
                 else:
-                    # Missed - ammo is more likely to be recovered
                     self.log_event(f"You miss {target.name}!")
                     
-                    # Add projectile animation
                     self.add_projectile((px, py), (next_x, next_y), '/', 'arrow' if is_ammo else 'item')
                     
-                    # Drop item at target location
                     if is_ammo:
-                        # 80% chance to recover ammo on miss
                         if random.random() < 0.8:
                             pos_key = (next_x, next_y)
                             self.ground_items.setdefault(pos_key, []).append(item_name)
@@ -1488,15 +1402,12 @@ class Engine:
             
             tx, ty = next_x, next_y
         
-        # Item lands on ground at final position
         self.log_event(f"You throw {item_name}.")
         
-        # Add projectile animation
         self.add_projectile((px, py), (tx, ty), '/', 'arrow' if is_ammo else 'item')
         
-        # Ammo is almost always recoverable when it doesn't hit anything
         if is_ammo:
-            if random.random() < 0.9:  # 90% recovery on clean miss
+            if random.random() < 0.9:
                 pos_key = (tx, ty)
                 self.ground_items.setdefault(pos_key, []).append(item_name)
                 self.log_event(f"{item_name} can be recovered.")
@@ -1513,14 +1424,12 @@ class Engine:
     
     def handle_exchange_weapon(self) -> bool:
         """Exchange primary and secondary weapons."""
-        # Equipment is now managed through inventory_manager and returns instances
         weapon_instance = self.player.inventory_manager.equipment.get('weapon')
         
         if not weapon_instance:
             self.log_event("You don't have a weapon equipped!")
             return False
         
-        # Initialize secondary weapon slot if it doesn't exist (as instance)
         if not hasattr(self.player, 'secondary_weapon_instance'):
             self.player.secondary_weapon_instance = None
         
@@ -1530,7 +1439,6 @@ class Engine:
             self.log_event("You don't have any weapons to exchange!")
             return False
         
-        # Swap weapons
         self.player.inventory_manager.equipment['weapon'] = secondary_weapon_instance
         self.player.secondary_weapon_instance = weapon_instance
         
@@ -1544,8 +1452,6 @@ class Engine:
     
     def handle_fill_lamp(self) -> bool:
         """Fill lamp with oil from inventory."""
-        # Equipment is now managed through inventory_manager and returns instances
-        # Lanterns may be in 'light' or 'weapon' slot depending on the item definition
         lamp_instance = self.player.inventory_manager.equipment.get('light')
         if not lamp_instance:
             lamp_instance = self.player.inventory_manager.equipment.get('weapon')
@@ -1558,7 +1464,6 @@ class Engine:
             self.log_event("You don't have a lantern to fill!")
             return False
         
-        # Look for oil in inventory
         oil_instance = None
         
         for instance in self.player.inventory_manager.instances:
@@ -1570,16 +1475,13 @@ class Engine:
             self.log_event("You don't have any oil!")
             return False
         
-        # Initialize lamp fuel if it doesn't exist
         if not hasattr(self.player, 'lamp_fuel'):
             self.player.lamp_fuel = 0
         
-        # Fill lamp (max 1500 turns)
         max_fuel = 1500
         fuel_added = min(500, max_fuel - self.player.lamp_fuel)
         self.player.lamp_fuel += fuel_added
         
-        # Remove oil from inventory using inventory manager
         self.player.inventory_manager.remove_instance(oil_instance.instance_id)
         
         self.log_event(f"You fill your lantern with {oil_instance.item_name}. ({self.player.lamp_fuel}/{max_fuel} turns)")
@@ -1588,35 +1490,29 @@ class Engine:
     
     def handle_disarm_trap(self, x: int, y: int) -> bool:
         """Disarm a trap at the given location."""
-        # Check if there's a chest with a trap at this location
         if hasattr(self, 'chest_system'):
             from app.lib.core.chests import get_chest_system
             chest_system = get_chest_system()
             chest = chest_system.get_chest(x, y)
             
             if chest and chest.trapped and not chest.trap_disarmed:
-                # Calculate disarm skill based on DEX and class
                 player_dex = self.player.stats.get('DEX', 10)
                 disarm_skill = player_dex
                 
-                # Rogues get bonus
                 if self.player.class_ == 'Rogue':
                     disarm_skill += 5
                 
-                # Get lockpick bonus from tools
                 lockpick_bonus = self.player.get_lockpick_bonus()
                 
                 success, message = chest.disarm_trap(disarm_skill, lockpick_bonus)
                 self.log_event(message)
                 
                 if not success:
-                    # Trap triggered - apply effect
                     self._apply_trap_effect(chest.trap_type)
                 
                 self._end_player_turn()
                 return True
         
-        # Check for floor traps (to be implemented with trap system)
         if not hasattr(self, 'traps'):
             self.traps = {}
         
@@ -1624,7 +1520,6 @@ class Engine:
         if pos_key in self.traps:
             trap_data = self.traps[pos_key]
             
-            # Calculate disarm chance
             player_dex = self.player.stats.get('DEX', 10)
             disarm_skill = player_dex
             
@@ -1673,13 +1568,10 @@ class Engine:
             self.log_event(f"The trap explodes! ({damage} damage)")
         
         elif trap_type == 'summon_monster':
-            # Spawn a monster near player
             self.log_event("The trap summons a monster!")
-            # TODO: Implement monster summoning
         
         elif trap_type == 'alarm':
             self.log_event("An alarm sounds! Monsters are alerted!")
-            # Wake up all nearby monsters
             for entity in self.entities:
                 if hasattr(entity, 'asleep'):
                     entity.asleep = False
@@ -1703,8 +1595,6 @@ class Engine:
         
         elif trap_type == 'teleport':
             self.log_event("You are teleported!")
-            # Teleport player to random location
-            # Find a random floor position
             valid_positions = []
             for y in range(self.map_height):
                 for x in range(self.map_width):
@@ -1725,13 +1615,22 @@ class Engine:
 
 
     def get_entity_at(self, x: int, y: int) -> Optional[Entity]:
-        # --- Get entity logic --- (omitted for brevity, keep your existing logic)
+        """
+                Get entity at.
+                
+                Args:
+                    x: TODO
+                    y: TODO
+                
+                Returns:
+                    TODO
+                """
         for entity in self.entities:
             if entity.position == [x, y]: return entity
         return None
 
     def get_visible_entities(self) -> List[Entity]:
-        # --- Get visible entities logic --- (omitted for brevity, keep your existing logic)
+         """Get visible entities."""
          visible = []
          for entity in self.entities:
              ex, ey = entity.position
@@ -1741,41 +1640,32 @@ class Engine:
     
     def is_attackable(self, entity: Entity) -> bool:
         """Check if an entity can be targeted by spells/attacks."""
-        # Hostile entities are attackable
-        # Non-hostile entities are typically not attackable
         return entity.hostile and entity.hp > 0
 
-    # --- MODIFIED: handle_entity_death to check gain_xp return value ---
     def handle_entity_death(self, entity: Entity):
         """Handles removing entity, calculating XP, dropping items/gold on ground, and triggering spell learn screen."""
         print(f"{entity.name} died at {entity.position}")
         xp_reward = self._calculate_xp_reward(entity)
 
-        # --- Check gain_xp result ---
         needs_spell_choice = False
         if xp_reward > 0:
-            needs_spell_choice = self.player.gain_xp(xp_reward) # Capture the return value
+            needs_spell_choice = self.player.gain_xp(xp_reward)
             self.log_event(f"You gain {xp_reward} XP.")
 
-        # --- Drop calculation - place loot on ground ---
         item_ids, gold = entity.get_drops()
         ex, ey = entity.position
         death_pos = (ex, ey)
 
-        # Remove entity before placing drops so the tile becomes available
         if entity in self.entities:
             self.entities.remove(entity)
         
-        # Drop gold on ground if any
         if gold > 0:
             if self._place_ground_item(f"${gold}", death_pos):
                 self.log_event(f"{entity.name} drops {gold} gold.")
             else:
-                # Fallback: place directly on death tile
                 self.ground_items.setdefault(death_pos, []).append(f"${gold}")
                 self.log_event(f"{entity.name} drops {gold} gold.")
         
-        # Drop items on ground near the corpse
         significant_drops: List[Dict[str, str]] = []
         for item_id in item_ids:
             if item_id in INSIGNIFICANT_DROP_IDS:
@@ -1801,7 +1691,6 @@ class Engine:
                 "items": significant_drops,
             })
 
-        # --- Trigger spell learning screen AFTER handling drops/removal ---
         if needs_spell_choice:
             print("Player leveled up and has spells to learn, pushing screen.")
             self.log_event("You feel more experienced! Choose a spell to learn.")
@@ -1810,7 +1699,6 @@ class Engine:
 
 
     def _calculate_xp_reward(self, entity: Entity) -> int:
-        # --- XP calculation logic --- (omitted for brevity, keep your existing logic)
         level_to_xp = {0: 50, 1: 200, 2: 450, 3: 700, 4: 1100, 5: 1800, 6: 2300, 7: 2900, 8: 3900,
                        9: 5000, 10: 5900, 11: 7200, 12: 8400, 13: 10000, 14: 11500, 15: 13000,
                        16: 15000, 17: 18000, 18: 20000, 19: 22000, 20: 25000}
@@ -1819,12 +1707,19 @@ class Engine:
         return level_to_xp.get(monster_level, 0)
 
     def log_event(self, message: str) -> None:
-        # --- Log event logic --- (omitted for brevity, keep your existing logic)
+        """
+                Log event.
+                
+                Args:
+                    message: TODO
+                
+                Returns:
+                    TODO
+                """
         self.combat_log.append(message)
         if len(self.combat_log) > 50: self.combat_log.pop(0)
 
     def _process_beggar_ai(self, entity: Entity, distance: float) -> None:
-        # --- Beggar AI logic --- (omitted for brevity, keep your existing logic)
         behavior = getattr(entity, "behavior", "")
         px, py = self.player.position; ex, ey = entity.position
         if distance <= entity.detection_range:
@@ -1833,7 +1728,7 @@ class Engine:
                 elif behavior == "idiot": self.log_event(f"{entity.name} babbles.")
                 elif behavior == "drunk": self._handle_drunk_interaction(entity)
                 else: self.log_event(f"{entity.name} begs.")
-            else: # Move towards player if not adjacent
+            else:
                 dx = 0 if px == ex else (1 if px > ex else -1); dy = 0 if py == ey else (1 if py > ey else -1)
                 nx, ny = ex + dx, ey + dy
                 if (0 <= ny < self.map_height and 0 <= nx < self.map_width and
@@ -1841,7 +1736,6 @@ class Engine:
                     entity.position = [nx, ny]
 
     def _handle_beggar_interaction(self, entity: Entity) -> None:
-        # --- Beggar interaction logic --- (omitted for brevity, keep your existing logic)
         if self.player.gold > 0 and random.random() < 0.6:
             stolen = min(random.randint(1, 5), self.player.gold); self.player.gold -= stolen
             self.log_event(f"{entity.name} snatches {stolen} gold!")
@@ -1849,14 +1743,13 @@ class Engine:
         else: self.log_event(f"{entity.name} sighs.")
 
     def _handle_drunk_interaction(self, entity: Entity) -> None:
-        # --- Drunk interaction logic --- (omitted for brevity, keep your existing logic)
         roll = random.random()
         if roll < 0.4: self.log_event(f"{entity.name} urges you to party.")
         elif self.player.gold > 0 and roll < 0.8: self.log_event(f"{entity.name} asks for ale money.")
         else: self.log_event(f"{entity.name} sings.")
 
     def open_adjacent_door(self) -> bool:
-        # --- Open door logic --- (omitted for brevity, keep your existing logic)
+        """Open adjacent door."""
         px, py = self.player.position
         for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
             tx, ty = px + dx, py + dy
@@ -1865,7 +1758,7 @@ class Engine:
         return False
 
     def close_adjacent_door(self) -> bool:
-        # --- Close door logic --- (omitted for brevity, keep your existing logic)
+        """Close adjacent door."""
         px, py = self.player.position
         for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
             tx, ty = px + dx, py + dy
@@ -1874,7 +1767,7 @@ class Engine:
         return False
 
     def dig_adjacent_wall(self) -> bool:
-        # --- Dig wall logic --- (omitted for brevity, keep your existing logic)
+        """Dig adjacent wall."""
         px, py = self.player.position
         for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
             tx, ty = px + dx, py + dy
@@ -1884,27 +1777,31 @@ class Engine:
 
     def is_in_darkness(self, x: int, y: int) -> bool:
         """Check if a position is in darkness (not lit)."""
-        # In town during day, nothing is dark
         if self.player.depth == 0 and self.get_time_of_day() == "Day":
             return False
-        # Check if position is visible (lit)
         if 0 <= y < self.map_height and 0 <= x < self.map_width:
-            return self.visibility[y][x] < 2  # Not currently visible means in darkness
+            return self.visibility[y][x] < 2
         return True
 
     def handle_player_attack(self, target: Entity) -> bool:
-        # Wake up sleeping entities when attacked
+        """
+                Handle player attack.
+                
+                Args:
+                    target: TODO
+                
+                Returns:
+                    TODO
+                """
         if target.is_sleeping:
             target.wake_up()
             self.log_event(f"You wake up {target.name}!")
         
         print(f"Player attacks {target.name}")
-        # --- Player attack logic --- (omitted for brevity, keep your existing logic)
         str_mod = (self.player.stats.get('STR', 10) - 10) // 2
         prof = 2 + (self.player.level - 1) // 4
         roll = random.randint(1, 20); total_atk = roll + str_mod + prof
         
-        # Apply darkness penalty to attack roll
         tx, ty = target.position
         if self.is_in_darkness(tx, ty):
             darkness_penalty = 2
@@ -1915,7 +1812,6 @@ class Engine:
         is_crit = (roll == 20); is_miss = (roll == 1 or total_atk < target_ac)
         if is_miss: self.log_event(f"You miss {target.name}."); return False
         
-        # Calculate weapon damage (including crits)
         wpn_dmg = 0
         wpn_name = self.player.equipment.get('weapon')
         weapon_effect = None
@@ -1930,9 +1826,8 @@ class Engine:
                         num, die = map(int, dmg_str.split('d')); num *= 2 if is_crit else 1
                         wpn_dmg = sum(random.randint(1, die) for _ in range(num))
                     else: wpn_dmg = int(dmg_str) * 2 if is_crit else int(dmg_str)
-                except: wpn_dmg = 1 * 2 if is_crit else 1 # fallback
+                except: wpn_dmg = 1 * 2 if is_crit else 1
                 
-                # Check for weapon special effects
                 if 'weapon_effect' in wpn_tmpl:
                     effect_type = wpn_tmpl['weapon_effect'].get('type')
                     effect_dmg_str = wpn_tmpl['weapon_effect'].get('damage', '1d6')
@@ -1946,27 +1841,25 @@ class Engine:
                         weapon_effect_damage = random.randint(1, 6)
                     weapon_effect = effect_type
         
-        total_dmg = max(1, wpn_dmg + str_mod) # Add modifier only once
+        total_dmg = max(1, wpn_dmg + str_mod)
         
-        # Add weapon effect damage
         if weapon_effect and weapon_effect_damage > 0:
             total_dmg += weapon_effect_damage
             effect_name = weapon_effect.replace('_', ' ').title()
             self.log_event(f"{effect_name} damage! (+{weapon_effect_damage})")
         
-        # Check for backstab bonus (Rogue attacking unaware enemy)
         if self.player.class_ == "Rogue" and not target.aware_of_player:
             backstab_multiplier = 2.0
             total_dmg = int(total_dmg * backstab_multiplier)
             self.log_event(f"Backstab! ({backstab_multiplier}x damage)")
-            target.aware_of_player = True  # Enemy is now aware after being attacked
+            target.aware_of_player = True
         
         if is_crit: self.log_event(f"Crit! Hit {target.name} for {total_dmg} dmg!")
         else: self.log_event(f"Hit {target.name} for {total_dmg} dmg.")
         is_dead = target.take_damage(total_dmg)
         if is_dead: self.handle_entity_death(target); self.log_event(f"{target.name} defeated!")
         elif getattr(target, "behavior", "") == "urchin":
-            pass # Urchins never attack
+            pass
         elif getattr(target, "behavior", "") == "thief" and not getattr(target, "hostile", False):
             target.hostile = True
             target.ai_type = "aggressive"
@@ -1977,10 +1870,17 @@ class Engine:
 
 
     def handle_entity_attack(self, entity: Entity) -> bool:
-        # --- Entity attack logic --- (omitted for brevity, keep your existing logic)
+        """
+                Handle entity attack.
+                
+                Args:
+                    entity: TODO
+                
+                Returns:
+                    TODO
+                """
         roll = random.randint(1, 20); total_atk = roll + entity.attack
         
-        # Apply darkness penalty to entity attack roll
         px, py = self.player.position
         if self.is_in_darkness(px, py):
             darkness_penalty = 2
@@ -2006,7 +1906,6 @@ class Engine:
         roll = random.randint(1, 20)
         total_atk = roll + entity.attack
         
-        # Apply darkness penalty to ranged attack roll
         px, py = self.player.position
         if self.is_in_darkness(px, py):
             darkness_penalty = 2
@@ -2026,7 +1925,6 @@ class Engine:
             self.log_event(f"{entity.name}'s {entity.ranged_attack['name']} misses!")
             return False
         
-        # Calculate ranged damage
         damage_str = entity.ranged_attack.get('damage', '1d4')
         try:
             if 'd' in damage_str:
@@ -2055,32 +1953,27 @@ class Engine:
         if not entity.spell_list or entity.mana <= 0:
             return False
         
-        # Choose a random spell from the entity's spell list
         spell_id = random.choice(entity.spell_list)
         spell_data = GameData().get_spell(spell_id)
         
         if not spell_data:
             return False
         
-        # Simple spell cost (assume 5 mana for most spells)
         mana_cost = 5
         if entity.mana < mana_cost:
             return False
         
         entity.mana -= mana_cost
         
-        # Handle different spell types
         effect_type = spell_data.get('effect_type', 'damage')
         
         if effect_type == 'damage':
-            # Damage spell - attack player
-            damage = random.randint(3, 10)  # Simplified damage
+            damage = random.randint(3, 10)
             self.log_event(f"{entity.name} casts {spell_data['name']}!")
             self.player.take_damage(damage)
             self.log_event(f"The spell hits you for {damage} damage!")
             return True
         elif effect_type == 'heal':
-            # Healing spell - heal self
             heal_amount = random.randint(5, 15)
             old_hp = entity.hp
             entity.hp = min(entity.max_hp, entity.hp + heal_amount)
@@ -2089,7 +1982,6 @@ class Engine:
                 self.log_event(f"{entity.name} casts {spell_data['name']} and heals {actual_heal} HP!")
                 return True
         elif effect_type == 'buff':
-            # Buff spell - simplified (just log it)
             self.log_event(f"{entity.name} casts {spell_data['name']}!")
             return True
         
@@ -2107,7 +1999,6 @@ class Engine:
         if random.random() >= clone_rate:
             return
 
-        # Enforce per-template population caps to keep swarms manageable.
         living_same_type = sum(
             1 for other in self.entities
             if other.template_id == entity.template_id and other.hp > 0
@@ -2116,7 +2007,6 @@ class Engine:
         if max_population > 0 and living_same_type >= max_population:
             return
 
-        # Find a nearby open floor tile to place the clone.
         ex, ey = entity.position
         spawn_candidates = []
         for dy in (-1, 0, 1):
@@ -2144,26 +2034,21 @@ class Engine:
             self.log_event(f"{entity.name} splits and another appears!")
 
     def update_entities(self) -> None:
+        """Update entities."""
         print("Updating entities...")
-        # --- Entity update logic --- (omitted for brevity, keep your existing logic)
         for entity in self.entities[:]:
             if entity.hp <= 0: continue
             
-            # Tick entity status effects
             entity.status_manager.tick_effects()
 
             is_asleep = entity.status_manager.has_behavior("asleep") or getattr(entity, "is_sleeping", False)
             self._handle_entity_cloning(entity, is_asleep)
             
-            # Check if entity is asleep or fleeing
             if is_asleep:
-                continue  # Skip turn if asleep
+                continue
             
-            # Auto-flee if HP is critically low (below 25% of max HP)
-            # Flee based on flee_chance percentage (0-100)
             if entity.hostile and entity.hp < entity.max_hp * 0.25:
                 if not entity.status_manager.has_behavior("flee"):
-                    # Roll against flee_chance (0% = never flee, 100% = always flee)
                     if random.randint(1, 100) <= entity.flee_chance:
                         entity.status_manager.add_effect("Fleeing", 10)
                         self.log_event(f"{entity.name} looks terrified and tries to flee!")
@@ -2180,43 +2065,33 @@ class Engine:
                  if (0 <= ny < self.map_height and 0 <= nx < self.map_width and self.game_map[ny][nx] == FLOOR and
                      not self.get_entity_at(nx, ny) and [nx, ny] != self.player.position): entity.position = [nx, ny]
             elif entity.ai_type == "aggressive":
-                 # Check if fleeing
                  if entity.status_manager.has_behavior("flee"):
-                     # Move away from player
                      if distance <= entity.detection_range:
-                         entity.aware_of_player = True  # Player detected
+                         entity.aware_of_player = True
                          dx = 0 if px == ex else (-1 if px > ex else 1); dy = 0 if py == ey else (-1 if py > ey else 1)
                          nx, ny = ex + dx, ey + dy
                          if (0 <= ny < self.map_height and 0 <= nx < self.map_width and self.game_map[ny][nx] == FLOOR and
                              not self.get_entity_at(nx, ny) and [nx, ny] != self.player.position): entity.position = [nx, ny]
                  else:
-                     # Normal aggressive behavior
                      if distance <= entity.detection_range:
-                         entity.aware_of_player = True  # Player detected
+                         entity.aware_of_player = True
                          
-                         # Check if entity can cast spells (30% chance if has spells and mana)
                          can_cast = entity.spell_list and entity.mana >= 5
                          will_cast = can_cast and random.random() < 0.3
                          
                          if will_cast and distance <= 6:
-                             # Cast a spell
                              self.handle_entity_cast_spell(entity)
                          elif entity.ranged_attack and entity.ranged_range >= distance > 1.5:
-                             # Use ranged attack
                              self.handle_entity_ranged_attack(entity)
                          elif distance <= 1.5:
-                             # Use melee attack
                              self.handle_entity_attack(entity)
                          else:
-                             # Move towards player
                              dx = 0 if px == ex else (1 if px > ex else -1); dy = 0 if py == ey else (1 if py > ey else -1)
                              nx, ny = ex + dx, ey + dy
                              if (0 <= ny < self.map_height and 0 <= nx < self.map_width and self.game_map[ny][nx] == FLOOR and
                                  not self.get_entity_at(nx, ny) and [nx, ny] != self.player.position): entity.position = [nx, ny]
             elif entity.ai_type == "pack":
-                # Pack behavior - coordinate with other pack members
                 if entity.status_manager.has_behavior("flee"):
-                    # Flee even when in pack
                     if distance <= entity.detection_range:
                         entity.aware_of_player = True
                         dx = 0 if px == ex else (-1 if px > ex else 1)
@@ -2227,22 +2102,18 @@ class Engine:
                             [nx, ny] != self.player.position):
                             entity.position = [nx, ny]
                 else:
-                    # Check for pack members nearby
                     pack_members = [e for e in self.entities if e != entity and 
                                    e.pack_id == entity.pack_id and e.hp > 0]
                     
                     if distance <= entity.detection_range:
                         entity.aware_of_player = True
                         
-                        # Check if we have pack support nearby (within 3 tiles)
                         nearby_pack = [e for e in pack_members 
                                       if math.sqrt((e.position[0] - ex)**2 + (e.position[1] - ey)**2) <= 3]
                         
-                        # More aggressive when pack is nearby
                         if distance <= 1.5:
                             self.handle_entity_attack(entity)
                         elif nearby_pack and distance <= 4:
-                            # Advance with pack support
                             dx = 0 if px == ex else (1 if px > ex else -1)
                             dy = 0 if py == ey else (1 if py > ey else -1)
                             nx, ny = ex + dx, ey + dy
@@ -2251,7 +2122,6 @@ class Engine:
                                 [nx, ny] != self.player.position):
                                 entity.position = [nx, ny]
                         elif not nearby_pack:
-                            # Try to regroup with pack if alone
                             if pack_members:
                                 nearest_pack = min(pack_members, 
                                                  key=lambda e: math.sqrt((e.position[0] - ex)**2 + (e.position[1] - ey)**2))
@@ -2264,7 +2134,6 @@ class Engine:
                                     [nx, ny] != self.player.position):
                                     entity.position = [nx, ny]
                             else:
-                                # No pack left, act like aggressive
                                 dx = 0 if px == ex else (1 if px > ex else -1)
                                 dy = 0 if py == ey else (1 if py > ey else -1)
                                 nx, ny = ex + dx, ey + dy
@@ -2273,7 +2142,6 @@ class Engine:
                                     [nx, ny] != self.player.position):
                                     entity.position = [nx, ny]
                         else:
-                            # Move toward player
                             dx = 0 if px == ex else (1 if px > ex else -1)
                             dy = 0 if py == ey else (1 if py > ey else -1)
                             nx, ny = ex + dx, ey + dy
@@ -2292,7 +2160,6 @@ class Engine:
 
         if entity.status_manager.has_behavior("flee"):
             print(f"{entity.name} is fleeing")
-            # Move away from player
             if distance <= entity.detection_range:
                 dx = 0 if px == ex else (-1 if px > ex else 1)
                 dy = 0 if py == ey else (-1 if py > ey else 1)
@@ -2306,7 +2173,6 @@ class Engine:
             print(f"{entity.name} is in detection range")
             if distance <= 1.5:
                 print(f"{entity.name} is adjacent to player")
-                # Attempt to steal
                 if self.player.gold > 0 and random.random() < 0.5:
                     stolen = min(random.randint(1, 10), self.player.gold)
                     self.player.gold -= stolen
@@ -2315,11 +2181,9 @@ class Engine:
                 else:
                     self.log_event(f"{entity.name} tries to steal from you but fails!")
                     print(f"{entity.name} failed to steal")
-                # Flee after stealing
                 entity.status_manager.add_effect("Fleeing", 20)
             else:
                 print(f"{entity.name} is moving towards player")
-                # Move towards player
                 dx = 0 if px == ex else (1 if px > ex else -1)
                 dy = 0 if py == ey else (1 if py > ey else -1)
                 nx, ny = ex + dx, ey + dy
@@ -2328,17 +2192,16 @@ class Engine:
                     entity.position = [nx, ny]
 
     def toggle_search(self) -> bool:
-        # --- Toggle search logic --- (omitted for brevity, keep your existing logic)
+        """Toggle search."""
         self.searching = not self.searching
         self.log_event("Begin searching." if self.searching else "Stop searching.")
         return True
 
     def search_once(self) -> bool:
-        # --- Search once logic --- (omitted for brevity, keep your existing logic)
+        """Search once."""
         self._perform_search(); self._end_player_turn(); return True
 
     def _perform_search(self, log_success: bool = True) -> bool:
-        # --- Perform search logic --- (omitted for brevity, keep your existing logic)
         px, py = self.player.position; found_doors = []
         for dy in range(-1, 2):
             for dx in range(-1, 2):
@@ -2353,7 +2216,7 @@ class Engine:
         return False
 
     def get_secret_doors_found(self) -> List[List[int]]:
-        # --- Get secret doors logic --- (omitted for brevity, keep your existing logic)
+        """Get secret doors found."""
         found = [];
         for y in range(self.map_height):
             for x in range(self.map_width):
@@ -2395,7 +2258,6 @@ class Engine:
         Returns:
             True if item was successfully placed
         """
-        # Get item name from item_id
         item_data = GameData().get_item(item_id)
         if not item_data:
             print(f"Warning: Unknown item ID '{item_id}'")

@@ -1,7 +1,6 @@
-# app/lib/core/item_instance.py
 
 """
-Item instance tracking system for Moria-style roguelike.
+Item instance tracking system for classic roguelike gameplay.
 
 This module provides instance-level tracking for items, allowing each item to have
 unique properties like charges, identification status, and usage history.
@@ -28,20 +27,17 @@ class ItemInstance:
     - Quantity for stackable items
     """
     
-    # Core identification
-    item_id: str  # The item template ID (e.g., "STAFF_CURE_LIGHT_WOUNDS")
-    item_name: str  # Display name (e.g., "Staff of Cure Light Wounds")
+    item_id: str
+    item_name: str
     
-    # Instance-specific properties
     instance_id: str = field(default_factory=lambda: _generate_instance_id())
-    charges: Optional[int] = None  # Current charges (for wands/staves)
-    max_charges: Optional[int] = None  # Maximum charges (for wands/staves)
-    identified: bool = False  # Whether the item has been identified
-    tried: bool = False  # Whether the item has been used but not identified
-    custom_inscription: Optional[str] = None  # Player-added inscription
-    quantity: int = 1  # Quantity for stackable items (scrolls, potions, etc.)
+    charges: Optional[int] = None
+    max_charges: Optional[int] = None
+    identified: bool = False
+    tried: bool = False
+    custom_inscription: Optional[str] = None
+    quantity: int = 1
     
-    # Item properties (cached from template)
     item_type: str = "misc"
     weight: int = 10
     base_cost: int = 0
@@ -51,7 +47,6 @@ class ItemInstance:
     def __post_init__(self):
         """Initialize charges for wands/staves if not already set."""
         if self.charges is None and self.item_type in ("wand", "staff"):
-            # Charges will be set during creation from template
             pass
     
     def get_inscription(self) -> str:
@@ -67,26 +62,20 @@ class ItemInstance:
         """
         inscriptions = []
         
-        # Empty wands/staves
         if self.item_type in ("wand", "staff") and self.charges is not None:
             if self.charges == 0:
                 inscriptions.append("empty")
         
-        # Tried but not identified
         if self.tried and not self.identified:
             inscriptions.append("tried")
         
-        # Custom inscription
         if self.custom_inscription:
             inscriptions.append(self.custom_inscription)
         
-        # Cursed items (if identified or equipped)
         if self.effect and isinstance(self.effect, list) and len(self.effect) > 0:
             if self.effect[0] == "cursed" and self.identified:
                 inscriptions.append("damned")
         
-        # Magical items (high level detection - handled by caller)
-        # This is context-dependent based on player level
         
         return " ".join(inscriptions)
     
@@ -103,30 +92,23 @@ class ItemInstance:
         """
         from app.lib.core.loader import GameData
         
-        # Determine base name (unknown or real)
         data_loader = GameData()
         
-        # Check if item should show unknown name
         needs_identification = self.item_type in ("potion", "scroll", "wand", "staff", "ring", "amulet")
         is_type_identified = data_loader.is_item_type_identified(self.item_id)
         
         if needs_identification and not self.identified and not is_type_identified:
-            # Show unknown name
             unknown_name = data_loader.get_unknown_name(self.item_id)
             base_name = unknown_name if unknown_name else self.item_name
         else:
             base_name = self.item_name
         
-        # Get instance-specific inscription
         inscription = self.get_inscription()
         
-        # Add magical detection for high-level characters or Detect Magic spell
         magic_detected = (player_level >= 5 or detect_magic) and self.effect
         if magic_detected and not inscription:
-            # Only show {magik} if no other inscriptions
             inscription = "magik"
         elif magic_detected and inscription:
-            # Add magik to existing inscriptions
             inscription = f"{inscription}, magik"
         
         if inscription:
@@ -142,7 +124,7 @@ class ItemInstance:
             True if charge was used, False if no charges left
         """
         if self.item_type not in ("wand", "staff"):
-            return True  # Non-charged items always succeed
+            return True
         
         if self.charges is None or self.charges <= 0:
             return False
@@ -167,9 +149,8 @@ class ItemInstance:
         from app.lib.core.loader import GameData
         
         self.identified = True
-        self.tried = False  # Clear tried flag when identified
+        self.tried = False
         
-        # Also identify this item type globally
         data_loader = GameData()
         data_loader.identify_item_type(self.item_id)
     
@@ -226,7 +207,6 @@ class ItemInstance:
         """
         item_type = item_data.get("type", "misc")
         
-        # Initialize charges for wands/staves
         charges = None
         max_charges = None
         if item_type in ("wand", "staff"):
@@ -251,7 +231,6 @@ class ItemInstance:
         )
 
 
-# Global counter for generating unique instance IDs
 _instance_counter = 0
 
 
