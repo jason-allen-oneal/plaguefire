@@ -64,13 +64,13 @@ def test_failure_decreases_with_stats():
     """Test that higher stats reduce failure chance."""
     print("Test: Failure decreases with stats...")
     
-    # Low INT mage
+    # Low INT mage (INT 8 for higher failure rate)
     low_int_data = {
         "name": "Low INT Mage",
         "race": "Human",
         "class": "Mage",
-        "stats": {"STR": 8, "INT": 10, "WIS": 8, "DEX": 8, "CON": 8, "CHA": 8},
-        "level": 5,
+        "stats": {"STR": 8, "INT": 8, "WIS": 8, "DEX": 8, "CON": 8, "CHA": 8},
+        "level": 1,  # Lower level so failures aren't reduced by level
         "known_spells": ["magic_missile"],
     }
     low_int_mage = Player(low_int_data)
@@ -81,7 +81,7 @@ def test_failure_decreases_with_stats():
         "race": "Human",
         "class": "Mage",
         "stats": {"STR": 8, "INT": 18, "WIS": 8, "DEX": 8, "CON": 8, "CHA": 8},
-        "level": 5,
+        "level": 1,  # Same level to isolate INT effect
         "known_spells": ["magic_missile"],
     }
     high_int_mage = Player(high_int_data)
@@ -105,12 +105,13 @@ def test_failure_decreases_with_stats():
     low_int_rate = (low_int_failures / trials) * 100
     high_int_rate = (high_int_failures / trials) * 100
     
-    print(f"  Low INT (10): {low_int_failures}/{trials} failures ({low_int_rate:.1f}%)")
+    print(f"  Low INT (8): {low_int_failures}/{trials} failures ({low_int_rate:.1f}%)")
     print(f"  High INT (18): {high_int_failures}/{trials} failures ({high_int_rate:.1f}%)")
     
-    # High INT should have significantly fewer failures on average
-    # With 500 trials, we expect the difference to be clear
-    assert high_int_failures < low_int_failures, f"High INT should fail less often, got INT10={low_int_failures} vs INT18={high_int_failures}"
+    # High INT should have significantly fewer failures
+    # INT 8: 10-(-1*3)-(0) = 13%, INT 18: 10-(4*3)-(0) = -2% → 5%
+    # Should show clear difference: ~13% vs ~5%
+    assert high_int_failures < low_int_failures, f"High INT should fail less often, got INT8={low_int_failures} vs INT18={high_int_failures}"
     
     print("✓ Higher stats reduce failure chance")
     print("✓ Test passed!\n")
