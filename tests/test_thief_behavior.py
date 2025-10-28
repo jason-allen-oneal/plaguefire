@@ -176,10 +176,10 @@ def test_thief_steals_gold():
 
 if __name__ == "__main__":
     all_passed = True
-    all_passed &= test_thief_entities_have_correct_config()
-    all_passed &= test_urchin_never_becomes_hostile()
-    all_passed &= test_rogue_becomes_hostile_when_damaged()
-    all_passed &= test_thief_steals_gold()
+    all_passed = all_passed and test_thief_entities_have_correct_config()
+    all_passed = all_passed and test_urchin_never_becomes_hostile()
+    all_passed = all_passed and test_rogue_becomes_hostile_when_damaged()
+    all_passed = all_passed and test_thief_steals_gold()
     
     print("\n" + "="*60)
     if all_passed:
