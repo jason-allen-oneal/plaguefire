@@ -36,9 +36,17 @@ TOWN_LAYOUT = [
     "##################################################################################################",
 ]
 
-assert len(TOWN_LAYOUT) == VIEWPORT_HEIGHT, f"Town layout height mismatch: {len(TOWN_LAYOUT)} vs {VIEWPORT_HEIGHT}"
+# Validate town layout dimensions
+if len(TOWN_LAYOUT) != VIEWPORT_HEIGHT:
+    raise ValueError(
+        f"Town layout height mismatch: {len(TOWN_LAYOUT)} vs {VIEWPORT_HEIGHT}"
+    )
+
 for i, row in enumerate(TOWN_LAYOUT):
-    assert len(row) == VIEWPORT_WIDTH, f"Town layout row {i} width mismatch: {len(row)} vs {VIEWPORT_WIDTH}"
+    if len(row) != VIEWPORT_WIDTH:
+        raise ValueError(
+            f"Town layout row {i} width mismatch: {len(row)} vs {VIEWPORT_WIDTH}"
+        )
 
 def get_town_map() -> List[List[str]]:
     """Returns the town map as a list of lists."""

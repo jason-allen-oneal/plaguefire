@@ -1826,7 +1826,9 @@ class Engine:
                         num, die = map(int, dmg_str.split('d')); num *= 2 if is_crit else 1
                         wpn_dmg = sum(random.randint(1, die) for _ in range(num))
                     else: wpn_dmg = int(dmg_str) * 2 if is_crit else int(dmg_str)
-                except: wpn_dmg = 1 * 2 if is_crit else 1
+                except (ValueError, TypeError, AttributeError) as e:
+                    debug(f"Failed to parse weapon damage '{dmg_str}': {e}")
+                    wpn_dmg = 2 if is_crit else 1
                 
                 if 'weapon_effect' in wpn_tmpl:
                     effect_type = wpn_tmpl['weapon_effect'].get('type')
@@ -1837,7 +1839,8 @@ class Engine:
                             weapon_effect_damage = sum(random.randint(1, die) for _ in range(num))
                         else:
                             weapon_effect_damage = int(effect_dmg_str)
-                    except:
+                    except (ValueError, TypeError, AttributeError) as e:
+                        debug(f"Failed to parse weapon effect damage '{effect_dmg_str}': {e}")
                         weapon_effect_damage = random.randint(1, 6)
                     weapon_effect = effect_type
         
@@ -1933,7 +1936,8 @@ class Engine:
                 damage = sum(random.randint(1, die) for _ in range(num))
             else:
                 damage = int(damage_str) * 2 if is_crit else int(damage_str)
-        except:
+        except (ValueError, TypeError, AttributeError) as e:
+            debug(f"Failed to parse ranged damage '{damage_str}': {e}")
             damage = random.randint(1, 4)
         
         damage = max(1, damage)
