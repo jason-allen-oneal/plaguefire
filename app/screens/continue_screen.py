@@ -125,4 +125,6 @@ class ContinueScreen(Screen):
 
 
     """Action back to title."""
-    def action_back_to_title(self): self.app.pop_screen()
+    def action_back_to_title(self):
+        """Return to the title screen."""
+        self.app.pop_screen()

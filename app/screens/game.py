@@ -418,13 +418,25 @@ class GameScreen(Screen):
             self.hud_view.update_hud()
 
     """Action move up."""
-    def action_move_up(self): self._attempt_directional_action(0, -1)
+    def action_move_up(self):
+        """Move player character up."""
+        self._attempt_directional_action(0, -1)
+    
     """Action move down."""
-    def action_move_down(self): self._attempt_directional_action(0, 1)
+    def action_move_down(self):
+        """Move player character down."""
+        self._attempt_directional_action(0, 1)
+    
     """Action move left."""
-    def action_move_left(self): self._attempt_directional_action(-1, 0)
+    def action_move_left(self):
+        """Move player character left."""
+        self._attempt_directional_action(-1, 0)
+    
     """Action move right."""
-    def action_move_right(self): self._attempt_directional_action(1, 0)
+    def action_move_right(self):
+        """Move player character right."""
+        self._attempt_directional_action(1, 0)
+    
     def action_open_inventory(self):
         """Open the inventory screen."""
         if not getattr(self.app, "player", None):
