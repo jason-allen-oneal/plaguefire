@@ -2016,8 +2016,8 @@
     "attack_per_level": 1,
     "defense_base": 1,
     "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
+    "ai_type": "thief",
+    "hostile": false,
     "detection_range": 7,
     "gold_min_mult": 5,
     "gold_max_mult": 15,
@@ -2027,7 +2027,7 @@
       "GOLD_COINS": 30
     },
     "depth": 0,
-    "behavior": "beggar",
+    "behavior": "urchin",
     "min_depth": 0,
     "max_depth": 0,
     "spawn_chance": {
@@ -5560,8 +5560,8 @@
     "attack_per_level": 1,
     "defense_base": 1,
     "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
+    "ai_type": "thief",
+    "hostile": false,
     "detection_range": 7,
     "gold_min_mult": 5,
     "gold_max_mult": 15,
@@ -5577,7 +5577,8 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "behavior": "thief"
   },
   {
     "id": "NOVICE_WARRIOR",
@@ -6375,8 +6376,8 @@
     "attack_per_level": 1,
     "defense_base": 1,
     "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
+    "ai_type": "thief",
+    "hostile": false,
     "detection_range": 7,
     "gold_min_mult": 5,
     "gold_max_mult": 15,
@@ -6392,7 +6393,8 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "behavior": "thief"
   },
   {
     "id": "SHIMMERING_MOLD",
@@ -6772,8 +6774,8 @@
     "attack_per_level": 1,
     "defense_base": 1,
     "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
+    "ai_type": "thief",
+    "hostile": false,
     "detection_range": 7,
     "gold_min_mult": 5,
     "gold_max_mult": 15,
@@ -6789,7 +6791,8 @@
       "base": 100,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "behavior": "thief"
   },
   {
     "id": "STONE_GIANT",
