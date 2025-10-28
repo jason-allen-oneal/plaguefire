@@ -2422,3 +2422,38 @@ class Engine:
         """
         # This is a placeholder for future logic, such as items despawning over time
         pass
+    
+    def add_item_to_floor(self, x: int, y: int, item_id: str) -> bool:
+        """
+        Add an item to the floor at the specified position.
+        
+        Args:
+            x: X coordinate
+            y: Y coordinate
+            item_id: Item ID to add
+            
+        Returns:
+            True if item was successfully placed
+        """
+        # Get item name from item_id
+        item_data = GameData().get_item(item_id)
+        if not item_data:
+            print(f"Warning: Unknown item ID '{item_id}'")
+            return False
+        
+        item_name = item_data.get('name', item_id)
+        return self._place_ground_item(item_name, (x, y), allow_player_tile=False)
+    
+    def add_item_to_inventory(self, item_id: str) -> bool:
+        """
+        Add an item to the player's inventory.
+        
+        Args:
+            item_id: Item ID to add
+            
+        Returns:
+            True if item was successfully added to inventory
+        """
+        if hasattr(self.player, 'inventory_manager') and self.player.inventory_manager:
+            return self.player.inventory_manager.add_item(item_id)
+        return False
