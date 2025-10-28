@@ -2,7 +2,8 @@
 
 import random
 import math
-from typing import Dict, List, Optional, TYPE_CHECKING
+from collections import deque
+from typing import Any, Dict, List, Optional, TYPE_CHECKING, Tuple
 from app.lib.player import Player
 from app.lib.entity import Entity
 from app.lib.core.loader import GameData
@@ -15,16 +16,18 @@ from app.lib.core.utils import find_tile, find_start_pos
 from app.lib.core.generation.spawn import spawn_entities_for_depth, spawn_chests_for_depth
 from app.lib.core.mining import get_mining_system
 from app.lib.fov import update_visibility
-from app.lib.core.projectile import Projectile, DroppedItem
+from app.lib.core.projectile import Projectile
 from config import (
     WALL, FLOOR, STAIRS_DOWN, STAIRS_UP,
     DOOR_CLOSED, DOOR_OPEN, SECRET_DOOR, SECRET_DOOR_FOUND,
     VIEWPORT_WIDTH, VIEWPORT_HEIGHT, # Use viewport for fallback center
     MIN_MAP_WIDTH, MAX_MAP_WIDTH, MIN_MAP_HEIGHT, MAX_MAP_HEIGHT,
     LARGE_DUNGEON_THRESHOLD, MAX_LARGE_MAP_WIDTH, MAX_LARGE_MAP_HEIGHT,
-    QUARTZ_VEIN, MAGMA_VEIN
+    QUARTZ_VEIN, MAGMA_VEIN, DAY_NIGHT_CYCLE_LENGTH, DAY_DURATION
 )
 from debugtools import debug, log_exception
+
+INSIGNIFICANT_DROP_IDS = {"ICKY_GOO"}
 
 if TYPE_CHECKING:
     from app.plaguefire import RogueApp # Assuming rogue.py contains your main App class
@@ -59,33 +62,66 @@ class Engine:
          debug(f"(Static) Tile '{tile_char}' not found on provided map.")
          return None
 
-    def __init__(self, app: 'RogueApp', player: Player, map_override: Optional[MapData] = None, previous_depth: Optional[int] = None, entities_override: Optional[List[Entity]] = None):
+    def __init__(
+        self,
+        app: 'RogueApp',
+        player: Player,
+        map_override: Optional[MapData] = None,
+        previous_depth: Optional[int] = None,
+        entities_override: Optional[List[Entity]] = None,
+        rooms_override: Optional[List] = None,
+        ground_items_override: Optional[Dict[Tuple[int, int], List[str]]] = None,
+        death_log_override: Optional[List[Dict[str, Any]]] = None
+    ):
         self.app = app
         self.player = player
-        # --- Music playing logic --- (omitted for brevity, keep your existing logic)
         if self.player.depth == 0:
             if self.app._music_enabled:
                 self.app.sound.play_music("town.mp3")
-        # ... other depth checks ...
+        elif self.player.depth > 0 and self.player.depth < 150:
+            if self.app._music_enabled:
+                self.app.sound.play_music("dungeon-150.mp3")
+        elif self.player.depth >= 150 and self.player.depth < 250:
+            if self.app._music_enabled:
+                self.app.sound.play_music("dungeon-250.mp3")
+        elif self.player.depth >= 250 and self.player.depth < 450:
+            if self.app._music_enabled:
+                self.app.sound.play_music("dungeon-450.mp3")
         else:
-            self.app.sound.play_music("dungeon-650.mp3")
+            if self.app._music_enabled:
+                self.app.sound.play_music("dungeon-650.mp3")
 
         debug(f"Initializing engine at depth: {self.player.depth}")
         self.combat_log: List[str] = []
-
-        # --- Map generation/loading --- (omitted for brevity, keep your existing logic)
+        
         generated_new_map = False
-        if map_override: self.game_map = map_override
-        else: self.game_map = self._generate_map(self.player.depth); generated_new_map = True
-        self.map_height = len(self.game_map); self.map_width = len(self.game_map[0]) if self.map_height > 0 else 0
+        self.rooms = []  # Initialize rooms list
+        self.lit_rooms = set()  # Track which rooms have been lit
+        if map_override:
+            self.game_map = map_override
+            if rooms_override:
+                self.rooms = list(rooms_override)
+            else:
+                self.rooms = []
+        else:
+            result = self._generate_map(self.player.depth)
+            # Handle both tuple (new format) and single value (old format) returns
+            if isinstance(result, tuple):
+                self.game_map, self.rooms = result
+            else:
+                self.game_map = result
+                self.rooms = []  # No rooms for non-room-based dungeons
+            generated_new_map = True
+        self.map_height = len(self.game_map)
+        self.map_width = len(self.game_map[0]) if self.map_height > 0 else 0
         debug(f"Map dimensions: {self.map_width}x{self.map_height}")
         if generated_new_map and self.player.depth > 0:
              secret_doors = sum(row.count(SECRET_DOOR) for row in self.game_map)
-             # self.log_event(f"[debug] Hidden secret doors on this floor: {secret_doors}") # Optional debug log
              debug(f"Generated dungeon contains {secret_doors} secret doors.")
 
-        # --- Position determination --- (omitted for brevity, keep your existing logic)
-        default_town_pos = [self.map_width // 2, 15]; position_valid = False; start_pos = None
+        default_town_pos = [self.map_width // 2, 15]
+        position_valid = False
+        start_pos = None
         if self.player.position is None:
              if self.player.depth==0: start_pos=default_town_pos
              elif previous_depth is not None and self.player.depth > previous_depth: start_pos=find_tile(self.game_map, STAIRS_UP)
@@ -102,8 +138,11 @@ class Engine:
 
 
         self.visibility = [[0 for _ in range(self.map_width)] for _ in range(self.map_height)]
+        
+        # Track light colors (for torches and lanterns)
+        # 0 = no light color, 1 = yellow (torch/lantern)
+        self.light_colors = [[0 for _ in range(self.map_width)] for _ in range(self.map_height)]
 
-        # --- Entity Initialization --- (omitted for brevity, keep your existing logic)
         if entities_override is not None:
             debug("Using provided entities override.")
             self.entities = entities_override
@@ -132,11 +171,21 @@ class Engine:
         self.overweight_warning_interval = 50  # Warn every 50 turns when overweight
         
         # Ground items tracking {(x, y): [item_name, ...]}
-        self.ground_items = {}
+        if ground_items_override:
+            self.ground_items = {tuple(pos): list(items) for pos, items in ground_items_override.items()}
+        else:
+            self.ground_items = {}
+        self.death_drop_log: List[Dict[str, Any]] = [
+            {
+                "entity": record.get("entity"),
+                "position": tuple(record.get("position")) if record.get("position") else None,
+                "items": [item.copy() for item in record.get("items", [])],
+            }
+            for record in (death_log_override or [])
+        ]
         
-        # Projectile and item animation tracking
+        # Projectile animation tracking
         self.active_projectiles: List[Projectile] = []
-        self.dropped_items: List[DroppedItem] = []
         
         self.update_fov()
 
@@ -145,7 +194,6 @@ class Engine:
         return "Day" if 0 <= time_in_cycle < 100 else "Night"
 
     def _generate_map(self, depth: int) -> MapData:
-        # --- Map generation logic --- (omitted for brevity, keep your existing logic)
         if depth == 0:
             return get_town_map()
         else:
@@ -162,16 +210,20 @@ class Engine:
                 height = random.randint(MIN_MAP_HEIGHT, max_height)
 
             if depth <= 375:
+                 # This now returns (map_data, rooms)
                  return generate_room_corridor_dungeon(map_width=width, map_height=height)
             else:
+                 # Cellular automata doesn't have defined rooms, so just return map
                  return generate_cellular_automata_dungeon(width=width, height=height)
 
     def update_fov(self):
-        # --- FOV update logic --- (omitted for brevity, keep your existing logic)
         map_h = self.map_height; map_w = self.map_width
         for y in range(map_h):
              for x in range(map_w):
                  if self.visibility[y][x] == 2: self.visibility[y][x] = 1
+        
+        # Clear light colors
+        self.light_colors = [[0 for _ in range(map_w)] for _ in range(map_h)]
 
         if self.player.depth == 0 and self.get_time_of_day() == "Day":
              self.visibility = [[2 for _ in range(map_w)] for _ in range(map_h)]
@@ -182,6 +234,41 @@ class Engine:
                      if self.game_map[y][x] == WALL and self.visibility[y][x] == 0: self.visibility[y][x] = 1
         else:
              self.visibility = update_visibility(self.visibility, self.player.position, self.game_map, self.player.light_radius)
+        
+        # Apply light colors for torch/lantern
+        self._apply_light_colors()
+    
+    def _apply_light_colors(self):
+        """Apply colored lighting for torches and lanterns."""
+        from app.lib.fov import line_of_sight
+        
+        # Check player equipment for light sources
+        equipped_lantern = self.player.equipment.get('light', '')
+        
+        # Determine light radius and color based on equipment
+        light_radius = 0
+        if 'Lantern' in equipped_lantern:
+            light_radius = 6
+        elif 'Torch' in equipped_lantern:
+            light_radius = 3
+        
+        if light_radius > 0:
+            px, py = self.player.position
+            for y in range(max(0, py - light_radius), min(self.map_height, py + light_radius + 1)):
+                for x in range(max(0, px - light_radius), min(self.map_width, px + light_radius + 1)):
+                    # Simple distance check (square FOV)
+                    dx = abs(x - px)
+                    dy = abs(y - py)
+                    if max(dx, dy) <= light_radius:
+                        # Check line of sight
+                        if line_of_sight(self.game_map, px, py, x, y):
+                            if self.visibility[y][x] == 2:  # Only color visible tiles
+                                self.light_colors[y][x] = 1  # Yellow light
+
+        if self.player.depth > 0 and self.rooms and self.lit_rooms:
+            for room_index in list(self.lit_rooms):
+                if 0 <= room_index < len(self.rooms):
+                    self._light_room(self.rooms[room_index])
 
 
     def _find_tile(self, tile_char: str) -> List[int] | None:
@@ -245,12 +332,10 @@ class Engine:
 
 
     def _end_player_turn(self):
-        # --- End turn logic --- (omitted for brevity, keep your existing logic)
         self.player.time += 1
         debug(f"--- Turn {self.player.time} ---")
         
-        # Update projectiles and dropped items
-        self.update_dropped_items()
+        # Update projectiles
         self.clear_inactive_projectiles()
         
         # Regenerate mana each turn
@@ -284,11 +369,15 @@ class Engine:
             if self.search_timer >= 3:
                 self.search_timer = 0
                 self._perform_search()
+        # Update entity sleep states based on time of day
+        time_of_day = self.get_time_of_day()
+        for entity in self.entities:
+            entity.update_sleep_state(time_of_day)
+        
         self.update_entities()
         self.update_fov()
 
     def handle_player_move(self, dx: int, dy: int) -> bool:
-        # --- Player move logic --- (omitted for brevity, keep your existing logic)
         px, py = self.player.position; nx, ny = px + dx, py + dy
         target_entity = self.get_entity_at(nx, ny)
         action_taken = False
@@ -334,10 +423,69 @@ class Engine:
                     if not self.ground_items[pos_key]:
                         del self.ground_items[pos_key]
                 
+                # Check for room auto-lighting
+                if self.rooms and self.player.depth > 0 and self.player.depth <= 375:
+                    self._check_and_light_room(nx, ny)
+                
                 action_taken = True
             # else: Bumping doesn't take a turn
         if action_taken: self._end_player_turn()
         return action_taken
+
+    def _check_and_light_room(self, x: int, y: int):
+        """Check if player entered a room and auto-light it if applicable."""
+        from app.lib.core.generation.maps.generate import Rect
+        # Find which room the player is in
+        for i, room in enumerate(self.rooms):
+            if room.x1 <= x < room.x2 and room.y1 <= y < room.y2:
+                # Player is in a room
+                if i not in self.lit_rooms:
+                    # Room hasn't been lit yet
+                    # 90% chance to light it
+                    if random.random() < 0.9:
+                        self.lit_rooms.add(i)
+                if i in self.lit_rooms:
+                    # Ensure the brightness applies immediately when moving
+                    self._light_room(room)
+                break
+    
+    def _light_room(self, room):
+        """Light an entire room including walls by setting visibility to 2 (currently visible)."""
+        # Light the room interior
+        for y in range(room.y1, room.y2):
+            for x in range(room.x1, room.x2):
+                if 0 <= y < self.map_height and 0 <= x < self.map_width:
+                    # Set visibility to 2 (currently visible)
+                    self.visibility[y][x] = 2
+        
+        # Light the walls around the room
+        # North wall (row above the room)
+        if room.y1 > 0:
+            for x in range(max(0, room.x1 - 1), min(self.map_width, room.x2 + 1)):
+                y = room.y1 - 1
+                if 0 <= y < self.map_height:
+                    self.visibility[y][x] = 2
+        
+        # South wall (row below the room)
+        if room.y2 < self.map_height:
+            for x in range(max(0, room.x1 - 1), min(self.map_width, room.x2 + 1)):
+                y = room.y2
+                if 0 <= y < self.map_height:
+                    self.visibility[y][x] = 2
+        
+        # West wall (column to the left of the room)
+        if room.x1 > 0:
+            for y in range(max(0, room.y1), min(self.map_height, room.y2)):
+                x = room.x1 - 1
+                if 0 <= x < self.map_width:
+                    self.visibility[y][x] = 2
+        
+        # East wall (column to the right of the room)
+        if room.x2 < self.map_width:
+            for y in range(max(0, room.y1), min(self.map_height, room.y2)):
+                x = room.x2
+                if 0 <= x < self.map_width:
+                    self.visibility[y][x] = 2
 
     def pass_turn(self, log_message: str | None = None) -> bool:
         """Advance the game state without moving the player."""
@@ -1089,10 +1237,9 @@ class Engine:
         # Drop item at player's position with physics
         px, py = self.player.position
         
-        # Add item with physics (it will roll to final position)
-        import random
-        velocity = (random.uniform(-1.0, 1.0), random.uniform(-1.0, 1.0))
-        self.add_dropped_item_with_physics(item_name, (px, py), velocity)
+        if not self._place_ground_item(item_name, (px, py), allow_player_tile=True):
+            self.log_event("There is no space to drop that.")
+            return False
         
         # Remove from inventory using inventory manager
         self._remove_item_from_inventory(item_name)
@@ -1131,7 +1278,7 @@ class Engine:
         item_data = GameData().get_item_by_name(item_name)
         if not item_data:
             self.log_event(f"Unknown item: {item_name}")
-            debug(f"Warning: Could not find item data for {item_name}")
+            print(f"Warning: Could not find item data for {item_name}")
             return False
         
         item_id = item_data.get('id', item_name)
@@ -1166,6 +1313,64 @@ class Engine:
             self.player.inventory_manager.remove_instance(instances[0].instance_id)
             return True
         return False
+
+    def _can_place_ground_item(self, x: int, y: int, allow_player_tile: bool) -> bool:
+        """Check if an item can be placed at the given coordinates."""
+        if not (0 <= x < self.map_width and 0 <= y < self.map_height):
+            return False
+        tile = self.game_map[y][x]
+        if tile == WALL:
+            return False
+        if not allow_player_tile and [x, y] == self.player.position:
+            return False
+        if self.get_entity_at(x, y):
+            return False
+        return True
+
+    def _find_nearest_ground_tile(
+        self,
+        origin: tuple[int, int],
+        allow_player_tile: bool = False
+    ) -> Optional[tuple[int, int]]:
+        """Find the nearest valid tile to place a ground item."""
+        ox, oy = origin
+        if self._can_place_ground_item(ox, oy, allow_player_tile):
+            return (ox, oy)
+
+        visited = set([(ox, oy)])
+        queue = deque([(ox, oy)])
+        directions = [
+            (-1, 0), (1, 0), (0, -1), (0, 1),
+            (-1, -1), (-1, 1), (1, -1), (1, 1)
+        ]
+
+        while queue:
+            x, y = queue.popleft()
+            for dx, dy in directions:
+                nx, ny = x + dx, y + dy
+                if (nx, ny) in visited:
+                    continue
+                visited.add((nx, ny))
+                if not (0 <= nx < self.map_width and 0 <= ny < self.map_height):
+                    continue
+                if self._can_place_ground_item(nx, ny, allow_player_tile):
+                    return (nx, ny)
+                queue.append((nx, ny))
+        return None
+
+    def _place_ground_item(
+        self,
+        item_name: str,
+        origin: tuple[int, int],
+        allow_player_tile: bool = False
+    ) -> bool:
+        """Place an item on the nearest available ground tile."""
+        target = self._find_nearest_ground_tile(origin, allow_player_tile=allow_player_tile)
+        if not target:
+            print(f"Unable to place item '{item_name}' near {origin}")
+            return False
+        self.ground_items.setdefault(target, []).append(item_name)
+        return True
     
     def handle_throw_item(self, item_index: int, dx: int = 0, dy: int = 1) -> bool:
         """Handle throwing an item as a projectile."""
@@ -1533,11 +1738,17 @@ class Engine:
              if 0 <= ey < self.map_height and 0 <= ex < self.map_width:
                  if self.visibility[ey][ex] == 2: visible.append(entity)
          return visible
+    
+    def is_attackable(self, entity: Entity) -> bool:
+        """Check if an entity can be targeted by spells/attacks."""
+        # Hostile entities are attackable
+        # Non-hostile entities are typically not attackable
+        return entity.hostile and entity.hp > 0
 
     # --- MODIFIED: handle_entity_death to check gain_xp return value ---
     def handle_entity_death(self, entity: Entity):
         """Handles removing entity, calculating XP, dropping items/gold on ground, and triggering spell learn screen."""
-        debug(f"{entity.name} died at {entity.position}")
+        print(f"{entity.name} died at {entity.position}")
         xp_reward = self._calculate_xp_reward(entity)
 
         # --- Check gain_xp result ---
@@ -1546,37 +1757,53 @@ class Engine:
             needs_spell_choice = self.player.gain_xp(xp_reward) # Capture the return value
             self.log_event(f"You gain {xp_reward} XP.")
 
-        # --- Drop calculation - items and gold drop on ground with physics ---
+        # --- Drop calculation - place loot on ground ---
         item_ids, gold = entity.get_drops()
         ex, ey = entity.position
-        
-        # Drop gold on ground if any (gold doesn't use physics)
-        if gold > 0:
-            pos_key = (ex, ey)
-            # Use a special marker for gold
-            self.ground_items.setdefault(pos_key, []).append(f"${gold}")
-            self.log_event(f"{entity.name} drops {gold} gold.")
-        
-        # Drop items on ground with rolling physics
-        for item_id in item_ids:
-            template = GameData().get_item(item_id)
-            if template:
-                item_name = template.get("name", item_id)
-                # Add items with physics animation
-                import random
-                velocity = (random.uniform(-1.5, 1.5), random.uniform(-1.5, 1.5))
-                self.add_dropped_item_with_physics(item_name, (ex, ey), velocity)
-                self.log_event(f"{entity.name} drops a {item_name}.")
-            else:
-                debug(f"Warn: Unknown item ID '{item_id}'")
+        death_pos = (ex, ey)
 
-        # --- Remove entity ---
+        # Remove entity before placing drops so the tile becomes available
         if entity in self.entities:
             self.entities.remove(entity)
+        
+        # Drop gold on ground if any
+        if gold > 0:
+            if self._place_ground_item(f"${gold}", death_pos):
+                self.log_event(f"{entity.name} drops {gold} gold.")
+            else:
+                # Fallback: place directly on death tile
+                self.ground_items.setdefault(death_pos, []).append(f"${gold}")
+                self.log_event(f"{entity.name} drops {gold} gold.")
+        
+        # Drop items on ground near the corpse
+        significant_drops: List[Dict[str, str]] = []
+        for item_id in item_ids:
+            if item_id in INSIGNIFICANT_DROP_IDS:
+                self._place_ground_item(item_id, death_pos)
+                continue
+
+            template = GameData().get_item(item_id)
+            if not template:
+                print(f"Warn: Unknown item ID '{item_id}'")
+                continue
+
+            item_name = template.get("name", item_id)
+            placed = self._place_ground_item(item_name, death_pos)
+            if not placed:
+                self.ground_items.setdefault(death_pos, []).append(item_name)
+            self.log_event(f"{entity.name} drops a {item_name}.")
+            significant_drops.append({"id": item_id, "name": item_name})
+
+        if significant_drops:
+            self.death_drop_log.append({
+                "entity": entity.template_id,
+                "position": death_pos,
+                "items": significant_drops,
+            })
 
         # --- Trigger spell learning screen AFTER handling drops/removal ---
         if needs_spell_choice:
-            debug("Player leveled up and has spells to learn, pushing screen.")
+            print("Player leveled up and has spells to learn, pushing screen.")
             self.log_event("You feel more experienced! Choose a spell to learn.")
             self.app.push_screen("learn_spell")
 
@@ -1608,6 +1835,49 @@ class Engine:
                 else: self.log_event(f"{entity.name} begs.")
             else: # Move towards player if not adjacent
                 dx = 0 if px == ex else (1 if px > ex else -1); dy = 0 if py == ey else (1 if py > ey else -1)
+                nx, ny = ex + dx, ey + dy
+                if (0 <= ny < self.map_height and 0 <= nx < self.map_width and
+                    self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and [nx, ny] != self.player.position):
+                    entity.position = [nx, ny]
+
+    def _process_thief_ai(self, entity: Entity, distance: float) -> None:
+        print(f"Processing thief AI for {entity.name}")
+        behavior = getattr(entity, "behavior", "")
+        px, py = self.player.position
+        ex, ey = entity.position
+
+        if entity.status_manager.has_behavior("flee"):
+            print(f"{entity.name} is fleeing")
+            # Move away from player
+            if distance <= entity.detection_range:
+                dx = 0 if px == ex else (-1 if px > ex else 1)
+                dy = 0 if py == ey else (-1 if py > ey else 1)
+                nx, ny = ex + dx, ey + dy
+                if (0 <= ny < self.map_height and 0 <= nx < self.map_width and
+                    self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and [nx, ny] != self.player.position):
+                    entity.position = [nx, ny]
+            return
+
+        if distance <= entity.detection_range:
+            print(f"{entity.name} is in detection range")
+            if distance <= 1.5:
+                print(f"{entity.name} is adjacent to player")
+                # Attempt to steal
+                if self.player.gold > 0 and random.random() < 0.5:
+                    stolen = min(random.randint(1, 10), self.player.gold)
+                    self.player.gold -= stolen
+                    self.log_event(f"{entity.name} steals {stolen} gold!")
+                    print(f"{entity.name} stole {stolen} gold")
+                else:
+                    self.log_event(f"{entity.name} tries to steal from you but fails!")
+                    print(f"{entity.name} failed to steal")
+                # Flee after stealing
+                entity.status_manager.add_effect("Fleeing", 20)
+            else:
+                print(f"{entity.name} is moving towards player")
+                # Move towards player
+                dx = 0 if px == ex else (1 if px > ex else -1)
+                dy = 0 if py == ey else (1 if py > ey else -1)
                 nx, ny = ex + dx, ey + dy
                 if (0 <= ny < self.map_height and 0 <= nx < self.map_width and
                     self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and [nx, ny] != self.player.position):
@@ -1666,6 +1936,12 @@ class Engine:
         return True
 
     def handle_player_attack(self, target: Entity) -> bool:
+        # Wake up sleeping entities when attacked
+        if target.is_sleeping:
+            target.wake_up()
+            self.log_event(f"You wake up {target.name}!")
+        
+        print(f"Player attacks {target.name}")
         # --- Player attack logic --- (omitted for brevity, keep your existing logic)
         str_mod = (self.player.stats.get('STR', 10) - 10) // 2
         prof = 2 + (self.player.level - 1) // 4
@@ -1732,6 +2008,11 @@ class Engine:
         else: self.log_event(f"Hit {target.name} for {total_dmg} dmg.")
         is_dead = target.take_damage(total_dmg)
         if is_dead: self.handle_entity_death(target); self.log_event(f"{target.name} defeated!")
+        elif getattr(target, "behavior", "") == "urchin":
+            pass # Urchins never attack
+        elif getattr(target, "behavior", "") == "thief" and not getattr(target, "hostile", False):
+            target.hostile = True
+            self.log_event(f"{target.name} becomes hostile!")
         elif getattr(target, "behavior", "") == "mercenary" and not getattr(target, "provoked", False):
              target.provoked = True; target.hostile = True; target.ai_type = "aggressive"; self.log_event(f"{target.name} is provoked!")
         return is_dead
@@ -1856,16 +2137,68 @@ class Engine:
         
         return False
 
+    def _handle_entity_cloning(self, entity: Entity, is_asleep: bool) -> None:
+        """Allow certain monsters to multiply with bounded population pressure."""
+        clone_rate = getattr(entity, "clone_rate", 0.0)
+        if clone_rate <= 0:
+            return
+
+        if is_asleep:
+            return
+
+        if random.random() >= clone_rate:
+            return
+
+        # Enforce per-template population caps to keep swarms manageable.
+        living_same_type = sum(
+            1 for other in self.entities
+            if other.template_id == entity.template_id and other.hp > 0
+        )
+        max_population = getattr(entity, "clone_max_population", 0)
+        if max_population > 0 and living_same_type >= max_population:
+            return
+
+        # Find a nearby open floor tile to place the clone.
+        ex, ey = entity.position
+        spawn_candidates = []
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                if dx == 0 and dy == 0:
+                    continue
+                nx, ny = ex + dx, ey + dy
+                if not (0 <= nx < self.map_width and 0 <= ny < self.map_height):
+                    continue
+                if self.game_map[ny][nx] != FLOOR:
+                    continue
+                if self.get_entity_at(nx, ny):
+                    continue
+                spawn_candidates.append((nx, ny))
+
+        if not spawn_candidates:
+            return
+
+        spawn_x, spawn_y = random.choice(spawn_candidates)
+        clone = Entity(entity.template_id, self.player.depth, [spawn_x, spawn_y])
+        clone.aware_of_player = entity.aware_of_player
+        self.entities.append(clone)
+
+        if self.visibility[spawn_y][spawn_x] == 2:
+            self.log_event(f"{entity.name} splits and another appears!")
+
     def update_entities(self) -> None:
+        print("Updating entities...")
         # --- Entity update logic --- (omitted for brevity, keep your existing logic)
         for entity in self.entities[:]:
             if entity.hp <= 0: continue
             
             # Tick entity status effects
             entity.status_manager.tick_effects()
+
+            is_asleep = entity.status_manager.has_behavior("asleep") or getattr(entity, "is_sleeping", False)
+            self._handle_entity_cloning(entity, is_asleep)
             
             # Check if entity is asleep or fleeing
-            if entity.status_manager.has_behavior("asleep"):
+            if is_asleep:
                 continue  # Skip turn if asleep
             
             # Auto-flee if HP is critically low (below 25% of max HP)
@@ -1990,8 +2323,51 @@ class Engine:
                                 self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and 
                                 [nx, ny] != self.player.position):
                                 entity.position = [nx, ny]
-            elif entity.ai_type == "thief": self._process_beggar_ai(entity, distance)
+            elif entity.ai_type == "thief": self._process_thief_ai(entity, distance)
 
+
+    def _process_thief_ai(self, entity: Entity, distance: float) -> None:
+        print(f"Processing thief AI for {entity.name}")
+        behavior = getattr(entity, "behavior", "")
+        px, py = self.player.position
+        ex, ey = entity.position
+
+        if entity.status_manager.has_behavior("flee"):
+            print(f"{entity.name} is fleeing")
+            # Move away from player
+            if distance <= entity.detection_range:
+                dx = 0 if px == ex else (-1 if px > ex else 1)
+                dy = 0 if py == ey else (-1 if py > ey else 1)
+                nx, ny = ex + dx, ey + dy
+                if (0 <= ny < self.map_height and 0 <= nx < self.map_width and
+                    self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and [nx, ny] != self.player.position):
+                    entity.position = [nx, ny]
+            return
+
+        if distance <= entity.detection_range:
+            print(f"{entity.name} is in detection range")
+            if distance <= 1.5:
+                print(f"{entity.name} is adjacent to player")
+                # Attempt to steal
+                if self.player.gold > 0 and random.random() < 0.5:
+                    stolen = min(random.randint(1, 10), self.player.gold)
+                    self.player.gold -= stolen
+                    self.log_event(f"{entity.name} steals {stolen} gold!")
+                    print(f"{entity.name} stole {stolen} gold")
+                else:
+                    self.log_event(f"{entity.name} tries to steal from you but fails!")
+                    print(f"{entity.name} failed to steal")
+                # Flee after stealing
+                entity.status_manager.add_effect("Fleeing", 20)
+            else:
+                print(f"{entity.name} is moving towards player")
+                # Move towards player
+                dx = 0 if px == ex else (1 if px > ex else -1)
+                dy = 0 if py == ey else (1 if py > ey else -1)
+                nx, ny = ex + dx, ey + dy
+                if (0 <= ny < self.map_height and 0 <= nx < self.map_width and
+                    self.game_map[ny][nx] == FLOOR and not self.get_entity_at(nx, ny) and [nx, ny] != self.player.position):
+                    entity.position = [nx, ny]
 
     def toggle_search(self) -> bool:
         # --- Toggle search logic --- (omitted for brevity, keep your existing logic)
@@ -2030,7 +2406,7 @@ class Engine:
         """Add a new projectile to animate."""
         projectile = Projectile(start_pos, end_pos, char, projectile_type)
         self.active_projectiles.append(projectile)
-        debug(f"Added projectile: {projectile_type} from {start_pos} to {end_pos}")
+        print(f"Added projectile: {projectile_type} from {start_pos} to {end_pos}")
     
     def get_active_projectiles(self) -> List[Projectile]:
         """Get list of currently animating projectiles."""
@@ -2040,63 +2416,9 @@ class Engine:
         """Remove projectiles that have finished animating."""
         self.active_projectiles = [p for p in self.active_projectiles if p.is_active()]
     
-    def add_dropped_item_with_physics(self, item_name: str, pos: tuple, velocity: Optional[tuple] = None) -> None:
-        """Add a dropped item with physics simulation."""
-        dropped = DroppedItem(item_name, pos, velocity)
-        self.dropped_items.append(dropped)
-        debug(f"Added dropped item: {item_name} at {pos}")
-    
     def update_dropped_items(self) -> None:
-        """Update physics for all dropped items."""
-        still_animating = []
-        for item in self.dropped_items:
-            if item.update():
-                still_animating.append(item)
-            else:
-                # Item settled, add to ground_items
-                final_pos = item.get_final_position()
-                if final_pos:
-                    # Check if position is valid
-                    x, y = final_pos
-                    
-                    # Clamp to map bounds
-                    x = max(0, min(x, self.map_width - 1))
-                    y = max(0, min(y, self.map_height - 1))
-                    final_pos = (x, y)
-                    
-                    # Check if it's a valid floor tile
-                    if 0 <= x < self.map_width and 0 <= y < self.map_height and self.game_map[y][x] != WALL:
-                        self.ground_items.setdefault(final_pos, []).append(item.item_name)
-                        debug(f"Item {item.item_name} settled at {final_pos}")
-                    else:
-                        # Item rolled into wall or invalid position, find nearest valid floor
-                        # Try positions in expanding circles
-                        found_valid = False
-                        for radius in range(1, 5):
-                            for dy in range(-radius, radius + 1):
-                                for dx in range(-radius, radius + 1):
-                                    check_x, check_y = x + dx, y + dy
-                                    if (0 <= check_x < self.map_width and 
-                                        0 <= check_y < self.map_height and 
-                                        self.game_map[check_y][check_x] != WALL):
-                                        final_pos = (check_x, check_y)
-                                        self.ground_items.setdefault(final_pos, []).append(item.item_name)
-                                        debug(f"Item {item.item_name} placed at nearest floor {final_pos}")
-                                        found_valid = True
-                                        break
-                                if found_valid:
-                                    break
-                            if found_valid:
-                                break
-                        
-                        if not found_valid:
-                            # Last resort: place at player position
-                            px, py = self.player.position
-                            self.ground_items.setdefault((px, py), []).append(item.item_name)
-                            debug(f"Item {item.item_name} placed at player position as fallback")
-        
-        self.dropped_items = still_animating
-    
-    def get_dropped_items(self) -> List[DroppedItem]:
-        """Get list of currently animating dropped items."""
-        return self.dropped_items
+        """
+        Update the state of dropped items, like despawn timers.
+        """
+        # This is a placeholder for future logic, such as items despawning over time
+        pass

@@ -258,7 +258,9 @@
       "base": 92,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "sleeps_during_night": true,
+    "sleeps_during_day": false
   },
   {
     "id": "INFERNAL_LORD",
@@ -344,7 +346,9 @@
       "base": 100,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "sleeps_during_day": true,
+    "sleeps_during_night": false
   },
   {
     "id": "BAT_GIANT_BROWN",
@@ -371,7 +375,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "sleeps_during_day": true,
+    "sleeps_during_night": false
   },
   {
     "id": "BAT_GIANT_FIRE",
@@ -399,7 +405,9 @@
       "base": 95,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "sleeps_during_day": true,
+    "sleeps_during_night": false
   },
   {
     "id": "BEETLE_KILLER_FIRE",
@@ -482,7 +490,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "sleeps_during_day": true,
+    "sleeps_during_night": false
   },
   {
     "id": "BLACK_HARPY",
@@ -593,7 +603,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "clone_rate": 0.2,
+    "clone_max_population": 16
   },
   {
     "id": "BLACK_MUSHROOM_PATCH",
@@ -620,7 +632,8 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "clone_rate": 0.1
   },
   {
     "id": "BLACK_NAGA",
@@ -818,7 +831,9 @@
     "flee_chance": 50,
     "ranged_attack": "spit",
     "ranged_damage": "1d6",
-    "ranged_range": 4
+    "ranged_range": 4,
+    "clone_rate": 0.18,
+    "clone_max_population": 18
   },
   {
     "id": "BLUBBERING_ICKY_THING",
@@ -845,7 +860,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "clone_rate": 0.18,
+    "clone_max_population": 18
   },
   {
     "id": "BLUBBERING_IDIOT",
@@ -902,7 +919,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "sleeps_during_day": true,
+    "sleeps_during_night": false
   },
   {
     "id": "BLUE_JELLY",
@@ -956,7 +975,9 @@
       "base": 96,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "clone_rate": 0.25,
+    "clone_max_population": 16
   },
   {
     "id": "BLUE_YEEK",
@@ -1039,7 +1060,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "clone_rate": 0.22,
+    "clone_max_population": 16
   },
   {
     "id": "CENTIPEDE_GIANT_RED",
@@ -1206,7 +1229,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "clone_rate": 0.18,
+    "clone_max_population": 18
   },
   {
     "id": "CLEAR_MUSHROOM_PATCH",
@@ -1233,7 +1258,8 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "clone_rate": 0.3
   },
   {
     "id": "CLEAR_OOZE",
@@ -1450,7 +1476,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "clone_rate": 0.24,
+    "clone_max_population": 16
   },
   {
     "id": "CRYSTAL_OOZE",
@@ -1583,7 +1611,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "sleeps_during_day": true,
+    "sleeps_during_night": false
   },
   {
     "id": "DISENCHANTER_EYE",
@@ -1635,7 +1665,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "clone_rate": 0.18,
+    "clone_max_population": 16
   },
   {
     "id": "DISENCHANTER_OOZE",
@@ -1948,35 +1980,6 @@
       "per_depth": -0.5
     },
     "flee_chance": 0
-  },
-  {
-    "id": "EVIL_IGGY",
-    "name": "Evil Iggy",
-    "char": "p",
-    "hp_base": 10,
-    "hp_per_level": 3,
-    "attack_base": 2,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 7,
-    "gold_min_mult": 5,
-    "gold_max_mult": 15,
-    "drops": {
-      "SWORD_SHORT": 25,
-      "LEATHER_ARMOR": 20,
-      "GOLD_COINS": 30
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
   },
   {
     "id": "EYE_FLOATING",
@@ -2299,7 +2302,9 @@
       "base": 92,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "sleeps_during_night": true,
+    "sleeps_during_day": false
   },
   {
     "id": "GIANT_BLACK_BAT",
@@ -2326,7 +2331,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "sleeps_during_day": true,
+    "sleeps_during_night": false
   },
   {
     "id": "GIANT_BLACK_CENTIPEDE",
@@ -2430,7 +2437,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "clone_rate": 0.35,
+    "clone_max_population": 24
   },
   {
     "id": "GIANT_BLACK_RAT",
@@ -2457,7 +2466,8 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "sleeps_during_day": true
   },
   {
     "id": "GIANT_BLUE_CENTIPEDE",
@@ -2821,7 +2831,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "sleeps_during_day": true,
+    "sleeps_during_night": false
   },
   {
     "id": "GIANT_HILL",
@@ -2906,7 +2918,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "sleeps_during_day": true,
+    "sleeps_during_night": false
   },
   {
     "id": "GIANT_LONG_EARED_BAT",
@@ -2933,7 +2947,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "sleeps_during_day": true,
+    "sleeps_during_night": false
   },
   {
     "id": "GIANT_MOTTLED_ANT_LION",
@@ -2960,7 +2976,9 @@
       "base": 92,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "sleeps_during_night": true,
+    "sleeps_during_day": false
   },
   {
     "id": "GIANT_PURPLE_WORM",
@@ -3014,7 +3032,9 @@
       "base": 92,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "sleeps_during_night": true,
+    "sleeps_during_day": false
   },
   {
     "id": "GIANT_RED_BAT",
@@ -3041,7 +3061,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "sleeps_during_day": true,
+    "sleeps_during_night": false
   },
   {
     "id": "GIANT_RED_DRAGON_FLY",
@@ -3201,7 +3223,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "clone_rate": 0.22,
+    "clone_max_population": 18
   },
   {
     "id": "GIANT_STATIC_ANT",
@@ -3255,7 +3279,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "sleeps_during_day": true,
+    "sleeps_during_night": false
   },
   {
     "id": "GIANT_TROLL",
@@ -3337,7 +3363,9 @@
       "base": 92,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "sleeps_during_night": true,
+    "sleeps_during_day": false
   },
   {
     "id": "GIANT_WHITE_CENTIPEDE",
@@ -3416,7 +3444,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "clone_rate": 0.28,
+    "clone_max_population": 20
   },
   {
     "id": "GIANT_WHITE_RAT",
@@ -3443,7 +3473,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "clone_rate": 0.22,
+    "clone_max_population": 18
   },
   {
     "id": "GIANT_WHITE_TICK",
@@ -3682,7 +3714,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "sleeps_during_day": true,
+    "sleeps_during_night": false
   },
   {
     "id": "GREEN_GLUTTON_GHOST",
@@ -3736,7 +3770,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "clone_rate": 0.18,
+    "clone_max_population": 18
   },
   {
     "id": "GREEN_OOZE",
@@ -3790,7 +3826,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "clone_rate": 0.18,
+    "clone_max_population": 18
   },
   {
     "id": "GREY_MUSHROOM_PATCH",
@@ -3872,7 +3910,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "clone_rate": 0.2,
+    "clone_max_population": 16
   },
   {
     "id": "HARPY_GREY",
@@ -3956,7 +3996,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "sleeps_during_day": true,
+    "sleeps_during_night": false
   },
   {
     "id": "HUGE_WHITE_BAT",
@@ -3983,7 +4025,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "sleeps_during_day": true,
+    "sleeps_during_night": false
   },
   {
     "id": "HUMAN_BANDIT",
@@ -4098,7 +4142,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "clone_rate": 0.18,
+    "clone_max_population": 18
   },
   {
     "id": "IRIDESCENT_BEETLE",
@@ -4177,7 +4223,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "sleeps_during_night": true,
+    "sleeps_during_day": false
   },
   {
     "id": "JELLY_GREEN",
@@ -4725,7 +4773,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "clone_rate": 0.35,
+    "clone_max_population": 24
   },
   {
     "id": "MAGE",
@@ -5186,7 +5236,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "clone_rate": 0.2,
+    "clone_max_population": 16
   },
   {
     "id": "MUMMIFIED_KOBOLD",
@@ -6032,7 +6084,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "sleeps_during_day": true,
+    "sleeps_during_night": false
   },
   {
     "id": "RED_ICKY_THING",
@@ -6059,7 +6113,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "clone_rate": 0.18,
+    "clone_max_population": 18
   },
   {
     "id": "RED_JELLY",
@@ -6113,7 +6169,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "clone_rate": 0.2,
+    "clone_max_population": 16
   },
   {
     "id": "RED_NAGA",
@@ -6361,7 +6419,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "clone_rate": 0.18,
+    "clone_max_population": 16
   },
   {
     "id": "SILVER_JELLY",
@@ -6415,7 +6475,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "clone_rate": 0.28,
+    "clone_max_population": 20
   },
   {
     "id": "SINGING_HAPPY_DRUNK",
@@ -7003,7 +7065,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "clone_rate": 0.22,
+    "clone_max_population": 16
   },
   {
     "id": "VORPAL_BUNNY",
@@ -7142,7 +7206,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "sleeps_during_day": true,
+    "sleeps_during_night": false
   },
   {
     "id": "WHITE_HARPY",
@@ -7197,7 +7263,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "clone_rate": 0.18,
+    "clone_max_population": 18
   },
   {
     "id": "WHITE_JELLY",
@@ -7359,7 +7427,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "clone_rate": 0.16,
+    "clone_max_population": 16
   },
   {
     "id": "WORM_MASS_GREEN",
@@ -7521,7 +7591,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "clone_rate": 0.21,
+    "clone_max_population": 16
   },
   {
     "id": "YELLOW_MUSHROOM_PATCH",
@@ -7929,7 +8001,9 @@
       "base": 65,
       "per_depth": -0.3
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "sleeps_during_day": false,
+    "sleeps_during_night": true
   },
   {
     "id": "HYENA_PACK",

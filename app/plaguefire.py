@@ -2,7 +2,7 @@
 
 import os
 import json
-from typing import Dict, List, Any, Optional # Add Optional
+from typing import Dict, List, Any, Optional, Tuple  # Add Optional
 from textual import log
 
 # --- UPDATED: Import Player class ---
@@ -75,6 +75,12 @@ class RogueApp(App[None]): # Specify return type for run()
     dungeon_levels: Dict[int, MapData] = {}
     # Cache for entities per level {depth: [entities]}
     dungeon_entities: Dict[int, List[Entity]] = {}
+    # Cache for room definitions per level {depth: [Rect]}
+    dungeon_rooms: Dict[int, List] = {}
+    # Cache for ground items per level {depth: {(x, y): [items]}}
+    dungeon_ground_items: Dict[int, Dict[Tuple[int, int], List[str]]] = {}
+    # Cache for death drop logs per level {depth: [records]}
+    dungeon_death_drops: Dict[int, List[Dict[str, Any]]] = {}
     # --- Store the Player object instance ---
     player: Optional[Player] = None
 
@@ -117,6 +123,9 @@ class RogueApp(App[None]): # Specify return type for run()
         """Called when the app starts."""
         self.dungeon_levels = {}
         self.dungeon_entities = {}
+        self.dungeon_rooms = {}
+        self.dungeon_ground_items = {}
+        self.dungeon_death_drops = {}
         self.player = None
         
         self.push_screen("title")

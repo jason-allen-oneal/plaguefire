@@ -172,11 +172,7 @@ def test_drop_item():
     
     # Items now use physics simulation, so we need to update the physics
     # until all items settle
-    max_updates = 100
-    for _ in range(max_updates):
-        engine.update_dropped_items()
-        if not engine.dropped_items:
-            break
+    engine.update_dropped_items()
     
     # Check ground items after physics simulation
     assert hasattr(engine, 'ground_items'), "Engine should have ground_items"

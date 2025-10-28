@@ -43,8 +43,9 @@ def generate_room_corridor_dungeon(
         map_width: int, map_height: int,
         max_rooms: int = None,
         room_min_size: int = 6, room_max_size: int = 10,
-    ) -> MapData:
-    """Generates a dungeon with rooms and connecting corridors."""
+    ) -> Tuple[MapData, List[Rect]]:
+    """Generates a dungeon with rooms and connecting corridors.
+    Returns: (map_data, list_of_rooms)"""
     debug(f"Generating room/corridor dungeon ({map_width}x{map_height})...")
     
     # Adjust parameters based on map size
@@ -133,7 +134,7 @@ def generate_room_corridor_dungeon(
     # Place secret doors
     _place_secret_doors(dungeon, rooms, map_width, map_height)
 
-    return dungeon
+    return dungeon, rooms
 
 
 # --- UPDATED: Cellular Automata accepts dimensions ---
@@ -215,6 +216,10 @@ def _place_doors(dungeon: MapData, rooms: List[Rect], map_width: int, map_height
             x, y, direction = entrance
             # Skip if position already has a door or is too close to another door
             if (x, y) not in placed_positions and not _is_too_close_to_existing_door(x, y):
+                current_tile = dungeon[y][x]
+                if current_tile not in (FLOOR, DOOR_OPEN, DOOR_CLOSED):
+                    debug(f"Skipped door at ({x},{y}) - unsuitable tile ({current_tile})")
+                    continue
                 # 10% chance of secret door, otherwise regular door
                 if random.random() < 0.1:
                     door_type = SECRET_DOOR
@@ -266,7 +271,7 @@ def _find_room_entrances(dungeon: MapData, room: Rect, map_width: int, map_heigh
         # Handle entrance that extends to the end
         if in_entrance:
             mid_x = (start_x + room.x2 - 1) // 2
-            entrances.append((mid_x, room.y1 - 1, "north"))
+            entrances.append((mid_x, room.y1, "north"))
     
     # Check south wall - place door in corridor (y = room.y2)
     if room.y2 < map_height - 1:

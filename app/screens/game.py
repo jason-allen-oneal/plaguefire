@@ -9,9 +9,10 @@ from app.ui.hud_view import HUDView
 from app.lib.core.engine import Engine, MapData, BUILDING_KEY # Import MapData if using type hint
 from config import FLOOR, WALL, STAIRS_DOWN, STAIRS_UP, DOOR_CLOSED, DOOR_OPEN, SECRET_DOOR_FOUND, QUARTZ_VEIN, MAGMA_VEIN, GRANITE # Keep config imports needed for actions
 from debugtools import debug, log_exception
-from typing import Optional, List # Import Optional and List
+from typing import Optional, List, Dict, Any, Tuple  # Import Optional, List, Dict, Any, Tuple
 from app.lib.core.mining import get_mining_system
 from app.lib.core.chests import get_chest_system
+from app.screens.help import CommandHelpScreen
 
 class GameScreen(Screen):
     # Base bindings that work in both modes
@@ -107,6 +108,7 @@ class GameScreen(Screen):
             "v": self.action_version,
             "w": self.action_wear_wield,
             "x": self.action_exchange_weapon,
+            "?": self.action_help,
             ".": lambda: self._request_direction("run"),
             "-": lambda: self._request_direction("move_no_pickup"),
             # Uppercase commands
@@ -184,6 +186,7 @@ class GameScreen(Screen):
             "#": self.action_toggle_search,
             "-": lambda: self._request_direction("move_no_pickup"),
             ".": self.action_wait,
+            "?": self.action_help,
             # Uppercase commands
             "C": self.action_character_desc,
             "D": lambda: self._request_direction("disarm"),
@@ -295,10 +298,22 @@ class GameScreen(Screen):
              self.app.player = Player(default_player_data) # Create Player object
 
         # --- Create Engine instance, passing the Player object ---
-        # Get map and entities from cache if they exist for the player's current depth
-        cached_map = self._get_map(self.app.player.depth)
-        cached_entities = self._get_entities(self.app.player.depth)
-        self.engine = Engine(app=self.app, player=self.app.player, map_override=cached_map, entities_override=cached_entities)
+        # Get map, entities, and rooms from cache if they exist for the player's current depth
+        current_depth = self.app.player.depth
+        cached_map = self._get_map(current_depth)
+        cached_entities = self._get_entities(current_depth)
+        cached_rooms = self._get_rooms(current_depth)
+        cached_ground_items = self._get_ground_items(current_depth)
+        cached_death_log = self._get_death_log(current_depth)
+        self.engine = Engine(
+            app=self.app,
+            player=self.app.player,
+            map_override=cached_map,
+            entities_override=cached_entities,
+            rooms_override=cached_rooms,
+            ground_items_override=cached_ground_items,
+            death_log_override=cached_death_log
+        )
 
         # --- Create UI Widgets, passing the engine ---
         with Horizontal(id="layout"):
@@ -334,6 +349,36 @@ class GameScreen(Screen):
             debug(f"No entities found in cache for depth {depth}. Engine will spawn.")
             return None
 
+    def _get_rooms(self, depth: int) -> Optional[List]:
+        """Gets room data from cache if available."""
+        if depth in getattr(self.app, "dungeon_rooms", {}):
+            debug(f"Loading rooms for depth {depth} from cache.")
+            return self.app.dungeon_rooms[depth]
+        return None
+
+    def _get_ground_items(self, depth: int) -> Optional[Dict[Tuple[int, int], List[str]]]:
+        """Gets cached ground items for a depth."""
+        cache = getattr(self.app, "dungeon_ground_items", {})
+        if depth in cache:
+            debug(f"Loading ground items for depth {depth} from cache.")
+            return {tuple(pos): list(items) for pos, items in cache[depth].items()}
+        return None
+
+    def _get_death_log(self, depth: int) -> Optional[List[Dict[str, Any]]]:
+        """Gets cached death drop records for a depth."""
+        cache = getattr(self.app, "dungeon_death_drops", {})
+        if depth in cache:
+            debug(f"Loading death drop log for depth {depth} from cache.")
+            return [
+                {
+                    "entity": record.get("entity"),
+                    "position": record.get("position"),
+                    "items": [item.copy() for item in record.get("items", [])],
+                }
+                for record in cache[depth]
+            ]
+        return None
+
     def _change_level(self, new_depth: int):
         """Handles logic for moving between dungeon levels using the Engine."""
         current_depth = self.engine.player.depth # Store previous depth
@@ -344,6 +389,21 @@ class GameScreen(Screen):
             debug(f"Caching map and entities for depth {current_depth}")
             self.app.dungeon_levels[current_depth] = self.engine.game_map
             self.app.dungeon_entities[current_depth] = self.engine.entities
+            if hasattr(self.app, "dungeon_rooms"):
+                self.app.dungeon_rooms[current_depth] = list(self.engine.rooms)
+            if hasattr(self.app, "dungeon_ground_items"):
+                self.app.dungeon_ground_items[current_depth] = {
+                    tuple(pos): list(items) for pos, items in self.engine.ground_items.items()
+                }
+            if hasattr(self.app, "dungeon_death_drops"):
+                self.app.dungeon_death_drops[current_depth] = [
+                    {
+                        "entity": record.get("entity"),
+                        "position": record.get("position"),
+                        "items": [item.copy() for item in record.get("items", [])],
+                    }
+                    for record in self.engine.death_drop_log
+                ]
 
         # --- 2. Update player depth ---
         self.app.player.depth = new_depth # Update the player object directly
@@ -352,6 +412,9 @@ class GameScreen(Screen):
         # --- 3. Get map and entities for new level ---
         target_map = self._get_map(new_depth)
         target_entities = self._get_entities(new_depth)
+        target_rooms = self._get_rooms(new_depth)
+        target_ground_items = self._get_ground_items(new_depth)
+        target_death_log = self._get_death_log(new_depth)
 
         # --- 4. Invalidate player position (optional but can help Engine logic) ---
         # Set to None so Engine knows to calculate based on stairs
@@ -366,7 +429,10 @@ class GameScreen(Screen):
             player=self.app.player,
             map_override=target_map,
             previous_depth=current_depth, # Pass the previous depth
-            entities_override=target_entities
+            entities_override=target_entities,
+            rooms_override=target_rooms,
+            ground_items_override=target_ground_items,
+            death_log_override=target_death_log
         )
 
         # --- 6. Update Widgets ---
@@ -388,8 +454,6 @@ class GameScreen(Screen):
             # Engine already advanced entities during the action; just refresh the UI.
             self.dungeon_view.update_map()
             self.hud_view.update_hud()
-        else:
-            self.notify("You can't move there.")
 
     def action_move_up(self): self._attempt_directional_action(0, -1)
     def action_move_down(self): self._attempt_directional_action(0, 1)
@@ -846,11 +910,7 @@ class GameScreen(Screen):
     def action_help(self):
         """Show help/command reference."""
         mode = self.app.get_command_mode()
-        if mode == "original":
-            help_text = "Original Commands: a=aim wand, b=browse, c=close, d=drop, e=equipment, i=inventory, m=cast spell, o=open, s=search, <=up stairs, >=down stairs"
-        else:
-            help_text = "Roguelike Commands: hjkl=move, c=close, d=drop, e=equipment, i=inventory, m=cast spell, o=open, s=search, <=up stairs, >=down stairs"
-        self.notify(help_text, timeout=10)
+        self.app.push_screen(CommandHelpScreen(mode))
         debug("Action: Help")
     
     def action_character_desc(self):

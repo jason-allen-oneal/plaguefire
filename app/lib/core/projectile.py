@@ -8,6 +8,7 @@ like thrown items, arrows, magic bolts, etc. that animate across the screen.
 from typing import List, Optional, Tuple
 from debugtools import debug
 import time
+from app.lib.core.loader import GameData
 
 
 class Projectile:
@@ -133,6 +134,7 @@ class DroppedItem:
             velocity: Optional (vx, vy) velocity. If None, random velocity is applied
         """
         self.item_name = item_name
+        self.symbol = GameData().get_item_symbol(item_name)
         self.position = list(start_pos)  # Current position as floats
         self.final_position: Optional[Tuple[int, int]] = None
         
@@ -193,3 +195,7 @@ class DroppedItem:
     def is_settled(self) -> bool:
         """Check if the item has finished rolling."""
         return self.settled
+
+    def get_display_char(self) -> str:
+        """Return the display character for this dropped item."""
+        return self.symbol or "~"

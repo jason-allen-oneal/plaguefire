@@ -14,7 +14,6 @@ class InventoryScreen(Screen):
 
     BINDINGS = [
         ("escape", "close", "Close"),
-        ("i", "close", "Close"),
         ("q", "close", "Close"),
     ]
 

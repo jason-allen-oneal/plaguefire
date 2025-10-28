@@ -145,7 +145,7 @@ class CastSpellScreen(Screen):
             if requires_target:
                 # Open target selection UI
                 engine = game_screen.engine
-                visible_enemies = [e for e in engine.get_visible_entities() if e.hostile]
+                visible_enemies = [e for e in engine.get_visible_entities() if engine.is_attackable(e)]
                 
                 if not visible_enemies:
                     engine.log_event("No valid targets in sight!")

@@ -9,9 +9,11 @@ from config import (
     DOOR_CLOSED,
     SECRET_DOOR,
     SECRET_DOOR_FOUND,
+    FLOOR,
 )
 from typing import TYPE_CHECKING, List
 from debugtools import log_exception, debug
+from app.lib.core.loader import GameData
 
 if TYPE_CHECKING:
     from app.lib.core.engine import Engine
@@ -41,12 +43,18 @@ class DungeonView(Static):
         self.last_player_pos = None  # Track player position for smooth scrolling
         self.scroll_smoothing = False  # Disable smooth scrolling by default
         self.animation_timer = None  # Timer for projectile animations
+        self._data_loader = GameData()
     
     def _maybe_color_wall(self, char: str) -> str:
         """Wrap wall characters in grey color markup."""
         if char == "#":
             return "[gray54]#[/gray54]"
         return char
+
+    def _format_item_char(self, item_name: str) -> str:
+        """Return the colored display character for a ground item."""
+        symbol = self._data_loader.get_item_symbol(item_name)
+        return f"[yellow]{symbol}[/yellow]"
 
     def on_mount(self) -> None:
         self.set_timer(0.01, self.update_map)
@@ -200,7 +208,7 @@ class DungeonView(Static):
                                 for item in self.engine.get_dropped_items():
                                     item_pos = item.get_current_position()
                                     if item_pos == (map_x, map_y):
-                                        projectile_char = "[yellow]*[/yellow]"
+                                        projectile_char = f"[yellow]{item.get_display_char()}[/yellow]"
                                         break
                             
                             if projectile_char:
@@ -208,16 +216,38 @@ class DungeonView(Static):
                             else:
                                 entity = self.engine.get_entity_at(map_x, map_y)
                                 if entity:
-                                    char = entity.char
-                                else:
-                                    # Render secret doors as walls until found
-                                    tile_char = map_row[map_x]
-                                    if tile_char == SECRET_DOOR:
-                                        char = "#"  # Hidden secret door looks like wall
-                                    elif tile_char == SECRET_DOOR_FOUND:
-                                        char = DOOR_CLOSED  # Revealed secret doors render as closed doors
+                                    if entity.is_sleeping:
+                                        char = f"[dim]{entity.char}[/dim]"
                                     else:
-                                        char = tile_char
+                                        char = entity.char
+                                else:
+                                    ground_char = None
+                                    pos_key = (map_x, map_y)
+                                    if pos_key in self.engine.ground_items:
+                                        items_here = self.engine.ground_items[pos_key]
+                                        if items_here:
+                                            non_gold_items = [item_name for item_name in items_here if not item_name.startswith("$")]
+                                            if non_gold_items:
+                                                ground_char = self._format_item_char(non_gold_items[-1])
+                                            else:
+                                                ground_char = self._format_item_char(items_here[-1])
+
+                                    if ground_char:
+                                        char = ground_char
+                                    else:
+                                        # Render secret doors as walls until found
+                                        tile_char = map_row[map_x]
+                                        if tile_char == SECRET_DOOR:
+                                            char = "#"  # Hidden secret door looks like wall
+                                        elif tile_char == SECRET_DOOR_FOUND:
+                                            char = DOOR_CLOSED  # Revealed secret doors render as closed doors
+                                        else:
+                                            # Check for colored lighting (torch/lantern)
+                                            light_color = self.engine.light_colors[map_y][map_x] if (0 <= map_y < len(self.engine.light_colors) and 0 <= map_x < len(self.engine.light_colors[map_y])) else 0
+                                            if light_color == 1 and tile_char == FLOOR:
+                                                char = f"[yellow]{tile_char}[/yellow]"
+                                            else:
+                                                char = tile_char
                         line += self._maybe_color_wall(char)
                     elif visibility_status == 1: # Remembered
                         # Render secret doors as walls in memory too
@@ -244,4 +274,5 @@ class DungeonView(Static):
             self.update(Text.from_markup(f"Map Rendering IndexError!\nCheck Logs.\nPos:{px},{py} Map:{map_width}x{map_height}"))
         except Exception as e:
             log_exception(e)
+            print(e)
             self.update(Text.from_markup("Error rendering map!"))

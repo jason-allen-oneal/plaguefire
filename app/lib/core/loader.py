@@ -197,6 +197,7 @@ class GameData:
             for item_id, item in items.items():
                 item["category"] = category
                 item["id"] = item_id
+                item["symbol"] = self._determine_item_symbol(item)
                 self.items[item_id] = item
                 if name := item.get("name"):
                     self.items_by_name[name] = item
@@ -360,6 +361,15 @@ class GameData:
         """
         return self.items.get(item_id)
 
+    def get_item_by_id(self, item_id: str) -> Optional[Dict]:
+        """
+        Backward-compatible alias for get_item.
+        
+        Some systems still call get_item_by_id; keep them working by delegating
+        to the canonical method.
+        """
+        return self.get_item(item_id)
+
     def get_item_by_name(self, name: str) -> Optional[Dict]:
         """
         Get an item template by name.
@@ -371,6 +381,134 @@ class GameData:
             Item template dictionary or None if not found
         """
         return self.items_by_name.get(name)
+
+    def get_item_symbol(self, identifier: str) -> str:
+        """
+        Get the display symbol for an item by ID or name.
+        
+        Args:
+            identifier: Item template ID or display name
+            
+        Returns:
+            Single-character string representing the item
+        """
+        item = self.get_item(identifier)
+        if not item:
+            item = self.get_item_by_name(identifier)
+        if not item:
+            # Allow gold strings like "$50" to short-circuit
+            if isinstance(identifier, str) and identifier.startswith("$"):
+                return "$"
+            return "~"
+        
+        symbol = item.get("symbol")
+        if symbol:
+            return symbol
+        
+        symbol = self._determine_item_symbol(item)
+        item["symbol"] = symbol
+        return symbol
+
+    def _determine_item_symbol(self, item: Dict) -> str:
+        """
+        Determine the Moria-style display symbol for an item template.
+        
+        Args:
+            item: Item template dictionary
+            
+        Returns:
+            Single-character string symbol
+        """
+        item_type = (item.get("type") or "").lower()
+        name = (item.get("name") or "").lower()
+        slot = (item.get("slot") or "").lower()
+        category = (item.get("category") or "").upper()
+        
+        # Direct mappings based on known item types
+        match item_type:
+            case "potion":
+                return "!"
+            case "amulet":
+                return "\""
+            case "currency":
+                return "$"
+            case "gem":
+                return "*"
+            case "ring":
+                return "="
+            case "scroll":
+                return "?"
+            case "staff":
+                return "_"
+            case "wand":
+                return "-"
+            case "food":
+                return ","
+            case "book":
+                return "?"
+            case "missile":
+                return "{"
+        
+        # Armor handling
+        if item_type == "armor":
+            if slot == "shield":
+                return ")"
+            
+            if slot in ("armor_body", "armor_cloak"):
+                soft_keywords = (
+                    "robe", "leather", "soft", "cloak", "skin",
+                    "cloth", "coat", "jack", "shirt", "tunic", "pad", "fur"
+                )
+                hard_keywords = (
+                    "mail", "plate", "chain", "scale", "banded",
+                    "lamellar", "bronze", "iron", "steel", "mithril"
+                )
+                if any(word in name for word in hard_keywords):
+                    return "["
+                if any(word in name for word in soft_keywords):
+                    return "("
+                # Default to hard armor glyph when uncertain
+                return "["
+            
+            # Misc armor pieces (boots, helms, gloves)
+            return "]"
+        
+        # Weapons and related gear
+        if item_type == "weapon":
+            # Launchers
+            if any(word in name for word in ("bow", "sling", "crossbow", "launcher")):
+                return "}"
+            
+            # Pole-arms
+            if any(word in name for word in ("halberd", "pike", "glaive", "trident", "spear", "lance", "pole")):
+                return "/"
+            
+            # Hafted weapons
+            if any(word in name for word in ("mace", "hammer", "club", "flail", "maul", "morningstar", "pick")):
+                return "\\"
+            
+            # Swords and daggers default
+            if any(word in name for word in ("sword", "dagger", "knife", "rapier", "sabre", "saber", "katana", "blade", "scimitar")):
+                return "|"
+            
+            # Fallback to sword/dagger glyph
+            return "|"
+        
+        if item_type == "tool":
+            return "~"
+        
+        # Category-based fallbacks
+        if category == "GEMS":
+            return "*"
+        if category == "MISC":
+            return "~"
+        if category == "COINS":
+            return "$"
+        if category == "FOOD":
+            return ","
+        
+        # Default unknown symbol
+        return "~"
     
     def get_item_id_by_name(self, name: str) -> Optional[str]:
         """

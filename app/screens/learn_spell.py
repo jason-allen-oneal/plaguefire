@@ -1,15 +1,14 @@
 # app/screens/learn_spell.py
 
 from textual.app import ComposeResult
-from textual.containers import Container # Use a basic container
 from textual.screen import Screen
-from textual.widgets import Header, Footer, Static
-from rich.text import Text # Import Rich Text again
+from textual.widgets import Header, Static
+from rich.text import Text
 
 from app.lib.core.loader import GameData
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List
 from debugtools import debug
-import string # To get lowercase letters
+import string
 
 if TYPE_CHECKING:
     from app.plaguefire import RogueApp
@@ -19,8 +18,10 @@ class SpellLearningScreen(Screen):
     """Screen for the player to choose a new spell using letter keys."""
 
     BINDINGS = [
+        ("up", "select_prev", "Previous Spell"),
+        ("down", "select_next", "Next Spell"),
+        ("enter", "confirm_selection", "Learn Spell"),
         ("escape", "app.pop_screen", "Cancel"),
-        # Add bindings for letters 'a' through 'z' dynamically later
     ]
 
     def __init__(self, **kwargs) -> None:
@@ -29,10 +30,11 @@ class SpellLearningScreen(Screen):
         self.data_loader = GameData()
         # --- Map letters to spell IDs ---
         self.spell_options: Dict[str, str] = {}
-        self._setup_bindings_and_options()
+        self.selected_index = 0
+        self._setup_spell_options()
 
-    def _setup_bindings_and_options(self):
-        """Creates the letter-to-spell_id mapping and adds bindings."""
+    def _setup_spell_options(self):
+        """Creates the letter-to-spell_id mapping for available spells."""
         self.spell_options.clear() # Clear previous options
         
         available_spells = self.player.spells_available_to_learn
@@ -41,133 +43,119 @@ class SpellLearningScreen(Screen):
         if not available_spells:
             return # No spells, no bindings needed
 
-        # Generate bindings only for the letters needed
-        new_bindings = []
         for i, spell_id in enumerate(available_spells):
             if i < len(letters):
                 letter = letters[i]
                 self.spell_options[letter] = spell_id
-                # Add binding: pressing 'a' calls action_select_spell('a')
-                new_bindings.append((letter, f"select_spell('{letter}')", f"Learn {spell_id}")) # Description is tentative
             else:
                 break # Ran out of letters
-                
-        # Update screen bindings (this might require Textual > 0.47, check docs if needed)
-        # For older versions, you might need to handle key presses in on_key
-        self.BINDINGS = [
-            ("escape", "app.pop_screen", "Cancel"),
-            *new_bindings # Add the dynamically generated bindings
-        ]
 
 
     def compose(self) -> ComposeResult:
         yield Header()
-        yield Static(f"[deep_sky_blue3]Level {self.player.level}![/deep_sky_blue3] [chartreuse1]Choose a spell to learn:[/chartreuse1]", classes="title")
-
-        # Use a simple container for the list
-        with Container(id="spell-options-list"):
-            if not self.spell_options:
-                 yield Static("[yellow2]No new spells available at this level.[/yellow2]", classes="centered-message")
-            else:
-                for letter, spell_id in self.spell_options.items():
-                    spell_data = self.data_loader.get_spell(spell_id)
-                    if spell_data:
-                        spell_name = spell_data.get("name", spell_id)
-                        class_info = spell_data.get("classes", {}).get(self.player.class_, {})
-                        min_level = class_info.get("min_level", "?")
-                        mana_cost = class_info.get("mana", "?")
-                        fail_chance = class_info.get("base_failure", "?")
-
-                        # --- Use Rich Text for colored/styled output ---
-                        label = Text.assemble(
-                            (f"{letter}) ", "yellow"), # Selection letter
-                            (f"{spell_name}", "bold white"),
-                            f" (Lvl {min_level}, ",
-                            (f"{mana_cost} Mana", "bright_blue"),
-                            f", Fail: {fail_chance}%)"
-                        )
-                        # --- Use Static instead of Button ---
-                        yield Static(label, classes="spell-option-text", markup=True)
-                    else:
-                        yield Static(f"{letter}) {spell_id} (Error: Data missing)", classes="spell-option-text error")
-
-        yield Footer()
-
-    # --- Action method triggered by letter bindings ---
-    def action_select_spell(self, letter: str) -> None:
-        """Handles selecting a spell via its assigned letter."""
-        spell_id = self.spell_options.get(letter)
-
-        if spell_id:
-            debug(f"Player chose to learn spell via letter '{letter}': {spell_id}")
-            success = self.player.finalize_spell_learning(spell_id)
-            if success:
-                spell_data = self.data_loader.get_spell(spell_id)
-                spell_name = spell_data.get("name", spell_id) if spell_data else spell_id
-
-                # Get the game screen engine to log the event
-                game_screen = None
-                for screen in self.app.screen_stack:
-                    if hasattr(screen, 'engine'):
-                        game_screen = screen
-                        break
-                
-                if game_screen:
-                    game_screen.engine.log_event(f"You have learned {spell_name}!")
-                else:
-                    debug(f"LOG: Learned {spell_name}")
-
-                # Check if more spells remain
-                if not self.player.spells_available_to_learn:
-                    self.app.pop_screen()
-                else:
-                    # Regenerate options and bindings, then refresh the display
-                    self._setup_bindings_and_options()
-                    # Re-render the list container (more robust than mount/remove)
-                    list_container = self.query_one("#spell-options-list", Container)
-                    list_container.remove_children()
-                    new_widgets = self._compose_spell_options_widgets() # Helper to get widgets
-                    list_container.mount_all(new_widgets)
-
-
-            else:
-                debug(f"Error: Finalize spell learning failed for {spell_id}")
-                game_screen = None
-                for screen in self.app.screen_stack:
-                    if hasattr(screen, 'engine'):
-                        game_screen = screen
-                        break
-                
-                if game_screen:
-                    game_screen.engine.log_event(f"Error learning {spell_id}.")
-                self.app.pop_screen() # Exit on error
-        else:
-            debug(f"Invalid letter selection: {letter}")
-            # Optionally provide feedback: self.app.bell() or a temporary message
-
-    # --- Helper to generate spell list widgets (used by compose and refresh) ---
-    def _compose_spell_options_widgets(self) -> List[Static]:
-        widgets = []
+        yield Static(f"[deep_sky_blue3]Level {self.player.level}![/deep_sky_blue3] [chartreuse1]Choose a spell to learn:[/chartreuse1]", id="spell_title")
+        yield Static("[yellow1]Loading spells...[/yellow1]", id="spell_list")
+        yield Static("\n[↑/↓] Select  [Enter] Learn  [Esc] Cancel", id="spell_help")
+    
+    def on_mount(self):
+        """Called when the screen is mounted."""
+        self._update_list_display()
+    
+    def _get_spell_list_items(self) -> List[tuple]:
+        """Returns list of (spell_id, spell_data) tuples."""
+        items = []
+        for letter, spell_id in self.spell_options.items():
+            spell_data = self.data_loader.get_spell(spell_id)
+            if spell_data:
+                items.append((spell_id, spell_data))
+        return items
+    
+    def _render_spell_list(self) -> str:
+        """Generates the text for the spell list with selection highlight."""
         if not self.spell_options:
-             widgets.append(Static("No new spells available at this level.", classes="centered-message"))
+            return "\nNo spells available to learn.\n"
+        
+        items = self._get_spell_list_items()
+        if not items:
+            return "\nNo spells available to learn.\n"
+        
+        lines = []
+        for index, (spell_id, spell_data) in enumerate(items):
+            spell_name = spell_data.get("name", spell_id)
+            class_info = spell_data.get("classes", {}).get(self.player.class_, {})
+            min_level = class_info.get("min_level", "?")
+            mana_cost = class_info.get("mana", "?")
+            fail_chance = class_info.get("base_failure", "?")
+            
+            if index == self.selected_index:
+                # Highlight selected
+                lines.append(f"[chartreuse1]>[/chartreuse1] [bright_white]{spell_name}[/bright_white] [chartreuse1]<[/chartreuse1]")
+                lines.append(f"   Lvl {min_level} | Mana: {mana_cost} | Fail: {fail_chance}%")
+            else:
+                lines.append(f"  [gray42]{spell_name}[/gray42]")
+        return "\n" + "\n".join(lines) + "\n"
+    
+    def _update_list_display(self):
+        """Refreshes the displayed list of spells."""
+        self.query_one("#spell_list").update(Text.from_markup(self._render_spell_list()))
+    
+    def action_select_prev(self):
+        """Select the previous spell."""
+        items = self._get_spell_list_items()
+        if items:
+            self.selected_index = (self.selected_index - 1) % len(items)
+            self._update_list_display()
+    
+    def action_select_next(self):
+        """Select the next spell."""
+        items = self._get_spell_list_items()
+        if items:
+            self.selected_index = (self.selected_index + 1) % len(items)
+            self._update_list_display()
+    
+    def action_confirm_selection(self):
+        """Learn the currently selected spell."""
+        items = self._get_spell_list_items()
+        if not items or self.selected_index >= len(items):
+            return
+        
+        spell_id, spell_data = items[self.selected_index]
+        spell_name = spell_data.get("name", spell_id)
+        
+        debug(f"Player chose to learn spell: {spell_id}")
+        success = self.player.finalize_spell_learning(spell_id)
+        
+        if success:
+            # Get the game screen engine to log the event
+            game_screen = None
+            for screen in self.app.screen_stack:
+                if hasattr(screen, 'engine'):
+                    game_screen = screen
+                    break
+            
+            if game_screen:
+                game_screen.engine.log_event(f"You have learned {spell_name}!")
+            else:
+                debug(f"LOG: Learned {spell_name}")
+            
+            # Check if more spells remain
+            self._setup_spell_options()
+            items = self._get_spell_list_items()
+            if not items:
+                self.app.pop_screen()
+            else:
+                # Reset selection and update display
+                self.selected_index = min(self.selected_index, len(items) - 1)
+                self._update_list_display()
         else:
-            for letter, spell_id in self.spell_options.items():
-                spell_data = self.data_loader.get_spell(spell_id)
-                if spell_data:
-                    spell_name = spell_data.get("name", spell_id)
-                    class_info = spell_data.get("classes", {}).get(self.player.class_, {})
-                    min_level = class_info.get("min_level", "?")
-                    mana_cost = class_info.get("mana", "?")
-                    fail_chance = class_info.get("base_failure", "?")
-                    label = Text.assemble(
-                        (f"{letter}) ", "yellow"),
-                        (f"{spell_name}", "bold white"),
-                        f" (Lvl {min_level}, ",
-                        (f"{mana_cost} Mana", "bright_blue"),
-                        f", Fail: {fail_chance}%)"
-                    )
-                    widgets.append(Static(label, classes="spell-option-text"))
-                else:
-                    widgets.append(Static(f"{letter}) {spell_id} (Error: Data missing)", classes="spell-option-text error"))
-        return widgets
+            debug(f"Error: Finalize spell learning failed for {spell_id}")
+            game_screen = None
+            for screen in self.app.screen_stack:
+                if hasattr(screen, 'engine'):
+                    game_screen = screen
+                    break
+            
+            if game_screen:
+                game_screen.engine.log_event(f"Error learning {spell_id}.")
+            self.app.pop_screen()  # Exit on error
 

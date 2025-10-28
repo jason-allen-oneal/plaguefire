@@ -12,6 +12,8 @@ import random
 from app.lib.core.loader import GameData
 from app.lib.status_effects import StatusEffectManager
 
+DEFAULT_CLONE_CAP = 24
+
 
 class Entity:
     """
@@ -68,7 +70,17 @@ class Entity:
         self.gold_max_mult: int = template.get("gold_max_mult", 0)
 
         # Ranged attack capabilities
-        self.ranged_attack: Optional[Dict] = template.get("ranged_attack", None)
+        ranged_attack_data = template.get("ranged_attack")
+        if isinstance(ranged_attack_data, str):
+            ranged_attack_data = {
+                "name": ranged_attack_data,
+                "damage": template.get("ranged_damage", "1d4"),
+            }
+        elif isinstance(ranged_attack_data, dict):
+            ranged_attack_data = dict(ranged_attack_data)
+        else:
+            ranged_attack_data = None
+        self.ranged_attack: Optional[Dict] = ranged_attack_data
         self.ranged_range: int = template.get("ranged_range", 0) if self.ranged_attack else 0
         
         # Group/pack behavior
@@ -80,9 +92,24 @@ class Entity:
         self.mana: int = template.get("mana", 0)
         self.max_mana: int = self.mana
 
+        # Self-cloning behaviour (breeders) configured per template ID.
+        clone_rate = template.get("clone_rate")
+        self.clone_rate: float = float(clone_rate) if clone_rate is not None else 0.0
+        clone_cap_value = template.get("clone_max_population")
+        if clone_cap_value is None:
+            clone_cap_value = template.get("clone_cap")
+        if clone_cap_value is None and self.clone_rate > 0:
+            clone_cap_value = DEFAULT_CLONE_CAP
+        self.clone_max_population: int = int(clone_cap_value) if clone_cap_value is not None else 0
+
         self.move_counter: int = random.randint(0, 1)
         self.status_manager = StatusEffectManager()
         self.aware_of_player: bool = False  # Track if entity has detected the player
+        
+        # Sleeping behavior
+        self.sleeps_during_day: bool = template.get("sleeps_during_day", False)
+        self.sleeps_during_night: bool = template.get("sleeps_during_night", False)
+        self.is_sleeping: bool = False
 
     def take_damage(self, amount: int) -> bool:
         """
@@ -125,3 +152,17 @@ class Entity:
 
         debug(f"{self.name} dropping items: {dropped_item_ids}, gold: {gold}")
         return dropped_item_ids, gold
+    
+    def update_sleep_state(self, time_of_day: str):
+        """Update sleeping state based on time of day."""
+        if time_of_day == "Day" and self.sleeps_during_day:
+            self.is_sleeping = True
+        elif time_of_day == "Night" and self.sleeps_during_night:
+            self.is_sleeping = True
+        else:
+            self.is_sleeping = False
+    
+    def wake_up(self):
+        """Wake up the entity (called when attacked while sleeping)."""
+        self.is_sleeping = False
+        self.aware_of_player = True

@@ -97,11 +97,7 @@ def test_entity_drops_on_ground():
     
     # Items now use physics simulation, so we need to update the physics
     # until all items settle
-    max_updates = 100
-    for _ in range(max_updates):
-        engine.update_dropped_items()
-        if not engine.dropped_items:
-            break
+    engine.update_dropped_items()
     
     # Check ground items after physics simulation completes
     pos_key = (3, 2)

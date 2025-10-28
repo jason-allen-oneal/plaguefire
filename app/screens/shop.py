@@ -8,6 +8,7 @@ import random
 from typing import NamedTuple, List, Optional, TYPE_CHECKING, Tuple
 # Import Player for type hinting
 from app.lib.player import Player
+from app.lib.core.item import ItemInstance
 
 # Type hint for App
 if TYPE_CHECKING:
@@ -18,6 +19,7 @@ class ShopItem(NamedTuple):
     name: str
     cost: int
     description: str = "An item."
+    item_id: Optional[str] = None
 
 class BaseShopScreen(Screen):
     BINDINGS = [
@@ -270,7 +272,11 @@ class BaseShopScreen(Screen):
         if self.player_gold >= price_to_pay:
             try:
                  self.app.player.gold -= price_to_pay
-                 self.app.player.inventory.append(selected_item.name)
+                 # --- FIX: Use inventory manager to add item by ID or name ---
+                 if selected_item.item_id:
+                     self.app.player.inventory_manager.add_item(selected_item.item_id)
+                 else:
+                     self.app.player.inventory_manager.add_item(selected_item.name)
                  self.player_gold = self.app.player.gold
                  self.data_changed = True
                  self.notify(f"Bought {selected_item.name} for {price_to_pay} gold.")
