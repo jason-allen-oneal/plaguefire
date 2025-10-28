@@ -1,6 +1,6 @@
 
 """
-Item instance tracking system for Moria-style roguelike.
+Item instance tracking system for classic roguelike gameplay.
 
 This module provides instance-level tracking for items, allowing each item to have
 unique properties like charges, identification status, and usage history.

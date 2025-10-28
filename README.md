@@ -194,7 +194,7 @@ The game follows a modular architecture:
 
 ## Functionality Highlights
 
-- **Dual Command Schemes**: Switch between classic Moria-style numeric commands and roguelike `hjkl` bindings at runtime via the settings menu or `K` toggle.
+- **Dual Command Schemes**: Switch between classic numeric keypad commands and roguelike `hjkl` bindings at runtime via the settings menu or `K` toggle.
 - **Persistent World State**: Each dungeon depth caches its generated layout and entities, allowing you to revisit floors without regeneration and to resume from save files stored under `saves/`.
 - **Dynamic Field of View**: The engine recalculates visibility every turn with support for day/night cycles in town, light sources that burn out, and search mode for revealing secret doors.
 - **Rich Magic Flow**: Character creation surfaces class-specific starter spells, level-ups queue new spells to learn, and two dedicated Textual screens handle learning and casting with letter shortcuts plus targeting UI.
@@ -219,9 +219,9 @@ Built with:
 - [Rich](https://rich.readthedocs.io/) - Terminal formatting
 - [Pygame](https://www.pygame.org/) - Sound effects
 
-### Moria-Style Object System
+### Classic Object System
 
-Plaguefire faithfully implements classic Moria/Angband object mechanics:
+Plaguefire faithfully implements classic roguelike object mechanics:
 
 - **Weight System**: Carrying capacity based on STR stat. Example: STR 16 = 460 lbs capacity (formula: [3000 + STR × 100] / 10)
 - **Inventory Limit**: Maximum 22 different items in backpack

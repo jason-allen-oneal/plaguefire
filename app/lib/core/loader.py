@@ -404,7 +404,7 @@ class GameData:
 
     def _determine_item_symbol(self, item: Dict) -> str:
         """
-        Determine the Moria-style display symbol for an item template.
+        Determine the display symbol for an item template.
         
         Args:
             item: Item template dictionary

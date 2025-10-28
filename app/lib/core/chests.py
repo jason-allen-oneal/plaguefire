@@ -1,6 +1,6 @@
 
 """
-Chest interaction system for Moria-style roguelike.
+Chest interaction system for classic roguelike gameplay.
 
 This module implements chest mechanics including locks, traps, disarming,
 force-opening, and contents generation.

@@ -2,7 +2,7 @@
 """
 Tests for ammunition system implementation.
 
-This tests the Moria/Angband-style ammunition system with:
+This tests the classic roguelike ammunition system with:
 - Quiver slot for holding ammunition
 - Automatic ammunition selection based on weapon type
 - Ammunition consumption when firing

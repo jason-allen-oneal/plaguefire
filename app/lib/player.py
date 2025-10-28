@@ -2,7 +2,7 @@
 Player character management for Plaguefire roguelike.
 
 This module handles player character creation, stats, abilities, inventory,
-equipment, spells, and progression. It implements Moria/Angband-style character
+equipment, spells, and progression. It implements classic roguelike character
 mechanics including races, classes, ability scores, and skill proficiencies.
 
 Key Features:
@@ -205,7 +205,7 @@ def build_character_profile(
 
 
 class Player:
-    """Represents the player character with Moria-inspired attributes."""
+    """Represents the player character with classic roguelike attributes."""
 
     STATS_ORDER = STAT_NAMES
 
@@ -819,7 +819,7 @@ class Player:
     def get_carrying_capacity(self) -> int:
         """
         Calculate carrying capacity in pounds * 10 based on STR stat.
-        Follows Moria formula: base 3000 + STR * 100.
+        Formula: base 3000 + STR * 100.
         
         Returns:
             Maximum weight player can carry without penalty (in pounds * 10)
@@ -859,7 +859,7 @@ class Player:
     
     def get_item_inscription(self, item_name: str) -> str:
         """
-        Get automatic inscription for an item following Moria conventions.
+        Get automatic inscription for an item following classic roguelike conventions.
         Returns inscriptions like "damned", "empty", "tried", or "magik".
         
         Args:

@@ -1,6 +1,6 @@
 
 """
-Mining system for Moria-style roguelike.
+Mining system for classic roguelike gameplay.
 
 This module implements digging mechanics, vein detection, and treasure spawning
 from veins.

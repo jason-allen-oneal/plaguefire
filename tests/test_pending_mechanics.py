@@ -1,5 +1,5 @@
 """
-Test suite for pending mechanics implemented from MORIA_MECHANICS.md
+Test suite for pending mechanics implementation.
 Tests:
 1. Movement speed penalty when overweight
 2. Item pickup weight limit checking
