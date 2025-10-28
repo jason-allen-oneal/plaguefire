@@ -121,24 +121,24 @@ def test_failure_decreases_with_level():
     """Test that higher level reduces failure chance."""
     print("Test: Failure decreases with level...")
     
-    # Low level mage
+    # Low level mage with lower INT so failure rates stay above minimum
     low_level_data = {
         "name": "Novice Mage",
         "race": "Human",
         "class": "Mage",
-        "stats": {"STR": 10, "INT": 14, "WIS": 10, "DEX": 10, "CON": 10, "CHA": 10},
+        "stats": {"STR": 10, "INT": 8, "WIS": 10, "DEX": 10, "CON": 10, "CHA": 10},  # INT 8 for higher failure rate
         "level": 1,
         "known_spells": ["magic_missile"],
     }
     low_level_mage = Player(low_level_data)
     
-    # High level mage (same stats)
+    # High level mage (same stats, much higher level)
     high_level_data = {
         "name": "Master Mage",
         "race": "Human",
         "class": "Mage",
-        "stats": {"STR": 10, "INT": 14, "WIS": 10, "DEX": 10, "CON": 10, "CHA": 10},
-        "level": 10,
+        "stats": {"STR": 10, "INT": 8, "WIS": 10, "DEX": 10, "CON": 10, "CHA": 10},  # INT 8 for higher failure rate
+        "level": 20,
         "known_spells": ["magic_missile"],
     }
     high_level_mage = Player(high_level_data)
@@ -163,11 +163,12 @@ def test_failure_decreases_with_level():
     high_level_rate = (high_level_failures / trials) * 100
     
     print(f"  Level 1: {low_level_failures}/{trials} failures ({low_level_rate:.1f}%)")
-    print(f"  Level 10: {high_level_failures}/{trials} failures ({high_level_rate:.1f}%)")
+    print(f"  Level 20: {high_level_failures}/{trials} failures ({high_level_rate:.1f}%)")
     
-    # Higher level should have fewer failures on average
-    # With 500 trials, we expect the difference to be clear
-    assert high_level_failures < low_level_failures, f"Higher level should fail less often, got L1={low_level_failures} vs L10={high_level_failures}"
+    # Higher level should have fewer failures
+    # With INT 8: L1 = 10-(-1*3)-(0) = 13%, L20 = 10-(-1*3)-(19) = -6% → 5%
+    # So L1 should have ~13% and L20 should have ~5%
+    assert high_level_failures < low_level_failures, f"Higher level should fail less often, got L1={low_level_failures} vs L20={high_level_failures}"
     
     print("✓ Higher level reduces failure chance")
     print("✓ Test passed!\n")
