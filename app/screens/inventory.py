@@ -17,12 +17,14 @@ class InventoryScreen(Screen):
     ]
 
     def __init__(self, **kwargs):
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.title_widget: Static | None = None
         self.body_widget: Static | None = None
         self.footer_widget: Static | None = None
 
     def compose(self):
+        """Compose."""
         with Vertical(id="inventory-wrapper"):
             self.title_widget = Static("Inventory", id="inventory-title")
             yield self.title_widget
@@ -35,9 +37,11 @@ class InventoryScreen(Screen):
             yield self.footer_widget
 
     def on_mount(self):
+        """On mount."""
         self.refresh_contents()
 
     def on_show(self):
+        """On show."""
         self.refresh_contents()
 
     def refresh_contents(self):
@@ -90,4 +94,5 @@ class InventoryScreen(Screen):
             self.body_widget.update(body)
 
     def action_close(self):
+        """Action close."""
         self.app.pop_screen()

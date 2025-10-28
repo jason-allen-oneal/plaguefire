@@ -119,6 +119,7 @@ class StatusEffectManager:
     }
     
     def __init__(self):
+        """Initialize the instance."""
         self.active_effects: Dict[str, StatusEffect] = {}
     
     def add_effect(self, effect_name: str, duration: int) -> bool:

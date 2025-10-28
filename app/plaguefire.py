@@ -1,3 +1,17 @@
+"""
+Plaguefire - Main application module.
+
+This module contains the RogueApp class which is the main Textual application.
+It manages:
+- Screen navigation and state
+- Global settings (sound, difficulty, command mode)
+- Save/load coordination
+- Theme management
+- Audio system integration
+
+The RogueApp serves as the entry point and coordinator for the entire game,
+delegating game logic to the Engine class and UI rendering to screen classes.
+"""
 
 import os
 import json
@@ -36,12 +50,14 @@ MapData = List[List[str]]
 class TruecolorLinuxDriver(LinuxDriver):
     """Force Rich console to always use truecolor."""
     def __init__(self, *args, **kwargs):
+        """Initialize the instance."""
         super().__init__(*args, **kwargs)
         self.console.color_system = "truecolor"
         self.console.force_terminal = True
         
 
 class RogueApp(App[None]):
+    """RogueApp class."""
     DRIVER_CLASS = TruecolorLinuxDriver
     CSS = CSS
     color_system = "truecolor"
@@ -73,6 +89,7 @@ class RogueApp(App[None]):
     player: Optional[Player] = None
 
     def __init__(self, **kwargs):
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.data = GameData()
         self.sound = SoundManager()
@@ -89,18 +106,28 @@ class RogueApp(App[None]):
         self.sound.load_sfx("whoosh", "whoosh.mp3")
     
     def get_music(self) -> bool:
+        """Get music."""
         return self._music_enabled
 
     def get_sfx(self) -> bool:
+        """Get sfx."""
         return self._sfx_enabled
 
     def get_difficulty(self) -> str:
+        """Get difficulty."""
         return self._difficulty
 
     def get_command_mode(self) -> str:
+        """Get command mode."""
         return self._command_mode
 
     def set_command_mode(self, mode: str):
+        """
+                Set command mode.
+                
+                Args:
+                    mode: TODO
+                """
         if mode in ["original", "roguelike"]:
             self._command_mode = mode
             self.data.config["command_mode"] = mode
@@ -118,18 +145,21 @@ class RogueApp(App[None]):
         self.push_screen("title")
     
     def toggle_music(self):
+        """Toggle music."""
         self._music_enabled = not self._music_enabled
         self.data.config["music_enabled"] = self._music_enabled
         self.data.save_config()
         self.sound.set_music_enabled(self._music_enabled)
 
     def toggle_sfx(self):
+        """Toggle sfx."""
         self._sfx_enabled = not self._sfx_enabled
         self.data.config["sfx_enabled"] = self._sfx_enabled
         self.data.save_config()
         self.sound.set_sfx_enabled(self._sfx_enabled)
 
     def cycle_difficulty(self):
+        """Cycle difficulty."""
         order = ["Easy", "Normal", "Hard", "Nightmare"]
         i = order.index(self._difficulty)
         self._difficulty = order[(i + 1) % len(order)]
@@ -160,6 +190,7 @@ class RogueApp(App[None]):
 
 
 def main():
+    """Main."""
     RogueApp().run()
 
 if __name__ == "__main__":

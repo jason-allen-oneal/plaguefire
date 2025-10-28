@@ -13,6 +13,7 @@ class MonsterPitTheme:
     """Definition of a monster pit theme."""
     
     def __init__(self, theme_id: str, name: str, monster_types: List[str], min_depth: int = 1, max_depth: int = 99):
+        """Initialize the instance."""
         self.theme_id = theme_id
         self.name = name
         self.monster_types = monster_types
@@ -73,6 +74,7 @@ class MonsterPit:
     """Represents a monster pit in the dungeon."""
     
     def __init__(self, theme: MonsterPitTheme, center: Tuple[int, int], size: int = 3):
+        """Initialize the instance."""
         self.theme = theme
         self.center = center
         self.size = size
@@ -145,6 +147,7 @@ class MonsterPitManager:
     """Manages monster pits on the dungeon floor."""
     
     def __init__(self):
+        """Initialize the instance."""
         self.pits: List[MonsterPit] = []
     
     def generate_pits(self, dungeon_map: List[List[str]], depth: int, num_pits: int = None):

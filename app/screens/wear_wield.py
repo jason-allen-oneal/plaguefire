@@ -22,6 +22,7 @@ class WearWieldScreen(Screen):
     ]
 
     def __init__(self, **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
         self.data_loader = GameData()
@@ -50,6 +51,7 @@ class WearWieldScreen(Screen):
                     break
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         yield Static(Text.from_markup(self._render_equip_list()), id="equip-list")
 
     def _render_equip_list(self) -> str:

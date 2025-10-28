@@ -21,10 +21,12 @@ class ReducedMapScreen(Screen):
     ]
 
     def __init__(self, engine: 'Engine', **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.engine = engine
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         with VerticalScroll(id="reduced-map-scroll"):
             yield Static(Text.from_markup(self._render_reduced_map()), id="reduced-map-display")
 

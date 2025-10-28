@@ -12,6 +12,7 @@ class HUDView(Static):
     """Sidebar displaying player stats and game information."""
 
     def __init__(self, engine: 'Engine', **kwargs):
+        """Initialize the instance."""
         super().__init__(id="hud", markup=True, **kwargs)
         self.engine = engine
 

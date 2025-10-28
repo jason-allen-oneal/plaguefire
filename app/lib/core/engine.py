@@ -1,3 +1,19 @@
+"""
+Main game engine for Plaguefire roguelike.
+
+This module contains the Engine class which manages core game state, including:
+- Map generation and caching
+- Player and entity (monster/NPC) management
+- Field of View (FOV) calculations
+- Turn-based game loop
+- Combat resolution
+- Item and spell effects
+- Time tracking and day/night cycle
+- Save/load functionality
+
+The Engine coordinates between all game systems and provides the interface
+for the UI layer to interact with game logic.
+"""
 
 import random
 import math
@@ -72,6 +88,7 @@ class Engine:
         ground_items_override: Optional[Dict[Tuple[int, int], List[str]]] = None,
         death_log_override: Optional[List[Dict[str, Any]]] = None
     ):
+        """Initialize the instance."""
         self.app = app
         self.player = player
         if self.player.depth == 0:
@@ -181,6 +198,7 @@ class Engine:
         self.update_fov()
 
     def get_time_of_day(self) -> str:
+        """Get time of day."""
         time_in_cycle = self.player.time % 200
         return "Day" if 0 <= time_in_cycle < 100 else "Night"
 
@@ -206,6 +224,7 @@ class Engine:
                  return generate_cellular_automata_dungeon(width=width, height=height)
 
     def update_fov(self):
+        """Update fov."""
         map_h = self.map_height; map_w = self.map_width
         for y in range(map_h):
              for x in range(map_w):
@@ -258,11 +277,22 @@ class Engine:
         return find_tile(self.game_map, tile_char)
 
     def get_tile_at_coords(self, x: int, y: int) -> str | None:
+         """
+                 Get tile at coords.
+                 
+                 Args:
+                     x: TODO
+                     y: TODO
+                 
+                 Returns:
+                     TODO
+                 """
          if 0 <= y < self.map_height and 0 <= x < self.map_width:
              return self.game_map[y][x]
          return None
 
     def get_tile_at_player(self) -> str | None:
+        """Get tile at player."""
         px, py = self.player.position
         return self.get_tile_at_coords(px, py)
     
@@ -349,6 +379,16 @@ class Engine:
         self.update_fov()
 
     def handle_player_move(self, dx: int, dy: int) -> bool:
+        """
+                Handle player move.
+                
+                Args:
+                    dx: TODO
+                    dy: TODO
+                
+                Returns:
+                    TODO
+                """
         px, py = self.player.position; nx, ny = px + dx, py + dy
         target_entity = self.get_entity_at(nx, ny)
         action_taken = False
@@ -463,6 +503,15 @@ class Engine:
         return self.player.inventory_manager.remove_instance(instance.instance_id) is not None
 
     def handle_use_item(self, item_index: int) -> bool:
+         """
+                 Handle use item.
+                 
+                 Args:
+                     item_index: TODO
+                 
+                 Returns:
+                     TODO
+                 """
          if not (0 <= item_index < len(self.player.inventory)): return False
          item_name = self.player.inventory[item_index]
          
@@ -571,6 +620,16 @@ class Engine:
             return False
 
     def handle_cast_spell(self, spell_id: str, target_entity: Optional[Entity] = None) -> bool:
+        """
+                Handle cast spell.
+                
+                Args:
+                    spell_id: TODO
+                    target_entity: TODO
+                
+                Returns:
+                    TODO
+                """
         success, message, spell_data = self.player.cast_spell(spell_id)
         self.log_event(message)
         if not success: self._end_player_turn(); return False
@@ -1556,11 +1615,22 @@ class Engine:
 
 
     def get_entity_at(self, x: int, y: int) -> Optional[Entity]:
+        """
+                Get entity at.
+                
+                Args:
+                    x: TODO
+                    y: TODO
+                
+                Returns:
+                    TODO
+                """
         for entity in self.entities:
             if entity.position == [x, y]: return entity
         return None
 
     def get_visible_entities(self) -> List[Entity]:
+         """Get visible entities."""
          visible = []
          for entity in self.entities:
              ex, ey = entity.position
@@ -1637,6 +1707,15 @@ class Engine:
         return level_to_xp.get(monster_level, 0)
 
     def log_event(self, message: str) -> None:
+        """
+                Log event.
+                
+                Args:
+                    message: TODO
+                
+                Returns:
+                    TODO
+                """
         self.combat_log.append(message)
         if len(self.combat_log) > 50: self.combat_log.pop(0)
 
@@ -1670,6 +1749,7 @@ class Engine:
         else: self.log_event(f"{entity.name} sings.")
 
     def open_adjacent_door(self) -> bool:
+        """Open adjacent door."""
         px, py = self.player.position
         for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
             tx, ty = px + dx, py + dy
@@ -1678,6 +1758,7 @@ class Engine:
         return False
 
     def close_adjacent_door(self) -> bool:
+        """Close adjacent door."""
         px, py = self.player.position
         for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
             tx, ty = px + dx, py + dy
@@ -1686,6 +1767,7 @@ class Engine:
         return False
 
     def dig_adjacent_wall(self) -> bool:
+        """Dig adjacent wall."""
         px, py = self.player.position
         for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
             tx, ty = px + dx, py + dy
@@ -1702,6 +1784,15 @@ class Engine:
         return True
 
     def handle_player_attack(self, target: Entity) -> bool:
+        """
+                Handle player attack.
+                
+                Args:
+                    target: TODO
+                
+                Returns:
+                    TODO
+                """
         if target.is_sleeping:
             target.wake_up()
             self.log_event(f"You wake up {target.name}!")
@@ -1779,6 +1870,15 @@ class Engine:
 
 
     def handle_entity_attack(self, entity: Entity) -> bool:
+        """
+                Handle entity attack.
+                
+                Args:
+                    entity: TODO
+                
+                Returns:
+                    TODO
+                """
         roll = random.randint(1, 20); total_atk = roll + entity.attack
         
         px, py = self.player.position
@@ -1934,6 +2034,7 @@ class Engine:
             self.log_event(f"{entity.name} splits and another appears!")
 
     def update_entities(self) -> None:
+        """Update entities."""
         print("Updating entities...")
         for entity in self.entities[:]:
             if entity.hp <= 0: continue
@@ -2091,11 +2192,13 @@ class Engine:
                     entity.position = [nx, ny]
 
     def toggle_search(self) -> bool:
+        """Toggle search."""
         self.searching = not self.searching
         self.log_event("Begin searching." if self.searching else "Stop searching.")
         return True
 
     def search_once(self) -> bool:
+        """Search once."""
         self._perform_search(); self._end_player_turn(); return True
 
     def _perform_search(self, log_success: bool = True) -> bool:
@@ -2113,6 +2216,7 @@ class Engine:
         return False
 
     def get_secret_doors_found(self) -> List[List[int]]:
+        """Get secret doors found."""
         found = [];
         for y in range(self.map_height):
             for x in range(self.map_width):

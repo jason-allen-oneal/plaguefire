@@ -5,6 +5,7 @@ import random
 
 class MagicShopScreen(BaseShopScreen):
 
+    """MagicShopScreen class."""
     BINDINGS = [
         ("up", "cursor_up", "Cursor Up"),
         ("down", "cursor_down", "Cursor Down"),
@@ -17,6 +18,7 @@ class MagicShopScreen(BaseShopScreen):
     ]
 
     def __init__(self, **kwargs):
+        """Initialize the instance."""
         super().__init__(
             shop_name="Arcane Curiosities",
             owner_name="Elara Meadowlight",

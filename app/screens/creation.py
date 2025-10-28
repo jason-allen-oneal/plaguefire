@@ -40,7 +40,9 @@ def _format_height(height_in_inches: int) -> str:
 
 
 class CharacterCreationScreen(Screen):
+    """CharacterCreationScreen class."""
     def __init__(self, **kwargs):
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.character_name: str = ""
         self.race_names: List[str] = list(RACE_DEFINITIONS.keys())
@@ -69,9 +71,11 @@ class CharacterCreationScreen(Screen):
         self.update_total_stats()
 
     def compose(self):
+        """Compose."""
         yield Static(self.render_text(), id="creation_text", markup=True)
 
     def roll_stats(self) -> Dict[str, int]:
+        """Roll stats."""
         stats = {}
         for stat in STAT_NAMES:
             rolls = sorted(random.randint(1, 6) for _ in range(4))
@@ -101,6 +105,7 @@ class CharacterCreationScreen(Screen):
         return max(3, min(25, value))
 
     def update_total_stats(self):
+        """Update total stats."""
         race = self.race_names[self.current_race]
         race_mods = get_race_definition(race).get("stat_mods", {})
         totals: Dict[str, int] = {}
@@ -167,6 +172,7 @@ class CharacterCreationScreen(Screen):
              debug(f"{current_class_name} is not a spellcaster.")
 
     def render_text(self) -> Text:
+        """Render text."""
         if self.creation_step == "base":
             return self._render_base_creation()
         elif self.creation_step == "spell_select":
@@ -304,6 +310,7 @@ class CharacterCreationScreen(Screen):
 
 
     def refresh_display(self):
+        """Refresh display."""
         try:
             widget = self.query_one("#creation_text", Static)
             widget.update(self.render_text())
@@ -311,6 +318,12 @@ class CharacterCreationScreen(Screen):
             debug(f"Error refreshing creation display: {exc}")
 
     async def on_key(self, event: events.Key):
+        """
+                On key.
+                
+                Args:
+                    event: TODO
+                """
         key = event.key
         key_lower = key.lower()
 

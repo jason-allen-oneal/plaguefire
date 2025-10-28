@@ -4,7 +4,9 @@ from typing import List
 
 class WeaponShopScreen(BaseShopScreen):
 
+    """WeaponShopScreen class."""
     def __init__(self, **kwargs):
+        """Initialize the instance."""
         super().__init__(
             shop_name="The Cutting Edge",
             owner_name="Serilda Sharp",

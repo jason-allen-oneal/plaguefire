@@ -12,12 +12,14 @@ if TYPE_CHECKING:
     from app.plaguefire import RogueApp
 
 class ShopItem(NamedTuple):
+    """ShopItem class."""
     name: str
     cost: int
     description: str = "An item."
     item_id: Optional[str] = None
 
 class BaseShopScreen(Screen):
+    """BaseShopScreen class."""
     BINDINGS = [
         ("up", "cursor_up", "Cursor Up"),
         ("down", "cursor_down", "Cursor Down"),
@@ -40,6 +42,7 @@ class BaseShopScreen(Screen):
         restock_interval: int = 100,
         **kwargs
     ):
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.shop_name = shop_name
         self.owner_name = owner_name
@@ -122,6 +125,7 @@ class BaseShopScreen(Screen):
         return [ ShopItem(name="Generic Item", cost=10, description="A placeholder.") ]
 
     def get_shop_greeting(self) -> str:
+        """Get shop greeting."""
         phrase = random.choice(self.catchphrases)
         return f'{self.owner_name}: "{phrase}"'
 
@@ -305,9 +309,11 @@ class BaseShopScreen(Screen):
 
 
     def compose(self):
+        """Compose."""
         yield Static("Loading shop...", id="shop-display", markup=False)
 
     def on_mount(self):
+        """On mount."""
         debug(f"Mounting {self.shop_name} screen.")
         self.focus()
         if self.app.player: self.player_gold = self.app.player.gold
@@ -322,6 +328,7 @@ class BaseShopScreen(Screen):
         self._update_display()
 
     def render_shop_text(self) -> str:
+        """Render shop text."""
         lines = [f"=== {self.shop_name} ===", self.current_greeting, f"Your Gold: {self.player_gold}", "-" * 30]
         current_list, selected_item_data = self._get_current_list_and_item()
         list_title: str
@@ -403,6 +410,7 @@ class BaseShopScreen(Screen):
         except Exception as e: log.error(f"Error updating shop display: {e}")
 
     def action_cursor_up(self):
+        """Action cursor up."""
         current_list, _ = self._get_current_list_and_item()
         list_len = len(current_list) if current_list else 0
         if list_len == 0: return
@@ -412,6 +420,7 @@ class BaseShopScreen(Screen):
         self._update_display()
 
     def action_cursor_down(self):
+        """Action cursor down."""
         current_list, _ = self._get_current_list_and_item()
         list_len = len(current_list) if current_list else 0
         if list_len == 0: return
@@ -421,6 +430,7 @@ class BaseShopScreen(Screen):
         self._update_display()
 
     def action_leave_shop(self):
+        """Action leave shop."""
         debug(f"Leaving {self.shop_name}.")
         if self.data_changed:
              debug("Data changed, saving character...")

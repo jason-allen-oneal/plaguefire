@@ -12,6 +12,7 @@ class TrapType:
     """Definition of a trap type."""
     
     def __init__(self, trap_id: str, name: str, difficulty: int, min_depth: int = 1, max_depth: int = 99):
+        """Initialize the instance."""
         self.trap_id = trap_id
         self.name = name
         self.difficulty = difficulty
@@ -38,6 +39,7 @@ class TrapManager:
     """Manages traps on the dungeon floor."""
     
     def __init__(self):
+        """Initialize the instance."""
         self.traps: Dict[Tuple[int, int], Dict] = {}
         self.detected_traps: set = set()
     

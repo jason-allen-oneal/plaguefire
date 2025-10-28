@@ -5,7 +5,9 @@ from typing import List
 
 class GeneralStoreScreen(BaseShopScreen):
 
+    """GeneralStoreScreen class."""
     def __init__(self, **kwargs):
+        """Initialize the instance."""
         shop_name = "Ye Olde General Store"
         owner_name = "Bob"
         catchphrases = ["Need supplies?", "Got just the thing!", "Torches! Get yer torches!"]

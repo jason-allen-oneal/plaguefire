@@ -50,6 +50,7 @@ class TargetSelectorScreen(Screen):
                 break
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         yield Static(Text.from_markup(self._render_target_list_ascii()), id="target-list")
 
     def _render_target_list_ascii(self) -> str:

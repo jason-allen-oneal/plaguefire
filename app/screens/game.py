@@ -14,6 +14,7 @@ from app.lib.core.chests import get_chest_system
 from app.screens.help import CommandHelpScreen
 
 class GameScreen(Screen):
+    """GameScreen class."""
     BINDINGS = [
         ("up", "move_up", "Move Up"), 
         ("down", "move_down", "Move Down"),
@@ -35,6 +36,7 @@ class GameScreen(Screen):
     hud_view: HUDView
 
     def __init__(self):
+        """Initialize the instance."""
         super().__init__()
         self._awaiting_direction = None
         self.markup = True
@@ -415,9 +417,13 @@ class GameScreen(Screen):
             self.dungeon_view.update_map()
             self.hud_view.update_hud()
 
+    """Action move up."""
     def action_move_up(self): self._attempt_directional_action(0, -1)
+    """Action move down."""
     def action_move_down(self): self._attempt_directional_action(0, 1)
+    """Action move left."""
     def action_move_left(self): self._attempt_directional_action(-1, 0)
+    """Action move right."""
     def action_move_right(self): self._attempt_directional_action(1, 0)
     def action_open_inventory(self):
         """Open the inventory screen."""
@@ -443,6 +449,7 @@ class GameScreen(Screen):
         self.app.push_screen("cast_spell")
 
     def action_equip_item(self):
+        """Action equip item."""
         if self._equip_first_available():
             debug("Action: Equip succeeded")
         else:
@@ -450,6 +457,7 @@ class GameScreen(Screen):
             debug("Action: Equip failed")
 
     def action_use_item(self):
+        """Action use item."""
         if self._use_inventory_item(lambda _: True, verb="use"):
             debug("Action: Use succeeded")
         else:
@@ -457,6 +465,7 @@ class GameScreen(Screen):
             debug("Action: Use failed")
 
     def action_take_off_item(self):
+        """Action take off item."""
         removed = False
         player = self.engine.player
         for slot in ("weapon", "armor"):
@@ -471,6 +480,7 @@ class GameScreen(Screen):
             debug("Action: Take Off failed")
 
     def action_quaff_potion(self):
+        """Action quaff potion."""
         if self._use_inventory_item(lambda item: "Potion" in item, verb="quaff"):
             debug("Action: Quaff succeeded")
         else:
@@ -478,6 +488,7 @@ class GameScreen(Screen):
             debug("Action: Quaff failed")
 
     def action_eat_food(self):
+        """Action eat food."""
         food_keywords = ("Food", "Ration", "Mushroom", "Jerky", "Waybread", "Meal")
         if self._use_inventory_item(lambda item: any(keyword in item for keyword in food_keywords), verb="eat"):
             debug("Action: Eat succeeded")
@@ -491,6 +502,7 @@ class GameScreen(Screen):
 
 
     def action_open_door(self):
+        """Action open door."""
         if self.engine.open_adjacent_door():
             self.notify("You open the nearby door.")
             self.dungeon_view.update_map()
@@ -500,6 +512,7 @@ class GameScreen(Screen):
             debug("Action: Open door failed")
 
     def action_close_door(self):
+        """Action close door."""
         if self.engine.close_adjacent_door():
             self.notify("You close the nearby door.")
             self.dungeon_view.update_map()
@@ -509,6 +522,7 @@ class GameScreen(Screen):
             debug("Action: Close door failed")
 
     def action_dig_wall(self):
+        """Action dig wall."""
         if self.engine.dig_adjacent_wall():
             self.notify("You carve through the stone.")
             self.dungeon_view.update_map()
@@ -518,6 +532,7 @@ class GameScreen(Screen):
             debug("Action: Dig failed")
 
     def action_interact(self):
+        """Action interact."""
         tile = self.engine.get_tile_at_player()
         debug(f"Player interacting with tile: '{tile}'")
         if self.engine.player.depth == 0 and tile and tile.isdigit() and '1' <= tile <= '6':
@@ -534,6 +549,7 @@ class GameScreen(Screen):
             self.notify("Nothing interesting here.")
 
     def action_ascend(self):
+        """Action ascend."""
         tile = self.engine.get_tile_at_player()
         if tile == STAIRS_UP:
              if self.engine.player.depth > 0:
@@ -545,6 +561,7 @@ class GameScreen(Screen):
         else: self.notify("There are no stairs up here.")
 
     def action_descend(self):
+         """Action descend."""
          tile = self.engine.get_tile_at_player()
          if tile == STAIRS_DOWN:
              debug("Player uses stairs down.")
@@ -554,6 +571,7 @@ class GameScreen(Screen):
          else: self.notify("There are no stairs down here.")
 
     def action_pause_menu(self):
+        """Action pause menu."""
         debug("Opening pause menu")
         debug("Current player state should be up-to-date before pausing.")
         self.app.push_screen("pause_menu")

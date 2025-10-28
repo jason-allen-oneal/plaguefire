@@ -105,10 +105,12 @@ class CommandHelpScreen(Screen):
     ]
 
     def __init__(self, mode: str):
+        """Initialize the instance."""
         super().__init__()
         self.mode = mode if mode in COMMAND_REFERENCE else "original"
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         entries = COMMAND_REFERENCE[self.mode]
         title = f"{self.mode.title()} Command Reference"
         lines = [
@@ -126,4 +128,5 @@ class CommandHelpScreen(Screen):
         yield VerticalScroll(Static(content, id="command-help-content", expand=True))
 
     def action_close(self) -> None:
+        """Action close."""
         self.app.pop_screen()

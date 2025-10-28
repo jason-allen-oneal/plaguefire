@@ -21,18 +21,30 @@ def find_random_floor(map_data: List[List[str]]) -> Optional[List[int]]:
     return random.choice(floor_tiles)
 
 class Rect:
+    """Rect class."""
     def __init__(self, x, y, w, h):
+        """Initialize the instance."""
         self.x1 = x
         self.y1 = y
         self.x2 = x + w
         self.y2 = y + h
 
     def center(self) -> Tuple[int, int]:
+        """Center."""
         center_x = (self.x1 + self.x2) // 2
         center_y = (self.y1 + self.y2) // 2
         return center_x, center_y
 
     def intersects(self, other: 'Rect') -> bool:
+        """
+                Intersects.
+                
+                Args:
+                    other: TODO
+                
+                Returns:
+                    TODO
+                """
         return (self.x1 <= other.x2 + 1 and self.x2 >= other.x1 - 1 and
                 self.y1 <= other.y2 + 1 and self.y2 >= other.y1 - 1)
 

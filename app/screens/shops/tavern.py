@@ -5,6 +5,7 @@ import random
 
 class TavernScreen(BaseShopScreen):
 
+    """TavernScreen class."""
     BINDINGS = [
         ("up", "cursor_up", "Cursor Up"),
         ("down", "cursor_down", "Cursor Down"),
@@ -17,6 +18,7 @@ class TavernScreen(BaseShopScreen):
     ]
 
     def __init__(self, **kwargs):
+        """Initialize the instance."""
         super().__init__(
             shop_name="The Drunken Dragon",
             owner_name="Barkeep Bill",

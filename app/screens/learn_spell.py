@@ -24,6 +24,7 @@ class SpellLearningScreen(Screen):
     ]
 
     def __init__(self, **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
         self.data_loader = GameData()
@@ -50,6 +51,7 @@ class SpellLearningScreen(Screen):
 
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         yield Header()
         yield Static(f"[deep_sky_blue3]Level {self.player.level}![/deep_sky_blue3] [chartreuse1]Choose a spell to learn:[/chartreuse1]", id="spell_title")
         yield Static("[yellow1]Loading spells...[/yellow1]", id="spell_list")

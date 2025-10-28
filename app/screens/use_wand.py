@@ -21,6 +21,7 @@ class UseWandScreen(Screen):
     ]
 
     def __init__(self, **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
         self.wand_options: Dict[str, int] = {}
@@ -47,6 +48,7 @@ class UseWandScreen(Screen):
                     break
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         yield Static(Text.from_markup(self._render_wand_list()), id="wand-list")
 
     def _render_wand_list(self) -> str:

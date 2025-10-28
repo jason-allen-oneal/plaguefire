@@ -1,3 +1,19 @@
+"""
+Player character management for Plaguefire roguelike.
+
+This module handles player character creation, stats, abilities, inventory,
+equipment, spells, and progression. It implements Moria/Angband-style character
+mechanics including races, classes, ability scores, and skill proficiencies.
+
+Key Features:
+    - Character creation with race and class selection
+    - Stat rolling and ability score calculation
+    - Inventory and equipment management (22 item limit, weight-based)
+    - Spell learning and casting system
+    - Experience points and level progression
+    - Status effect integration
+    - Save/load serialization
+"""
 
 from __future__ import annotations
 
@@ -16,10 +32,30 @@ from config import (
 from debugtools import debug
 
 def get_race_definition(race_name: str) -> Dict:
+    """
+    Get race definition from configuration.
+    
+    Args:
+        race_name: Name of the race (e.g., "Human", "Elf", "Dwarf")
+        
+    Returns:
+        Dictionary containing race stats, abilities, and modifiers.
+        Defaults to Human if race not found.
+    """
     return RACE_DEFINITIONS.get(race_name, RACE_DEFINITIONS["Human"])
 
 
 def get_class_definition(class_name: str) -> Dict:
+    """
+    Get class definition from configuration.
+    
+    Args:
+        class_name: Name of the class (e.g., "Warrior", "Mage", "Rogue")
+        
+    Returns:
+        Dictionary containing class stats, abilities, and spell lists.
+        Defaults to Warrior if class not found.
+    """
     return CLASS_DEFINITIONS.get(class_name, CLASS_DEFINITIONS["Warrior"])
 
 
@@ -34,6 +70,25 @@ def calculate_ability_profile(
     class_name: str,
     stats: Dict[str, float],
 ) -> Dict[str, float]:
+    """
+    Calculate character ability scores based on race, class, and stats.
+    
+    Combines racial and class proficiencies to determine skill levels in various
+    abilities (fighting, stealth, magic devices, etc.). Applies bonuses from high
+    ability scores.
+    
+    Args:
+        race_name: Character's race
+        class_name: Character's class
+        stats: Dictionary of ability scores (STR, DEX, INT, WIS, CON, CHA)
+        
+    Returns:
+        Dictionary of ability scores (1.0-10.0 scale) including:
+        - fighting, bows, throwing: Combat abilities
+        - stealth, perception, searching: Exploration
+        - disarming, magic_device, saving_throw: Special abilities
+        - infravision: Vision range in darkness (in feet)
+    """
     race = get_race_definition(race_name)
     class_def = get_class_definition(class_name)
 
@@ -116,6 +171,20 @@ def build_character_profile(
     sex: str,
     seed: Optional[int] = None,
 ) -> Dict:
+    """
+            Build character profile.
+            
+            Args:
+                race_name: TODO
+                class_name: TODO
+                stats: TODO
+                stat_percentiles: TODO
+                sex: TODO
+                seed: TODO
+            
+            Returns:
+                TODO
+            """
     rng = random.Random(seed)
     stat_values = {
         stat: _effective_stat(stats.get(stat, 10), stat_percentiles.get(stat, 0))
@@ -141,6 +210,7 @@ class Player:
     STATS_ORDER = STAT_NAMES
 
     def __init__(self, data: Dict):
+        """Initialize the instance."""
         self.name: str = data.get("name", "Hero")
         self.race: str = data.get("race", "Human")
         self.class_: str = data.get("class", "Warrior")
@@ -327,6 +397,15 @@ class Player:
         return int((effective - 10) // 2)
 
     def get_stat_display(self, stat_name: str) -> str:
+        """
+                Get stat display.
+                
+                Args:
+                    stat_name: TODO
+                
+                Returns:
+                    TODO
+                """
         score = self.stats.get(stat_name, 10)
         percentile = self.stat_percentiles.get(stat_name, 0)
         if score < 18:
@@ -445,6 +524,7 @@ class Player:
         return uncursed
 
     def to_dict(self) -> Dict:
+        """To dict."""
         data = {
             "name": self.name, "race": self.race, "class": self.class_, "sex": self.sex,
             "stats": self.stats, "base_stats": self.base_stats, "stat_percentiles": self.stat_percentiles,
@@ -465,6 +545,15 @@ class Player:
 
 
     def heal(self, amount: int) -> int:
+        """
+                Heal.
+                
+                Args:
+                    amount: TODO
+                
+                Returns:
+                    TODO
+                """
         if amount <= 0: return 0
         amount_healed = min(amount, self.max_hp - self.hp)
         self.hp += amount_healed
@@ -472,6 +561,15 @@ class Player:
         return amount_healed
 
     def restore_mana(self, amount: int) -> int:
+        """
+                Restore mana.
+                
+                Args:
+                    amount: TODO
+                
+                Returns:
+                    TODO
+                """
         if amount <= 0: return 0
         restored = min(amount, self.max_mana - self.mana)
         self.mana += restored
@@ -479,6 +577,15 @@ class Player:
         return restored
 
     def take_damage(self, amount: int) -> bool:
+        """
+                Take damage.
+                
+                Args:
+                    amount: TODO
+                
+                Returns:
+                    TODO
+                """
         if amount <= 0: return False
         self.hp -= amount
         debug(f"{self.name} takes {amount} damage ({self.hp}/{self.max_hp})")
@@ -525,6 +632,15 @@ class Player:
         return True, ""
 
     def spend_mana(self, amount: int) -> bool:
+        """
+                Spend mana.
+                
+                Args:
+                    amount: TODO
+                
+                Returns:
+                    TODO
+                """
         if amount <= 0: return True
         if self.mana < amount:
             debug(f"{self.name} lacks mana ({self.mana}/{self.max_mana}) for cost {amount}")

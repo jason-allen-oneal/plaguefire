@@ -22,6 +22,7 @@ class BrowseBookScreen(Screen):
     ]
 
     def __init__(self, **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
         self.data_loader = GameData()
@@ -51,6 +52,7 @@ class BrowseBookScreen(Screen):
                     break
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         if self.selected_book_idx is None:
             yield Static(Text.from_markup(self._render_book_list()), id="book-list")
         else:

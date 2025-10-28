@@ -5,6 +5,7 @@ import random
 
 class TempleScreen(BaseShopScreen):
 
+    """TempleScreen class."""
     BINDINGS = [
         ("up", "cursor_up", "Cursor Up"),
         ("down", "cursor_down", "Cursor Down"),
@@ -16,6 +17,7 @@ class TempleScreen(BaseShopScreen):
     ]
 
     def __init__(self, **kwargs):
+        """Initialize the instance."""
         super().__init__(
             shop_name="The Sacred Temple",
             owner_name="Sister Elara",

@@ -21,9 +21,11 @@ class ViewScoresScreen(Screen):
     ]
 
     def __init__(self, **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         with VerticalScroll(id="scores-scroll"):
             yield Static(Text.from_markup(self._render_scores()), id="scores-display")
 

@@ -21,6 +21,7 @@ class DropItemScreen(Screen):
     ]
 
     def __init__(self, **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
         self.item_options: Dict[str, int] = {}
@@ -44,6 +45,7 @@ class DropItemScreen(Screen):
                 break
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         yield Static(Text.from_markup(self._render_item_list()), id="item-list")
 
     def _render_item_list(self) -> str:

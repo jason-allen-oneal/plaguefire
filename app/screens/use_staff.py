@@ -21,6 +21,7 @@ class UseStaffScreen(Screen):
     ]
 
     def __init__(self, **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
         self.staff_options: Dict[str, int] = {}
@@ -47,6 +48,7 @@ class UseStaffScreen(Screen):
                     break
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         yield Static(Text.from_markup(self._render_staff_list()), id="staff-list")
 
     def _render_staff_list(self) -> str:

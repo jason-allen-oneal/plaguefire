@@ -6,6 +6,7 @@ from debugtools import debug
 
 
 class TitleScreen(Screen):
+    """TitleScreen class."""
     BINDINGS = [
         ("n", "new_game", "New Game"),
         ("c", "continue_game", "Continue"),
@@ -14,12 +15,14 @@ class TitleScreen(Screen):
     ]
 
     def on_mount(self):
+        """On mount."""
         debug("Mounting TitleScreen...")
         self.app.sound.play_music("title.mp3")
         self.app.sound.play_sfx("title")
 
 
     def compose(self):
+        """Compose."""
         banner = (
             "[lime]"
             "             ███████████  ████                                         ███████████  ███                    \n"
@@ -66,13 +69,17 @@ class TitleScreen(Screen):
         yield layout
 
     def action_settings(self):
+        """Action settings."""
         self.app.push_screen("settings")
 
     def action_continue_game(self):
+        """Action continue game."""
         self.app.push_screen("continue")
 
     def action_new_game(self):
+        """Action new game."""
         self.app.push_screen("character_creation")
 
     def action_quit_app(self):
+        """Action quit app."""
         self.app.exit()

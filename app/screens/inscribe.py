@@ -21,6 +21,7 @@ class InscribeScreen(Screen):
     ]
 
     def __init__(self, **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
         self.item_options: Dict[str, int] = {}
@@ -50,6 +51,7 @@ class InscribeScreen(Screen):
                 break
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         if self.selected_item_idx is None:
             yield Static(Text.from_markup(self._render_item_list()), id="inscribe-list")
         else:

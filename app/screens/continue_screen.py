@@ -22,6 +22,7 @@ class ContinueScreen(Screen):
     SAVE_DIR = "saves"
 
     def __init__(self, **kwargs):
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.save_files = []
         self.character_names = []
@@ -94,6 +95,7 @@ class ContinueScreen(Screen):
             self._update_list_display()
 
     def action_load_game(self):
+        """Action load game."""
         if not self.save_files: self.notify("No save selected."); return
 
         load_path = self.save_files[self.selected_index]
@@ -122,4 +124,5 @@ class ContinueScreen(Screen):
             debug(f"Unexpected error loading file {load_path}: {e}")
 
 
+    """Action back to title."""
     def action_back_to_title(self): self.app.pop_screen()

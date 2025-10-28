@@ -20,11 +20,13 @@ class ChangeNameScreen(Screen):
     ]
 
     def __init__(self, **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
         self.input_widget: Optional[Input] = None
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         with Vertical(id="change-name-container"):
             yield Static(Text.from_markup(self._render_prompt()), id="change-name-prompt")
             self.input_widget = Input(

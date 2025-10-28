@@ -35,6 +35,7 @@ class DungeonView(Static):
     """
 
     def __init__(self, engine: 'Engine', **kwargs):
+        """Initialize the instance."""
         super().__init__(id="dungeon", **kwargs)
         self.engine = engine
         self.no_wrap = True
@@ -56,6 +57,7 @@ class DungeonView(Static):
         return f"[yellow]{symbol}[/yellow]"
 
     def on_mount(self) -> None:
+        """On mount."""
         self.set_timer(0.01, self.update_map)
         self.animation_timer = self.set_interval(0.05, self._animate_projectiles)
         debug("DungeonView mounted, update_map scheduled.")

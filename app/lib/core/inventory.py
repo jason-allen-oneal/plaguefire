@@ -20,6 +20,7 @@ class InventoryManager:
     """
     
     def __init__(self):
+        """Initialize the instance."""
         self.instances: List[ItemInstance] = []
         self.equipment: Dict[str, Optional[ItemInstance]] = {}
         self._data_loader = GameData()

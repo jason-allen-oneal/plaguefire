@@ -22,6 +22,7 @@ class CastSpellScreen(Screen):
     ]
 
     def __init__(self, **kwargs) -> None:
+        """Initialize the instance."""
         super().__init__(**kwargs)
         self.player: 'Player' = self.app.player
         self.data_loader = GameData()
@@ -46,6 +47,7 @@ class CastSpellScreen(Screen):
                 break
 
     def compose(self) -> ComposeResult:
+        """Compose."""
         yield Static(Text.from_markup(self._render_spell_list_ascii()), id="spell-list")
 
     def _render_spell_list_ascii(self) -> str:
@@ -140,6 +142,12 @@ class CastSpellScreen(Screen):
                     return
                 
                 def on_target_selected(target):
+                    """
+                            On target selected.
+                            
+                            Args:
+                                target: TODO
+                            """
                     if target:
                         game_screen.engine.handle_cast_spell(spell_id, target)
                         if hasattr(game_screen, 'dungeon_view'):

@@ -16,20 +16,24 @@ class PauseMenuScreen(Screen):
     ]
 
     def compose(self):
+        """Compose."""
         with Vertical(id="pause-menu", classes="dialog"):
             yield Static("[chartreuse1]=== Game Paused ===[/chartreuse1]", markup=True)
             yield Static("[white]R[/white] Resume    [white]S[/white] Save    [white]Q[/white] Quit to Title", markup=True)
 
     def action_resume(self):
+        """Action resume."""
         debug("PauseMenu: resume")
         self.app.pop_screen()
 
     def action_save(self):
+        """Action save."""
         debug("PauseMenu: save")
         self.app.save_character()
         self.notify("Game saved.")
 
     def action_quit_to_title(self):
+        """Action quit to title."""
         debug("PauseMenu: quit to title")
         self.app.save_character()
         self.app.pop_screen()
