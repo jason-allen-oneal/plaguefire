@@ -203,14 +203,6 @@ class DungeonView(Static):
                                     projectile_char = proj.get_char_with_color()
                                     break
                             
-                            # Check for animating dropped items at this position
-                            if not projectile_char:
-                                for item in self.engine.get_dropped_items():
-                                    item_pos = item.get_current_position()
-                                    if item_pos == (map_x, map_y):
-                                        projectile_char = f"[yellow]{item.get_display_char()}[/yellow]"
-                                        break
-                            
                             if projectile_char:
                                 char = projectile_char
                             else:
