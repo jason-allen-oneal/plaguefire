@@ -35,7 +35,7 @@ def test_player_attack_damage():
     
     # Create enemy
     data_loader = GameData()
-    entity_template = data_loader.get_entity("kobold")
+    entity_template = data_loader.get_entity("KOBOLD")
     if not entity_template:
         print("⚠ Kobold entity not found, skipping test")
         return
@@ -58,7 +58,7 @@ def test_entity_death():
     print("Test: Entity death...")
     
     data_loader = GameData()
-    entity_template = data_loader.get_entity("kobold")
+    entity_template = data_loader.get_entity("KOBOLD")
     if not entity_template:
         print("⚠ Kobold entity not found, skipping test")
         return
@@ -83,7 +83,7 @@ def test_damage_calculation():
     print("Test: Damage calculation...")
     
     data_loader = GameData()
-    entity_template = data_loader.get_entity("kobold")
+    entity_template = data_loader.get_entity("KOBOLD")
     if not entity_template:
         print("⚠ Kobold entity not found, skipping test")
         return
@@ -203,7 +203,7 @@ def test_hostile_flag():
     data_loader = GameData()
     
     # Get a hostile entity
-    entity_template = data_loader.get_entity("kobold")
+    entity_template = data_loader.get_entity("KOBOLD")
     if not entity_template:
         print("⚠ Kobold entity not found, skipping test")
         return
@@ -222,7 +222,7 @@ def test_multiple_attacks():
     print("Test: Multiple attacks...")
     
     data_loader = GameData()
-    entity_template = data_loader.get_entity("kobold")
+    entity_template = data_loader.get_entity("KOBOLD")
     if not entity_template:
         print("⚠ Kobold entity not found, skipping test")
         return

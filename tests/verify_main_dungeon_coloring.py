@@ -42,11 +42,11 @@ def test_main_dungeon_view_entity_coloring():
     
     # Test various entity names
     test_cases = [
-        ("Ancient Black Dragon", "bright_black", "Should be black/dark"),
-        ("Ancient Blue Dragon", "blue", "Should be blue"),
-        ("Ancient Green Dragon", "green", "Should be green"),
-        ("Ancient Red Dragon", "red", "Should be red"),
-        ("Ancient White Dragon", "white", "Should be white"),
+        ("Ancient Shadow Wyrm", "bright_black", "Should be black/dark"),
+        ("Ancient Storm Wyrm", "blue", "Should be blue"),
+        ("Ancient Poison Wyrm", "green", "Should be green"),
+        ("Ancient Fire Wyrm", "red", "Should be red"),
+        ("Ancient Ice Wyrm", "white", "Should be white"),
         ("Yellow Mold", "yellow", "Should be yellow"),
         ("Giant Brown Bat", "color(130)", "Should be brown"),
         ("Grey Ooze", "grey50", "Should be grey"),

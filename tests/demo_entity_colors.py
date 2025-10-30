@@ -39,12 +39,12 @@ def demonstrate_color_mapping():
     
     # Test entities with different colors
     test_entities = [
-        "Ancient Black Dragon",
-        "Ancient Blue Dragon",
-        "Ancient Green Dragon",
-        "Ancient Red Dragon",
-        "Ancient White Dragon",
-        "Yellow Dragon",
+        "Ancient Shadow Wyrm",
+        "Ancient Storm Wyrm",
+        "Ancient Poison Wyrm",
+        "Ancient Fire Wyrm",
+        "Ancient Ice Wyrm",
+        "Yellow Wyrm",
         "Giant Brown Bat",
         "Grey Ooze",
         "Purple Worm",
@@ -70,7 +70,7 @@ def demonstrate_color_mapping():
     console.print("- Only explored tiles (visibility >= 1) are shown")
     console.print("- Unexplored areas appear as blank spaces")
     console.print("- Entities are colored based on their names")
-    console.print("\n[dim]Example: 'Ancient Blue Dragon' appears in blue[/dim]")
+    console.print("\n[dim]Example: 'Ancient Storm Wyrm' appears in blue[/dim]")
     console.print("[dim]Example: 'Giant Red Ant' appears in red[/dim]\n")
 
 
