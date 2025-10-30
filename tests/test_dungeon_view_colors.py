@@ -29,12 +29,12 @@ def test_dungeon_view_entity_colors():
     
     # Test color extraction
     test_cases = [
-        ("Ancient Black Dragon", "bright_black"),
-        ("Ancient Blue Dragon", "blue"),
-        ("Ancient Green Dragon", "green"),
-        ("Ancient Red Dragon", "red"),
-        ("Ancient White Dragon", "white"),
-        ("Yellow Dragon", "yellow"),
+        ("Ancient Shadow Wyrm", "bright_black"),
+        ("Ancient Storm Wyrm", "blue"),
+        ("Ancient Poison Wyrm", "green"),
+        ("Ancient Fire Wyrm", "red"),
+        ("Ancient Ice Wyrm", "white"),
+        ("Yellow Wyrm", "yellow"),
         ("Giant Brown Bat", "color(130)"),
         ("Grey Ooze", "grey50"),
         ("Purple Worm", "purple"),

@@ -168,12 +168,12 @@ def test_multiple_ranged_monsters():
     assert slinger.ranged_range == 5, f"Expected range 5, got {slinger.ranged_range}"
     print("✓ Kobold Slinger has stone ranged attack (1d4, range 5)")
     
-    # Test Orc Crossbowman
+    # Test Orc Raider
     crossbowman = Entity("ORC_CROSSBOWMAN", 1, [5, 5])
-    assert crossbowman.ranged_attack is not None, "Orc Crossbowman should have ranged attack"
+    assert crossbowman.ranged_attack is not None, "Orc Raider should have ranged attack"
     assert crossbowman.ranged_attack['name'] == "crossbow bolt", f"Expected crossbow bolt, got {crossbowman.ranged_attack['name']}"
     assert crossbowman.ranged_range == 7, f"Expected range 7, got {crossbowman.ranged_range}"
-    print("✓ Orc Crossbowman has crossbow bolt ranged attack (1d8, range 7)")
+    print("✓ Orc Raider has crossbow bolt ranged attack (1d8, range 7)")
     
     print("✓ Test passed!\n")
 

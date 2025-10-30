@@ -1,7 +1,7 @@
 [
   {
     "id": "AIR_SPIRIT",
-    "name": "Air Spirit",
+    "name": "Unstable Air Elemental",
     "char": "E",
     "hp_base": 40,
     "hp_per_level": 6,
@@ -30,7 +30,7 @@
   },
   {
     "id": "ANCIENT_BLACK_DRAGON",
-    "name": "Ancient Black Dragon",
+    "name": "Ancient Shadow Wyrm",
     "char": "D",
     "hp_base": 250,
     "hp_per_level": 20,
@@ -60,7 +60,7 @@
   },
   {
     "id": "ANCIENT_BLUE_DRAGON",
-    "name": "Ancient Blue Dragon",
+    "name": "Ancient Storm Wyrm",
     "char": "D",
     "hp_base": 250,
     "hp_per_level": 20,
@@ -90,7 +90,7 @@
   },
   {
     "id": "ANCIENT_GREEN_DRAGON",
-    "name": "Ancient Green Dragon",
+    "name": "Ancient Poison Wyrm",
     "char": "D",
     "hp_base": 250,
     "hp_per_level": 20,
@@ -120,7 +120,7 @@
   },
   {
     "id": "ANCIENT_MULTI_HUED_DRAGON",
-    "name": "Ancient Multi-Hued Dragon",
+    "name": "Ancient Chaos Wyrm",
     "char": "D",
     "hp_base": 250,
     "hp_per_level": 20,
@@ -150,7 +150,7 @@
   },
   {
     "id": "ANCIENT_WHITE_DRAGON",
-    "name": "Ancient White Dragon",
+    "name": "Ancient Ice Wyrm",
     "char": "D",
     "hp_base": 250,
     "hp_per_level": 20,
@@ -293,7 +293,7 @@
   },
   {
     "id": "BANSHEE",
-    "name": "Banshee",
+    "name": "Wailing Banshee",
     "char": "G",
     "hp_base": 20,
     "hp_per_level": 4,
@@ -320,7 +320,7 @@
   },
   {
     "id": "BATTLE_SCARRED_VETERAN",
-    "name": "Battle-Scarred Veteran",
+    "name": "Battle-Scarred Iron Guard",
     "char": "p",
     "hp_base": 10,
     "hp_per_level": 3,
@@ -438,7 +438,7 @@
   },
   {
     "id": "BERZERKER",
-    "name": "Berzerker",
+    "name": "Greenflame Berserker",
     "char": "p",
     "hp_base": 10,
     "hp_per_level": 3,
@@ -524,7 +524,7 @@
   },
   {
     "id": "BLACK_KNIGHT",
-    "name": "Black Knight",
+    "name": "Corrupted Iron Guard Captain",
     "char": "p",
     "hp_base": 10,
     "hp_per_level": 3,
@@ -580,7 +580,7 @@
   },
   {
     "id": "BLACK_MOLD",
-    "name": "Black Mold",
+    "name": "Black Corrupted Mold",
     "char": "m",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -609,7 +609,7 @@
   },
   {
     "id": "BLACK_MUSHROOM_PATCH",
-    "name": "Black Mushroom patch",
+    "name": "Black Greenflame Fungus patch",
     "char": ",",
     "hp_base": 5,
     "hp_per_level": 1,
@@ -692,7 +692,7 @@
   },
   {
     "id": "BLACK_ORC",
-    "name": "Black Orc",
+    "name": "Greenflame-Touched Orc",
     "char": "o",
     "hp_base": 12,
     "hp_per_level": 3,
@@ -750,7 +750,7 @@
   },
   {
     "id": "BLACK_YEEK",
-    "name": "Black Yeek",
+    "name": "Mutant Black Creature",
     "char": "y",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -866,7 +866,7 @@
   },
   {
     "id": "BLUBBERING_IDIOT",
-    "name": "Blubbering Idiot",
+    "name": "Greenflame-Touched Madman",
     "char": "p",
     "hp_base": 10,
     "hp_per_level": 3,
@@ -981,7 +981,7 @@
   },
   {
     "id": "BLUE_YEEK",
-    "name": "Blue Yeek",
+    "name": "Mutant Blue Creature",
     "char": "y",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -1008,7 +1008,7 @@
   },
   {
     "id": "BRIGAND",
-    "name": "Brigand",
+    "name": "Caravan Raider",
     "char": "p",
     "hp_base": 10,
     "hp_per_level": 3,
@@ -1037,7 +1037,7 @@
   },
   {
     "id": "BROWN_MOLD",
-    "name": "Brown Mold",
+    "name": "Brown Corrupted Mold",
     "char": "m",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -1235,7 +1235,7 @@
   },
   {
     "id": "CLEAR_MUSHROOM_PATCH",
-    "name": "Clear Mushroom patch",
+    "name": "Clear Greenflame Fungus patch",
     "char": ",",
     "hp_base": 5,
     "hp_per_level": 1,
@@ -1290,7 +1290,7 @@
   },
   {
     "id": "CLEAR_YEEK",
-    "name": "Clear Yeek",
+    "name": "Mutant Clear Creature",
     "char": "y",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -1317,7 +1317,7 @@
   },
   {
     "id": "CLOUD_GIANT",
-    "name": "Cloud Giant",
+    "name": "Storm Giant",
     "char": "P",
     "hp_base": 50,
     "hp_per_level": 8,
@@ -1345,7 +1345,7 @@
   },
   {
     "id": "COINS_CREEPING_COPPER",
-    "name": "Creeping Copper Coins",
+    "name": "Cursed Copper Coins",
     "char": "$",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -1399,7 +1399,7 @@
   },
   {
     "id": "CREEPING_GOLD_COINS",
-    "name": "Creeping Gold Coins",
+    "name": "Cursed Gold Coins",
     "char": "$",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -1426,7 +1426,7 @@
   },
   {
     "id": "CREEPING_SILVER_COINS",
-    "name": "Creeping Silver Coins",
+    "name": "Cursed Silver Coins",
     "char": "$",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -1453,7 +1453,7 @@
   },
   {
     "id": "CRIMSON_MOLD",
-    "name": "Crimson Mold",
+    "name": "Crimson Corrupted Mold",
     "char": "m",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -1642,7 +1642,7 @@
   },
   {
     "id": "DISENCHANTER_MOLD",
-    "name": "Disenchanter Mold",
+    "name": "Disenchanter Corrupted Mold",
     "char": "m",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -1725,7 +1725,7 @@
   },
   {
     "id": "DRAGON_ANCIENT_RED",
-    "name": "Ancient Red Dragon",
+    "name": "Ancient Fire Wyrm",
     "char": "D",
     "hp_base": 250,
     "hp_per_level": 20,
@@ -1755,7 +1755,7 @@
   },
   {
     "id": "DRAGON_MATURE_MULTI",
-    "name": "Mature Multi-Hued Dragon",
+    "name": "Chaos Drake",
     "char": "d",
     "hp_base": 150,
     "hp_per_level": 15,
@@ -1785,7 +1785,7 @@
   },
   {
     "id": "DRAGON_YOUNG_RED",
-    "name": "Young Red Dragon",
+    "name": "Young Red Wyrm",
     "char": "d",
     "hp_base": 50,
     "hp_per_level": 8,
@@ -1842,7 +1842,7 @@
   },
   {
     "id": "EARTH_ELEMENTAL",
-    "name": "Earth Elemental",
+    "name": "Ley Line Earth Fragment",
     "char": "E",
     "hp_base": 40,
     "hp_per_level": 6,
@@ -1871,7 +1871,7 @@
   },
   {
     "id": "EARTH_SPIRIT",
-    "name": "Earth Spirit",
+    "name": "Unstable Earth Elemental",
     "char": "E",
     "hp_base": 40,
     "hp_per_level": 6,
@@ -1898,7 +1898,7 @@
   },
   {
     "id": "ELEMENTAL_FIRE",
-    "name": "Fire Elemental",
+    "name": "Ley Line Fire Fragment",
     "char": "E",
     "hp_base": 40,
     "hp_per_level": 6,
@@ -2008,7 +2008,7 @@
   },
   {
     "id": "FILTHY_STREET_URCHIN",
-    "name": "Filthy Street Urchin",
+    "name": "Outmarsh Street Urchin",
     "char": "p",
     "hp_base": 10,
     "hp_per_level": 3,
@@ -2038,7 +2038,7 @@
   },
   {
     "id": "FIRE_GIANT",
-    "name": "Fire Giant",
+    "name": "Volcanic Giant",
     "char": "P",
     "hp_base": 50,
     "hp_per_level": 8,
@@ -2066,7 +2066,7 @@
   },
   {
     "id": "FIRE_SPIRIT",
-    "name": "Fire Spirit",
+    "name": "Unstable Fire Elemental",
     "char": "E",
     "hp_base": 40,
     "hp_per_level": 6,
@@ -2093,7 +2093,7 @@
   },
   {
     "id": "FLESH_GOLEM",
-    "name": "Flesh Golem",
+    "name": "Pre-Rupture Flesh Golem",
     "char": "g",
     "hp_base": 40,
     "hp_per_level": 5,
@@ -2197,7 +2197,7 @@
   },
   {
     "id": "FROST_GIANT",
-    "name": "Frost Giant",
+    "name": "Northern Ice Giant",
     "char": "P",
     "hp_base": 50,
     "hp_per_level": 8,
@@ -2225,7 +2225,7 @@
   },
   {
     "id": "GHOST",
-    "name": "Ghost",
+    "name": "Restless Spirit",
     "char": "G",
     "hp_base": 20,
     "hp_per_level": 4,
@@ -2443,7 +2443,7 @@
   },
   {
     "id": "GIANT_BLACK_RAT",
-    "name": "Giant Black Rat",
+    "name": "Greenflame Black Rat",
     "char": "r",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -2837,7 +2837,7 @@
   },
   {
     "id": "GIANT_HILL",
-    "name": "Hill Giant",
+    "name": "Mad Hill Giant",
     "char": "P",
     "hp_base": 50,
     "hp_per_level": 8,
@@ -3285,7 +3285,7 @@
   },
   {
     "id": "GIANT_TROLL",
-    "name": "Giant Troll",
+    "name": "Greenflame Troll",
     "char": "T",
     "hp_base": 30,
     "hp_per_level": 6,
@@ -3583,7 +3583,7 @@
   },
   {
     "id": "GOLEM_CLAY",
-    "name": "Clay Golem",
+    "name": "Pre-Rupture Clay Golem",
     "char": "g",
     "hp_base": 40,
     "hp_per_level": 5,
@@ -3832,7 +3832,7 @@
   },
   {
     "id": "GREY_MUSHROOM_PATCH",
-    "name": "Grey Mushroom patch",
+    "name": "Grey Greenflame Fungus patch",
     "char": ",",
     "hp_base": 5,
     "hp_per_level": 1,
@@ -3887,7 +3887,7 @@
   },
   {
     "id": "HAIRY_MOLD",
-    "name": "Hairy Mold",
+    "name": "Hairy Corrupted Mold",
     "char": "m",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -3944,7 +3944,7 @@
   },
   {
     "id": "HOBGOBLIN",
-    "name": "Hobgoblin",
+    "name": "Hobgoblin Enforcer",
     "char": "H",
     "hp_base": 15,
     "hp_per_level": 3,
@@ -4031,7 +4031,7 @@
   },
   {
     "id": "HUMAN_BANDIT",
-    "name": "Bandit",
+    "name": "Highway Bandit",
     "char": "p",
     "hp_base": 10,
     "hp_per_level": 3,
@@ -4091,7 +4091,7 @@
   },
   {
     "id": "ICE_TROLL",
-    "name": "Ice Troll",
+    "name": "Northern Troll",
     "char": "T",
     "hp_base": 30,
     "hp_per_level": 6,
@@ -4175,7 +4175,7 @@
   },
   {
     "id": "IRON_GOLEM",
-    "name": "Iron Golem",
+    "name": "Pre-Rupture Iron Golem",
     "char": "g",
     "hp_base": 40,
     "hp_per_level": 5,
@@ -4694,7 +4694,7 @@
   },
   {
     "id": "LICH",
-    "name": "Lich",
+    "name": "Ancient Veyrian Lich",
     "char": "L",
     "hp_base": 80,
     "hp_per_level": 10,
@@ -4839,7 +4839,7 @@
   },
   {
     "id": "MANGY_LOOKING_LEPER",
-    "name": "Mangy-Looking Leper",
+    "name": "Plague-Scarred Outmarsh Leper",
     "char": "p",
     "hp_base": 10,
     "hp_per_level": 3,
@@ -4898,7 +4898,7 @@
   },
   {
     "id": "MASTER_YEEK",
-    "name": "Master Yeek",
+    "name": "Mutant Master Creature",
     "char": "y",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -4925,7 +4925,7 @@
   },
   {
     "id": "MATURE_BLACK_DRAGON",
-    "name": "Mature Black Dragon",
+    "name": "Shadow Drake",
     "char": "d",
     "hp_base": 150,
     "hp_per_level": 15,
@@ -4955,7 +4955,7 @@
   },
   {
     "id": "MATURE_BLUE_DRAGON",
-    "name": "Mature Blue Dragon",
+    "name": "Storm Drake",
     "char": "d",
     "hp_base": 150,
     "hp_per_level": 15,
@@ -4985,7 +4985,7 @@
   },
   {
     "id": "MATURE_GREEN_DRAGON",
-    "name": "Mature Green Dragon",
+    "name": "Poison Drake",
     "char": "d",
     "hp_base": 150,
     "hp_per_level": 15,
@@ -5015,7 +5015,7 @@
   },
   {
     "id": "MATURE_RED_DRAGON",
-    "name": "Mature Red Dragon",
+    "name": "Fire Drake",
     "char": "d",
     "hp_base": 150,
     "hp_per_level": 15,
@@ -5045,7 +5045,7 @@
   },
   {
     "id": "MATURE_WHITE_DRAGON",
-    "name": "Mature White Dragon",
+    "name": "Ice Drake",
     "char": "d",
     "hp_base": 150,
     "hp_per_level": 15,
@@ -5075,7 +5075,7 @@
   },
   {
     "id": "MEAN_LOOKING_MERCENARY",
-    "name": "Mean-Looking Mercenary",
+    "name": "Brutal Iron Guard Mercenary",
     "char": "p",
     "hp_base": 10,
     "hp_per_level": 3,
@@ -5213,7 +5213,7 @@
   },
   {
     "id": "MOLD_GREEN",
-    "name": "Green Mold",
+    "name": "Green Corrupted Mold",
     "char": "m",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -5242,7 +5242,7 @@
   },
   {
     "id": "MUMMIFIED_KOBOLD",
-    "name": "Mummified Kobold",
+    "name": "Ancient Undead Kobold",
     "char": "M",
     "hp_base": 25,
     "hp_per_level": 5,
@@ -5269,7 +5269,7 @@
   },
   {
     "id": "MUMMIFIED_ORC",
-    "name": "Mummified Orc",
+    "name": "Ancient Undead Orc",
     "char": "M",
     "hp_base": 25,
     "hp_per_level": 5,
@@ -5296,7 +5296,7 @@
   },
   {
     "id": "MUMMIFIED_TROLL",
-    "name": "Mummified Troll",
+    "name": "Ancient Undead Troll",
     "char": "M",
     "hp_base": 25,
     "hp_per_level": 5,
@@ -5323,7 +5323,7 @@
   },
   {
     "id": "MUMMY_HUMAN",
-    "name": "Mummified Human",
+    "name": "Ancient Undead Human",
     "char": "M",
     "hp_base": 25,
     "hp_per_level": 5,
@@ -5350,7 +5350,7 @@
   },
   {
     "id": "MUSHROOM_PATCH_SHRIEKER",
-    "name": "Shrieker Mushroom patch",
+    "name": "Shrieker Greenflame Fungus patch",
     "char": ",",
     "hp_base": 5,
     "hp_per_level": 1,
@@ -5611,7 +5611,7 @@
   },
   {
     "id": "OGRE",
-    "name": "Ogre",
+    "name": "Mutated Ogre",
     "char": "O",
     "hp_base": 25,
     "hp_per_level": 6,
@@ -5698,7 +5698,7 @@
   },
   {
     "id": "ORC",
-    "name": "Orc",
+    "name": "Borderland Orc",
     "char": "o",
     "hp_base": 12,
     "hp_per_level": 3,
@@ -5727,7 +5727,7 @@
   },
   {
     "id": "ORC_SHAMAN",
-    "name": "Orc Shaman",
+    "name": "Orc Tribal Shaman",
     "char": "o",
     "hp_base": 12,
     "hp_per_level": 3,
@@ -5787,7 +5787,7 @@
   },
   {
     "id": "ORC_ZOMBIE",
-    "name": "Orc Zombie",
+    "name": "Orc Risen",
     "char": "z",
     "hp_base": 15,
     "hp_per_level": 4,
@@ -5814,7 +5814,7 @@
   },
   {
     "id": "PITIFUL_LOOKING_BEGGAR",
-    "name": "Pitiful-Looking Beggar",
+    "name": "Riverside Beggar",
     "char": "p",
     "hp_base": 10,
     "hp_per_level": 3,
@@ -5902,7 +5902,7 @@
   },
   {
     "id": "PURPLE_MUSHROOM_PATCH",
-    "name": "Purple Mushroom patch",
+    "name": "Purple Greenflame Fungus patch",
     "char": ",",
     "hp_base": 5,
     "hp_per_level": 1,
@@ -6147,7 +6147,7 @@
   },
   {
     "id": "RED_MOLD",
-    "name": "Red Mold",
+    "name": "Red Corrupted Mold",
     "char": "m",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -6398,7 +6398,7 @@
   },
   {
     "id": "SHIMMERING_MOLD",
-    "name": "Shimmering Mold",
+    "name": "Shimmering Corrupted Mold",
     "char": "m",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -6483,7 +6483,7 @@
   },
   {
     "id": "SINGING_HAPPY_DRUNK",
-    "name": "Singing, Happy Drunk",
+    "name": "Drunken Riverside Sailor",
     "char": "p",
     "hp_base": 10,
     "hp_per_level": 3,
@@ -6513,7 +6513,7 @@
   },
   {
     "id": "SKELETON_2_HEADED_TROLL",
-    "name": "Skeleton 2-Headed Troll",
+    "name": "Skeletal 2-Headed Troll",
     "char": "s",
     "hp_base": 8,
     "hp_per_level": 2,
@@ -6541,7 +6541,7 @@
   },
   {
     "id": "SKELETON_HOBGOBLIN",
-    "name": "Skeleton Hobgoblin",
+    "name": "Skeletal Hobgoblin",
     "char": "s",
     "hp_base": 8,
     "hp_per_level": 2,
@@ -6569,7 +6569,7 @@
   },
   {
     "id": "SKELETON_HUMAN",
-    "name": "Skeleton Human",
+    "name": "Skeletal Guardsman",
     "char": "s",
     "hp_base": 8,
     "hp_per_level": 2,
@@ -6597,7 +6597,7 @@
   },
   {
     "id": "SKELETON_KOBOLD",
-    "name": "Skeleton Kobold",
+    "name": "Skeletal Kobold",
     "char": "s",
     "hp_base": 8,
     "hp_per_level": 2,
@@ -6625,7 +6625,7 @@
   },
   {
     "id": "SKELETON_ORC",
-    "name": "Skeleton Orc",
+    "name": "Skeletal Orc",
     "char": "s",
     "hp_base": 8,
     "hp_per_level": 2,
@@ -6653,7 +6653,7 @@
   },
   {
     "id": "SKELETON_TROLL",
-    "name": "Skeleton Troll",
+    "name": "Skeletal Troll",
     "char": "s",
     "hp_base": 8,
     "hp_per_level": 2,
@@ -6739,7 +6739,7 @@
   },
   {
     "id": "SPOTTED_MUSHROOM_PATCH",
-    "name": "Spotted Mushroom patch",
+    "name": "Spotted Greenflame Fungus patch",
     "char": ",",
     "hp_base": 5,
     "hp_per_level": 1,
@@ -6766,7 +6766,7 @@
   },
   {
     "id": "SQUINT_EYED_ROGUE",
-    "name": "Squint-Eyed Rogue",
+    "name": "Syndicate Cutthroat",
     "char": "p",
     "hp_base": 10,
     "hp_per_level": 3,
@@ -6796,7 +6796,7 @@
   },
   {
     "id": "STONE_GIANT",
-    "name": "Stone Giant",
+    "name": "Mountain Giant",
     "char": "P",
     "hp_base": 50,
     "hp_per_level": 8,
@@ -6824,7 +6824,7 @@
   },
   {
     "id": "STONE_GOLEM",
-    "name": "Stone Golem",
+    "name": "Pre-Rupture Stone Golem",
     "char": "g",
     "hp_base": 40,
     "hp_per_level": 5,
@@ -6903,7 +6903,7 @@
   },
   {
     "id": "TROLL",
-    "name": "Troll",
+    "name": "River Troll",
     "char": "T",
     "hp_base": 30,
     "hp_per_level": 6,
@@ -6931,7 +6931,7 @@
   },
   {
     "id": "TWO_HEADED_TROLL",
-    "name": "Two-Headed Troll",
+    "name": "Mutant Two-Headed Troll",
     "char": "T",
     "hp_base": 30,
     "hp_per_level": 6,
@@ -7015,7 +7015,7 @@
   },
   {
     "id": "VAMPIRE",
-    "name": "Vampire",
+    "name": "Vampire Lord",
     "char": "V",
     "hp_base": 70,
     "hp_per_level": 8,
@@ -7045,7 +7045,7 @@
   },
   {
     "id": "VIOLET_MOLD",
-    "name": "Violet Mold",
+    "name": "Violet Corrupted Mold",
     "char": "m",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -7130,7 +7130,7 @@
   },
   {
     "id": "WATER_ELEMENTAL",
-    "name": "Water Elemental",
+    "name": "Ley Line Water Fragment",
     "char": "E",
     "hp_base": 40,
     "hp_per_level": 6,
@@ -7159,7 +7159,7 @@
   },
   {
     "id": "WATER_SPIRIT",
-    "name": "Water Spirit",
+    "name": "Unstable Water Elemental",
     "char": "E",
     "hp_base": 40,
     "hp_per_level": 6,
@@ -7299,7 +7299,7 @@
   },
   {
     "id": "WHITE_MUSHROOM_PATCH",
-    "name": "White Mushroom patch",
+    "name": "White Greenflame Fungus patch",
     "char": ",",
     "hp_base": 5,
     "hp_per_level": 1,
@@ -7407,7 +7407,7 @@
   },
   {
     "id": "WOODEN_MOLD",
-    "name": "Wooden Mold",
+    "name": "Wooden Corrupted Mold",
     "char": "m",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -7517,7 +7517,7 @@
   },
   {
     "id": "YEEK_BROWN",
-    "name": "Brown Yeek",
+    "name": "Mutant Brown Creature",
     "char": "y",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -7571,7 +7571,7 @@
   },
   {
     "id": "YELLOW_MOLD",
-    "name": "Yellow Mold",
+    "name": "Yellow Corrupted Mold",
     "char": "m",
     "hp_base": 4,
     "hp_per_level": 1,
@@ -7600,7 +7600,7 @@
   },
   {
     "id": "YELLOW_MUSHROOM_PATCH",
-    "name": "Yellow Mushroom patch",
+    "name": "Yellow Greenflame Fungus patch",
     "char": ",",
     "hp_base": 5,
     "hp_per_level": 1,
@@ -7681,7 +7681,7 @@
   },
   {
     "id": "YOUNG_BLACK_DRAGON",
-    "name": "Young Black Dragon",
+    "name": "Young Black Wyrm",
     "char": "d",
     "hp_base": 50,
     "hp_per_level": 8,
@@ -7710,7 +7710,7 @@
   },
   {
     "id": "YOUNG_BLUE_DRAGON",
-    "name": "Young Blue Dragon",
+    "name": "Young Blue Wyrm",
     "char": "d",
     "hp_base": 50,
     "hp_per_level": 8,
@@ -7739,7 +7739,7 @@
   },
   {
     "id": "YOUNG_GREEN_DRAGON",
-    "name": "Young Green Dragon",
+    "name": "Young Green Wyrm",
     "char": "d",
     "hp_base": 50,
     "hp_per_level": 8,
@@ -7768,7 +7768,7 @@
   },
   {
     "id": "YOUNG_MULTI_HUED_DRAGON",
-    "name": "Young Multi-Hued Dragon",
+    "name": "Young Multi-Hued Wyrm",
     "char": "d",
     "hp_base": 50,
     "hp_per_level": 8,
@@ -7797,7 +7797,7 @@
   },
   {
     "id": "YOUNG_WHITE_DRAGON",
-    "name": "Young White Dragon",
+    "name": "Young White Wyrm",
     "char": "d",
     "hp_base": 50,
     "hp_per_level": 8,
@@ -7826,7 +7826,7 @@
   },
   {
     "id": "ZOMBIE_HUMAN",
-    "name": "Human Zombie",
+    "name": "Risen Refugee",
     "char": "z",
     "hp_base": 15,
     "hp_per_level": 4,
@@ -7853,7 +7853,7 @@
   },
   {
     "id": "ZOMBIE_KOBOLD",
-    "name": "Zombie Kobold",
+    "name": "Risen Kobold",
     "char": "z",
     "hp_base": 15,
     "hp_per_level": 4,
@@ -7880,7 +7880,7 @@
   },
   {
     "id": "GOBLIN_ARCHER",
-    "name": "Goblin Archer",
+    "name": "Goblin Sewer Sniper",
     "char": "g",
     "hp_base": 8,
     "hp_per_level": 2,
@@ -7945,7 +7945,7 @@
   },
   {
     "id": "ORC_CROSSBOWMAN",
-    "name": "Orc Crossbowman",
+    "name": "Orc Raider",
     "char": "o",
     "hp_base": 15,
     "hp_per_level": 3,
@@ -7979,7 +7979,7 @@
   },
   {
     "id": "WOLF_DIRE",
-    "name": "Dire Wolf",
+    "name": "Mutant Dire Wolf",
     "char": "w",
     "hp_base": 18,
     "hp_per_level": 3,
@@ -8067,7 +8067,7 @@
   },
   {
     "id": "GOBLIN_SHAMAN",
-    "name": "Goblin Shaman",
+    "name": "Goblin Greenflame Shaman",
     "char": "g",
     "hp_base": 12,
     "hp_per_level": 2,

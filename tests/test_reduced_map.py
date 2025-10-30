@@ -29,10 +29,10 @@ def test_entity_color_extraction():
     
     # Test color extraction
     test_cases = [
-        ("Ancient Black Dragon", "bright_black"),
-        ("Ancient Blue Dragon", "blue"),
-        ("Ancient Green Dragon", "green"),
-        ("Ancient White Dragon", "white"),
+        ("Ancient Shadow Wyrm", "bright_black"),
+        ("Ancient Storm Wyrm", "blue"),
+        ("Ancient Poison Wyrm", "green"),
+        ("Ancient Ice Wyrm", "white"),
         ("Giant Red Ant", "red"),
         ("Giant Brown Bat", "color(130)"),
         ("Grey Ooze", "grey50"),

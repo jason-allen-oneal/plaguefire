@@ -1,0 +1,524 @@
+# Balen: The Complete World Guide
+
+## The World
+
+Balen is the name of both the world and its creator god. The world is characterized by diverse regions and the aftermath of a catastrophic magical event known as the Rupture.
+
+## The Rupture (35 Years Ago)
+
+**Cause:** Wizards hoarded and drained ley lines of raw magic until they collapsed.
+
+**Event:** A spark ignited pockets of raw magic in Greenflame, mutating creatures, twisting landscapes, and shattering the world.
+
+**Effects:**
+- Stones turned to glass, wood petrified
+- Humans and animals mutated; some gained dangerous abilities
+- Refugees poured into Stormreach, swelling the Outmarsh
+
+**Legacy:** Magic users are distrusted and reviled. Greenflame relics fetch fortunes on the black market.
+
+## The Rupture's Aftermath in Travia
+
+### Timeline Overview
+
+The Rupture occurred 35 years ago, fundamentally reshaping the political, economic, and social landscape of Travia. This document tracks the recovery and current state of the region.
+
+### Immediate Effects (0–10 years after the Rupture)
+
+#### Trade Collapse
+- Caravans from Realth stopped moving due to marauders, warped creatures, and shattered leyline routes
+- River traffic dried up — magic-built bridges and waystones exploded or turned to glass
+- Stormreach, already damaged, became a half-ruined refugee hub
+
+#### Refugee Floods
+- Survivors from burned towns poured into Stormreach and other cities, overwhelming resources
+- Outmarsh formed during this period, a sprawl of desperation
+
+#### Magic Panic
+- Mages were lynched or driven out
+- Reliance on magical infrastructure meant entire economies buckled
+- Crops failed where irrigation wards collapsed; roads crumbled without arcane reinforcement
+
+### Recovery Period (10–25 years after the Rupture)
+
+- **Stormreach:** Rebuilt faster than most, thanks to its delta position — even damaged, it was a natural trade nexus
+- **Dalehaven:** Farms stabilized food supply, though plagued by mutated pests and failing soils
+- **Olthrya:** Seized the chance to rise, pushing guild-driven trade to bypass Stormreach's chaos
+- **Riven:** Fortified, leaning on dwarves for survival. The dwarves became gatekeepers to mountain routes and ores
+
+### Present Day (~35 years after the Rupture)
+
+- **Stormreach:** Restored as the de facto trade hub, but corruption festers. Its recovery made it richer than ever, but its Outmarsh scars remain
+- **Delinor:** Wealth returning, but society is brittle. The Iron Guard hold order by force
+- **Dalehaven:** Recovering farmlands feed the region again, though yields are weaker. Their leaders fear exploitation by Stormreach merchants
+- **Olthrya:** Stronger than before the Rupture, but resentful of Delinor's resurgence. They see themselves as the true heirs of river trade
+- **Riven:** More insular, propped up by dwarves. Its king owes as much allegiance to the Throne of the Gods as to his own people
+- **Realth:** Caravans move again, but routes remain dangerous. Stormreach profits heavily as the funnel for exotic goods
+- **Ha'alazi:** Trade rare but resumed. Rumors say the Rupture woke something across the sea — sailors return with stranger relics than ever
+
+### Present Balance
+
+- **Tenuous Stability:** Trade flows again, but it's fragile — banditry, mutant beasts, and corruption threaten every link
+- **Fractured Trust:** Every kingdom blames the others for failures during the Rupture. Old alliances are shaky, rivalries sharp
+- **Opportunity in Chaos:** Merchants, thieves, nobles, and cultists all profit from uncertainty
+- **The Greenflame Legacy:** Outmarsh cults whisper that the Rupture was no accident but the birth of a new god (Vaelith)
+
+## Kingdoms and Empires of the Known World
+
+### The Four Kingdoms of Travia
+
+Travia is the broader land in which Stormreach and its neighbors sit — a patchwork of kingdoms, city-states, and trade hubs that both cooperate and feud.
+
+#### Delinor
+**Capital & Jewel:** Stormreach, the great delta trade city.
+
+**Identity:** Maritime wealth, coin-driven politics, corrupted nobility.
+
+**Government:** Ruled by the Patrician of Stormreach, whose authority is absolute and enforced by the Iron Guard.
+
+**Culture:** Greed and trade are its lifeblood. Nobles cling to power through merchant monopolies, while commoners in Riverside and Outmarsh struggle to survive.
+
+**After the Rupture:** Stormreach was damaged but not destroyed. Refugees swelled its size, creating the Outmarsh. Its recovery has made it richer than ever, but bitterly divided.
+
+**Reputation:** Feared and admired — "the city where fortune is bought in blood."
+
+**Relations:**
+- Rivals with Olthrya (competes in trade)
+- Strong but strained ties to Dalehaven (needs inland grain)
+- Wary of Riven (dwarves can choke mountain trade if provoked)
+
+#### Dalehaven
+**Capital:** Greenhaven, seat of its agrarian lords.
+
+**Identity:** The breadbasket of Travia. Fertile farmlands, river valleys, and steady harvests.
+
+**Government:** A Council of Lords, cooperative compared to Delinor's cutthroat nobility.
+
+**Culture:** Rural, pragmatic, family-oriented. Reveres Veyra, goddess of growth.
+
+**After the Rupture:** Crop failures devastated the land, but Dalehaven recovered to become the region's lifeline again.
+
+**Reputation:** Respected for stability, but often dismissed as provincial by Delinor's elites.
+
+**Relations:**
+- Supplies Stormreach with grain in exchange for access to exotic goods
+- Distrustful of Riven's dwarves, who tax or raid shipments
+- Tries to remain neutral in conflicts between Delinor and Olthrya
+
+#### Olthrya
+**Identity:** A proud independent city-state and Stormreach's trade rival.
+
+**Government:** Ruled by the Merchant-King (or Queen), chosen by guilds every decade.
+
+**Culture:** Mercantile, guild-driven, fiercely independent. Known for fine textiles and organized trade networks.
+
+**After the Rupture:** Capitalized on Delinor's weakness, nearly surpassing Stormreach in influence before Delinor's resurgence.
+
+**Reputation:** Cunning, ambitious, and pragmatic — always looking for a way to cut Delinor out of the trade routes.
+
+**Relations:**
+- Fierce trade rival of Stormreach
+- Competes for control of river access into Dalehaven
+- Maintains delicate trade relations with Ha'alazi merchants who cross the western sea
+
+#### Riven
+**Capital:** Overbridge, a fortress straddling the northern river.
+
+**Identity:** Small but fiercely independent, propped up by dwarven allies from the Throne of the Gods.
+
+**Government:** A monarch, but dwarves wield significant influence.
+
+**Culture:** Militaristic and communal, with deep ties to dwarven stonecraft and metallurgy.
+
+**After the Rupture:** Survived through dwarven support, but increasingly dependent on them.
+
+**Reputation:** Respected for discipline and fortifications, but seen as a pawn of the dwarves.
+
+**Relations:**
+- Proud history of resisting Delinor's attempts to control trade routes
+- Dwarves view Riven as their gateway to the lowlands — but also as a pawn
+- Longstanding grudges with Dalehaven farmers over territorial borders
+
+### Neighboring Nations and Empires
+
+#### Realth — The Desert Kingdoms
+**Location:** South of Travia, across vast deserts and steppes.
+
+**Identity:** Merchant-caravan lords, spice empires, oasis cities.
+
+**Government:** Loosely allied emirates beneath the ceremonial Throne of Glass.
+
+**Culture:** Known for silks, rare dyes, incense, and monumental libraries. Wealth flows from caravans and exotic trade.
+
+**After the Rupture:** Caravans collapsed, routes lost to Greenflame-blighted deserts. Trade only recently resumed, enriching Stormreach again.
+
+**Currency:** Portif — oval bronze/silver coins, often pierced for jewelry.
+
+**Reputation:** Exotic and wealthy, but fragmented — both rival and partner to Travia.
+
+#### Ha'alazi — The Distant West
+**Location:** Across the western sea from Travia.
+
+**Identity:** Shrouded in mystery; feared and desired in equal measure.
+
+**Government:** Rumored Triad of Monarchs — Sun, Sea, and Shadow — ruling in shifting alliances.
+
+**Culture:** Artifacts unlike anything in Travia: bone-carved idols, dream-glass, living-metal tools. Religion and craft seem inseparable.
+
+**After the Rupture:** Trade ceased for decades. Relics that now emerge are stranger than before, fueling fears the Rupture awakened something in Ha'alazi.
+
+**Reputation:** A land of treasures and curses. Travian merchants both covet and dread their wares.
+
+#### The Veyrian Empire — Broken Colossus
+**Location:** East of Travia, beyond plains and the great lake.
+
+**Identity:** Once the greatest empire, now a decaying relic.
+
+**Government:** A fractured Imperial Court, paralyzed by generals, priests, and nobles vying for power.
+
+**Culture:** Obsessed with past glory — aqueducts, palaces, and roads stand as monuments to a fading era.
+
+**After the Rupture:** Provinces seceded, legions collapsed, and vassals broke free. Yet Veyria lingers, its shadow still vast.
+
+**Reputation:** To Travia, both opportunity and threat — a sleeping giant that could collapse or rise again.
+
+#### The Thalyrian Concord — Scholar-States
+**Location:** Northeast of Travia, along the great lake bordering Veyria.
+
+**Identity:** Independent city-states bound by shared devotion to law and knowledge.
+
+**Government:** Councils of scholars, judges, and philosophers.
+
+**Culture:** Obsessed with preserving and debating knowledge. Archives and academies define their power.
+
+**After the Rupture:** Preserved much lore others lost, making them envied but distrusted. Whispers claim they guard forbidden research.
+
+**Reputation:** Brilliant but arrogant; outsiders joke they would debate while the world burned.
+
+#### The Sylari Dominion — The Veil of Masks
+**Location:** Southeast, past Realth's deserts, in lush coasts and riverlands.
+
+**Identity:** A nation where faith and theater are inseparable.
+
+**Government:** The Masked Court, nobles and priests who wear sacred masks representing divine archetypes.
+
+**Religion:** Worship through The Thousand Faces, divine aspects expressed through masks and roles. Each ritual mask embodies a god's fragment — the Judge, the Trickster, the Mother, the Warrior. Politics, theater, and worship are the same act, binding ruler and priest into one.
+
+**Culture:** Festivals, sacred dramas, and processions dominate life. To foreigners, this is awe-inspiring but unnerving.
+
+**After the Rupture:** Declared the collapse proof of others' folly. Claimed their masks shielded them from corruption. Outsiders suspect darker truths.
+
+**Reputation:** Beautiful, strange, untrustworthy — a society where no one ever knows the face behind the mask.
+
+## Stormreach: City of Trade and Ruin
+
+### Identity & Origins
+
+**Founded by:** Neryan Vost, hundreds of years ago, as a strategic trade outpost.
+
+**Location:** Built on the delta of the River Untrel at the edge of the sea.
+
+**Purpose:** Stormreach grew as the primary crossroads between inland kingdoms, desert lands, mountain strongholds, and distant western shores. The River Untrel serves as the main trade artery connecting the Four Kingdoms.
+
+**Reputation:** Known far and wide as a wealthy trade hub, but also a dangerous den of corruption. "Fortune is bought in blood" is a common saying about the city.
+
+### Districts
+
+#### Upper City
+- **Inhabitants:** Nobles, merchant princes, the Patrician, and the Iron Guard elite
+- **Features:** Marble halls, gilded gardens, ballrooms, old family estates
+- **Character:** Corruption hidden behind etiquette. Feuding houses vie for influence. Rumors abound of pre-Rupture relics hoarded in vaults
+
+#### The Riverside
+- **Inhabitants:** Dockworkers, shipwrights, fishmongers, merchants, smugglers
+- **Features:** Crowded docks, markets, fish stalls, warehouses
+- **Character:** Bustling, chaotic, the beating heart of trade. Smuggling and shadow-deals thrive here. The air smells of fish, tar, and smoke
+
+#### The Outmarsh
+- **Inhabitants:** Refugees, destitute workers, Greenflame mutants, cultists
+- **Features:** Ramshackle huts, mud lanes, shacks built over swampy ground
+- **Character:** Lawless and desperate. Strange cults flourish, gangs fight for scraps, mutants lurk at the edges of society
+
+### Society & Culture
+
+#### Class Tensions
+- Nobles in the Upper City profit from trade and corruption
+- Riverside folk resent nobles but fear the Outmarsh
+- Outmarsh dwellers live as outcasts, mutants, and cultists
+- Tensions, once minor, now feel like open cracks in society
+
+#### Magic
+- Feared and distrusted. Mages are penitent or hunted
+- Alternative, unstable forms of magic are whispered about
+
+#### Mutants
+- Barred from Upper City, barely tolerated in Riverside
+- Many form gangs or cults in the Outmarsh
+- Mutated animals are aggressive; plants sometimes develop poisons or defenses
+
+### Factions & Power
+
+#### The Patrician
+- Absolute ruler of Stormreach
+- Holds full authority with the Iron Guard at his command
+- Nobles and merchants pay him richly for protection
+
+#### The Iron Guard (formerly Iron Hand Mercenaries)
+- Hired 50 years ago to protect Stormreach, now its enforcers
+- Corrupt, brutal, feared. Some whisper about internal fractures
+
+#### Noble Houses
+- Wealthy families entrenched in the Upper City
+- Constant feuding over influence, trade monopolies, and access to the Patrician
+
+#### Merchant Guilds
+- Strong in Riverside, but squeezed between nobles and thieves
+- Essential to trade but vulnerable to extortion
+
+#### The Syndicate
+- A single thieves', spies', and assassins' guild
+- Operates in all districts, controls Stormreach's underbelly
+- At odds with Iron Guard, merchants, and nobles alike
+
+#### Cults
+- Numerous, especially in the Outmarsh
+- Some worship the Greenflame as divine, others serve shadowy gods
+
+## Races of Travia
+
+### Civilized Peoples
+
+#### Humans
+**Where:** Dominant in Delinor (Stormreach), Dalehaven (Greenhaven), Olthrya, and Riven.
+
+**Identity:** Pragmatic, ambitious, divided by class.
+
+**After the Rupture:**
+- Humans suffered the worst: their wizard-kings drained ley lines, causing the collapse
+- Refugee waves reshaped cities like Stormreach
+- Humans dominate politics, but they are fragmented — nobles vs. merchants vs. commoners
+
+**Reputation:** Blamed for hubris, but also credited for rebuilding fastest.
+
+#### Dwarves
+**Where:** Halls of the Throne of the Gods and strong presence in Riven.
+
+**Identity:** Industrious, proud, tied to stone and metal.
+
+**After the Rupture:**
+- Dwarves weathered the disaster better than most, since their societies relied on craftsmanship, not ley lines
+- They now control ore and metallurgy, giving them political leverage over Riven and beyond
+
+**Reputation:** Reliable but stubborn. Some say they exploit the chaos to tighten their grip on trade.
+
+#### Elves
+**Where:** Forest enclaves, scattered sanctuaries, and some refugee communities in cities.
+
+**Identity:** Mystical, enduring, deeply tied to nature.
+
+**Magic:** Unaffected by the Rupture — elven magic flows from nature, not ley lines or divine blessing.
+
+**After the Rupture:**
+- Resented by humans for surviving with their magic intact
+- Sought out for healing and restoration, but distrusted for refusing to "share" their secrets
+- Younger elves debate whether to remain isolated or become more active in world affairs
+
+**Reputation:** Enigmatic survivors, viewed with a mix of jealousy and suspicion.
+
+#### Halflings
+**Where:** Primarily Dalehaven's farmlands and river valleys.
+
+**Identity:** Humble farmers, sharp traders, cheerful riverfolk.
+
+**After the Rupture:**
+- While not magically powerful, halflings became crucial for food stability
+- Many families turned to river-barge trade, connecting rural goods to Stormreach
+
+**Reputation:** Dependable, underestimated, but now wield quiet influence through food and trade.
+
+#### Gnomes
+**Where:** Olthrya's guilds, hidden tinkers' quarters in Stormreach, scattered enclaves.
+
+**Identity:** Inventive, eccentric, clever craftsmen.
+
+**After the Rupture:**
+- Lost much of their magical artistry when ley lines collapsed
+- Turned toward mechanical inventions and alchemy, sometimes dangerously unstable
+- Rumors say gnomes were the first to weaponize Greenflame relics
+
+**Reputation:** Brilliant but reckless, tolerated when useful, distrusted when experiments go wrong.
+
+### Shadowed & Savage Peoples
+
+#### Orcs
+**Where:** Borderlands between Dalehaven and Riven, scattered warbands across the wilds.
+
+**Identity:** Fierce, tribal, proud.
+
+**After the Rupture:**
+- Many orc clans were twisted by Greenflame, becoming stronger but unstable
+- Some serve as mercenaries for coin or honor
+
+**Reputation:** Feared raiders, but also respected warriors when disciplined.
+
+#### Goblins
+**Where:** Swamps, caves, and slums like the Outmarsh in Stormreach.
+
+**Identity:** Resourceful scavengers, sly and cruel.
+
+**After the Rupture:**
+- Goblins adapted quickly, thriving in chaos
+- Many live as smugglers or thieves within Stormreach's underbelly
+
+**Reputation:** Vermin to nobles, useful scum to criminals, dangerous in numbers.
+
+#### Trolls
+**Where:** Marshes, deep forests, riverside ruins.
+
+**Identity:** Brutish, predatory, feared.
+
+**After the Rupture:**
+- Some trolls mutated with regenerative Greenflame corruption, nearly unkillable
+- Stormreach sailors tell tales of trolls dragging barges into rivers
+
+**Reputation:** Monsters — few see them as anything else.
+
+#### Giants
+**Where:** Remote highlands and the far reaches of the Throne of the Gods.
+
+**Identity:** Ancient, elemental, tied to primal forces.
+
+**After the Rupture:**
+- Many went mad; some enslaved orcs and goblins as thralls
+- At least one giant is rumored to guard a still-burning ley line fracture in the mountains
+
+**Reputation:** Terrifying relics of an older world, both respected and feared.
+
+### Cross-Racial Notes
+
+#### Greenflame Mutants
+Any race can be mutated by the Rupture's Greenflame. Mutants are despised, feared, or exploited, often pushed into Outmarsh ghettos or wilderness exile.
+
+#### Half-Breeds
+Half-elves, half-orcs, and other crossbreeds exist, but prejudice is harsher since the Rupture worsened suspicion of the "other."
+
+#### Religious Split
+- **Humans, dwarves, and halflings** lean heavily on the Thirteen of Balen
+- **Elves** respect the pantheon but place nature above it
+- **Goblins, trolls, and orcs** often twist the pantheon into tribal cults or serve darker spirits
+
+## World Regions
+
+- **Realth:** Exotic deserts, source of rare goods and spices
+- **Greenhaven & Olthrya:** Inland heartlands linked by Stormreach's river trade
+- **Throne of the Gods:** Towering northern mountains, said to be the seat of Balen
+- **Ha'alazi:** Mysterious western land, rarely visited, its relics priceless and dangerous
+
+## Political Tensions & Trade Web
+
+- **Stormreach** thrives as the middleman of the region, but everyone resents its stranglehold
+- **Dalehaven** relies on Stormreach to move its goods, but fears exploitation
+- **Olthrya** seeks to cut Stormreach out of trade by building alternate routes
+- **Riven**, with dwarven backing, controls key northern passes and river crossings — a bottleneck that Stormreach both needs and hates
+- **Realth** feeds the wealth of all, but its caravans are often taxed or raided before reaching Stormreach
+- **Ha'alazi** remains more rumor than ally — but whoever controls that trade would gain unimaginable power
+
+## Pantheon of Balen
+
+Twelve gods, tied to daily life, the Rupture, and the Throne of the Gods mountains.
+
+### Major Deities
+- **Balen, the World-Father** — endurance, creator
+- **Ilyra, Lady of the Stars** — prophecy, fate
+
+### Lesser Deities
+- **Thalos, God of the Sea** — oceans, storms
+- **Veyra, Goddess of Growth** — crops, fertility
+- **Korvall, Smith of Flame** — forge, craft
+- **Edrath, Judge of Law** — justice, oaths
+- **Selmira, Lady of Mercy** — healing, redemption
+- **Calros, Trickster of Fortune** — chance, gamblers
+- **Nysera, Mistress of Shadows** — secrets, assassins
+- **Droskan, Lord of Death** — endings, afterlife
+- **Atheron, Lord of War** — conquest, victory
+- **Meris, Lady of Trade** — wealth, contracts
+
+## Key Story Implications
+
+- **Economic Tension:** Stormreach's dominance creates resentment and opportunity for disruption
+- **Social Fractures:** The Outmarsh represents the permanent scars of the Rupture
+- **Political Instability:** Alliances are fragile, creating opportunities for manipulation
+- **Magical Distrust:** The fear of magic and its consequences shapes society
+- **Class Tensions:** Human society is deeply divided, creating opportunities for conflict and alliance
+- **Economic Power:** Dwarves control essential resources, giving them political leverage
+- **Social Outcasts:** Mutants and half-breeds face increased prejudice
+- **Religious Complexity:** Different races have different relationships with the pantheon
+
+## World Foundations for Travia
+
+### Currency
+
+#### Quadbit
+**Standard coinage** of the Four Kingdoms (Delinor, Dalehaven, Olthrya, Riven).
+
+**Origin:** Minted after the founding of Travia, stamped with four faces or symbols for each kingdom.
+
+**Denominations:**
+- Whole Quadbit (gold)
+- Half-bit (silver)
+- Quarter-bit (copper)
+- Larger trade often done in weighed bars
+
+#### Portif
+**Currency of Realth.**
+
+Sleek coins of pressed bronze or silver, often square or oval. Merchants in Stormreach accept them at fluctuating rates.
+
+**Future Expansion:** Ha'alazi's mysterious coinage or dwarven rune-bars that hold cultural value beyond weight.
+
+### Calendar
+
+#### Ages
+**Long epochs** of 2000 years.
+
+**Current Age:** Second Age.
+
+**The Rupture:** Occurred in the year 352 of the Second Age.
+
+#### Question of Timekeeping
+
+**Option A (Keep Old Calendar):** The world continues to count years normally (e.g., 2A 387 today). This reflects a desire to cling to continuity, especially among nobles and scholars.
+
+**Option B (Shift to AR):** Common folk and refugees mark time as "After the Rupture" (e.g., 35 AR). This would highlight how deeply the catastrophe scarred culture.
+
+**Compromise:** Nobles and academics insist on the "proper" 2A calendar, but commoners increasingly use AR. This dual system provides a subtle class contrast in dialogue.
+
+### Magic & Law
+
+#### Anti-Mage Laws
+Magic is **legal in theory, but heavily distrusted.**
+
+**Noble Regulation:** Nobles in Delinor regulate artifacts, not mages themselves.
+
+**Underground Magic:** Cults and hedge-mages survive in the cracks.
+
+**Narrative Tension:** Nobles secretly hoard magical relics while publicly blaming magic for the Rupture — a clear hypocrisy that creates story opportunities.
+
+### Technology
+
+#### Black Powder
+**Not present.**
+
+This keeps the world firmly in a **high-fantasy / late-medieval aesthetic.**
+
+Innovation after the Rupture is driven by **craft, trade, and desperation**, not firearms.
+
+#### Craft Innovation
+
+**Dwarves:** Lean into hydraulics, stonecraft, and metallurgy.
+
+**Gnomes:** Experiment with alchemy and mechanical contraptions (dangerous, unreliable).
+
+**Elves:** Remain steady in their nature-based artistry.
+
+**Innovation Drivers:** Craft, trade, and desperation rather than technological advancement.
