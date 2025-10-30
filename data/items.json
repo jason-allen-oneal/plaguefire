@@ -814,10 +814,10 @@
   },
   "COINS": {
     "COPPER_COINS": {
-      "name": "Copper Coins",
+      "name": "Quarter-bits",
       "type": "currency",
       "base_cost": 1,
-      "description": "A handful of copper coins.",
+      "description": "Copper quarter-bits stamped with the four kingdoms of Travia.",
       "rarity_depth": {
         "min": 0,
         "max": 75
@@ -825,10 +825,10 @@
       "weight": 0
     },
     "GOLD_COINS": {
-      "name": "Gold Coins",
+      "name": "Quadbits",
       "type": "currency",
       "base_cost": 20,
-      "description": "A pouch filled with shining gold coins.",
+      "description": "Gold quadbits, the standard currency of Travia's four kingdoms.",
       "rarity_depth": {
         "min": 0,
         "max": 75
@@ -836,10 +836,10 @@
       "weight": 0
     },
     "MITHRIL_COINS": {
-      "name": "Mithril Coins",
+      "name": "Dwarven Rune-bars",
       "type": "currency",
       "base_cost": 100,
-      "description": "Rare coins minted from mithril.",
+      "description": "Rare dwarven currency from the Throne of the Gods, marked with ancient runes.",
       "rarity_depth": {
         "min": 50,
         "max": 150
@@ -847,10 +847,10 @@
       "weight": 0
     },
     "SILVER_COINS": {
-      "name": "Silver Coins",
+      "name": "Half-bits",
       "type": "currency",
       "base_cost": 5,
-      "description": "A stash of silver coins.",
+      "description": "Silver half-bits, common trade coins in Stormreach markets.",
       "rarity_depth": {
         "min": 0,
         "max": 75
@@ -860,10 +860,10 @@
   },
   "FOOD": {
     "FOOD_ALE": {
-      "name": "Pint of Fine Ale",
+      "name": "Pint of Riverside Ale",
       "type": "food",
       "base_cost": 3,
-      "description": "Frothy and cheap.",
+      "description": "Frothy dock worker's ale, brewed in Stormreach's Riverside district.",
       "effect": [
         "satiate",
         50
@@ -965,10 +965,10 @@
       "weight": 3
     },
     "FOOD_WINE": {
-      "name": "Pint of Fine Wine",
+      "name": "Bottle of Dalehaven Wine",
       "type": "food",
       "base_cost": 8,
-      "description": "A step up from ale.",
+      "description": "Fine wine from the vineyards of Dalehaven, a luxury in Stormreach.",
       "effect": [
         "satiate",
         60
