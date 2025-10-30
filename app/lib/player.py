@@ -128,12 +128,57 @@ def calculate_ability_profile(
     return abilities
 
 
+def _generate_history_entry(rng: random.Random, table: Any) -> Dict:
+    if isinstance(table, list):
+        entry = dict(rng.choice(table))
+        entry.setdefault("social", 50)
+        entry.setdefault("gold", 100)
+        return entry
+
+    templates = table.get("templates", [])
+    if not templates:
+        return {"text": "Your early days are unremarkable.", "social": 50, "gold": 100}
+
+    template = rng.choice(templates)
+    slots = template.get("slots", [])
+    base_social = template.get("base_social", 50)
+    base_gold = template.get("base_gold", 100)
+    values: Dict[str, str] = {}
+    social = base_social
+    gold = base_gold
+
+    for slot in slots:
+        slot_key = slot
+        options = table.get(slot_key, [])
+        if not options:
+            values[slot_key] = slot_key
+            continue
+        choice = dict(rng.choice(options))
+        values[slot_key] = choice.get("text", "")
+        social += choice.get("social", 0)
+        gold += choice.get("gold", 0)
+
+    pattern = template.get("pattern", "You have no notable history.")
+    try:
+        text = pattern.format(**values)
+    except KeyError:
+        text = pattern
+
+    return {"text": text, "social": social, "gold": gold}
+
+
 def _choose_history(rng: random.Random, race: str) -> Dict:
     table = HISTORY_TABLES.get(race) or HISTORY_TABLES["Human"]
-    entry = dict(rng.choice(table))
-    entry.setdefault("social", 50)
-    entry.setdefault("gold", 100)
-    return entry
+    return _generate_history_entry(rng, table)
+
+
+def generate_history(race: str, seed: Optional[int] = None) -> Dict:
+    """
+    Roll a history entry for a given race using the configured tables.
+    """
+    rng = random.Random(seed)
+    table = HISTORY_TABLES.get(race) or HISTORY_TABLES["Human"]
+    return _generate_history_entry(rng, table)
 
 
 def _roll_height_weight(rng: random.Random, race: str, sex: str) -> Tuple[int, int]:
@@ -171,6 +216,7 @@ def build_character_profile(
     stat_percentiles: Dict[str, int],
     sex: str,
     seed: Optional[int] = None,
+    history_entry: Optional[Dict] = None,
 ) -> Dict:
     """
             Build character profile.
@@ -191,7 +237,10 @@ def build_character_profile(
         stat: _effective_stat(stats.get(stat, 10), stat_percentiles.get(stat, 0))
         for stat in STAT_NAMES
     }
-    history = _choose_history(rng, race_name)
+    if history_entry is not None:
+        history = dict(history_entry)
+    else:
+        history = _choose_history(rng, race_name)
     height, weight = _roll_height_weight(rng, race_name, sex)
     gold = _calculate_starting_gold(rng, history, stat_values, sex)
     abilities = calculate_ability_profile(race_name, class_name, stat_values)

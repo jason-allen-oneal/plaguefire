@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import random
 import string
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from textual import events
 from textual.screen import Screen
@@ -17,6 +17,7 @@ from app.lib.player import (
     build_character_profile,
     get_race_definition,
     get_class_definition,
+    generate_history,
 )
 from config import ( 
     STAT_NAMES,
@@ -58,6 +59,9 @@ class CharacterCreationScreen(Screen):
         self.stat_percentiles: Dict[str, int] = {}
         self.current_profile: Dict = {}
         self.profile_seed: int = random.randint(1, 1_000_000)
+        self.history_entry: Optional[Dict[str, Any]] = None
+        self.history_seed: int = random.randint(1, 1_000_000)
+        self.history_race: str = ""
         self.max_choices_width: int = self._compute_choices_width()
         self.max_history_width: int = self._compute_history_width()
         self.panel_width: int = max(
@@ -99,15 +103,18 @@ class CharacterCreationScreen(Screen):
     def _compute_history_width(self) -> int:
         widths = []
         for entries in HISTORY_TABLES.values():
-            for entry in entries:
-                widths.append(len(entry.get("text", "")))
+            if isinstance(entries, list):
+                for entry in entries:
+                    widths.append(len(entry.get("text", "")))
+            else:
+                widths.append(self._estimate_history_width(entries))
         widths.append(len("Your early days are unremarkable."))
         return max(widths) if widths else 0
 
     def _encode_stat(self, value: int) -> int:
         return max(3, min(25, value))
 
-    def update_total_stats(self):
+    def update_total_stats(self, force_history: bool = False):
         """Update total stats."""
         race = self.race_names[self.current_race]
         race_mods = get_race_definition(race).get("stat_mods", {})
@@ -128,13 +135,17 @@ class CharacterCreationScreen(Screen):
                 percentiles[stat] = min(100, max(1, base_percent + roll_dice(1, 20)))
         self.total_stats = totals
         self.stat_percentiles = percentiles
-        self._recalculate_profile()
+        self._recalculate_profile(force_history=force_history)
 
-    def _recalculate_profile(self):
+    def _recalculate_profile(self, force_history: bool = False):
         """Recalculates profile info AND checks for starter spells if class changed."""
         race = self.race_names[self.current_race]
         cls = self.available_classes[self.current_class_index]
         sex = SEX_OPTIONS[self.sex_index]
+        if force_history or self.history_entry is None or self.history_race != race:
+            self.history_seed = random.randint(1, 1_000_000)
+            self.history_entry = generate_history(race, seed=self.history_seed)
+            self.history_race = race
         self.profile_seed = random.randint(1, 1_000_000)
         self.current_profile = build_character_profile(
             race,
@@ -143,6 +154,7 @@ class CharacterCreationScreen(Screen):
             self.stat_percentiles,
             sex,
             seed=self.profile_seed,
+            history_entry=self.history_entry,
         )
         self._check_for_starter_spells()
 
@@ -232,7 +244,7 @@ class CharacterCreationScreen(Screen):
         weight = self.current_profile.get("weight", 150)
 
         instructions = (
-            "[dim][←/→] Race  [↑/↓] Class  [R] Reroll Stats  [G] Toggle Sex[/]\n"
+            "[dim][←/→] Race  [↑/↓] Class  [R] Reroll Stats  [H] Reroll History  [G] Toggle Sex[/]\n"
             "[dim][Enter] Confirm  [Esc] Back  [Backspace] Delete Name[/]"
         )
 
@@ -341,6 +353,8 @@ class CharacterCreationScreen(Screen):
             if key_lower == "r":
                 self.base_stats = self.roll_stats()
                 self.update_total_stats()
+            elif key_lower == "h":
+                self._recalculate_profile(force_history=True)
             elif key_lower == "g":
                 self.sex_index = (self.sex_index + 1) % len(SEX_OPTIONS)
                 self._recalculate_profile()
@@ -348,12 +362,12 @@ class CharacterCreationScreen(Screen):
                 self.current_race = (self.current_race - 1) % len(self.race_names)
                 self.available_classes = self._allowed_classes(self.race_names[self.current_race])
                 self.current_class_index = 0
-                self.update_total_stats()
+                self.update_total_stats(force_history=True)
             elif key == "right":
                 self.current_race = (self.current_race + 1) % len(self.race_names)
                 self.available_classes = self._allowed_classes(self.race_names[self.current_race])
                 self.current_class_index = 0
-                self.update_total_stats()
+                self.update_total_stats(force_history=True)
             elif key == "up":
                 self.current_class_index = (self.current_class_index - 1) % len(self.available_classes)
                 self._recalculate_profile()
@@ -450,3 +464,23 @@ class CharacterCreationScreen(Screen):
             debug(f"Error finalizing player: {e}")
             self.app.notify(f"Error creating character: {e}", severity="error", timeout=10)
             self.refresh_display()
+    
+    def _estimate_history_width(self, table: Dict[str, Any]) -> int:
+        max_len = 0
+        for template in table.get("templates", []):
+            pattern = template.get("pattern", "")
+            slots = template.get("slots", [])
+            values: Dict[str, str] = {}
+            for slot in slots:
+                options = table.get(slot, [])
+                if options:
+                    longest = max(options, key=lambda opt: len(opt.get("text", "")))
+                    values[slot] = longest.get("text", "")
+                else:
+                    values[slot] = slot
+            try:
+                candidate = pattern.format(**values)
+            except KeyError:
+                candidate = pattern
+            max_len = max(max_len, len(candidate))
+        return max_len
