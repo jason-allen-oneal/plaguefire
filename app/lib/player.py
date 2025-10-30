@@ -18,10 +18,11 @@ Key Features:
 from __future__ import annotations
 
 import random
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from app.lib.core.loader import GameData
 from app.lib.core.inventory import InventoryManager
+from app.lib.core.utils import roll_dice
 from app.lib.status_effects import StatusEffectManager
 from config import (
     VIEWPORT_HEIGHT, VIEWPORT_WIDTH, STAT_NAMES,
@@ -220,6 +221,7 @@ class Player:
         self.stat_percentiles: Dict[str, int] = data.get(
             "stat_percentiles", {stat: 0 for stat in STAT_NAMES}
         )
+        self.status = data.get("status", 1)
 
         profile_seed = data.get("profile_seed")
         need_profile = any(
@@ -289,6 +291,9 @@ class Player:
         self.light_radius: int = data.get("light_radius", self.base_light_radius)
         self.light_duration: int = data.get("light_duration", 0)
 
+        self._normalize_light_source_effects()
+        self._sync_light_radius_with_equipment()
+
         self.status_effects: List[str] = data.get("status_effects", [])
         self.status_manager = StatusEffectManager()
         for effect_name in self.status_effects:
@@ -296,6 +301,12 @@ class Player:
 
         self.known_spells: List[str] = data.get("known_spells", [])
         self.spells_available_to_learn: List[str] = data.get("spells_available_to_learn", [])
+        self.spell_picks_available: int = max(0, data.get("spell_picks_available", 0))
+        self.spell_pick_awards: int = max(0, data.get("spell_pick_awards", 0))
+        if self.spells_available_to_learn and self.spell_picks_available == 0 and self.spell_pick_awards == 0:
+            # Backfill legacy saves so players can still choose at least one pending spell.
+            self.spell_picks_available = 1
+            self.spell_pick_awards = 1
         self.custom_inscriptions: Dict[str, str] = data.get("custom_inscriptions", {})
         
         self.mining_stats: Dict[str, int] = data.get("mining_stats", {
@@ -349,18 +360,24 @@ class Player:
     
     def finalize_spell_learning(self, spell_id_to_learn: str) -> bool:
         """Moves a spell from available to known. Returns True on success."""
-        if spell_id_to_learn in self.spells_available_to_learn:
-            self.spells_available_to_learn.remove(spell_id_to_learn)
-            if spell_id_to_learn not in self.known_spells:
-                self.known_spells.append(spell_id_to_learn)
-                debug(f"Successfully learned spell: {spell_id_to_learn}")
-                return True
-            else:
-                 debug(f"Warning: Tried to finalize learning '{spell_id_to_learn}' which was already known?")
-                 return False
-        else:
+        if spell_id_to_learn not in self.spells_available_to_learn:
             debug(f"Error: Tried to finalize learning '{spell_id_to_learn}' which was not available.")
             return False
+
+        if self.spell_picks_available <= 0:
+            debug(f"Warning: Tried to learn '{spell_id_to_learn}' without any spell picks remaining.")
+            return False
+
+        if spell_id_to_learn in self.known_spells:
+            debug(f"Warning: Tried to finalize learning '{spell_id_to_learn}' which was already known?")
+            self.spells_available_to_learn.remove(spell_id_to_learn)
+            return False
+
+        self.spells_available_to_learn.remove(spell_id_to_learn)
+        self.known_spells.append(spell_id_to_learn)
+        self.spell_picks_available = max(0, self.spell_picks_available - 1)
+        debug(f"Successfully learned spell: {spell_id_to_learn}")
+        return True
 
     def _on_level_up(self) -> None:
         """Handles stat increases and HP/Mana restoration on level up."""
@@ -370,6 +387,12 @@ class Player:
         self.hp = self.max_hp
         self.max_mana = self._base_mana_pool(self.mana_stat)
         self.mana = self.max_mana
+    
+    def _spell_slots_for_level(self, level: int) -> int:
+        """Return how many spells this class may learn from a single level gain."""
+        if not self.mana_stat:
+            return 0
+        return self.spell_pick_awards + 1
 
     def _check_for_new_spells(self, check_level: int) -> bool:
         """Finds spells available at check_level and adds them to spells_available_to_learn. Returns True if new spells were added."""
@@ -386,6 +409,10 @@ class Player:
                         
         if newly_available:
             self.spells_available_to_learn.extend(newly_available)
+            spell_slots = self._spell_slots_for_level(check_level)
+            if spell_slots:
+                self.spell_picks_available += spell_slots
+                self.spell_pick_awards += 1
             debug(f"Level {check_level}! Spells available to learn: {', '.join(newly_available)}")
             return True
         return False
@@ -419,20 +446,123 @@ class Player:
         return max(0, 5 + (modifier * max(1, self.level)))
 
     def _apply_item_effects(self, item_name: str, equipping: bool = True) -> None:
-        if "Torch" in item_name:
-            if equipping:
-                self.light_radius = 5
-                self.light_duration = 100
+        if "Torch" in item_name or "Lantern" in item_name:
+            light_instance = self._get_equipped_light_instance()
+
+            if equipping and light_instance:
+                effect = light_instance.effect
+                if isinstance(effect, list) and len(effect) >= 3 and effect[0] == "light_source":
+                    if light_instance.light_radius <= 0:
+                        light_instance.light_radius = int(effect[1])
+                    if light_instance.light_duration <= 0:
+                        light_instance.light_duration = int(effect[2])
+
+            self._refresh_light_from_equipment()
+
+    def _sync_light_radius_with_equipment(self) -> None:
+        self._migrate_light_sources_to_light_slot()
+        self._refresh_light_from_equipment()
+
+    def _normalize_light_source_effects(self) -> None:
+        """
+        Bring any saved light-source instances back in line with current template data.
+        This prevents legacy saves (where torches were radius 5) from overriding the
+        updated torch radius specified in items.json.
+        """
+        data_loader = GameData()
+
+        def _update_instance(instance: Any) -> None:
+            if not instance or not isinstance(getattr(instance, "effect", None), list):
+                return
+            effect = instance.effect
+            if len(effect) < 3 or effect[0] != "light_source":
+                return
+            template = data_loader.get_item(instance.item_id)
+            if not template:
+                return
+            template_effect = template.get("effect")
+            if (
+                not isinstance(template_effect, list)
+                or len(template_effect) < 3
+                or template_effect[0] != "light_source"
+            ):
+                return
+            template_radius = int(template_effect[1])
+            template_duration = int(template_effect[2])
+            effect[1] = template_radius
+            effect[2] = template_duration
+            if instance.light_radius != template_radius:
+                instance.light_radius = template_radius
+
+        for instance in self.inventory_manager.instances:
+            _update_instance(instance)
+        for instance in self.inventory_manager.equipment.values():
+            _update_instance(instance)
+
+    def _migrate_light_sources_to_light_slot(self) -> None:
+        self.inventory_manager.ensure_light_slot_integrity()
+
+    def _get_equipped_light_instance(self):
+        self.inventory_manager.ensure_light_slot_integrity()
+        light_instance = self.inventory_manager.equipment.get("light")
+        if (
+            light_instance
+            and isinstance(light_instance.effect, list)
+            and light_instance.effect
+            and light_instance.effect[0] == "light_source"
+        ):
+            return light_instance
+        return None
+
+    def _refresh_light_from_equipment(self) -> None:
+        light_instance = self._get_equipped_light_instance()
+        if light_instance:
+            if light_instance.light_duration > 0:
+                radius = light_instance.light_radius
+                if radius <= 0:
+                    effect = light_instance.effect
+                    if isinstance(effect, list) and len(effect) >= 2 and effect[0] == "light_source":
+                        radius = int(effect[1])
+                self.light_radius = radius if radius > 0 else self.base_light_radius
+                self.light_duration = light_instance.light_duration
             else:
+                self.light_duration = 0
+        else:
+            if self.light_duration <= 0:
                 self.light_radius = self.base_light_radius
                 self.light_duration = 0
-        elif "Lantern" in item_name:
-            if equipping:
-                self.light_radius = 7
-                self.light_duration = 200
+
+    def tick_light_source(self) -> bool:
+        light_instance = self._get_equipped_light_instance()
+        if light_instance:
+            if light_instance.light_duration > 0:
+                light_instance.light_duration -= 1
+                self.light_duration = light_instance.light_duration
+                if light_instance.light_duration <= 0:
+                    self.light_radius = self.base_light_radius
+                    self._refresh_light_from_equipment()
+                    return True
+                radius = light_instance.light_radius
+                if radius <= 0:
+                    effect = light_instance.effect
+                    if isinstance(effect, list) and len(effect) >= 2 and effect[0] == "light_source":
+                        radius = int(effect[1])
+                if radius > 0:
+                    self.light_radius = radius
+                self._refresh_light_from_equipment()
+                return False
             else:
-                self.light_radius = self.base_light_radius
                 self.light_duration = 0
+                self.light_radius = self.base_light_radius
+                self._refresh_light_from_equipment()
+                return True
+        elif self.light_duration > 0:
+            self.light_duration -= 1
+            if self.light_duration <= 0:
+                self.light_radius = self.base_light_radius
+                return True
+            return False
+        return False
     
     def is_item_cursed(self, item_name: str) -> bool:
         """
@@ -537,8 +667,11 @@ class Player:
             "time": self.time, "base_light_radius": self.base_light_radius, "light_radius": self.light_radius,
             "light_duration": self.light_duration, 
             "status_effects": self.status_manager.get_active_effects_display(),
+            "status": self.status,
             "known_spells": self.known_spells,
             "spells_available_to_learn": self.spells_available_to_learn,
+            "spell_picks_available": self.spell_picks_available,
+            "spell_pick_awards": self.spell_pick_awards,
             "mining_stats": self.mining_stats,
         }
         return data
@@ -587,10 +720,16 @@ class Player:
                     TODO
                 """
         if amount <= 0: return False
+        if getattr(self, "status", 1) == 0:
+            debug(f"{self.name} is already dead; ignoring damage.")
+            return True
         self.hp -= amount
         debug(f"{self.name} takes {amount} damage ({self.hp}/{self.max_hp})")
         if self.hp <= 0:
-            self.hp = 0; debug(f"{self.name} has died."); return True
+            self.hp = 0
+            self.status = 0
+            debug(f"{self.name} has died.")
+            return True
         return False
     
     def can_pickup_item(self, item_name: str) -> Tuple[bool, str]:
@@ -697,7 +836,7 @@ class Player:
         
         debug(f"Cast {spell_name}: BaseFail({base_failure}) - StatMod({stat_modifier}*3) - LvlDiff({self.level - min_level}) = {failure_chance}%")
 
-        if random.randint(1, 100) <= failure_chance:
+        if roll_dice(1, 100) <= failure_chance:
             self.status_manager.add_effect("Confused", duration=3)
             return False, f"You failed to cast {spell_name}!", None
 
@@ -868,6 +1007,13 @@ class Player:
         Returns:
             Inscription string or empty if no inscription
         """
+        def _is_light_source(effect: Any) -> bool:
+            if isinstance(effect, str):
+                return effect == "light_source"
+            if isinstance(effect, (list, tuple)) and effect:
+                return effect[0] == "light_source"
+            return False
+
         instances = self.inventory_manager.get_instances_by_name(item_name)
         
         if not instances:
@@ -880,10 +1026,11 @@ class Player:
             instance = instances[0]
             inscription = instance.get_inscription()
             
-            if self.level >= 5 and instance.effect and not inscription:
-                inscription = "magik"
-            elif self.level >= 5 and instance.effect and inscription:
-                inscription = f"{inscription}, magik"
+            if self.level >= 5 and instance.effect and not _is_light_source(instance.effect):
+                if not inscription:
+                    inscription = "magik"
+                else:
+                    inscription = f"{inscription}, magik"
             
             return inscription
         
@@ -900,9 +1047,14 @@ class Player:
                 inscriptions.append("damned")
         
         if self.level >= 10:
-            if any(key in item_data for key in ["effect", "stat_bonus", "defense_bonus", "damage_bonus"]):
-                if "cursed" not in str(item_data.get("effect", "")):
-                    inscriptions.append("magik")
+            magical_keys_present = any(
+                key in item_data for key in ["effect", "stat_bonus", "defense_bonus", "damage_bonus"]
+            )
+            if magical_keys_present:
+                effect_data = item_data.get("effect")
+                if not _is_light_source(effect_data):
+                    if "cursed" not in str(effect_data or ""):
+                        inscriptions.append("magik")
         
         return " ".join(inscriptions) if inscriptions else ""
     

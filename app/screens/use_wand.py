@@ -1,16 +1,14 @@
 
 from textual.app import ComposeResult
-from textual.containers import Container, Vertical
 from textual.screen import Screen
-from textual.widgets import Header, Footer, Static
+from textual.widgets import Static
 from textual import events
 from rich.text import Text
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Dict
 from debugtools import debug
 import string
 
 if TYPE_CHECKING:
-    from app.plaguefire import RogueApp
     from app.lib.player import Player
 
 class UseWandScreen(Screen):

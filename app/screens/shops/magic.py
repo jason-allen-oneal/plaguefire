@@ -32,13 +32,13 @@ class MagicShopScreen(BaseShopScreen):
     def _generate_magic_inventory(self) -> List[ShopItem]:
         """Generate scrolls, potions, wands."""
         inventory = [
-            ShopItem(name="Scroll of Identify", cost=100, description="Reveals item properties."),
-            ShopItem(name="Scroll of Magic Missile", cost=125, description="Unleashes arcane bolts."),
-            ShopItem(name="Potion of Healing", cost=50, description="Restores some health."),
-            ShopItem(name="Potion of Mana", cost=75, description="Restores magical energy."),
+            ShopItem(name="Scroll of Identify", cost=100, description="Reveals item properties.", item_id="SCROLL_IDENTIFY"),
+            ShopItem(name="Scroll of Magic Mapping", cost=125, description="Unleashes arcane insight.", item_id="SCROLL_MAGIC_MAPPING"),
+            ShopItem(name="Potion of Healing", cost=50, description="Restores some health.", item_id="POTION_HEALING"),
+            ShopItem(name="Potion of Restore Mana", cost=75, description="Restores magical energy.", item_id="POTION_RESTORE_MANA"),
         ]
         if random.random() < 0.2:
-            inventory.append(ShopItem(name="Wand of Sparking (5)", cost=200, description="Shoots small sparks."))
+            inventory.append(ShopItem(name="Wand of Magic Missile", cost=200, description="Shoots small sparks.", item_id="WAND_MAGIC_MISSILE"))
         return inventory
 
     def action_identify_action(self):

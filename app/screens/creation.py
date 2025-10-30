@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import random
 import string
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Tuple
 
 from textual import events
 from textual.screen import Screen
@@ -11,15 +11,17 @@ from textual.widgets import Static
 from rich.text import Text
 
 from app.lib.core.loader import GameData
+from app.lib.core.utils import roll_dice
 from app.lib.player import (
     Player,
-    STAT_NAMES,
-    CLASS_DEFINITIONS,
-    RACE_DEFINITIONS,
-    HISTORY_TABLES,
     build_character_profile,
     get_race_definition,
     get_class_definition,
+)
+from config import ( 
+    STAT_NAMES,
+    RACE_DEFINITIONS,
+    HISTORY_TABLES,
 )
 from debugtools import debug
 
@@ -27,6 +29,7 @@ CLASS_ORDER = ["Warrior", "Mage", "Priest", "Rogue", "Ranger", "Paladin"]
 SEX_OPTIONS = ["Male", "Female"]
 
 MAX_STARTER_SPELLS = 1
+MAX_NAME_LENGTH = 16
 
 def _format_stat(total: int, percentile: int) -> str:
     if total < 18:
@@ -78,7 +81,7 @@ class CharacterCreationScreen(Screen):
         """Roll stats."""
         stats = {}
         for stat in STAT_NAMES:
-            rolls = sorted(random.randint(1, 6) for _ in range(4))
+            rolls = sorted(roll_dice(1, 6) for _ in range(4))
             stats[stat] = sum(rolls[1:])
         return stats
 
@@ -122,7 +125,7 @@ class CharacterCreationScreen(Screen):
                 totals[stat] = 18
                 excess = max(0, total - 18)
                 base_percent = excess * 10
-                percentiles[stat] = min(100, max(1, base_percent + random.randint(1, 20)))
+                percentiles[stat] = min(100, max(1, base_percent + roll_dice(1, 20)))
         self.total_stats = totals
         self.stat_percentiles = percentiles
         self._recalculate_profile()
@@ -360,7 +363,10 @@ class CharacterCreationScreen(Screen):
             elif key == "backspace":
                 self.character_name = self.character_name[:-1]
             elif len(key) == 1 and key.isprintable() and not key.isspace():
-                self.character_name += key
+                if len(self.character_name) < MAX_NAME_LENGTH:
+                    self.character_name += key
+                else:
+                    self.app.bell()
 
         elif self.creation_step == "spell_select":
             if key == "escape":
@@ -399,7 +405,7 @@ class CharacterCreationScreen(Screen):
 
     def _create_and_start_player(self):
         """Creates the player data, saves, and starts the game."""
-        name = self.character_name.strip() or "Hero"
+        name = (self.character_name.strip() or "Hero")[:MAX_NAME_LENGTH]
         race = self.race_names[self.current_race]
         cls = self.available_classes[self.current_class_index]
         sex = SEX_OPTIONS[self.sex_index]
@@ -426,6 +432,7 @@ class CharacterCreationScreen(Screen):
             "time": 0,
             "level": 1,
             "xp": 0,
+            "status": 1
         }
 
 

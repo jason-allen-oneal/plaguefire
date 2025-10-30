@@ -1446,7 +1446,7 @@
     "LANTERN_BRASS": {
       "name": "Brass Lantern",
       "type": "misc",
-      "slot": "weapon",
+      "slot": "light",
       "base_cost": 40,
       "description": "Provides light.",
       "effect": [
@@ -1592,12 +1592,12 @@
     "TORCH": {
       "name": "Wooden Torch",
       "type": "misc",
-      "slot": "weapon",
+      "slot": "light",
       "base_cost": 10,
       "description": "Provides light.",
       "effect": [
         "light_source",
-        5,
+        3,
         100
       ],
       "rarity_depth": {

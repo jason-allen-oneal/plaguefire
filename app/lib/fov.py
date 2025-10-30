@@ -5,12 +5,20 @@ This module provides line-of-sight checking and visibility updates using
 Bresenham's line algorithm for efficient raycasting.
 """
 
-from typing import List
+from typing import List, Tuple
+from config import WALL, DOOR_CLOSED, SECRET_DOOR
 
 MapData = List[List[str]]
 VisibilityData = List[List[int]]
 
-def line_of_sight(game_map: MapData, x0: int, y0: int, x1: int, y1: int) -> bool:
+def line_of_sight(
+    game_map: MapData,
+    x0: int,
+    y0: int,
+    x1: int,
+    y1: int,
+    return_blocker: bool = False
+) -> Tuple[bool, Tuple[int, int] | None] | bool:
     """
     Check if there's a clear line of sight between two points.
     
@@ -37,12 +45,18 @@ def line_of_sight(game_map: MapData, x0: int, y0: int, x1: int, y1: int) -> bool
     map_height = len(game_map)
     map_width = len(game_map[0]) if map_height > 0 else 0
     
+    blocking_tiles = {WALL, DOOR_CLOSED, SECRET_DOOR}
+    first_blocker: Tuple[int, int] | None = None
+
     while True:
         if x == x1 and y == y1:
-            return True
-        
+            return (True, None) if return_blocker else True
+
         if (x != x0 or y != y0) and 0 <= y < map_height and 0 <= x < map_width:
-            if game_map[y][x] == '#':
+            if game_map[y][x] in blocking_tiles:
+                if return_blocker:
+                    first_blocker = (x, y)
+                    return False, first_blocker
                 return False
         
         e2 = 2 * err
@@ -53,13 +67,15 @@ def line_of_sight(game_map: MapData, x0: int, y0: int, x1: int, y1: int) -> bool
             err += dx
             y += sy
     
-    return True
+    return (True, None) if return_blocker else True
 
 def update_visibility(
     current_visibility: VisibilityData,
     player_pos: List[int],
     game_map: MapData,
-    radius: int
+    radius: int,
+    *,
+    metric: str = "euclidean"
 ) -> VisibilityData:
     """
     Calculate field of view and update visibility map.
@@ -91,8 +107,22 @@ def update_visibility(
             if new_visibility[y][x] == 2:
                 new_visibility[y][x] = 1
 
+    if radius <= 0:
+        new_visibility[py][px] = 2
+        return new_visibility
+
+    radius_sq = radius * radius
+
+    def _within_radius(dx: int, dy: int) -> bool:
+        if metric == "square":
+            return max(abs(dx), abs(dy)) <= radius
+        # default to euclidean
+        return dx * dx + dy * dy <= radius_sq
+
     for y_offset in range(-radius, radius + 1):
         for x_offset in range(-radius, radius + 1):
+            if not _within_radius(x_offset, y_offset):
+                continue
             check_x, check_y = px + x_offset, py + y_offset
             if 0 <= check_y < map_height and 0 <= check_x < map_width:
                  if line_of_sight(game_map, px, py, check_x, check_y):

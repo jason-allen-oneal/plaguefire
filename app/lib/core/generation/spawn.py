@@ -119,13 +119,15 @@ def spawn_entities_for_depth(
     game_data = GameData()
 
     if depth == 0:
-        num_entities = random.randint(4, 8)
+        num_entities = random.randint(3, 6)
         entity_pool = [
             template for template in game_data.get_entities_for_depth(0)
             if template.get("depth", 0) == 0
         ]
     else:
-        num_entities = random.randint(5, 10 + dungeon_level)
+        min_spawn = max(3, 4 + dungeon_level // 2)
+        max_spawn = max(min_spawn, 6 + dungeon_level)
+        num_entities = random.randint(min_spawn, min(max_spawn, 9))
         entity_pool = [
             template for template in game_data.get_entities_for_depth(target_depth)
             if template.get("hostile", False)

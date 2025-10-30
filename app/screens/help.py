@@ -1,102 +1,83 @@
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 from textual.app import ComposeResult
 from textual.containers import VerticalScroll
 from textual.screen import Screen
 from textual.widgets import Static
+from rich.console import Group
+from rich.table import Table
+from rich.text import Text
 
-COMMAND_REFERENCE: Dict[str, List[Tuple[str, str]]] = {
-    "original": [
-        ("1-9", "Move (numpad); 5 waits in place"),
-        ("Arrows", "Move (alternate controls)"),
-        ("a", "Aim wand"),
-        ("b", "Browse spell book"),
-        ("c", "Close door (choose direction)"),
-        ("d", "Drop item"),
-        ("e", "Show equipment"),
-        ("f", "Fire/throw (choose direction)"),
-        ("g", "Pick up item"),
-        ("i", "Open inventory"),
-        ("j", "Jam door with spike"),
-        ("l", "Look (choose direction)"),
-        ("m", "Cast spell"),
-        ("o", "Open door (choose direction)"),
-        ("p", "Pray"),
-        ("q", "Quaff potion"),
-        ("r", "Read scroll"),
-        ("s", "Search once"),
-        ("t", "Take off equipment"),
-        ("u", "Use staff"),
-        ("v", "Version information"),
-        ("w", "Wear/wield equipment"),
-        ("x", "Exchange weapon hand"),
-        (".", "Run (choose direction)"),
-        ("-", "Move without pickup (choose direction)"),
-        ("> / <", "Use stairs"),
-        ("B", "Bash (choose direction)"),
-        ("C", "Character sheet"),
-        ("D", "Disarm trap (choose direction)"),
-        ("E", "Eat food"),
-        ("F", "Fill lamp"),
-        ("G", "Gain spells"),
-        ("L", "Locate map"),
-        ("M", "Show reduced map"),
-        ("R", "Rest"),
-        ("S", "Toggle search mode"),
-        ("T", "Tunnel/dig (choose direction)"),
-        ("V", "View high scores"),
-        ("{", "Inscribe item"),
-        ("?", "Command reference"),
-        ("ESC", "Pause menu / close screen"),
-        ("Ctrl+K", "Quit game immediately"),
-    ],
-    "roguelike": [
-        ("h j k l", "Move left/down/up/right"),
-        ("y u b n", "Diagonal movement"),
-        ("Shift + move", "Run in direction"),
-        ("Ctrl + move", "Tunnel/dig"),
-        ("c", "Close door (choose direction)"),
-        ("d", "Drop item"),
-        ("e", "Show equipment"),
-        ("g", "Pick up item"),
-        ("i", "Open inventory"),
-        ("o", "Open door (choose direction)"),
-        ("p", "Pray"),
-        ("q", "Quaff potion"),
-        ("r", "Read scroll"),
-        ("s", "Search once"),
-        ("t", "Throw item"),
-        ("v", "Version information"),
-        ("w", "Wear/wield equipment"),
-        ("x", "Examine (choose direction)"),
-        ("z", "Zap wand"),
-        ("#","Toggle search mode"),
-        ("-", "Move without pickup (choose direction)"),
-        (".", "Wait one turn"),
-        ("> / <", "Use stairs"),
-        ("C", "Character sheet"),
-        ("D", "Disarm trap (choose direction)"),
-        ("E", "Eat food"),
-        ("F", "Fill lamp"),
-        ("G", "Gain spells"),
-        ("P", "Browse spell book"),
-        ("Q", "Quit game"),
-        ("R", "Rest"),
-        ("S", "Spike door (choose direction)"),
-        ("T", "Take off equipment"),
-        ("V", "View high scores"),
-        ("W", "Locate map"),
-        ("X", "Exchange weapon hand"),
-        ("Z", "Zap staff"),
-        ("{", "Inscribe item"),
-        ("?", "Command reference"),
-        ("ESC", "Pause menu / close screen"),
-    ],
-}
+from config import (
+    PLAYER,
+    WALL,
+    FLOOR,
+    STAIRS_DOWN,
+    STAIRS_UP,
+    DOOR_CLOSED,
+    DOOR_OPEN,
+    SECRET_DOOR_FOUND,
+    QUARTZ_VEIN,
+    MAGMA_VEIN,
+    GRANITE,
+)
 
 
-class CommandHelpScreen(Screen):
-    """Modal screen showing command reference for the current control scheme."""
+TILE_LEGEND: List[Tuple[str, List[Tuple[str, str]]]] = [
+    (
+        "Adventurers & Creatures",
+        [
+            (f"[bright_yellow]{PLAYER}[/bright_yellow]", "You"),
+            ("[red]a-z[/red]", "Hostile monsters (letter varies by species)"),
+            ("[green]A-Z[/green]", "Allies, townsfolk, and other non-hostiles"),
+        ],
+    ),
+    (
+        "Terrain",
+        [
+            (f"[dim]{WALL}[/dim]", "Solid wall"),
+            (f"[white]{FLOOR}[/white]", "Open floor / explored space"),
+            ("[bright_black]#[/bright_black] (secret)", "Hidden door disguised as a wall"),
+            (f"[red]{MAGMA_VEIN}[/red]", "Lava or molten rock"),
+            (f"[yellow]{QUARTZ_VEIN}[/yellow]", "Mineral or quartz vein (mineable)"),
+            ("[bright_blue]1-6[/bright_blue]", "Rich quartz seams revealed by mining depth"),
+            (f"[cyan]{STAIRS_UP}[/cyan]", "Stairs up"),
+            (f"[cyan]{STAIRS_DOWN}[/cyan]", "Stairs down"),
+        ],
+    ),
+    (
+        "Doors & Passageways",
+        [
+            (f"[yellow]{DOOR_CLOSED}[/yellow]", "Closed door"),
+            (f"[green]{DOOR_OPEN}[/green]", "Open doorway"),
+            (f"[yellow]{SECRET_DOOR_FOUND}[/yellow]", "Secret door (revealed)"),
+            ("[magenta]+[/magenta] (jammed)", "Door spiked shut or jammed"),
+        ],
+    ),
+    (
+        "Resources & Objects",
+        [
+            (f"[white]{GRANITE}[/white]", "Granite rock (tunnelable)"),
+            ("[yellow]$[/yellow]", "Gold on the ground"),
+            ("[red]![/red]", "Potion"),
+            ("[purple]?[/purple]", "Scroll or spellbook"),
+            ("[green],[/green]", "Food or ration"),
+            ("[white])[/white]", "Weapon or shield"),
+            ("[white]([/white]", "Soft armor / robes"),
+            ("[white]][/white]", "Metal armor / plate"),
+            ("[cyan]=[/cyan]", "Ring"),
+            ('[cyan]"[/cyan]', "Amulet"),
+            ("[white]-[/white]", "Wand"),
+            ("[white]_[/white]", "Staff"),
+            ("[white]{[/white]", "Ammunition or missiles"),
+            ("[white]*[/white]", "Gem or artifact"),
+        ],
+    ),
+]
+
+
+class LegendScreen(Screen):
+    """Modal screen showing the dungeon glyph legend."""
 
     BINDINGS = [
         ("escape", "close", "Close"),
@@ -104,29 +85,38 @@ class CommandHelpScreen(Screen):
         ("?", "close", "Close"),
     ]
 
-    def __init__(self, mode: str):
-        """Initialize the instance."""
-        super().__init__()
-        self.mode = mode if mode in COMMAND_REFERENCE else "original"
-
     def compose(self) -> ComposeResult:
-        """Compose."""
-        entries = COMMAND_REFERENCE[self.mode]
-        title = f"{self.mode.title()} Command Reference"
-        lines = [
-            f"[bold]{title}[/bold]",
-            "",
-            "Controls are based on your current command mode.",
-            "Press ESC or Q to return to the game.",
-            "",
-        ]
+        """Compose the legend display."""
+        legend_renderable = Group(
+            Text.from_markup(
+                "[chartreuse1]====== Dungeon Legend ======[/chartreuse1]\n"
+                "[dim]Glyphs shown below match what you see on the main map.[/dim]\n"
+                ""
+            ),
+            self._build_table(),
+            Text.from_markup(
+                "\n[dim]Tip: Press [yellow]?[/yellow] again to return to the dungeon.[/dim]"
+            ),
+        )
 
-        for key, description in entries:
-            lines.append(f"[cyan]{key:<12}[/cyan] {description}")
+        with VerticalScroll(id="legend-scroll"):
+            yield Static(legend_renderable, id="legend-content")
 
-        content = "\n".join(lines)
-        yield VerticalScroll(Static(content, id="command-help-content", expand=True))
+    def _build_table(self) -> Table:
+        """Create a rich table mapping glyphs to descriptions."""
+        table = Table.grid(padding=(0, 2))
+        table.add_column(style="chartreuse1", ratio=0, no_wrap=True)
+        table.add_column(style="cyan", ratio=0, no_wrap=True)
+        table.add_column(style="white", ratio=1)
+
+        for category, entries in TILE_LEGEND:
+            table.add_row(Text.from_markup(f"[chartreuse1]{category}[/chartreuse1]"), "", "")
+            for glyph, meaning in entries:
+                table.add_row("", Text.from_markup(glyph), Text(meaning))
+            table.add_row("", "", "")
+
+        return table
 
     def action_close(self) -> None:
-        """Action close."""
+        """Close the legend."""
         self.app.pop_screen()

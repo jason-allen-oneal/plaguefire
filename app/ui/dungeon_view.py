@@ -210,11 +210,17 @@ class DungeonView(Static):
                                         elif tile_char == SECRET_DOOR_FOUND:
                                             char = DOOR_CLOSED
                                         else:
-                                            light_color = self.engine.light_colors[map_y][map_x] if (0 <= map_y < len(self.engine.light_colors) and 0 <= map_x < len(self.engine.light_colors[map_y])) else 0
+                                            char = tile_char
+                                            if tile_char == FLOOR:
+                                                char = f"[dim]{tile_char}[/dim]"
+                                            light_color = (
+                                                self.engine.light_colors[map_y][map_x]
+                                                if (0 <= map_y < len(self.engine.light_colors)
+                                                    and 0 <= map_x < len(self.engine.light_colors[map_y]))
+                                                else 0
+                                            )
                                             if light_color == 1 and tile_char == FLOOR:
-                                                char = f"[yellow]{tile_char}[/yellow]"
-                                            else:
-                                                char = tile_char
+                                                char = f"[khaki3]{tile_char}[/khaki3]"
                         line += self._maybe_color_wall(char)
                     elif visibility_status == 1:
                         tile_char = map_row[map_x]
@@ -223,7 +229,10 @@ class DungeonView(Static):
                         elif tile_char == SECRET_DOOR_FOUND:
                             char = DOOR_CLOSED
                         else:
-                            char = tile_char
+                            if tile_char == FLOOR:
+                                char = f"[dim]{tile_char}[/dim]"
+                            else:
+                                char = tile_char
                         line += self._maybe_color_wall(char)
                     else:
                         line += " "

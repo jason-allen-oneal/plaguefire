@@ -4,7 +4,6 @@ from textual.widgets import Static
 from textual.containers import Vertical
 from debugtools import debug
 
-
 class TitleScreen(Screen):
     """TitleScreen class."""
     BINDINGS = [

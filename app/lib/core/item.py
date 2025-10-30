@@ -37,12 +37,14 @@ class ItemInstance:
     tried: bool = False
     custom_inscription: Optional[str] = None
     quantity: int = 1
-    
+
     item_type: str = "misc"
     weight: int = 10
     base_cost: int = 0
     effect: Optional[List[Any]] = None
     slot: Optional[str] = None
+    light_radius: int = 0
+    light_duration: int = 0
     
     def __post_init__(self):
         """Initialize charges for wands/staves if not already set."""
@@ -105,7 +107,14 @@ class ItemInstance:
         
         inscription = self.get_inscription()
         
-        magic_detected = (player_level >= 5 or detect_magic) and self.effect
+        def _is_light_source(effect: Any) -> bool:
+            if isinstance(effect, str):
+                return effect == "light_source"
+            if isinstance(effect, (list, tuple)) and effect:
+                return effect[0] == "light_source"
+            return False
+
+        magic_detected = (player_level >= 5 or detect_magic) and self.effect and not _is_light_source(self.effect)
         if magic_detected and not inscription:
             inscription = "magik"
         elif magic_detected and inscription:
@@ -171,12 +180,14 @@ class ItemInstance:
             "base_cost": self.base_cost,
             "effect": self.effect,
             "slot": self.slot,
+            "light_radius": self.light_radius,
+            "light_duration": self.light_duration,
         }
     
     @classmethod
     def from_dict(cls, data: Dict) -> ItemInstance:
         """Deserialize from dictionary."""
-        return cls(
+        instance = cls(
             item_id=data["item_id"],
             item_name=data["item_name"],
             instance_id=data.get("instance_id", _generate_instance_id()),
@@ -191,7 +202,16 @@ class ItemInstance:
             base_cost=data.get("base_cost", 0),
             effect=data.get("effect"),
             slot=data.get("slot"),
+            light_radius=data.get("light_radius", 0),
+            light_duration=data.get("light_duration", 0),
         )
+        if (
+            isinstance(instance.effect, list)
+            and instance.effect
+            and instance.effect[0] == "light_source"
+        ):
+            instance.slot = "light"
+        return instance
     
     @classmethod
     def from_template(cls, item_id: str, item_data: Dict) -> ItemInstance:
@@ -218,7 +238,7 @@ class ItemInstance:
                 charges = 10
                 max_charges = 10
         
-        return cls(
+        instance = cls(
             item_id=item_id,
             item_name=item_data.get("name", "Unknown Item"),
             charges=charges,
@@ -229,6 +249,12 @@ class ItemInstance:
             effect=item_data.get("effect"),
             slot=item_data.get("slot"),
         )
+        effect = item_data.get("effect")
+        if isinstance(effect, list) and len(effect) >= 3 and effect[0] == "light_source":
+            instance.light_radius = int(effect[1])
+            instance.light_duration = int(effect[2])
+            instance.slot = "light"
+        return instance
 
 
 _instance_counter = 0

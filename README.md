@@ -9,6 +9,7 @@ Plaguefire is a traditional roguelike game where players explore procedurally ge
 ## Features
 
 ### Core Gameplay
+
 - **Procedurally Generated Dungeons**: Each playthrough offers unique dungeon layouts with varying room types, corridors, and secrets
 - **Door System**: Regular doors at corridor-room junctions (auto-open on contact) and secret doors hidden in walls
 - **Mining System**: Dig through quartz and magma veins with picks and shovels to find treasure
@@ -17,6 +18,7 @@ Plaguefire is a traditional roguelike game where players explore procedurally ge
 - **Character Classes**: Choose from Warrior, Mage, Priest, Rogue, Ranger, and Paladin, each with unique abilities
 - **Race Selection**: Play as Human, Half-Elf, Elf, Halfling, Gnome, Dwarf, Half-Orc, or Half-Troll
 - **Magic System**: Learn and cast spells, use scrolls, and read spellbooks to expand your magical repertoire
+  - Level-up spell choices now snowball: gain 1 pick the first time, 2 the next time, 3 the third, and so on
 - **Status Effects**: Manage buffs and debuffs including Blessed, Hasted, Confused, Cursed, and more
 - **Item System**: Collect weapons, armor, potions, scrolls, and magical items with diverse effects
 - **Item Instances**: Wands and staves track charges, showing {empty} when depleted
@@ -26,38 +28,45 @@ Plaguefire is a traditional roguelike game where players explore procedurally ge
 - **Town Hub**: Visit shops for weapons, armor, magic items, and services at the temple and tavern
 
 ### Technical Features
+
 - **Field of View (FOV)**: Dynamic lighting and visibility system
 - **Save/Load System**: Persist your progress across sessions
 - **Sound Effects**: Pygame-based audio for combat and interactions
 - **Theme Support**: Customizable color themes for the UI
 - **Comprehensive Testing**: Unit tests for game systems ensure stability
 
+
 ## Installation
 
 ### Requirements
+
 - Python 3.8 or higher
 - pip package manager
 
 ### Setup
+
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/jason-allen-oneal/plaguefire.git
 cd plaguefire
 ```
 
 2. Install dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
 
 3. Run the game:
+
 ```bash
 python main.py
 ```
 
 ## Project Structure
 
-```
+```bash
 plaguefire/
 ├── app/                          # Main application code
 │   ├── lib/                      # Core library modules
@@ -136,12 +145,15 @@ plaguefire/
 ## Gameplay Guide
 
 ### Character Creation
+
 1. Choose your race from 8 available options, each with unique stat modifiers
 2. Select your class from 6 character archetypes
 3. Distribute ability points across strength, intelligence, wisdom, dexterity, constitution, and charisma
 4. Choose your starting spell (for magic-using classes)
+5. As you level, each wave of unlockable class spells adds one more pick than the previous wave—plan ahead for bigger batches
 
 ### Controls
+
 - **Arrow Keys/WASD**: Move character
 - **Space**: Wait/rest
 - **i**: Open inventory
@@ -153,18 +165,21 @@ plaguefire/
 **Note**: Doors automatically open when you walk into them. Secret doors must be found using the search command.
 
 ### Combat
+
 - Attack by moving into an enemy
 - Use spells and items strategically
 - Monitor HP, mana, and status effects
 - Consider enemy AI behavior and positioning
 
 ### Magic System
+
 - Learn spells from scrolls and books
 - Cast spells using mana
 - Spell failure chance decreases with level and stats
 - Failed spell casts may cause confusion
 
 ### Town
+
 - Visit the weapon shop for melee and ranged weapons
 - Browse the armor shop for protective gear
 - Purchase magic items and scrolls at the magic shop
@@ -175,18 +190,22 @@ plaguefire/
 ## Development
 
 ### Running Tests
+
 ```bash
 python tests/run_tests.py
 ```
 
 ### Adding New Content
+
 - **Monsters**: Edit `data/entities.json`
 - **Items**: Edit `data/items.json`
 - **Spells**: Edit `data/spells.json`
 - **Game Rules**: Edit `data/config.json`
 
 ### Architecture
+
 The game follows a modular architecture:
+
 - **Engine**: Handles game loop, state management, and core mechanics
 - **Screens**: Textual-based UI screens for different game states
 - **Generation**: Procedural content generation for dungeons, entities, and items
@@ -203,6 +222,7 @@ The game follows a modular architecture:
 ## Contributing
 
 Contributions are welcome! Please ensure:
+
 1. All tests pass before submitting
 2. New features include appropriate tests
 3. Code follows existing style conventions
@@ -215,6 +235,7 @@ This project is open source and available for educational and personal use.
 ## Credits
 
 Built with:
+
 - [Textual](https://textual.textualize.io/) - Terminal UI framework
 - [Rich](https://rich.readthedocs.io/) - Terminal formatting
 - [Pygame](https://www.pygame.org/) - Sound effects

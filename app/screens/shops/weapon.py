@@ -19,9 +19,9 @@ class WeaponShopScreen(BaseShopScreen):
     def _generate_weapon_inventory(self) -> List[ShopItem]:
         """Generate basic weapon items."""
         inventory = [
-            ShopItem(name="Dagger", cost=25, description="Small but sharp."),
-            ShopItem(name="Short Sword", cost=75, description="A standard sidearm."),
-            ShopItem(name="Mace", cost=100, description="Good against armor."),
-            ShopItem(name="Short Bow", cost=150, description="For ranged attacks (needs arrows)."),
+            ShopItem(name="Dagger (Bodkin)", cost=25, description="Small but sharp.", item_id="DAGGER_BODKIN"),
+            ShopItem(name="Small Sword", cost=75, description="A standard sidearm.", item_id="SMALL_SWORD"),
+            ShopItem(name="Mace", cost=100, description="Good against armor.", item_id="MACE"),
+            ShopItem(name="Short Bow", cost=150, description="For ranged attacks (needs arrows).", item_id="BOW_SHORT"),
         ]
         return inventory

@@ -40,6 +40,7 @@ from app.screens.inventory import InventoryScreen
 from app.screens.learn_spell import SpellLearningScreen
 from app.screens.cast_spell import CastSpellScreen
 from app.screens.pause_menu import PauseMenuScreen
+from app.screens.death import DeathScreen
 from css import CSS
 from debugtools import debug, log_exception
 from textual.drivers.linux_driver import LinuxDriver
@@ -79,6 +80,7 @@ class RogueApp(App[None]):
         "tavern": TavernScreen,
         "temple": TempleScreen,
         "weapon_smith": WeaponShopScreen,
+        "death": DeathScreen,
     }
 
     dungeon_levels: Dict[int, MapData] = {}
@@ -97,7 +99,8 @@ class RogueApp(App[None]):
         self._music_enabled = self.data.config.get("music_enabled", True)
         self._sfx_enabled = self.data.config.get("sfx_enabled", True)
         self._difficulty = self.data.config.get("difficulty", "Normal")
-        self._command_mode = self.data.config.get("command_mode", "original")
+        # Command mode is fixed to the classic/original scheme.
+        self._command_mode = "original"
 
         self.sound.set_music_enabled(self._music_enabled)
         self.sound.set_sfx_enabled(self._sfx_enabled)
@@ -128,10 +131,8 @@ class RogueApp(App[None]):
                 Args:
                     mode: TODO
                 """
-        if mode in ["original", "roguelike"]:
-            self._command_mode = mode
-            self.data.config["command_mode"] = mode
-            self.data.save_config()
+        # Command mode is fixed; toggling is ignored.
+        self._command_mode = "original"
 
     def on_mount(self):
         """Called when the app starts."""

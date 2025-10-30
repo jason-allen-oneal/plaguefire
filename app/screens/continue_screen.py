@@ -1,7 +1,6 @@
 
 from textual.screen import Screen
 from textual.widgets import Static
-from textual import events
 from rich.text import Text
 from debugtools import debug
 import os

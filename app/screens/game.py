@@ -1,8 +1,14 @@
 
 import random
+from math import ceil
 from textual.screen import Screen
-from textual.containers import Horizontal
+from textual.containers import Horizontal, Vertical, VerticalScroll
 from textual.events import Key
+from textual.widgets import Static
+from rich.console import Group
+from rich.table import Table
+from rich.text import Text
+from app.lib.core.utils import roll_dice
 from app.ui.dungeon_view import DungeonView
 from app.ui.hud_view import HUDView
 from app.lib.core.engine import Engine, MapData, BUILDING_KEY
@@ -11,7 +17,8 @@ from debugtools import debug, log_exception
 from typing import Optional, List, Dict, Any, Tuple
 from app.lib.core.mining import get_mining_system
 from app.lib.core.chests import get_chest_system
-from app.screens.help import CommandHelpScreen
+from app.lib.command_reference import COMMAND_REFERENCE
+from app.screens.help import LegendScreen
 
 class GameScreen(Screen):
     """GameScreen class."""
@@ -34,6 +41,7 @@ class GameScreen(Screen):
     engine: Engine
     dungeon_view: DungeonView
     hud_view: HUDView
+    hotkey_panel: Static
 
     def __init__(self):
         """Initialize the instance."""
@@ -42,24 +50,22 @@ class GameScreen(Screen):
         self.markup = True
     
     async def on_key(self, event: Key) -> None:
-        """Handle key presses based on command mode."""
-        command_mode = self.app.get_command_mode()
-        
+        """Handle key presses using classic Plaguefire bindings."""
         if self._awaiting_direction:
-            self._handle_direction_input(event.key, command_mode)
+            self._handle_direction_input(event.key)
             event.prevent_default()
+            event.stop()
             return
         
-        if command_mode == "original":
-            handled = self._handle_original_command(event.key)
-            if handled:
-                event.prevent_default()
-                return
+        keys_to_try = [event.key]
+        char = getattr(event, "character", None)
+        if char and char not in keys_to_try:
+            keys_to_try.append(char)
         
-        else:
-            handled = self._handle_roguelike_command(event.key)
-            if handled:
+        for key in keys_to_try:
+            if self._handle_original_command(key):
                 event.prevent_default()
+                event.stop()
                 return
     
     def _handle_original_command(self, key: str) -> bool:
@@ -101,9 +107,9 @@ class GameScreen(Screen):
             "x": self.action_exchange_weapon,
             "?": self.action_help,
             ".": lambda: self._request_direction("run"),
+            "period": lambda: self._request_direction("run"),
             "-": lambda: self._request_direction("move_no_pickup"),
             "B": lambda: self._request_direction("bash"),
-            "C": self.action_character_desc,
             "D": lambda: self._request_direction("disarm"),
             "E": self.action_eat_food,
             "F": self.action_fill_lamp,
@@ -124,108 +130,22 @@ class GameScreen(Screen):
         
         return False
     
-    def _handle_roguelike_command(self, key: str) -> bool:
-        """Handle Rogue-like command keys. Returns True if handled."""
-        vi_moves = {
-            "h": (-1, 0), "j": (0, 1), "k": (0, -1), "l": (1, 0),
-            "y": (-1, -1), "u": (1, -1), "b": (-1, 1), "n": (1, 1)
-        }
-        if key in vi_moves:
-            dx, dy = vi_moves[key]
-            self._attempt_directional_action(dx, dy)
-            return True
-        
-        shift_run = {
-            "H": (-1, 0), "J": (0, 1), "K": (0, -1), "L": (1, 0),
-            "Y": (-1, -1), "U": (1, -1), "B": (-1, 1), "N": (1, 1)
-        }
-        if key in shift_run:
-            dx, dy = shift_run[key]
-            self._start_running(dx, dy)
-            return True
-        
-        ctrl_tunnel = {
-            "ctrl+h": (-1, 0), "ctrl+j": (0, 1), "ctrl+k": (0, -1), "ctrl+l": (1, 0),
-            "ctrl+y": (-1, -1), "ctrl+u": (1, -1), "ctrl+b": (-1, 1), "ctrl+n": (1, 1)
-        }
-        if key in ctrl_tunnel:
-            dx, dy = ctrl_tunnel[key]
-            self._tunnel_direction(dx, dy)
-            return True
-        
-        commands = {
-            "c": lambda: self._request_direction("close_door"),
-            "d": self.action_drop_item,
-            "e": self.action_equipment_list,
-            "g": self.action_pickup_item,
-            "i": self.action_open_inventory,
-            "o": lambda: self._request_direction("open_door"),
-            "p": self.action_pray,
-            "q": self.action_quaff_potion,
-            "r": self.action_read_scroll,
-            "s": self.action_search_once,
-            "t": self.action_throw_item,
-            "v": self.action_version,
-            "w": self.action_wear_wield,
-            "x": lambda: self._request_direction("examine"),
-            "z": self.action_zap_wand,
-            "#": self.action_toggle_search,
-            "-": lambda: self._request_direction("move_no_pickup"),
-            ".": self.action_wait,
-            "?": self.action_help,
-            "C": self.action_character_desc,
-            "D": lambda: self._request_direction("disarm"),
-            "E": self.action_eat_food,
-            "F": self.action_fill_lamp,
-            "G": self.action_gain_spells,
-            "P": self.action_browse_book,
-            "Q": self.action_quit_game,
-            "R": self.action_rest,
-            "S": lambda: self._request_direction("spike_door"),
-            "T": self.action_take_off_item,
-            "V": self.action_view_scores,
-            "W": self.action_where_locate,
-            "X": self.action_exchange_weapon,
-            "Z": self.action_zap_staff,
-            "{": self.action_inscribe,
-        }
-        
-        if key == "f":
-            self._request_direction("bash")
-            return True
-        
-        if key in commands:
-            commands[key]()
-            return True
-        
-        return False
-    
     def _request_direction(self, action: str):
         """Request a direction for the given action."""
         self._awaiting_direction = action
         self.notify(f"Choose a direction for {action.replace('_', ' ')}...")
         debug(f"Awaiting direction for action: {action}")
     
-    def _handle_direction_input(self, key: str, command_mode: str):
-        """Process directional input for pending action."""
+    def _handle_direction_input(self, key: str):
+        """Process directional input for pending action using classic keypad arrows."""
         dx, dy = 0, 0
-        
-        if command_mode == "original":
-            numpad = {
-                "1": (-1, 1), "2": (0, 1), "3": (1, 1),
-                "4": (-1, 0), "5": (0, 0), "6": (1, 0),
-                "7": (-1, -1), "8": (0, -1), "9": (1, -1)
-            }
-            if key in numpad:
-                dx, dy = numpad[key]
-        else:
-            vi_keys = {
-                "h": (-1, 0), "j": (0, 1), "k": (0, -1), "l": (1, 0),
-                "y": (-1, -1), "u": (1, -1), "b": (-1, 1), "n": (1, 1),
-                ".": (0, 0)
-            }
-            if key in vi_keys:
-                dx, dy = vi_keys[key]
+        numpad = {
+            "1": (-1, 1), "2": (0, 1), "3": (1, 1),
+            "4": (-1, 0), "5": (0, 0), "6": (1, 0),
+            "7": (-1, -1), "8": (0, -1), "9": (1, -1)
+        }
+        if key in numpad:
+            dx, dy = numpad[key]
         
         arrow_map = {
             "up": (0, -1), "down": (0, 1), "left": (-1, 0), "right": (1, 0)
@@ -239,7 +159,7 @@ class GameScreen(Screen):
         if dx == 0 and dy == 0 and action != "look":
             self.notify("Invalid direction.")
             return
-        
+
         if action == "look":
             self._describe_direction(dx, dy)
         elif action == "examine":
@@ -291,10 +211,24 @@ class GameScreen(Screen):
         )
 
         with Horizontal(id="layout"):
-            self.dungeon_view = DungeonView(engine=self.engine)
-            yield self.dungeon_view
+            with Vertical(id="main-column"):
+                self.dungeon_view = DungeonView(engine=self.engine)
+                yield self.dungeon_view
+
+                self.hotkey_panel = Static()
+                hotkey_scroll = VerticalScroll(self.hotkey_panel, id="hotkey-container")
+                hotkey_scroll.can_focus = False
+                try:
+                    hotkey_scroll.show_vertical_scrollbar = False
+                    hotkey_scroll.show_horizontal_scrollbar = False
+                except AttributeError:
+                    pass
+                yield hotkey_scroll
+
             self.hud_view = HUDView(engine=self.engine)
             yield self.hud_view
+
+        self._update_hotkey_panel()
 
     async def on_mount(self):
         """Called when the screen is mounted."""
@@ -303,6 +237,11 @@ class GameScreen(Screen):
             self.focus()
         except Exception as e:
             log_exception(e)
+        self._update_hotkey_panel()
+
+    def on_show(self) -> None:
+        """Refresh hotkey list whenever the screen becomes visible."""
+        self._update_hotkey_panel()
 
     def _get_map(self, depth: int) -> Optional[MapData]:
         """Gets map data from app cache or returns None to generate."""
@@ -351,6 +290,44 @@ class GameScreen(Screen):
                 for record in cache[depth]
             ]
         return None
+
+    def _build_hotkey_renderable(self) -> Group:
+        """Construct the rich renderable for the hotkey panel."""
+        entries = COMMAND_REFERENCE
+        if not entries:
+            return Group(Text.from_markup("[bright_red]No commands available.[/bright_red]"))
+
+        columns = 3
+        chunk_size = ceil(len(entries) / columns) if entries else 0
+        column_entries: List[List[Tuple[str, str]]] = []
+        for index in range(columns):
+            start = index * chunk_size
+            column_entries.append(entries[start:start + chunk_size])
+
+        table = Table.grid(expand=True, padding=(0, 1))
+        for _ in range(columns):
+            table.add_column(style="cyan", no_wrap=True, ratio=0)
+            table.add_column(style="white", ratio=1)
+
+        max_rows = max((len(col) for col in column_entries), default=0)
+        for row_index in range(max_rows):
+            row_cells: List[str] = []
+            for col_entries in column_entries:
+                if row_index < len(col_entries):
+                    row_cells.extend([col_entries[row_index][0], col_entries[row_index][1]])
+                else:
+                    row_cells.extend(["", ""])
+            table.add_row(*row_cells)
+
+        return Group(table)
+
+    def _update_hotkey_panel(self) -> None:
+        """Update the hotkey panel with the command list."""
+        if hasattr(self, "hotkey_panel"):
+            try:
+                self.hotkey_panel.update(self._build_hotkey_renderable())
+            except Exception as exc:
+                log_exception(exc)
 
     def _change_level(self, new_depth: int):
         """Handles logic for moving between dungeon levels using the Engine."""
@@ -478,18 +455,16 @@ class GameScreen(Screen):
 
     def action_take_off_item(self):
         """Action take off item."""
-        removed = False
         player = self.engine.player
-        for slot in ("weapon", "armor"):
-            if player.equipment.get(slot) and player.unequip(slot):
-                removed = True
-        if removed:
-            self.notify("You remove your gear.")
-            self._refresh_ui()
-            debug("Action: Take Off succeeded")
-        else:
+        has_equipment = any(item for item in player.equipment.values())
+        if not has_equipment:
             self.notify("You're not wearing anything to remove.")
-            debug("Action: Take Off failed")
+            debug("Action: Take Off failed - no equipment")
+            return
+
+        from app.screens.take_off import TakeOffScreen
+        self.app.push_screen(TakeOffScreen())
+        debug("Action: Take Off screen opened")
 
     def action_quaff_potion(self):
         """Action quaff potion."""
@@ -547,7 +522,13 @@ class GameScreen(Screen):
         """Action interact."""
         tile = self.engine.get_tile_at_player()
         debug(f"Player interacting with tile: '{tile}'")
-        if self.engine.player.depth == 0 and tile and tile.isdigit() and '1' <= tile <= '6':
+        if tile == STAIRS_DOWN:
+            debug("Interact: descending stairs")
+            self.action_descend()
+        elif tile == STAIRS_UP:
+            debug("Interact: ascending stairs")
+            self.action_ascend()
+        elif self.engine.player.depth == 0 and tile and tile.isdigit() and '1' <= tile <= '6':
             building_index = int(tile)
             if 0 < building_index < len(BUILDING_KEY):
                 building_name = BUILDING_KEY[building_index]
@@ -594,7 +575,7 @@ class GameScreen(Screen):
 
     def _attempt_directional_action(self, dx: int, dy: int):
         """Handle basic movement."""
-        self._handle_engine_update(self.engine.handle_player_move(dx, dy))
+        self._handle_engine_update(self.engine.handle_player_move(dx, dy, allow_pickup=True))
 
     def _equip_first_available(self) -> bool:
         player = self.engine.player
@@ -623,15 +604,28 @@ class GameScreen(Screen):
 
     def _describe_direction(self, dx: int, dy: int):
         """Describe what's visible in a given direction."""
-        direction = self.DIRECTION_NAMES.get((dx, dy), "that way")
+        if dx == 0 and dy == 0:
+            direction = "here"
+        else:
+            direction = self.DIRECTION_NAMES.get((dx, dy), "that way")
         px, py = self.engine.player.position
         description = None
-        for step in range(1, 9):
+        start_step = 0 if dx == 0 and dy == 0 else 1
+        max_range = 1 if start_step == 0 else 8
+        for step in range(start_step, max_range + 1):
             tx, ty = px + dx * step, py + dy * step
             tile = self.engine.get_tile_at_coords(tx, ty)
             if tile is None:
                 description = f"Nothing but darkness to the {direction}."
                 break
+            pos_key = (tx, ty)
+            items_here = self.engine.ground_items.get(pos_key) if hasattr(self.engine, "ground_items") else None
+            if items_here:
+                visible_items = [item for item in items_here if not item.startswith("$")]
+                if visible_items:
+                    item_name = visible_items[-1]
+                    description = f"You see {item_name} lying about {step} tiles to the {direction}."
+                    break
             entity = self.engine.get_entity_at(tx, ty)
             if entity:
                 description = f"You see {entity.name} about {step} tiles to the {direction}."
@@ -662,6 +656,7 @@ class GameScreen(Screen):
         """Perform a single search for secret doors."""
         if hasattr(self, 'engine') and self.engine:
             self.engine.search_once()
+            self._refresh_ui()
 
     def action_toggle_search(self):
         """Toggle continuous search mode on/off."""
@@ -677,6 +672,8 @@ class GameScreen(Screen):
             DOOR_CLOSED: "A closed door",
             DOOR_OPEN: "An open doorway",
             SECRET_DOOR_FOUND: "A secret door",
+            QUARTZ_VEIN: "A vein of ore",
+            MAGMA_VEIN: "A magma intrusion",
         }
         return mapping.get(tile_char)
     
@@ -778,12 +775,6 @@ class GameScreen(Screen):
             self.notify("Error: Game engine not found.", severity="error")
         debug("Action: Exchange weapon")
     
-    def action_change_name(self):
-        """Change character name."""
-        from app.screens.change_name import ChangeNameScreen
-        self.app.push_screen(ChangeNameScreen())
-        debug("Action: Change name")
-    
     def action_fill_lamp(self):
         """Fill lamp with oil."""
         if hasattr(self, 'engine'):
@@ -879,48 +870,9 @@ class GameScreen(Screen):
     
     def action_help(self):
         """Show help/command reference."""
-        mode = self.app.get_command_mode()
-        self.app.push_screen(CommandHelpScreen(mode))
+        self.app.push_screen(LegendScreen())
         debug("Action: Help")
     
-    def action_character_desc(self):
-        """Show detailed character sheet."""
-        if hasattr(self, 'engine') and self.engine and self.engine.player:
-            player = self.engine.player
-            
-            lines = []
-            lines.append(f"=== {player.name} - Level {player.level} {player.race} {player.char_class} ===")
-            lines.append("")
-            
-            lines.append("Stats:")
-            for stat in ["STR", "INT", "WIS", "DEX", "CON", "CHA"]:
-                value = player.stats.get(stat, 10)
-                lines.append(f"  {stat}: {value}")
-            
-            lines.append("")
-            
-            lines.append(f"HP: {player.hp}/{player.max_hp}")
-            if hasattr(player, 'mana'):
-                lines.append(f"Mana: {player.mana}/{player.max_mana}")
-            lines.append(f"XP: {player.xp}/{player.xp_to_next_level()}")
-            lines.append(f"Gold: {player.gold}")
-            lines.append(f"Depth: {player.depth}")
-            
-            lines.append("")
-            
-            lines.append("Equipment:")
-            if player.equipment:
-                for slot, item in player.equipment.items():
-                    if item:
-                        item_name = item.get('name', 'Unknown')
-                        lines.append(f"  {slot.title()}: {item_name}")
-            else:
-                lines.append("  None")
-            
-            full_desc = "\n".join(lines)
-            self.notify(full_desc, timeout=10)
-        
-        debug("Action: Character description")
     
     def action_where_locate(self):
         """Show where you are (roguelike version)."""
@@ -1102,7 +1054,7 @@ class GameScreen(Screen):
     def _apply_trap_effect(self, trap_type: str):
         """Apply the effects of a triggered trap."""
         if trap_type == "poison_needle":
-            damage = random.randint(1, 6)
+            damage = roll_dice(1, 6)
             self.engine.player.hp -= damage
             self.notify(f"A poison needle pricks you! You take {damage} damage.")
             
@@ -1123,7 +1075,7 @@ class GameScreen(Screen):
             self.notify(f"An explosion erupts! You take {damage} damage.")
             
         elif trap_type == "dart":
-            damage = random.randint(1, 4)
+            damage = roll_dice(1, 4)
             self.engine.player.hp -= damage
             self.notify(f"A dart shoots out! You take {damage} damage.")
             
@@ -1169,7 +1121,7 @@ class GameScreen(Screen):
             if enemy_at_pos:
                 break
             
-            result = self.engine.handle_player_move(dx, dy)
+            result = self.engine.handle_player_move(dx, dy, allow_pickup=True)
             if not result:
                 break
             
@@ -1187,5 +1139,9 @@ class GameScreen(Screen):
     
     def _move_no_pickup(self, dx: int, dy: int):
         """Move without picking up items."""
-        self._attempt_directional_action(dx, dy)
+        moved = self.engine.handle_player_move(dx, dy, allow_pickup=False)
+        if moved:
+            self._handle_engine_update(True)
+        else:
+            self.notify("You cannot move that way.")
         debug(f"Move no pickup ({dx}, {dy})")

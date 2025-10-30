@@ -1,15 +1,12 @@
 
 from textual.app import ComposeResult
-from textual.containers import Container, Vertical, VerticalScroll
+from textual.containers import VerticalScroll
 from textual.screen import Screen
-from textual.widgets import Header, Footer, Static
-from textual import events
+from textual.widgets import Static
 from rich.text import Text
-from typing import TYPE_CHECKING, List
-from debugtools import debug
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from app.plaguefire import RogueApp
     from app.lib.core.engine import Engine
 
 class ReducedMapScreen(Screen):
@@ -32,34 +29,41 @@ class ReducedMapScreen(Screen):
 
     def _render_reduced_map(self) -> str:
         """Renders a reduced view of the entire map."""
+        depth = self.engine.player.depth
+        title = "Town" if depth == 0 else f"Depth {depth}"
         lines = [
-            f"[chartreuse1]Map Overview - Depth {self.engine.player.depth}[/chartreuse1]",
+            f"[chartreuse1]Map Overview — {title}[/chartreuse1]",
             "[chartreuse1]" + "=" * 60 + "[/chartreuse1]",
             ""
         ]
-        
+
         game_map = self.engine.game_map
         player_pos = self.engine.player.position
-        
+
         if not game_map:
             lines.append("[yellow2]No map data available.[/yellow2]")
             return "\n".join(lines)
-        
+
         map_height = len(game_map)
-        map_width = len(game_map[0]) if map_height > 0 else 0
-        
-        for y, row in enumerate(game_map):
+        map_width = max((len(row) for row in game_map), default=0)
+
+        # Downsample the town overview so it fits more comfortably on screen.
+        downsample_x = downsample_y = 1
+        if depth == 0:
+            downsample_x = downsample_y = 2
+
+        for y in range(0, map_height, downsample_y):
             row_chars = []
-            for x, tile in enumerate(row):
-                if [x, y] == player_pos:
+            for x in range(0, map_width, downsample_x):
+                if player_pos and self._is_within_region(player_pos, x, y, downsample_x, downsample_y):
                     row_chars.append("[bright_yellow]@[/bright_yellow]")
-                elif self._has_entity_at(x, y):
+                elif self._has_entity_in_region(x, y, downsample_x, downsample_y):
                     row_chars.append("[red]E[/red]")
                 else:
+                    tile = self._aggregate_tiles(game_map, x, y, downsample_x, downsample_y)
                     row_chars.append(self._render_tile(tile))
-            
             lines.append("".join(row_chars))
-        
+
         lines.append("")
         lines.append("[dim]Legend:[/dim]")
         lines.append("[bright_yellow]@[/bright_yellow] = You")
@@ -72,15 +76,66 @@ class ReducedMapScreen(Screen):
         lines.append("[cyan]>[/cyan] = Stairs Down")
         lines.append("")
         lines.append("[dim]Press [Esc] or [M] to close[/dim]")
-        
+
         return "\n".join(lines)
 
-    def _has_entity_at(self, x: int, y: int) -> bool:
-        """Check if there's an entity at the given position."""
+    def _is_within_region(self, position: list[int], x: int, y: int, width: int, height: int) -> bool:
+        """Check if a position falls within the provided region."""
+        px, py = position
+        return x <= px < x + width and y <= py < y + height
+
+    def _has_entity_in_region(self, x: int, y: int, width: int, height: int) -> bool:
+        """Check if there's an entity anywhere within the region."""
         for entity in self.engine.entities:
-            if entity.position == [x, y]:
+            ex, ey = entity.position
+            if x <= ex < x + width and y <= ey < y + height:
                 return True
         return False
+
+    def _aggregate_tiles(
+        self,
+        game_map: list[list[str]],
+        start_x: int,
+        start_y: int,
+        width: int,
+        height: int,
+    ) -> str:
+        """Collapse a block of tiles into a single representative character."""
+        tiles: list[str] = []
+        for yy in range(start_y, min(start_y + height, len(game_map))):
+            row = game_map[yy]
+            for xx in range(start_x, min(start_x + width, len(row))):
+                tiles.append(row[xx])
+
+        if not tiles:
+            return " "
+
+        priority = [
+            "#",
+            "+",
+            "'",
+            "<",
+            ">",
+            "%",
+            "~",
+            "6",
+            "5",
+            "4",
+            "3",
+            "2",
+            "1",
+            ".",
+        ]
+
+        for symbol in priority:
+            if symbol in tiles:
+                return symbol
+
+        for tile in tiles:
+            if tile.strip():
+                return tile
+
+        return "."
 
     def _render_tile(self, tile: str) -> str:
         """Render a tile with appropriate color."""

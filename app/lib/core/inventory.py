@@ -25,6 +25,15 @@ class InventoryManager:
         self.equipment: Dict[str, Optional[ItemInstance]] = {}
         self._data_loader = GameData()
         self.stackable_types = ["potion", "scroll", "food", "ammunition"]
+        self.equipment["light"] = None
+
+    def _is_light_source(self, instance: Optional[ItemInstance]) -> bool:
+        return (
+            instance is not None
+            and isinstance(instance.effect, list)
+            and len(instance.effect) > 0
+            and instance.effect[0] == "light_source"
+        )
     
     def _can_stack(self, item1: ItemInstance, item2: ItemInstance) -> bool:
         """
@@ -57,8 +66,38 @@ class InventoryManager:
         
         if item1.charges is not None or item2.charges is not None:
             return False
-        
+    
         return True
+
+    def ensure_light_slot_integrity(self) -> None:
+        """
+        Ensure that light sources reside exclusively in the dedicated light slot
+        and that no duplicate light instances remain equipped elsewhere.
+        """
+        primary_light: Optional[ItemInstance] = None
+
+        current_light = self.equipment.get("light")
+        if not self._is_light_source(current_light):
+            if current_light:
+                self.instances.append(current_light)
+            self.equipment["light"] = None
+        else:
+            primary_light = current_light
+
+        for slot, instance in list(self.equipment.items()):
+            if slot == "light":
+                continue
+            if self._is_light_source(instance):
+                if not primary_light:
+                    primary_light = instance
+                else:
+                    self.instances.append(instance)
+                self.equipment[slot] = None
+
+        if primary_light:
+            self.equipment["light"] = primary_light
+        else:
+            self.equipment.setdefault("light", None)
     
     def add_item(self, item_id_or_name: str, quantity: int = 1) -> bool:
         """
@@ -155,10 +194,16 @@ class InventoryManager:
         if not instance:
             return False, "Item not found in inventory"
         
-        if not instance.slot:
+        if not instance.slot and not self._is_light_source(instance):
             return False, "Item cannot be equipped"
         
-        if instance.slot == "ring":
+        slot: Optional[str] = None
+        if self._is_light_source(instance):
+            slot = "light"
+            self.equipment.setdefault("light", None)
+            if self.equipment.get("light"):
+                self.unequip_slot("light")
+        elif instance.slot == "ring":
             if not self.equipment.get("ring_left"):
                 slot = "ring_left"
             elif not self.equipment.get("ring_right"):
@@ -178,11 +223,14 @@ class InventoryManager:
                 self.unequip_slot("quiver")
         else:
             slot = instance.slot
+            self.equipment.setdefault(slot, None)
             if self.equipment.get(slot):
                 self.unequip_slot(slot)
         
         self.remove_instance(instance_id)
         self.equipment[slot] = instance
+        if self._is_light_source(instance):
+            self.ensure_light_slot_integrity()
         
         return True, f"Equipped {instance.item_name}"
     
@@ -246,6 +294,8 @@ class InventoryManager:
                 manager.equipment[slot] = instance
             else:
                 manager.equipment[slot] = None
+
+        manager.ensure_light_slot_integrity()
         
         return manager
     

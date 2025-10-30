@@ -1,9 +1,9 @@
 
+from rich.text import Text
 from textual.containers import Vertical
 from textual.screen import Screen
 from textual.widgets import Static
 from debugtools import debug
-
 
 class PauseMenuScreen(Screen):
     """Simple pause menu with resume/save/quit options."""
@@ -18,8 +18,8 @@ class PauseMenuScreen(Screen):
     def compose(self):
         """Compose."""
         with Vertical(id="pause-menu", classes="dialog"):
-            yield Static("[chartreuse1]=== Game Paused ===[/chartreuse1]", markup=True)
-            yield Static("[white]R[/white] Resume    [white]S[/white] Save    [white]Q[/white] Quit to Title", markup=True)
+            yield Static(Text.from_markup("[chartreuse1]=== Game Paused ===[/chartreuse1]"), markup=True)
+            yield Static(Text.from_markup("[R]esume    [S]ave    [Q]uit to Title"), markup=True)
 
     def action_resume(self):
         """Action resume."""

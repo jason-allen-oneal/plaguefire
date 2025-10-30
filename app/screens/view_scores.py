@@ -1,16 +1,9 @@
-
 from textual.app import ComposeResult
-from textual.containers import Container, Vertical, VerticalScroll
+from textual.containers import Vertical
 from textual.screen import Screen
-from textual.widgets import Header, Footer, Static
-from textual import events
-from rich.text import Text
-from typing import TYPE_CHECKING
-from debugtools import debug
+from textual.widgets import Static
+from typing import List
 
-if TYPE_CHECKING:
-    from app.plaguefire import RogueApp
-    from app.lib.player import Player
 
 class ViewScoresScreen(Screen):
     """Screen showing character statistics and achievements."""
@@ -20,93 +13,114 @@ class ViewScoresScreen(Screen):
         ("v", "app.pop_screen", "Close"),
     ]
 
-    def __init__(self, **kwargs) -> None:
-        """Initialize the instance."""
-        super().__init__(**kwargs)
-
     def compose(self) -> ComposeResult:
-        """Compose."""
-        with VerticalScroll(id="scores-scroll"):
-            yield Static(Text.from_markup(self._render_scores()), id="scores-display")
-
-    def _render_scores(self) -> str:
-        """Renders character statistics and achievements."""
-        lines = [
-            f"[chartreuse1]Character Statistics[/chartreuse1]",
-            "[chartreuse1]" + "=" * 60 + "[/chartreuse1]",
-            ""
-        ]
-        
-        player = getattr(self.app, 'player', None)
+        """Compose the screen layout."""
+        player = getattr(self.app, "player", None)
         if not player:
-            lines.append("[yellow2]No character data available.[/yellow2]")
-            return "\n".join(lines)
-        
-        lines.append(f"[bold white]Name:[/bold white] {player.name}")
-        lines.append(f"[bold white]Race:[/bold white] {player.race}")
-        lines.append(f"[bold white]Class:[/bold white] {player.class_}")
-        lines.append(f"[bold white]Sex:[/bold white] {player.sex}")
-        lines.append("")
-        
-        lines.append(f"[bold white]Level:[/bold white] {player.level}")
-        lines.append(f"[bold white]Experience:[/bold white] {player.xp:,}")
-        if player.next_level_xp:
-            lines.append(f"[bold white]Next Level:[/bold white] {player.next_level_xp:,} XP")
-        lines.append("")
-        
-        lines.append(f"[bold white]HP:[/bold white] {player.hp}/{player.max_hp}")
-        if player.mana_stat:
-            lines.append(f"[bold white]Mana:[/bold white] {player.mana}/{player.max_mana}")
-        lines.append(f"[bold white]Gold:[/bold white] {player.gold:,}")
-        lines.append("")
-        
-        lines.append("[bold yellow]Statistics:[/bold yellow]")
-        for stat in ["STR", "INT", "WIS", "DEX", "CON", "CHA"]:
-            value = player.stats.get(stat, 0)
-            lines.append(f"  {stat}: {value}")
-        lines.append("")
-        
-        lines.append("[bold yellow]Progress:[/bold yellow]")
-        lines.append(f"  Current Depth: {player.depth}")
-        lines.append(f"  Deepest Depth: {player.deepest_depth}")
-        lines.append(f"  Turn Count: {player.time}")
-        lines.append("")
-        
-        lines.append("[bold yellow]Equipment:[/bold yellow]")
-        weapon = player.equipment.get('weapon')
-        armor = player.equipment.get('armor')
-        weapon_display = player.get_inscribed_item_name(weapon) if weapon else 'None'
-        armor_display = player.get_inscribed_item_name(armor) if armor else 'None'
-        lines.append(f"  Weapon: {weapon_display}")
-        lines.append(f"  Armor: {armor_display}")
-        lines.append("")
-        
-        inv_count = len(player.inventory)
-        lines.append(f"[bold yellow]Inventory:[/bold yellow] {inv_count}/22 items")
-        
-        current_weight = player.get_current_weight()
-        capacity = player.get_carrying_capacity()
-        weight_percent = int((current_weight / capacity) * 100) if capacity > 0 else 0
-        lines.append(f"[bold yellow]Weight:[/bold yellow] {current_weight/10:.1f} / {capacity/10:.1f} lbs ({weight_percent}%)")
-        lines.append("")
-        
-        if player.known_spells:
-            lines.append(f"[bold yellow]Known Spells:[/bold yellow] {len(player.known_spells)}")
-            for spell_id in player.known_spells[:10]:
-                lines.append(f"  - {spell_id}")
-            if len(player.known_spells) > 10:
-                lines.append(f"  ... and {len(player.known_spells) - 10} more")
-        else:
-            lines.append("[bold yellow]Known Spells:[/bold yellow] None")
-        lines.append("")
-        
-        active_effects = player.status_manager.get_active_effects()
-        if active_effects:
-            lines.append("[bold yellow]Active Effects:[/bold yellow]")
-            for effect_name in active_effects:
-                lines.append(f"  - {effect_name}")
-        lines.append("")
-        
-        lines.append("[dim]Press [Esc] or [V] to close[/dim]")
-        
+            yield Static("[yellow2]No character data available.[/yellow2]")
+            return
+
+        scoreboard = self._build_scoreboard(player)
+        details = self._build_detail_sections(player)
+
+        with Vertical(id="scores-root"):
+            yield Static(scoreboard, id="scores-board", markup=False, expand=False)
+            if details:
+                yield Static(details, id="scores-details", expand=False)
+
+    def _build_scoreboard(self, player) -> str:
+        """Build an ASCII scoreboard layout reminiscent of classic roguelike records."""
+        inner_width = 36
+
+        def sanitize(lines: List[str]) -> List[str]:
+            return [self._shorten(line, inner_width) for line in lines]
+
+        cls = getattr(player, "class_", getattr(player, "char_class", "Adventurer"))
+        left_lines = [
+            f"Name: {player.name}",
+            f"Race: {player.race}",
+            f"Class: {cls}",
+            f"Sex: {player.sex}",
+            "",
+            f"Level: {player.level}",
+            f"Experience: {player.xp:,}",
+            f"Next Level: {player.next_level_xp:,} XP" if player.next_level_xp else "",
+            "",
+            f"Hit Points: {player.hp}/{player.max_hp}",
+            f"Mana: {player.mana}/{player.max_mana}" if player.mana_stat else "",
+            f"Gold: {player.gold:,}",
+            "",
+            "-- Attributes --",
+        ]
+        left_lines.extend(f"{stat}: {player.stats.get(stat, 0):>3}" for stat in ["STR", "INT", "WIS", "DEX", "CON", "CHA"])
+
+        weapon = "None"
+        armor = "None"
+        if getattr(player, "equipment", None):
+            weapon_item = player.equipment.get("weapon")
+            armor_item = player.equipment.get("armor")
+            weapon = player.get_inscribed_item_name(weapon_item) if weapon_item else "None"
+            armor = player.get_inscribed_item_name(armor_item) if armor_item else "None"
+
+        inventory_count = len(player.inventory) if isinstance(player.inventory, list) else 0
+        right_lines = [
+            f"Depth: {player.depth} / {player.deepest_depth}",
+            f"Turns: {player.time}",
+            "",
+            "-- Equipment --",
+            f"Weapon: {weapon}",
+            f"Armor: {armor}",
+            "",
+            "-- Adventure --",
+            f"Inventory: {inventory_count}/22 slots",
+            "",
+            f"History: {self._shorten(player.history, inner_width)}" if getattr(player, "history", None) else "",
+        ]
+
+        left_lines = sanitize(left_lines)
+        right_lines = sanitize([line for line in right_lines if line is not None])
+
+        max_rows = max(len(left_lines), len(right_lines))
+        border_segment = "=" * (inner_width + 2)
+        divider_segment = "-" * (inner_width + 2)
+
+        lines = [
+            f"+{border_segment}+{border_segment}+",
+            f"| {'Character Record':^{inner_width}} | {'Adventure Log':^{inner_width}} |",
+            f"+{divider_segment}+{divider_segment}+",
+        ]
+
+        for idx in range(max_rows):
+            left_text = left_lines[idx] if idx < len(left_lines) else ""
+            right_text = right_lines[idx] if idx < len(right_lines) else ""
+            lines.append(f"| {left_text:<{inner_width}} | {right_text:<{inner_width}} |")
+
+        lines.append(f"+{border_segment}+{border_segment}+")
         return "\n".join(lines)
+
+    def _build_detail_sections(self, player) -> str:
+        """Build supplementary sections for spells, effects, and closing hint."""
+        sections: List[str] = []
+        spells = getattr(player, "known_spells", []) or []
+        spell_lines = "\n".join(f"  • {spell}" for spell in spells[:10]) if spells else "  • None"
+        sections.append("[chartreuse1]Known Spells[/chartreuse1]\n" + spell_lines)
+
+        active_effects = []
+        if hasattr(player, "status_manager") and hasattr(player.status_manager, "get_active_effects"):
+            active_effects = player.status_manager.get_active_effects()
+        elif getattr(player, "status_effects", None):
+            active_effects = player.status_effects
+
+        effect_lines = "\n".join(f"  • {effect}" for effect in active_effects) if active_effects else "  • None"
+        sections.append("[chartreuse1]Active Effects[/chartreuse1]\n" + effect_lines)
+
+        sections.append("[dim]Press [Esc] or [V] to close[/dim]")
+        return "\n\n".join(sections)
+
+    def _shorten(self, text: str, width: int) -> str:
+        """Shorten text to fit within the scoreboard column width."""
+        if not text:
+            return ""
+        if len(text) <= width:
+            return text
+        return text[: width - 1] + "…"

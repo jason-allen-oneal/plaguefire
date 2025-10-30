@@ -9,7 +9,7 @@ class GeneralStoreScreen(BaseShopScreen):
     def __init__(self, **kwargs):
         """Initialize the instance."""
         shop_name = "Ye Olde General Store"
-        owner_name = "Bob"
+        owner_name = "[dodger_blue1]Bob[/dodger_blue1]"
         catchphrases = ["Need supplies?", "Got just the thing!", "Torches! Get yer torches!"]
         items = self._generate_store_inventory()
         allowed_actions = ['buy', 'sell', 'leave']
@@ -26,13 +26,12 @@ class GeneralStoreScreen(BaseShopScreen):
     def _generate_store_inventory(self) -> List[ShopItem]:
         """Generate specific items for the general store."""
         inventory = [
-            ShopItem(name="Torch", cost=5, description="Lights the way."),
-            ShopItem(name="Rations", cost=10, description="A day's worth of food."),
-            ShopItem(name="Rope (50ft)", cost=25, description="Useful for climbing."),
-            ShopItem(name="Healing Potion (Minor)", cost=50, description="Restores a small amount of health."),
+            ShopItem(name="Wooden Torch", cost=5, description="Lights the way.", item_id="TORCH"),
+            ShopItem(name="Ration of Food", cost=10, description="A day's worth of food.", item_id="FOOD_RATION"),
+            ShopItem(name="Strip of Beef Jerky", cost=12, description="Salty preserved meat.", item_id="FOOD_JERKY"),
+            ShopItem(name="Potion of Cure Light Wounds", cost=50, description="Restores a small amount of health.", item_id="POTION_CURE_LIGHT"),
         ]
         if random.random() < 0.3:
-             inventory.append(ShopItem(name="Scroll of Identify", cost=100, description="Reveals an item's properties."))
-             
-        return inventory
+            inventory.append(ShopItem(name="Scroll of Identify", cost=100, description="Reveals an item's properties.", item_id="SCROLL_IDENTIFY"))
 
+        return inventory

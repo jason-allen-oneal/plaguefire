@@ -91,14 +91,18 @@ def generate_room_corridor_dungeon(
 
             if random.randint(0, 1) == 1:
                 for x_corr in range(min(prev_center_x, new_center_x), max(prev_center_x, new_center_x) + 1):
-                    dungeon[prev_center_y][x_corr] = FLOOR
+                    if dungeon[prev_center_y][x_corr] == WALL:
+                        dungeon[prev_center_y][x_corr] = FLOOR
                 for y_corr in range(min(prev_center_y, new_center_y), max(prev_center_y, new_center_y) + 1):
-                     dungeon[y_corr][new_center_x] = FLOOR
+                    if dungeon[y_corr][new_center_x] == WALL:
+                        dungeon[y_corr][new_center_x] = FLOOR
             else:
                 for y_corr in range(min(prev_center_y, new_center_y), max(prev_center_y, new_center_y) + 1):
-                    dungeon[y_corr][prev_center_x] = FLOOR
+                    if dungeon[y_corr][prev_center_x] == WALL:
+                        dungeon[y_corr][prev_center_x] = FLOOR
                 for x_corr in range(min(prev_center_x, new_center_x), max(prev_center_x, new_center_x) + 1):
-                     dungeon[new_center_y][x_corr] = FLOOR
+                    if dungeon[new_center_y][x_corr] == WALL:
+                        dungeon[new_center_y][x_corr] = FLOOR
 
         rooms.append(new_room)
 
@@ -194,6 +198,27 @@ def _place_doors(dungeon: MapData, rooms: List[Rect], map_width: int, map_height
             if distance < MIN_DOOR_SPACING:
                 return True
         return False
+
+    def _door_has_support(x: int, y: int, direction: str) -> bool:
+        """Ensure the prospective door tile is bounded by walls in a sensible way."""
+        neighbors = []
+        for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < map_width and 0 <= ny < map_height:
+                neighbors.append(dungeon[ny][nx])
+        if not any(tile == WALL for tile in neighbors):
+            return False
+        if direction in ("north", "south"):
+            left = dungeon[y][x - 1] if x - 1 >= 0 else WALL
+            right = dungeon[y][x + 1] if x + 1 < map_width else WALL
+            if left != WALL and right != WALL:
+                return False
+        else:
+            up = dungeon[y - 1][x] if y - 1 >= 0 else WALL
+            down = dungeon[y + 1][x] if y + 1 < map_height else WALL
+            if up != WALL and down != WALL:
+                return False
+        return True
     
     for room in rooms:
         entrances = _find_room_entrances(dungeon, room, map_width, map_height)
@@ -204,6 +229,9 @@ def _place_doors(dungeon: MapData, rooms: List[Rect], map_width: int, map_height
                 current_tile = dungeon[y][x]
                 if current_tile not in (FLOOR, DOOR_OPEN, DOOR_CLOSED):
                     debug(f"Skipped door at ({x},{y}) - unsuitable tile ({current_tile})")
+                    continue
+                if not _door_has_support(x, y, direction):
+                    debug(f"Skipped door at ({x},{y}) - lacking wall support")
                     continue
                 if random.random() < 0.1:
                     door_type = SECRET_DOOR
@@ -250,7 +278,7 @@ def _find_room_entrances(dungeon: MapData, room: Rect, map_width: int, map_heigh
         
         if in_entrance:
             mid_x = (start_x + room.x2 - 1) // 2
-            entrances.append((mid_x, room.y1, "north"))
+            entrances.append((mid_x, room.y1 - 1, "north"))
     
     if room.y2 < map_height - 1:
         in_entrance = False

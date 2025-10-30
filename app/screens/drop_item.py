@@ -73,7 +73,9 @@ class DropItemScreen(Screen):
                 lines.append(f"[yellow]{letter})[/yellow] [bold white]{inscribed_name}[/bold white]{equipped_marker}")
 
         lines.append("")
-        lines.append(f"[dim]Carrying: {self.player.get_total_weight()}/{self.player.get_max_carry_weight()} lbs[/dim]")
+        current_weight = self.player.get_current_weight() if hasattr(self.player, "get_current_weight") else 0
+        capacity = self.player.get_carrying_capacity() if hasattr(self.player, "get_carrying_capacity") else 0
+        lines.append(f"[dim]Carrying: {self._format_weight(current_weight)}/{self._format_weight(capacity)} lbs[/dim]")
         lines.append("[dim]Press letter to drop item, [Esc] to cancel[/dim]")
         return "\n".join(lines)
 
@@ -103,3 +105,7 @@ class DropItemScreen(Screen):
             else:
                 self.notify("Error: Game engine not found.", severity="error")
                 debug("ERROR: Could not find game screen or engine")
+
+    def _format_weight(self, weight: int) -> str:
+        """Convert internal weight units (tenths of pounds) to display string."""
+        return f"{weight / 10:.1f}"

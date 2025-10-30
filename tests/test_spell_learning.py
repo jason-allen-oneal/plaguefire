@@ -104,6 +104,75 @@ def test_spell_learning_on_level_up():
     return True
 
 
+def test_incremental_spell_learning_picks():
+    """Ensure spell picks increase with each level-up unlock."""
+    print("Test: Incremental spell learning picks...")
+
+    player_data = {
+        "name": "Limit Tester",
+        "race": "Human",
+        "class": "Mage",
+        "sex": "Female",
+        "stats": {"STR": 9, "INT": 18, "WIS": 13, "DEX": 12, "CON": 10, "CHA": 11},
+        "stat_percentiles": {"STR": 0, "INT": 50, "WIS": 0, "DEX": 0, "CON": 0, "CHA": 0},
+        "level": 1,
+        "xp": 0,
+        "hp": 8,
+        "max_hp": 8,
+        "gold": 0,
+        "inventory": [],
+        "equipment": {},
+        "depth": 0,
+        "time": 0,
+        "known_spells": ["magic_missile"],
+    }
+
+    player = Player(player_data)
+
+    new_spells_available = player.gain_xp(3000)
+    assert new_spells_available, "Expected new spells to become available"
+    assert player.level >= 3, f"Expected to reach level 3, got {player.level}"
+    assert player.spell_picks_available == 1, f"Expected 1 spell pick, got {player.spell_picks_available}"
+    assert player.spell_pick_awards == 1, f"First award counter incorrect: {player.spell_pick_awards}"
+
+    available = list(player.spells_available_to_learn)
+    assert available, "Expected at least one spell to be available"
+
+    spell_to_learn = available[0]
+    assert player.finalize_spell_learning(spell_to_learn), "Expected to learn the first spell pick"
+    assert spell_to_learn in player.known_spells
+    assert player.spell_picks_available == 0, "Spell picks should be depleted after learning"
+
+    remaining_from_first_award = [spell for spell in available if spell != spell_to_learn]
+    assert set(remaining_from_first_award).issubset(set(player.spells_available_to_learn)), "Unchosen spells should remain available"
+
+    if remaining_from_first_award:
+        second_spell = remaining_from_first_award[0]
+        assert not player.finalize_spell_learning(second_spell), "Should not learn without available picks"
+        assert second_spell not in player.known_spells, "Second spell should remain unlearned"
+        assert player.spell_picks_available == 0, "Spell picks should remain zero after failed attempt"
+
+    # Gain more experience to trigger the next spell award (should grant 2 picks)
+    player.gain_xp(10000)
+    assert player.spell_pick_awards == 2, f"Second spell award tier should be 2, got {player.spell_pick_awards}"
+    assert player.spell_picks_available == 2, f"Expected 2 spell picks after second award, got {player.spell_picks_available}"
+
+    # Learn up to two spells
+    learnable_now = list(player.spells_available_to_learn)
+    assert len(learnable_now) >= 2, "Expected at least two spells to choose from after second award"
+    learned = 0
+    for spell_id in learnable_now:
+        if player.spell_picks_available <= 0 or learned >= 2:
+            break
+        if player.finalize_spell_learning(spell_id):
+            learned += 1
+    assert learned == 2, f"Expected to learn 2 spells in second round, learned {learned}"
+    assert player.spell_picks_available == 0, "Picks should be exhausted after learning allotted spells"
+
+    print("✓ Spell picks grow 1→2 and respect limits\n")
+    return True
+
+
 def test_spell_casting():
     """Test spell casting mechanics."""
     print("Test: Spell casting...")
@@ -150,6 +219,7 @@ if __name__ == "__main__":
     try:
         test_starter_spell_selection()
         test_spell_learning_on_level_up()
+        test_incremental_spell_learning_picks()
         test_spell_casting()
         
         print("=" * 60)

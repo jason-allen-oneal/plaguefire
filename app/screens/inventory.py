@@ -1,7 +1,7 @@
-
-from textual.containers import Vertical, VerticalScroll
+from rich.text import Text
 from textual.screen import Screen
 from textual.widgets import Static
+from textual.containers import Vertical, VerticalScroll, Horizontal
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class InventoryScreen(Screen):
-    """Simple inventory display showing the player's gear and items."""
+    """Inventory display split into summary and item columns."""
 
     BINDINGS = [
         ("escape", "close", "Close"),
@@ -17,82 +17,95 @@ class InventoryScreen(Screen):
     ]
 
     def __init__(self, **kwargs):
-        """Initialize the instance."""
         super().__init__(**kwargs)
         self.title_widget: Static | None = None
-        self.body_widget: Static | None = None
+        self.left_column: Static | None = None
+        self.right_column: Static | None = None
         self.footer_widget: Static | None = None
 
     def compose(self):
-        """Compose."""
         with Vertical(id="inventory-wrapper"):
             self.title_widget = Static("Inventory", id="inventory-title")
             yield self.title_widget
 
             with VerticalScroll(id="inventory-scroll"):
-                self.body_widget = Static("", id="inventory-body")
-                yield self.body_widget
+                with Horizontal(id="inventory-columns"):
+                    self.left_column = Static("", id="inventory-left", expand=True)
+                    yield self.left_column
+                    self.right_column = Static("", id="inventory-right", expand=True)
+                    yield self.right_column
 
             self.footer_widget = Static("Press [Esc] to return to the dungeon.", id="inventory-footer")
             yield self.footer_widget
 
-    def on_mount(self):
-        """On mount."""
-        self.refresh_contents()
+    def on_mount(self) -> None:
+        self._refresh_contents()
 
-    def on_show(self):
-        """On show."""
-        self.refresh_contents()
+    def on_show(self) -> None:
+        self._refresh_contents()
 
-    def refresh_contents(self):
-        """Update the inventory text from the current player data."""
+    def _refresh_contents(self) -> None:
         player = getattr(self.app, "player", None)  # type: ignore[attr-defined]
+
         if not player:
-            body = "No player data available."
+            left_content = "[chartreuse1]======Inventory======[/chartreuse1]\nNo player data available."
+            right_content = ""
         else:
             current_weight = player.get_current_weight()
             capacity = player.get_carrying_capacity()
-            weight_display = f"{current_weight/10:.1f} lbs / {capacity/10:.1f} lbs"
-            overweight = " [OVERWEIGHT!]" if player.is_overweight() else ""
-            
-            header = f"{player.name} — Level {player.level} — Gold: {player.gold}"
-            weight_line = f"Weight: {weight_display}{overweight}"
-            
-            weapon = player.equipment.get('weapon')
-            armor = player.equipment.get('armor')
-            equipment_lines = [
-                f"Wielding: {player.get_inscribed_item_name(weapon) if weapon else 'Nothing'}",
-                f"Wearing:  {player.get_inscribed_item_name(armor) if armor else 'Nothing'}",
+            weight_display = f"[light_slate_gray]{current_weight/10:.1f} lbs / {capacity/10:.1f} lbs[/light_slate_gray]"
+            overweight = " [bright_red]\\[OVERWEIGHT!][/bright_red]" if player.is_overweight() else ""
+
+            equipment = player.equipment if isinstance(getattr(player, "equipment", {}), dict) else {}
+            weapon = equipment.get("weapon")
+            armor = equipment.get("armor")
+            light = equipment.get("light")
+
+            left_lines = [
+                "[chartreuse1]======Inventory======[/chartreuse1]",
+                f"[deep_sky_blue3]{player.name}[/deep_sky_blue3] — [dark_turquoise]Level {player.level}[/dark_turquoise]",
+                f"Gold: [yellow2]{player.gold}[/yellow2]",
+                f"Weight: {weight_display}{overweight}",
+                "",
+                "[dim]Equipment:[/dim]",
+                f"Weapon: [bright_white]{player.get_inscribed_item_name(weapon) if weapon else 'Nothing'}[/bright_white]",
+                f"Armor:  [bright_white]{player.get_inscribed_item_name(armor) if armor else 'Nothing'}[/bright_white]",
+                f"Light:  [bright_white]{player.get_inscribed_item_name(light) if light else 'None'}[/bright_white]",
             ]
-            
-            inventory = player.inventory or []
-            if inventory:
-                item_lines = [
-                    f"{idx + 1}. {player.get_inscribed_item_name(item)}" 
-                    for idx, item in enumerate(inventory)
-                ]
+
+            inventory_items = player.inventory or []
+            right_lines = [
+                f"[dim]Items ({len(inventory_items)}/22):[/dim]",
+            ]
+
+            if inventory_items:
+                mid = (len(inventory_items) + 1) // 2
+                left_items = inventory_items[:mid]
+                right_items = inventory_items[mid:]
+
+                for row in range(max(len(left_items), len(right_items))):
+                    left_entry = ""
+                    right_entry = ""
+                    if row < len(left_items):
+                        name = player.get_inscribed_item_name(left_items[row])
+                        left_entry = f"{row + 1:>2}. [bright_white]{name}[/bright_white]"
+                    if row < len(right_items):
+                        name = player.get_inscribed_item_name(right_items[row])
+                        right_entry = f"{row + 1 + mid:>2}. [bright_white]{name}[/bright_white]"
+                    if right_entry:
+                        right_lines.append(f"{left_entry:<40}{right_entry}")
+                    else:
+                        right_lines.append(left_entry)
             else:
-                item_lines = ["(Inventory is empty)"]
-            
-            inv_count = f"Inventory: {len(inventory)}/22 items"
+                right_lines.append("  (Inventory is empty)")
 
-            body = "\n".join(
-                [
-                    header,
-                    weight_line,
-                    "",
-                    "Equipment:",
-                    *equipment_lines,
-                    "",
-                    inv_count,
-                    "Items:",
-                    *item_lines,
-                ]
-            )
+            left_content = "\n".join(left_lines)
+            right_content = "\n".join(right_lines)
 
-        if self.body_widget:
-            self.body_widget.update(body)
+        if self.left_column:
+            self.left_column.update(Text.from_markup(left_content))
+        if self.right_column:
+            self.right_column.update(Text.from_markup(right_content))
 
-    def action_close(self):
-        """Action close."""
+    def action_close(self) -> None:
         self.app.pop_screen()

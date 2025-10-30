@@ -30,10 +30,10 @@ class TempleScreen(BaseShopScreen):
     def _generate_temple_inventory(self) -> List[ShopItem]:
         """Generate items/services for the temple."""
         inventory = [
-            ShopItem(name="Blessing", cost=25, description="A prayer for your safety."),
-            ShopItem(name="Cure Light Wounds (Service)", cost=30, description="Heals minor injuries."),
-            ShopItem(name="Remove Curse (Service)", cost=100, description="Lifts malevolent effects."),
-            ShopItem(name="Potion of Healing", cost=50, description="Restores health."),
+            ShopItem(name="Scroll of Blessing", cost=25, description="A prayer for your safety.", item_id="SCROLL_BLESSING"),
+            ShopItem(name="Potion of Cure Light Wounds", cost=30, description="Heals minor injuries.", item_id="POTION_CURE_LIGHT"),
+            ShopItem(name="Scroll of Remove Curse", cost=100, description="Lifts malevolent effects.", item_id="SCROLL_REMOVE_CURSE"),
+            ShopItem(name="Potion of Healing", cost=50, description="Restores health.", item_id="POTION_HEALING"),
         ]
         return inventory
 

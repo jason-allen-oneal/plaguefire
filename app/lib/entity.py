@@ -7,6 +7,7 @@ Entities are created from templates defined in the game data files.
 """
 
 from typing import Dict, List, Optional, Tuple
+from app.lib.core.utils import roll_dice
 from debugtools import debug
 import random
 from app.lib.core.loader import GameData
@@ -98,7 +99,7 @@ class Entity:
             clone_cap_value = DEFAULT_CLONE_CAP
         self.clone_max_population: int = int(clone_cap_value) if clone_cap_value is not None else 0
 
-        self.move_counter: int = random.randint(0, 1)
+        self.move_counter: int = roll_dice(1, 100) / 100
         self.status_manager = StatusEffectManager()
         self.aware_of_player: bool = False
         
@@ -138,7 +139,7 @@ class Entity:
         """
         dropped_item_ids: List[str] = []
         for item_id, chance in self.drop_table.items():
-            if random.randint(1, 100) <= chance:
+            if roll_dice(1, 100) <= chance:
                 dropped_item_ids.append(item_id)
 
         min_g = self.level * self.gold_min_mult

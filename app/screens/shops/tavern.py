@@ -33,8 +33,8 @@ class TavernScreen(BaseShopScreen):
     def _generate_tavern_inventory(self) -> List[ShopItem]:
         """Generate items/services for the tavern."""
         inventory = [
-            ShopItem(name="Mug of Ale", cost=2, description="Warms the belly."),
-            ShopItem(name="Hearty Meal", cost=5, description="Better than rations."),
+            ShopItem(name="Pint of Fine Ale", cost=2, description="Warms the belly.", item_id="FOOD_ALE"),
+            ShopItem(name="Piece of Elvish Waybread", cost=5, description="Better than rations.", item_id="FOOD_WAYBREAD"),
         ]
         return inventory
 

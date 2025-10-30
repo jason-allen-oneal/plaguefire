@@ -547,7 +547,7 @@ Magic is a core part of Plaguefire for most classes.
 
 **Sources of new spells:**
 1. **Starting spell** (character creation)
-2. **Level up** (class-dependent, gain spells automatically)
+2. **Level up** (class-dependent unlocks; choose new spells from your class list)
 3. **Scrolls**: Read a scroll to attempt learning the spell
 4. **Spellbooks**: Browse books to learn spells permanently
 
@@ -560,7 +560,7 @@ Magic is a core part of Plaguefire for most classes.
    - Your level
    - Spell difficulty
    - Your INT or WIS stat
-4. Press **G** to access spells you can learn from level-ups
+4. Press **G** to access spells you can learn from level-ups; each time new class spells unlock you receive one more pick than the previous unlock (1, then 2, then 3, etc.)
 
 ### Casting Spells
 
@@ -1181,7 +1181,7 @@ A: Use a Scroll of Identify, pay at the Magic Shop, or try using the item (risky
 A: Use Remove Curse spell/scroll or visit the Temple for curse removal.
 
 **Q: How do I learn new spells?**
-A: Read scrolls, browse spellbooks (b/P), or press G when you level up to learn class spells.
+A: Read scrolls, browse spellbooks (b/P), or press G when you level up to learn class spells. Each time new class spells become available you get one extra pick compared to the last wave (1, then 2, then 3, etc.), so bank unspent choices for future tiers if needed.
 
 **Q: What's the best class for beginners?**
 A: Warrior or Paladin. They have high HP and don't require magic management.

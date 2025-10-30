@@ -1,18 +1,25 @@
 # css.py
 
 CSS = """
+#game-root {
+    height: 100%;
+    width: 100%;
+}
+
 #layout {
-    /* Ensure this is a horizontal layout (handled by Horizontal widget in Python code) */
-    /* layout: horizontal; */ 
+    height: 100%;
+}
+
+#main-column {
+    width: 1fr;
     height: 100%;
 }
 
 #dungeon {
-    /* UPDATED: Use 1fr to take remaining space */
     width: 1fr; 
     border: solid #444;
     padding: 0; 
-    height: 100%;
+    height: 1fr;
 }
 
 #hud {
@@ -23,6 +30,39 @@ CSS = """
     height: 100%;
     /* Total width becomes 32 due to padding */
     box-sizing: border-box; 
+}
+
+#hotkey-container {
+    height: 14;
+    max-height: 18;
+    border: solid #444;
+    border-top: none;
+    background: #080512;
+    padding: 0 1;
+}
+
+#scores-root {
+    align-horizontal: center;
+    align-vertical: top;
+    padding: 2 4;
+}
+
+#scores-board {
+    border: solid #444;
+    padding: 1 2;
+    background: #05030c;
+    text-align: center;
+}
+
+#scores-details {
+    padding: 0 2;
+    width: 80;
+    text-align: left;
+}
+
+#death-tombstone {
+    padding: 2;
+    text-align: center;
 }
 
 #creation_layout {

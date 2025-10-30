@@ -1,11 +1,11 @@
 
 from textual.app import ComposeResult
-from textual.containers import Container, Vertical
+from textual.containers import Vertical
 from textual.screen import Screen
-from textual.widgets import Header, Footer, Static, Input
+from textual.widgets import Static, Input
 from textual import events
 from rich.text import Text
-from typing import TYPE_CHECKING, Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, Optional
 from debugtools import debug
 import string
 

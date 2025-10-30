@@ -34,7 +34,7 @@ SECRET_DOOR_FOUND = "+"  # Revealed secret door
 
 # --- Mining Tile Characters ---
 QUARTZ_VEIN = "%"  # Richest mineral vein
-MAGMA_VEIN = "~"   # Magma vein with some treasure
+MAGMA_VEIN = "%"   # Magma vein with some treasure
 GRANITE = "#"      # Granite rock (same as wall but mineable)
 
 # --- Window Size (Adjust if needed based on VIEWPORT + HUD) ---

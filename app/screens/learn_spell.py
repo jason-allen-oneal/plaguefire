@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Dict, List
 from debugtools import debug
 import string
 
+
 if TYPE_CHECKING:
     from app.plaguefire import RogueApp
     from app.lib.player import Player
@@ -39,7 +40,7 @@ class SpellLearningScreen(Screen):
         available_spells = self.player.spells_available_to_learn
         letters = string.ascii_lowercase
         
-        if not available_spells:
+        if self._remaining_picks() <= 0 or not available_spells:
             return
 
         for i, spell_id in enumerate(available_spells):
@@ -49,16 +50,49 @@ class SpellLearningScreen(Screen):
             else:
                 break
 
+    def _remaining_picks(self) -> int:
+        """Return how many level-up spell picks the player still has."""
+        return max(0, getattr(self.player, "spell_picks_available", 0))
+
+    def _make_title_text(self) -> str:
+        """Build the dynamic title text for the spell picker."""
+        remaining = self._remaining_picks()
+        if remaining <= 0:
+            return (
+                f"[deep_sky_blue3]Level {self.player.level}![/deep_sky_blue3] "
+                "[grey70]No spell choices remaining.[/grey70]"
+            )
+        plural = "spell" if remaining == 1 else "spells"
+        return (
+            f"[deep_sky_blue3]Level {self.player.level}![/deep_sky_blue3] "
+            f"[chartreuse1]Choose {remaining} {plural} to learn:[/chartreuse1]"
+        )
+
+    def _make_help_text(self) -> str:
+        """Return help text including remaining picks."""
+        remaining = self._remaining_picks()
+        plural = "pick" if remaining == 1 else "picks"
+        return (
+            "\n[↑/↓] Select  [Enter] Learn  [Esc] Cancel  "
+            f"[dim]{remaining} {plural} remaining[/dim]"
+        )
+
+    def _update_headers(self):
+        """Refresh the header and help text to reflect remaining picks."""
+        self.query_one("#spell_title").update(Text.from_markup(self._make_title_text()))
+        self.query_one("#spell_help").update(Text.from_markup(self._make_help_text()))
+
 
     def compose(self) -> ComposeResult:
         """Compose."""
         yield Header()
-        yield Static(f"[deep_sky_blue3]Level {self.player.level}![/deep_sky_blue3] [chartreuse1]Choose a spell to learn:[/chartreuse1]", id="spell_title")
+        yield Static(self._make_title_text(), id="spell_title")
         yield Static("[yellow1]Loading spells...[/yellow1]", id="spell_list")
-        yield Static("\n[↑/↓] Select  [Enter] Learn  [Esc] Cancel", id="spell_help")
+        yield Static(self._make_help_text(), id="spell_help")
     
     def on_mount(self):
         """Called when the screen is mounted."""
+        self._update_headers()
         self._update_list_display()
     
     def _get_spell_list_items(self) -> List[tuple]:
@@ -72,6 +106,9 @@ class SpellLearningScreen(Screen):
     
     def _render_spell_list(self) -> str:
         """Generates the text for the spell list with selection highlight."""
+        if self._remaining_picks() <= 0:
+            return "\nNo spell picks remaining.\n"
+
         if not self.spell_options:
             return "\nNo spells available to learn.\n"
         
@@ -97,6 +134,7 @@ class SpellLearningScreen(Screen):
     def _update_list_display(self):
         """Refreshes the displayed list of spells."""
         self.query_one("#spell_list").update(Text.from_markup(self._render_spell_list()))
+        self._update_headers()
     
     def action_select_prev(self):
         """Select the previous spell."""
@@ -114,6 +152,10 @@ class SpellLearningScreen(Screen):
     
     def action_confirm_selection(self):
         """Learn the currently selected spell."""
+        if self._remaining_picks() <= 0:
+            self._update_list_display()
+            return
+
         items = self._get_spell_list_items()
         if not items or self.selected_index >= len(items):
             return
@@ -135,14 +177,6 @@ class SpellLearningScreen(Screen):
                 game_screen.engine.log_event(f"You have learned {spell_name}!")
             else:
                 debug(f"LOG: Learned {spell_name}")
-            
-            self._setup_spell_options()
-            items = self._get_spell_list_items()
-            if not items:
-                self.app.pop_screen()
-            else:
-                self.selected_index = min(self.selected_index, len(items) - 1)
-                self._update_list_display()
         else:
             debug(f"Error: Finalize spell learning failed for {spell_id}")
             game_screen = None
@@ -153,5 +187,14 @@ class SpellLearningScreen(Screen):
             
             if game_screen:
                 game_screen.engine.log_event(f"Error learning {spell_id}.")
+        
+        self._setup_spell_options()
+        items = self._get_spell_list_items()
+        remaining = self._remaining_picks()
+        if not items or remaining <= 0:
+            self._update_headers()
             self.app.pop_screen()
+            return
 
+        self.selected_index = min(self.selected_index, len(items) - 1)
+        self._update_list_display()

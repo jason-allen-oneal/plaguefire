@@ -109,6 +109,7 @@ class Engine:
 
         debug(f"Initializing engine at depth: {self.player.depth}")
         self.combat_log: List[str] = []
+        self._player_dead: bool = getattr(self.player, "status", 1) == 0
         
         generated_new_map = False
         self.rooms = []
@@ -167,6 +168,9 @@ class Engine:
                 entity_positions = [entity.position for entity in self.entities]
                 spawn_chests_for_depth(self.game_map, self.player.depth, self.player.position, entity_positions)
 
+        self.secret_door_difficulty: Dict[Tuple[int, int], int] = {}
+        self._initialize_secret_door_difficulty()
+
         debug(f"Engine initialized with {len(self.entities)} entities.")
         self.previous_time_of_day = self.get_time_of_day()
         self.searching = False
@@ -178,7 +182,9 @@ class Engine:
         self.recall_target_depth = None
         
         self.last_overweight_warning = 0
+        self.last_light_warning_time = -999
         self.overweight_warning_interval = 50
+        self.light_out_alerted = False
         
         if ground_items_override:
             self.ground_items = {tuple(pos): list(items) for pos, items in ground_items_override.items()}
@@ -232,40 +238,50 @@ class Engine:
         
         self.light_colors = [[0 for _ in range(map_w)] for _ in range(map_h)]
 
+        metric = "square" if getattr(self.player, "light_radius", 0) <= getattr(self.player, "base_light_radius", 0) else "euclidean"
+
         if self.player.depth == 0 and self.get_time_of_day() == "Day":
              self.visibility = [[2 for _ in range(map_w)] for _ in range(map_h)]
         elif self.player.depth == 0 and self.get_time_of_day() == "Night":
-             self.visibility = update_visibility(self.visibility, self.player.position, self.game_map, self.player.light_radius)
+             self.visibility = update_visibility(
+                 self.visibility,
+                 self.player.position,
+                 self.game_map,
+                 self.player.light_radius,
+                 metric=metric,
+             )
              for y in range(map_h):
                  for x in range(map_w):
                      if self.game_map[y][x] == WALL and self.visibility[y][x] == 0: self.visibility[y][x] = 1
         else:
-             self.visibility = update_visibility(self.visibility, self.player.position, self.game_map, self.player.light_radius)
+             self.visibility = update_visibility(
+                 self.visibility,
+                 self.player.position,
+                 self.game_map,
+                 self.player.light_radius,
+                 metric=metric,
+             )
         
         self._apply_light_colors()
     
     def _apply_light_colors(self):
         """Apply colored lighting for torches and lanterns."""
         from app.lib.fov import line_of_sight
-        
-        equipped_lantern = self.player.equipment.get('light', '')
-        
-        light_radius = 0
-        if 'Lantern' in equipped_lantern:
-            light_radius = 6
-        elif 'Torch' in equipped_lantern:
-            light_radius = 3
-        
-        if light_radius > 0:
-            px, py = self.player.position
+
+        px, py = self.player.position
+        light_radius = getattr(self.player, "light_radius", 0)
+        base_radius = getattr(self.player, "base_light_radius", 0)
+
+        if light_radius > base_radius:
+            radius_sq = light_radius * light_radius
             for y in range(max(0, py - light_radius), min(self.map_height, py + light_radius + 1)):
                 for x in range(max(0, px - light_radius), min(self.map_width, px + light_radius + 1)):
-                    dx = abs(x - px)
-                    dy = abs(y - py)
-                    if max(dx, dy) <= light_radius:
-                        if line_of_sight(self.game_map, px, py, x, y):
-                            if self.visibility[y][x] == 2:
-                                self.light_colors[y][x] = 1
+                    dx = x - px
+                    dy = y - py
+                    if dx * dx + dy * dy > radius_sq:
+                        continue
+                    if self.visibility[y][x] == 2 and line_of_sight(self.game_map, px, py, x, y):
+                        self.light_colors[y][x] = 1
 
         if self.player.depth > 0 and self.rooms and self.lit_rooms:
             for room_index in list(self.lit_rooms):
@@ -341,7 +357,27 @@ class Engine:
     def _end_player_turn(self):
         self.player.time += 1
         debug(f"--- Turn {self.player.time} ---")
-        
+
+        expired = self.player.tick_light_source()
+        if expired:
+            self.player.light_radius = max(1, self.player.base_light_radius)
+            self.player.light_duration = 0
+            if not self.light_out_alerted:
+                self.log_event("Your light source has gone out!")
+                self.last_light_warning_time = self.player.time
+                self.light_out_alerted = True
+        elif self.player.light_duration > 0:
+            if self.light_out_alerted:
+                self.light_out_alerted = False
+            remaining = self.player.light_duration
+            if remaining <= 20 and self.player.time - self.last_light_warning_time >= 5:
+                self.log_event("Your light source begins to flicker...")
+                self.last_light_warning_time = self.player.time
+
+        self.player._refresh_light_from_equipment()
+        if not self.player._get_equipped_light_instance() and self.player.light_duration <= 0:
+            self.player.light_radius = max(self.player.light_radius, 1, self.player.base_light_radius)
+
         self.clear_inactive_projectiles()
         
         self.player.regenerate_mana()
@@ -378,7 +414,7 @@ class Engine:
         self.update_entities()
         self.update_fov()
 
-    def handle_player_move(self, dx: int, dy: int) -> bool:
+    def handle_player_move(self, dx: int, dy: int, *, allow_pickup: bool = True) -> bool:
         """
                 Handle player move.
                 
@@ -392,7 +428,7 @@ class Engine:
         px, py = self.player.position; nx, ny = px + dx, py + dy
         target_entity = self.get_entity_at(nx, ny)
         action_taken = False
-        if target_entity and target_entity.hostile:
+        if target_entity and self._should_attack_entity(target_entity):
             self.handle_player_attack(target_entity); action_taken = True
         else:
             target_tile = self.get_tile_at_coords(nx, ny)
@@ -405,16 +441,11 @@ class Engine:
             elif target_tile is not None and target_tile in [FLOOR, STAIRS_DOWN, STAIRS_UP, DOOR_OPEN, SECRET_DOOR_FOUND, '1', '2', '3', '4', '5', '6'] and not target_entity:
                 time_before_move = self.get_time_of_day()
                 self.player.position = [nx, ny]
-                if self.player.light_duration > 0:
-                     self.player.light_duration -= 1
-                     if self.player.light_duration == 0:
-                         self.player.light_radius = self.player.base_light_radius
-                         self.log_event("Your light source has expired!")
                 time_after_move_check = self.get_time_of_day()
                 if self.player.depth == 0 and time_before_move != time_after_move_check: self.update_fov()
                 
                 pos_key = (nx, ny)
-                if pos_key in self.ground_items:
+                if pos_key in self.ground_items and allow_pickup:
                     items_to_remove = []
                     for item in self.ground_items[pos_key]:
                         if item.startswith("$"):
@@ -1209,15 +1240,20 @@ class Engine:
             self.log_event(f"You cannot pick up {item_name}: {reason}")
             return False
         
-        item_data = GameData().get_item_by_name(item_name)
+        data_loader = GameData()
+        item_data = data_loader.get_item_by_name(item_name)
         if not item_data:
-            self.log_event(f"Unknown item: {item_name}")
-            print(f"Warning: Could not find item data for {item_name}")
+            item_data = data_loader.get_item(item_name)
+        if not item_data:
+            self.log_event(f"You cannot pick up {item_name}.")
             return False
         
         item_id = item_data.get('id', item_name)
-        
-        if self.player.inventory_manager.add_item(item_id):
+        added = self.player.inventory_manager.add_item(item_id)
+        if not added and item_id != item_name:
+            added = self.player.inventory_manager.add_item(item_name)
+
+        if added:
             self.ground_items[pos_key].remove(item_name)
             
             if not self.ground_items[pos_key]:
@@ -1304,6 +1340,59 @@ class Engine:
         self.ground_items.setdefault(target, []).append(item_name)
         return True
     
+    def _infer_ammo_type(self, item_name: str, item_data: Dict[str, Any]) -> Optional[str]:
+        """Infer the ammunition type required for a projectile item."""
+        name = item_name.lower()
+        if item_data.get("slot") == "quiver" or item_data.get("type") == "missile":
+            if "arrow" in name:
+                return "ARROW"
+            if "bolt" in name:
+                return "BOLT"
+            if any(keyword in name for keyword in ("shot", "pebble", "stone", "bullet", "slug")):
+                return "SHOT_IRON"
+        return None
+    
+    def _get_launcher_for_ammo(
+        self,
+        ammo_type: str,
+        data_loader: GameData
+    ) -> Tuple[Optional[Any], Optional[Dict[str, Any]]]:
+        """Get the equipped launcher that can fire the provided ammunition type."""
+        equipment = getattr(self.player.inventory_manager, "equipment", {})
+        for slot in ("weapon",):
+            launcher_instance = equipment.get(slot)
+            if not launcher_instance:
+                continue
+            launcher_template = (
+                data_loader.get_item(launcher_instance.item_id)
+                or data_loader.get_item_by_name(launcher_instance.item_name)
+            )
+            if launcher_template and launcher_template.get("ammo_type") == ammo_type:
+                return launcher_instance, launcher_template
+        return None, None
+    
+    def _roll_item_damage(self, item_data: Dict[str, Any]) -> int:
+        """Roll damage based on an item's damage specification."""
+        damage_spec = item_data.get("damage")
+        if isinstance(damage_spec, str) and "d" in damage_spec.lower():
+            try:
+                dice_part, sides_part = damage_spec.lower().split("d", 1)
+                dice_count = int(dice_part) if dice_part else 1
+                sides = int(sides_part)
+                dice_count = max(1, dice_count)
+                return sum(random.randint(1, sides) for _ in range(dice_count))
+            except (ValueError, TypeError):
+                pass
+        if isinstance(damage_spec, list) and len(damage_spec) == 2:
+            low, high = damage_spec
+            try:
+                return random.randint(int(low), int(high))
+            except (TypeError, ValueError):
+                pass
+        if isinstance(damage_spec, (int, float)):
+            return int(damage_spec)
+        return random.randint(1, 4)
+    
     def handle_throw_item(self, item_index: int, dx: int = 0, dy: int = 1) -> bool:
         """Handle throwing an item as a projectile."""
         if not (0 <= item_index < len(self.player.inventory)):
@@ -1322,12 +1411,36 @@ class Engine:
         player_str = self.player.stats.get('STR', 10)
         max_range = max(3, min(10, player_str // 2 - weight // 10))
         
+        ammo_type = self._infer_ammo_type(item_name, item_data)
+        launcher_instance = None
+        launcher_template = None
+        if ammo_type:
+            launcher_instance, launcher_template = self._get_launcher_for_ammo(ammo_type, data_loader)
+            if not launcher_template:
+                requirement_text = {
+                    "ARROW": "a bow",
+                    "BOLT": "a crossbow",
+                    "SHOT_IRON": "a sling",
+                }.get(ammo_type, "the proper launcher")
+                self.log_event(f"You have no {requirement_text}; you hurl the {item_name.lower()} by hand.")
+                ammo_type = None
+            else:
+                range_bonus = {
+                    "ARROW": 3,
+                    "BOLT": 4,
+                    "SHOT_IRON": 2,
+                }.get(ammo_type, 0)
+                max_range = min(max_range + range_bonus, 12)
+        else:
+            launcher_template = None
+    
         px, py = self.player.position
         tx, ty = px, py
         hit_entity = False
         broke_on_impact = False
         
-        is_ammo = any(keyword in item_name for keyword in ["Arrow", "Bolt", "Dart", "Javelin"])
+        is_ammo = ammo_type is not None
+        projectile_kind = ammo_type.lower() if ammo_type else 'item'
         
         for step in range(1, max_range + 1):
             next_x = px + dx * step
@@ -1343,15 +1456,18 @@ class Engine:
             if target:
                 player_dex = self.player.stats.get('DEX', 10)
                 hit_chance = 50 + (player_dex - 10) * 3
+                if launcher_template:
+                    launcher_hit_bonus = launcher_template.get("hit_bonus", 0)
+                    if not launcher_hit_bonus and launcher_template.get("damage_bonus"):
+                        launcher_hit_bonus = launcher_template["damage_bonus"]
+                    hit_chance += launcher_hit_bonus * 5
                 
                 if random.randint(1, 100) <= hit_chance:
-                    base_damage = item_data.get('damage', [1, 4])
-                    if isinstance(base_damage, list) and len(base_damage) == 2:
-                        damage = random.randint(base_damage[0], base_damage[1])
-                    else:
-                        damage = 5
+                    damage = self._roll_item_damage(item_data)
+                    if launcher_template:
+                        damage += int(launcher_template.get("damage_bonus", 0))
                     
-                    self.add_projectile((px, py), (next_x, next_y), '/', 'arrow' if is_ammo else 'item')
+                    self.add_projectile((px, py), (next_x, next_y), '/', projectile_kind)
                     
                     target.take_damage(damage)
                     self.log_event(f"You hit {target.name} with {item_name} for {damage} damage!")
@@ -1383,7 +1499,7 @@ class Engine:
                 else:
                     self.log_event(f"You miss {target.name}!")
                     
-                    self.add_projectile((px, py), (next_x, next_y), '/', 'arrow' if is_ammo else 'item')
+                    self.add_projectile((px, py), (next_x, next_y), '/', projectile_kind)
                     
                     if is_ammo:
                         if random.random() < 0.8:
@@ -1404,7 +1520,7 @@ class Engine:
         
         self.log_event(f"You throw {item_name}.")
         
-        self.add_projectile((px, py), (tx, ty), '/', 'arrow' if is_ammo else 'item')
+        self.add_projectile((px, py), (tx, ty), '/', projectile_kind)
         
         if is_ammo:
             if random.random() < 0.9:
@@ -1542,29 +1658,58 @@ class Engine:
         
         self.log_event("There is no trap there.")
         return False
-    
+
+    def _inflict_player_damage(self, amount: int, cause: str) -> bool:
+        """Deal damage to the player and handle death logic."""
+        if amount <= 0 or self._player_dead:
+            return False
+        is_dead = self.player.take_damage(amount)
+        if is_dead:
+            self.log_event("You have been slain!")
+            self._on_player_death(cause)
+        return is_dead
+
+    def _on_player_death(self, cause: str) -> None:
+        """Finalize player death: update status, save, and show death screen."""
+        if self._player_dead:
+            return
+        self._player_dead = True
+        self.player.status = 0
+        self.player.hp = 0
+        debug(f"Player death triggered: {cause}")
+        try:
+            self.app.save_character()
+        except Exception as exc:
+            log_exception(exc)
+
+        from app.screens.death import DeathScreen
+        death_screen = DeathScreen()
+        death_screen.tomb_name = self.player.name
+        death_screen.killed_by = cause
+        self.app.push_screen(death_screen)
+
     def _apply_trap_effect(self, trap_type: str):
         """Apply the effect of a triggered trap."""
         if trap_type == 'poison_needle':
             damage = random.randint(1, 6)
-            self.player.take_damage(damage)
+            self._inflict_player_damage(damage, "a poison needle trap")
             self.player.status_manager.add_effect('Poisoned', 20)
             self.log_event(f"A poison needle pricks you! ({damage} damage)")
-        
+
         elif trap_type == 'poison_gas':
             damage = random.randint(2, 8)
-            self.player.take_damage(damage)
+            self._inflict_player_damage(damage, "poison gas")
             self.player.status_manager.add_effect('Poisoned', 30)
             self.log_event(f"Poison gas fills the air! ({damage} damage)")
-        
+
         elif trap_type == 'dart':
             damage = random.randint(1, 4)
-            self.player.take_damage(damage)
+            self._inflict_player_damage(damage, "a dart trap")
             self.log_event(f"A dart shoots out and hits you! ({damage} damage)")
-        
+
         elif trap_type == 'explosion':
             damage = random.randint(5, 15)
-            self.player.take_damage(damage)
+            self._inflict_player_damage(damage, "an explosion trap")
             self.log_event(f"The trap explodes! ({damage} damage)")
         
         elif trap_type == 'summon_monster':
@@ -1585,12 +1730,12 @@ class Engine:
         
         elif trap_type == 'pit':
             damage = random.randint(2, 8)
-            self.player.take_damage(damage)
+            self._inflict_player_damage(damage, "a pit trap")
             self.log_event(f"You fall into a pit! ({damage} damage)")
-        
+
         elif trap_type == 'spiked_pit':
             damage = random.randint(5, 15)
-            self.player.take_damage(damage)
+            self._inflict_player_damage(damage, "a spiked pit trap")
             self.log_event(f"You fall into a spiked pit! ({damage} damage)")
         
         elif trap_type == 'teleport':
@@ -1642,10 +1787,19 @@ class Engine:
         """Check if an entity can be targeted by spells/attacks."""
         return entity.hostile and entity.hp > 0
 
+    def _should_attack_entity(self, entity: Entity) -> bool:
+        if entity.hostile:
+            return True
+        behavior = getattr(entity, "behavior", "")
+        if behavior in {"thief", "urchin", "mercenary"}:
+            return True
+        return False
+
     def handle_entity_death(self, entity: Entity):
         """Handles removing entity, calculating XP, dropping items/gold on ground, and triggering spell learn screen."""
         print(f"{entity.name} died at {entity.position}")
-        xp_reward = self._calculate_xp_reward(entity)
+        reward_multiplier = self._calculate_reward_multiplier(entity.level)
+        xp_reward = self._calculate_xp_reward(entity, reward_multiplier)
 
         needs_spell_choice = False
         if xp_reward > 0:
@@ -1658,21 +1812,43 @@ class Engine:
 
         if entity in self.entities:
             self.entities.remove(entity)
-        
+
+        data_loader = GameData()
+        additional_gold = 0
+        filtered_item_ids: List[str] = []
+        for item_id in item_ids:
+            if item_id == "GOLD_COINS":
+                coin_template = data_loader.get_item(item_id)
+                coin_amount = 0
+                if coin_template:
+                    coin_amount = int(coin_template.get("base_cost", 0) or 0)
+                if coin_amount <= 0:
+                    coin_amount = 10
+                additional_gold += coin_amount
+            else:
+                filtered_item_ids.append(item_id)
+        item_ids = filtered_item_ids
+        gold += additional_gold
+        if gold > 0 and reward_multiplier != 1.0:
+            scaled_gold = int(round(gold * reward_multiplier))
+            if scaled_gold <= 0 and reward_multiplier > 0:
+                scaled_gold = 1
+            gold = scaled_gold
+
         if gold > 0:
             if self._place_ground_item(f"${gold}", death_pos):
                 self.log_event(f"{entity.name} drops {gold} gold.")
             else:
                 self.ground_items.setdefault(death_pos, []).append(f"${gold}")
                 self.log_event(f"{entity.name} drops {gold} gold.")
-        
+
         significant_drops: List[Dict[str, str]] = []
         for item_id in item_ids:
             if item_id in INSIGNIFICANT_DROP_IDS:
                 self._place_ground_item(item_id, death_pos)
                 continue
 
-            template = GameData().get_item(item_id)
+            template = data_loader.get_item(item_id)
             if not template:
                 print(f"Warn: Unknown item ID '{item_id}'")
                 continue
@@ -1698,13 +1874,38 @@ class Engine:
 
 
 
-    def _calculate_xp_reward(self, entity: Entity) -> int:
+    def _calculate_xp_reward(self, entity: Entity, reward_multiplier: Optional[float] = None) -> int:
         level_to_xp = {0: 50, 1: 200, 2: 450, 3: 700, 4: 1100, 5: 1800, 6: 2300, 7: 2900, 8: 3900,
                        9: 5000, 10: 5900, 11: 7200, 12: 8400, 13: 10000, 14: 11500, 15: 13000,
                        16: 15000, 17: 18000, 18: 20000, 19: 22000, 20: 25000}
         monster_level = max(0, getattr(entity, "level", 1))
-        if monster_level > 20: return 25000 + (monster_level - 20) * 3000
-        return level_to_xp.get(monster_level, 0)
+        if monster_level > 20:
+            base_xp = 25000 + (monster_level - 20) * 3000
+        else:
+            base_xp = level_to_xp.get(monster_level, 0)
+
+        if base_xp <= 0:
+            return 0
+
+        if reward_multiplier is None:
+            reward_multiplier = self._calculate_reward_multiplier(monster_level)
+
+        xp_reward = int(round(base_xp * reward_multiplier))
+        if xp_reward <= 0 and reward_multiplier > 0:
+            xp_reward = 1
+        return xp_reward
+
+    def _calculate_reward_multiplier(self, monster_level: int) -> float:
+        """Scale rewards based on the gap between player and monster level."""
+        player_level = getattr(self.player, "level", 1) or 1
+        level_diff = player_level - monster_level
+
+        if level_diff <= 0:
+            boost = 1.15 ** (-level_diff)
+            return min(2.0, boost)
+
+        penalty = 0.85 ** level_diff
+        return max(0.1, penalty)
 
     def log_event(self, message: str) -> None:
         """
@@ -1801,6 +2002,8 @@ class Engine:
         str_mod = (self.player.stats.get('STR', 10) - 10) // 2
         prof = 2 + (self.player.level - 1) // 4
         roll = random.randint(1, 20); total_atk = roll + str_mod + prof
+        target.hostile = True
+        target.aware_of_player = True
         
         tx, ty = target.position
         if self.is_in_darkness(tx, ty):
@@ -1895,11 +2098,11 @@ class Engine:
         is_crit = (roll == 20); is_miss = (roll == 1 or total_atk < player_ac)
         if is_miss: self.log_event(f"{entity.name} misses."); return False
         base_dmg = max(1, entity.attack // 2); damage = base_dmg * 2 if is_crit else base_dmg
-        if is_crit: self.log_event(f"Crit! {entity.name} hits for {damage} dmg!")
-        else: self.log_event(f"{entity.name} hits for {damage} dmg.")
-        is_dead = self.player.take_damage(damage)
-        if is_dead: self.log_event("You have been slain!")
-        return is_dead
+        if is_crit:
+            self.log_event(f"Crit! {entity.name} hits for {damage} dmg!")
+        else:
+            self.log_event(f"{entity.name} hits for {damage} dmg.")
+        return self._inflict_player_damage(damage, entity.name)
 
     def handle_entity_ranged_attack(self, entity: Entity) -> bool:
         """Handle a ranged attack from an entity to the player."""
@@ -1946,11 +2149,8 @@ class Engine:
             self.log_event(f"Crit! {entity.name}'s {entity.ranged_attack['name']} hits for {damage} dmg!")
         else:
             self.log_event(f"{entity.name}'s {entity.ranged_attack['name']} hits for {damage} dmg!")
-        
-        is_dead = self.player.take_damage(damage)
-        if is_dead:
-            self.log_event("You have been slain!")
-        return is_dead
+
+        return self._inflict_player_damage(damage, f"{entity.name}'s {entity.ranged_attack['name']}")
 
     def handle_entity_cast_spell(self, entity: Entity) -> bool:
         """Handle spell casting from an entity."""
@@ -1974,7 +2174,7 @@ class Engine:
         if effect_type == 'damage':
             damage = random.randint(3, 10)
             self.log_event(f"{entity.name} casts {spell_data['name']}!")
-            self.player.take_damage(damage)
+            self._inflict_player_damage(damage, f"{entity.name}'s {spell_data['name']}")
             self.log_event(f"The spell hits you for {damage} damage!")
             return True
         elif effect_type == 'heal':
@@ -2000,7 +2200,8 @@ class Engine:
         if is_asleep:
             return
 
-        if random.random() >= clone_rate:
+        from app.lib.core.utils import roll_dice
+        if roll_dice(1, 100) > int(clone_rate * 100):
             return
 
         living_same_type = sum(
@@ -2203,20 +2404,56 @@ class Engine:
 
     def search_once(self) -> bool:
         """Search once."""
-        self._perform_search(); self._end_player_turn(); return True
+        found_anything = self._perform_search()
+        self._end_player_turn()
+        return found_anything
+
+    def _initialize_secret_door_difficulty(self) -> None:
+        """Assign detection difficulty to each secret door on the map."""
+        self.secret_door_difficulty.clear()
+        for y in range(self.map_height):
+            for x in range(self.map_width):
+                if self.game_map[y][x] == SECRET_DOOR:
+                    difficulty = random.randint(30, 75)
+                    if random.random() < 0.2:
+                        difficulty += random.randint(10, 15)
+                    elif random.random() < 0.2:
+                        difficulty -= random.randint(5, 10)
+                    difficulty = max(10, min(90, difficulty))
+                    self.secret_door_difficulty[(x, y)] = difficulty
 
     def _perform_search(self, log_success: bool = True) -> bool:
-        px, py = self.player.position; found_doors = []
+        px, py = self.player.position
+        found_doors = []
+        abilities = getattr(self.player, "abilities", {})
+        searching_skill = abilities.get("searching", 5)
+        perception_skill = abilities.get("perception", 5)
+        skill_score = (searching_skill + perception_skill) / 2.0
+        base_chance = 20.0 + skill_score * 7.0 + self.player.level
         for dy in range(-1, 2):
             for dx in range(-1, 2):
-                if dx == 0 and dy == 0: continue
+                if dx == 0 and dy == 0:
+                    continue
                 sx, sy = px + dx, py + dy
-                if (0 <= sx < self.map_width and 0 <= sy < self.map_height and self.game_map[sy][sx] == SECRET_DOOR):
-                    self.game_map[sy][sx] = SECRET_DOOR_FOUND; found_doors.append((sx, sy))
+                if not (0 <= sx < self.map_width and 0 <= sy < self.map_height):
+                    continue
+                if self.game_map[sy][sx] != SECRET_DOOR:
+                    continue
+                difficulty = self.secret_door_difficulty.get((sx, sy), 50)
+                chance = base_chance - difficulty
+                chance = max(5.0, min(85.0, chance))
+                if random.uniform(0, 100) <= chance:
+                    self.game_map[sy][sx] = SECRET_DOOR_FOUND
+                    self.secret_door_difficulty.pop((sx, sy), None)
+                    found_doors.append((sx, sy))
         if found_doors:
-            if log_success: self.log_event(f"Found {len(found_doors)} secret door(s)!" if len(found_doors)>1 else "Found a secret door!")
+            if log_success:
+                self.log_event(
+                    f"Found {len(found_doors)} secret door(s)!" if len(found_doors) > 1 else "Found a secret door!"
+                )
             return True
-        elif not self.searching and log_success: self.log_event("Find nothing.")
+        elif not self.searching and log_success:
+            self.log_event("Find nothing.")
         return False
 
     def get_secret_doors_found(self) -> List[List[int]]:

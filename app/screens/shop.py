@@ -1,12 +1,14 @@
 
 from textual.screen import Screen
 from textual.widgets import Static
-from textual import events, log
+from textual import log
 from debugtools import debug
 import random
 from typing import NamedTuple, List, Optional, TYPE_CHECKING, Tuple
 from app.lib.player import Player
 from app.lib.core.item import ItemInstance
+from app.lib.core.loader import GameData
+from rich.markup import escape as escape_markup
 
 if TYPE_CHECKING:
     from app.plaguefire import RogueApp
@@ -47,7 +49,12 @@ class BaseShopScreen(Screen):
         self.shop_name = shop_name
         self.owner_name = owner_name
         self.catchphrases = catchphrases or ["Welcome!", "Looking for something?", "Fine wares."]
-        self.initial_items_for_sale: List[ShopItem] = list(items_for_sale) if items_for_sale is not None else self._generate_default_items()
+        self._data_loader = GameData()
+
+        raw_inventory = list(items_for_sale) if items_for_sale is not None else self._generate_default_items()
+        self.initial_items_for_sale: List[ShopItem] = [
+            self._resolve_shop_item(item) for item in raw_inventory
+        ]
         self.items_for_sale: List[ShopItem] = list(self.initial_items_for_sale)
         self.restock_interval = restock_interval
         self.last_restock_time: int = 0
@@ -127,12 +134,43 @@ class BaseShopScreen(Screen):
     def get_shop_greeting(self) -> str:
         """Get shop greeting."""
         phrase = random.choice(self.catchphrases)
-        return f'{self.owner_name}: "{phrase}"'
+        owner_markup = (
+            self.owner_name
+            if "[" in self.owner_name and "]" in self.owner_name
+            else escape_markup(self.owner_name)
+        )
+        phrase_markup = (
+            phrase if ("[" in phrase and "]" in phrase) else escape_markup(phrase)
+        )
+        return f'{owner_markup}: "{phrase_markup}"'
 
     def _reset_haggle_state(self):
         """Resets haggle price and attempt flag."""
         self.haggled_price = None
         self.haggle_attempted_this_selection = False
+
+    def _resolve_shop_item(self, item: ShopItem) -> ShopItem:
+        """Ensure shop item references a valid item template when available."""
+        item_id = item.item_id
+        if not item_id:
+            resolved_id = self._data_loader.get_item_id_by_name(item.name)
+            if not resolved_id:
+                template = self._data_loader.get_item(item.name)
+                resolved_id = template.get("id") if template else None
+            item_id = resolved_id
+
+        if item_id == item.item_id:
+            return item
+
+        if not item_id:
+            debug(f"[{self.shop_name}] No item template found for '{item.name}'.")
+
+        return ShopItem(
+            name=item.name,
+            cost=item.cost,
+            description=item.description,
+            item_id=item_id
+        )
 
     def _get_current_list_and_item(self) -> Tuple[Optional[List], Optional[ShopItem | str]]:
         """Gets the list (shop items or player inventory) and selected item based on mode."""
@@ -153,7 +191,13 @@ class BaseShopScreen(Screen):
         for shop_item in self.items_for_sale:
              if shop_item.name == item_name:
                  original_cost = shop_item.cost; break
-        else: debug(f"'{item_name}' not sold here, estimating base cost.")
+        else:
+            template_id = self._data_loader.get_item_id_by_name(item_name)
+            template = self._data_loader.get_item(template_id) if template_id else None
+            if template and isinstance(template.get("base_cost"), int):
+                original_cost = template["base_cost"]
+            else:
+                debug(f"'{item_name}' not sold here, estimating base cost.")
         sell_price = max(1, original_cost // 2)
         return sell_price, original_cost
 
@@ -254,10 +298,26 @@ class BaseShopScreen(Screen):
         if self.player_gold >= price_to_pay:
             try:
                  self.app.player.gold -= price_to_pay
-                 if selected_item.item_id:
-                     self.app.player.inventory_manager.add_item(selected_item.item_id)
+
+                 add_success = False
+                 target_identifier = selected_item.item_id
+                 if target_identifier:
+                     add_success = self.app.player.inventory_manager.add_item(target_identifier)
                  else:
-                     self.app.player.inventory_manager.add_item(selected_item.name)
+                     resolved_id = self._data_loader.get_item_id_by_name(selected_item.name)
+                     if resolved_id:
+                         add_success = self.app.player.inventory_manager.add_item(resolved_id)
+                     else:
+                         add_success = self.app.player.inventory_manager.add_item(selected_item.name)
+
+                 if not add_success:
+                     self.app.player.gold += price_to_pay
+                     self.player_gold = self.app.player.gold
+                     self.notify(f"Could not add {selected_item.name} to your inventory.", severity="error")
+                     debug(f"Buy fail: add_item returned False for '{selected_item.name}'.")
+                     self._reset_haggle_state()
+                     return
+
                  self.player_gold = self.app.player.gold
                  self.data_changed = True
                  self.notify(f"Bought {selected_item.name} for {price_to_pay} gold.")
@@ -310,7 +370,7 @@ class BaseShopScreen(Screen):
 
     def compose(self):
         """Compose."""
-        yield Static("Loading shop...", id="shop-display", markup=False)
+        yield Static("Loading shop...", id="shop-display", markup=True)
 
     def on_mount(self):
         """On mount."""
@@ -329,43 +389,67 @@ class BaseShopScreen(Screen):
 
     def render_shop_text(self) -> str:
         """Render shop text."""
-        lines = [f"=== {self.shop_name} ===", self.current_greeting, f"Your Gold: {self.player_gold}", "-" * 30]
+        shop_title = (
+            self.shop_name
+            if ("[" in self.shop_name and "]" in self.shop_name)
+            else escape_markup(self.shop_name)
+        )
+        greeting_text = (self.current_greeting or "").replace("\n", " ")
+        lines = [
+            f"[green]=== {shop_title} ===[/green]",
+            f"[deep_sky_blue3][italic]{greeting_text}[/italic][/deep_sky_blue3]" if greeting_text else "",
+            f"Your Gold: [yellow]{self.player_gold}[/yellow]",
+            "-" * 30
+        ]
+        lines = [line for line in lines if line]
         current_list, selected_item_data = self._get_current_list_and_item()
         list_title: str
 
         if self.selling_mode:
-            list_title = "Your Inventory to Sell:"
+            list_title = "[magenta]Your Inventory to Sell:[/magenta]"
             inv_list = current_list if current_list else []
             lines.append(list_title)
             if not inv_list: lines.append("Nothing to sell.")
             else:
                 for index, item_name in enumerate(inv_list):
-                    prefix = "> " if index == self.selected_index else "  "
+                    is_selected = index == self.selected_index
+                    prefix = "[yellow]> [/yellow]" if is_selected else "  "
                     letter = chr(ord('a') + index)
                     display_price: int
-                    if index == self.selected_index and self.haggled_price is not None:
+                    if is_selected and self.haggled_price is not None:
                          display_price = self.haggled_price
                     else:
                          display_price, _ = self._get_item_sell_price(item_name)
-                    lines.append(f"{prefix}[{letter}] {item_name:<20} ({display_price}gp)")
+                    letter_token = f"\\[{letter}]"
+                    price_token = f"[yellow]{display_price}gp[/yellow]"
+                    item_label = escape_markup(item_name)
+                    if is_selected:
+                        lines.append(f"{prefix}{letter_token} [bold white]{item_label:<20}[/bold white] ({price_token})")
+                    else:
+                        lines.append(f"{prefix}{letter_token} {item_label:<20} ({price_token})")
         else:
-            list_title = "Items for Sale:"
+            list_title = "[cyan]Items for Sale:[/cyan]"
             shop_list = current_list if current_list else []
             lines.append(list_title)
             if not shop_list: lines.append("No items for sale.")
             else:
                 for index, item in enumerate(shop_list):
-                    prefix = "> " if index == self.selected_index else "  "
+                    is_selected = index == self.selected_index
+                    prefix = "[yellow]> [/yellow]" if is_selected else "  "
                     letter = chr(ord('a') + index)
-                    if index == self.selected_index and self.haggled_price is not None:
+                    if is_selected and self.haggled_price is not None:
                         display_price = self.haggled_price
                     else:
                         display_price = self._apply_charisma_to_price(item.cost)
-                    lines.append(f"{prefix}[{letter}] {item.name:<20} ({display_price}gp)")
+                    letter_token = f"\\[{letter}]"
+                    price_token = f"[yellow]{display_price}gp[/yellow]"
+                    item_label = escape_markup(item.name)
+                    name_token = f"[bold white]{item_label:<20}[/bold white]" if is_selected else f"{item_label:<20}"
+                    lines.append(f"{prefix}{letter_token} {name_token} ({price_token})")
 
         lines.append("-" * 30)
 
-        display_description = "[No description available]"
+        display_description = "No description available."
         if selected_item_data:
             if self.selling_mode:
                 item_name = selected_item_data
@@ -373,10 +457,10 @@ class BaseShopScreen(Screen):
                     if shop_item.name == item_name: display_description = shop_item.description; break
             else:
                 display_description = selected_item_data.description
-            lines.append(f"Description: {display_description}")
+            lines.append(f"[dim]Description:[/dim] {escape_markup(display_description)}")
             lines.append("-" * 30)
 
-        lines.append(self._generate_help_text())
+        lines.append(f"[dim]{self._generate_help_text()}[/dim]")
         return "\n".join(lines)
 
     def _generate_help_text(self) -> str:
@@ -385,18 +469,18 @@ class BaseShopScreen(Screen):
         debug(f"Generate Help: Allowed={self.allowed_actions}, Attempted={self.haggle_attempted_this_selection}, Can Haggle={can_haggle}")
 
         _, selected_item = self._get_current_list_and_item()
-        actions = ["[Up/Down] Select"]
+        actions = [r"\[Up/Down] Select"]
 
         if self.selling_mode:
-            if 'sell' in self.allowed_actions and selected_item: actions.append("[S]ell Selected")
-            if can_haggle and selected_item: actions.append("[H]aggle Price")
-            if 'buy' in self.allowed_actions: actions.append("[B]uy Mode")
+            if 'sell' in self.allowed_actions and selected_item: actions.append(r"\[S]ell Selected")
+            if can_haggle and selected_item: actions.append(r"\[H]aggle Price")
+            if 'buy' in self.allowed_actions: actions.append(r"\[B]uy Mode")
         else:
-            if 'buy' in self.allowed_actions and selected_item: actions.append("[B]uy Selected")
-            if can_haggle and selected_item: actions.append("[H]aggle Price")
-            if 'sell' in self.allowed_actions: actions.append("[S]ell Mode")
+            if 'buy' in self.allowed_actions and selected_item: actions.append(r"\[B]uy Selected")
+            if can_haggle and selected_item: actions.append(r"\[H]aggle Price")
+            if 'sell' in self.allowed_actions: actions.append(r"\[S]ell Mode")
 
-        actions.append("[L]eave Shop")
+        actions.append(r"\[L]eave Shop")
         return " | ".join(actions)
 
     def _update_display(self):

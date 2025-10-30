@@ -19,8 +19,8 @@ class ArmorShopScreen(BaseShopScreen):
     def _generate_armor_inventory(self) -> List[ShopItem]:
         """Generate basic armor items."""
         inventory = [
-            ShopItem(name="Leather Armor", cost=100, description="Basic protection."),
-            ShopItem(name="Chain Mail", cost=250, description="Decent metal armor."),
-            ShopItem(name="Shield", cost=50, description="Helps block attacks."),
+            ShopItem(name="Soft Leather Armor", cost=100, description="Basic protection.", item_id="LEATHER_ARMOR_SOFT"),
+            ShopItem(name="Chain Mail", cost=250, description="Decent metal armor.", item_id="CHAIN_MAIL"),
+            ShopItem(name="Medium Leather Shield", cost=50, description="Helps block attacks.", item_id="SHIELD_LEATHER_MEDIUM"),
         ]
         return inventory
