@@ -13,6 +13,7 @@ from config import (
 from typing import TYPE_CHECKING, List
 from debugtools import log_exception, debug
 from app.lib.core.loader import GameData
+import re
 
 if TYPE_CHECKING:
     from app.lib.core.engine import Engine
@@ -33,6 +34,23 @@ class DungeonView(Static):
         overflow: hidden;
     }
     """
+    
+    # Color mapping for entity names
+    COLOR_MAP = {
+        'black': 'bright_black',
+        'blue': 'blue',
+        'green': 'green',
+        'red': 'red',
+        'white': 'white',
+        'yellow': 'yellow',
+        'brown': 'color(130)',
+        'grey': 'grey50',
+        'gray': 'grey50',
+        'purple': 'purple',
+        'orange': 'dark_orange',
+        'pink': 'pink1',
+        'violet': 'violet',
+    }
 
     def __init__(self, engine: 'Engine', **kwargs):
         """Initialize the instance."""
@@ -50,6 +68,14 @@ class DungeonView(Static):
         if char == "#":
             return "[gray54]#[/gray54]"
         return char
+    
+    def _get_entity_color(self, entity_name: str) -> str:
+        """Extract color from entity name and return appropriate Rich color code."""
+        name_lower = entity_name.lower()
+        for color_word, rich_color in self.COLOR_MAP.items():
+            if color_word in name_lower:
+                return rich_color
+        return 'red'  # Default color for entities
 
     def _format_item_char(self, item_name: str) -> str:
         """Return the colored display character for a ground item."""
@@ -186,9 +212,11 @@ class DungeonView(Static):
                                 entity = self.engine.get_entity_at(map_x, map_y)
                                 if entity:
                                     if entity.is_sleeping:
-                                        char = f"[dim]{entity.char}[/dim]"
+                                        color = self._get_entity_color(entity.name)
+                                        char = f"[dim {color}]{entity.char}[/dim {color}]"
                                     else:
-                                        char = entity.char
+                                        color = self._get_entity_color(entity.name)
+                                        char = f"[{color}]{entity.char}[/{color}]"
                                 else:
                                     ground_char = None
                                     pos_key = (map_x, map_y)
