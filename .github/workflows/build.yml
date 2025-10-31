@@ -31,26 +31,46 @@ jobs:
 
       - name: Show installed textual location (debug)
         run: |
-          echo "=== Textual package location ==="
-          python -c "import textual, os; print('textual.__file__:', textual.__file__)"
-          echo ""
-          echo "=== Site packages ==="
-          python -c "import site, json; print('site.getsitepackages():', json.dumps(site.getsitepackages(), indent=2))"
-          echo ""
-          echo "=== Sysconfig paths ==="
-          python -c "import sysconfig, json; print('sysconfig.get_paths():', json.dumps(sysconfig.get_paths(), indent=2))"
-        shell: bash
+          python -c "import textual, os; print('=== Textual package location ==='); print('textual.__file__:', textual.__file__)"
+          python -c "import site, json; print('=== Site packages ==='); print('site.getsitepackages():', json.dumps(site.getsitepackages(), indent=2))"
+          python -c "import sysconfig, json; print('=== Sysconfig paths ==='); print('sysconfig.get_paths():', json.dumps(sysconfig.get_paths(), indent=2))"
 
-      - name: Build executable
+      - name: Build executable (Linux/macOS)
+        if: matrix.os != 'windows-latest'
         run: |
-          pyinstaller --clean --onefile plaguefire.spec
+          SITEPACKAGES=$(python -c "import site,sys; sp = site.getsitepackages()[0] if hasattr(site,'getsitepackages') else next(p for p in sys.path if 'site-packages' in p); print(sp)")
+          echo "Using site-packages: $SITEPACKAGES"
+          pyinstaller --onefile --clean \
+            --hidden-import textual --hidden-import rich --hidden-import pygame \
+            --add-data "$SITEPACKAGES/textual:./textual" \
+            --add-data "$SITEPACKAGES/rich:./rich" \
+            --add-data "data:./data" \
+            --add-data "assets:./assets" \
+            --name plaguefire \
+            main.py
         shell: bash
 
-      - name: Package build
+      - name: Build executable (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          $sp = python -c "import site,sys; sp = site.getsitepackages()[0] if hasattr(site,'getsitepackages') else next(p for p in sys.path if 'site-packages' in p); print(sp)" | Out-String; $sp = $sp.Trim()
+          Write-Host "Using site-packages: $sp"
+          pyinstaller --onefile --clean --hidden-import textual --hidden-import rich --hidden-import pygame --add-data "$($sp)\textual;textual" --add-data "$($sp)\rich;rich" --add-data "data;data" --add-data "assets;assets" --name plaguefire main.py
+        shell: pwsh
+
+      - name: Package build (Linux/macOS)
+        if: matrix.os != 'windows-latest'
         run: |
           cd dist
           zip -r ../${{ runner.os }}-build.zip .
         shell: bash
+
+      - name: Package build (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd dist
+          Compress-Archive -Path * -DestinationPath ../${{ runner.os }}-build.zip
+        shell: pwsh
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
