@@ -33,13 +33,20 @@ These commits appear to have been integrated into main through other PRs or are 
 
 ## Deletion Instructions
 
-### Option 1: GitHub Web Interface (Recommended)
+### Option 1: GitHub Actions Workflow (Easiest - Recommended)
+1. Navigate to: https://github.com/jason-allen-oneal/plaguefire/actions/workflows/cleanup-stale-branches.yml
+2. Click "Run workflow" button
+3. Confirm the branch name is `copilot/update-ci-workflow-pyinstaller`
+4. Click "Run workflow" to execute
+5. Wait for the workflow to complete and verify the branch is deleted
+
+### Option 2: GitHub Web Interface
 1. Navigate to: https://github.com/jason-allen-oneal/plaguefire/branches
 2. Locate `copilot/update-ci-workflow-pyinstaller` in the branch list
 3. Click the trash/delete icon next to the branch name
 4. Confirm deletion
 
-### Option 2: Command Line
+### Option 3: Command Line
 ```bash
 # Delete the remote branch
 git push origin --delete copilot/update-ci-workflow-pyinstaller
@@ -48,7 +55,7 @@ git push origin --delete copilot/update-ci-workflow-pyinstaller
 git branch -d copilot/update-ci-workflow-pyinstaller
 ```
 
-### Option 3: GitHub CLI
+### Option 4: GitHub CLI
 ```bash
 gh api repos/jason-allen-oneal/plaguefire/git/refs/heads/copilot/update-ci-workflow-pyinstaller -X DELETE
 ```
@@ -75,4 +82,6 @@ git ls-remote --heads origin
 
 ## Note
 
-This file can be deleted after the branch cleanup is complete.
+After the branch cleanup is complete:
+- This file (DELETE_BRANCH.md) can be deleted
+- The workflow file (.github/workflows/cleanup-stale-branches.yml) can be kept for future branch cleanup needs or deleted if not needed
