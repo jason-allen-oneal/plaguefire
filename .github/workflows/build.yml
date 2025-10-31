@@ -23,40 +23,42 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Build executable (Windows)
+        if: matrix.os == 'windows-latest'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller
+          $sp = python -c "import site; p = site.getsitepackages()[0] if hasattr(site, 'getsitepackages') and site.getsitepackages() else site.getusersitepackages(); print(p)"
+          $srcTextual = Join-Path $sp 'textual'
+          $srcRich = Join-Path $sp 'rich'
+          pyinstaller --onefile --clean `
+            --hidden-import textual --hidden-import rich --hidden-import pygame `
+            --add-data "$srcTextual;textual" `
+            --add-data "$srcRich;rich" `
+            --add-data "data;data" `
+            --add-data "assets;assets" `
+            --name plaguefire `
+            main.py
+        shell: pwsh
 
-      - name: Show installed textual location (debug)
-        run: |
-          python -c "import textual, os; print('=== Textual package location ==='); print('textual.__file__:', textual.__file__)"
-          python -c "import site, json; print('=== Site packages ==='); print('site.getsitepackages():', json.dumps(site.getsitepackages(), indent=2))"
-          python -c "import sysconfig, json; print('=== Sysconfig paths ==='); print('sysconfig.get_paths():', json.dumps(sysconfig.get_paths(), indent=2))"
-
-      - name: Build executable (Linux/macOS)
+      - name: Build executable (linux/macos)
         if: matrix.os != 'windows-latest'
         run: |
-          SITEPACKAGES=$(python -c "import site,sys; sp = site.getsitepackages()[0] if hasattr(site,'getsitepackages') else next(p for p in sys.path if 'site-packages' in p); print(sp)")
-          echo "Using site-packages: $SITEPACKAGES"
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+          SP=$(python -c "import site; p = site.getsitepackages()[0] if hasattr(site, 'getsitepackages') and site.getsitepackages() else site.getusersitepackages(); print(p)")
+          echo "site-packages: $SP"
           pyinstaller --onefile --clean \
             --hidden-import textual --hidden-import rich --hidden-import pygame \
-            --add-data "$SITEPACKAGES/textual:./textual" \
-            --add-data "$SITEPACKAGES/rich:./rich" \
-            --add-data "data:./data" \
-            --add-data "assets:./assets" \
+            --add-data "${SP}/textual:textual" \
+            --add-data "${SP}/rich:rich" \
+            --add-data "data:data" \
+            --add-data "assets:assets" \
             --name plaguefire \
             main.py
         shell: bash
-
-      - name: Build executable (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          $sp = python -c "import site,sys; sp = site.getsitepackages()[0] if hasattr(site,'getsitepackages') else next(p for p in sys.path if 'site-packages' in p); print(sp)" | Out-String; $sp = $sp.Trim()
-          Write-Host "Using site-packages: $sp"
-          pyinstaller --onefile --clean --hidden-import textual --hidden-import rich --hidden-import pygame --add-data "$($sp)\textual;textual" --add-data "$($sp)\rich;rich" --add-data "data;data" --add-data "assets;assets" --name plaguefire main.py
-        shell: pwsh
 
       - name: Package build (Linux/macOS)
         if: matrix.os != 'windows-latest'
