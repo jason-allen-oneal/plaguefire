@@ -32,14 +32,7 @@ jobs:
           $sp = python -c "import site; p = site.getsitepackages()[0] if hasattr(site, 'getsitepackages') and site.getsitepackages() else site.getusersitepackages(); print(p)"
           $srcTextual = Join-Path $sp 'textual'
           $srcRich = Join-Path $sp 'rich'
-          pyinstaller --onefile --clean `
-            --hidden-import textual --hidden-import rich --hidden-import pygame `
-            --add-data "$srcTextual;textual" `
-            --add-data "$srcRich;rich" `
-            --add-data "data;data" `
-            --add-data "assets;assets" `
-            --name plaguefire `
-            main.py
+          pyinstaller --onefile --clean --hidden-import textual --hidden-import rich --hidden-import pygame --add-data "$($sp)/textual;textual" --add-data "$($sp)/rich;rich" --add-data "data;data" --add-data "assets;assets" --name plaguefire main.py
         shell: pwsh
 
       - name: Build executable (linux/macos)
