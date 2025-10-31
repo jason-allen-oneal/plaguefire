@@ -1,0 +1,39 @@
+name: Cleanup Stale Branches
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch_name:
+        description: 'Branch name to delete'
+        required: true
+        default: 'copilot/update-ci-workflow-pyinstaller'
+        type: string
+      
+permissions:
+  contents: write
+
+jobs:
+  delete-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_NAME: ${{ inputs.branch_name }}
+        run: |
+          echo "Attempting to delete branch: $BRANCH_NAME"
+          
+          # Delete the branch using GitHub CLI
+          gh api \
+            --method DELETE \
+            repos/${{ github.repository }}/git/refs/heads/$BRANCH_NAME \
+            || echo "Branch deletion failed or branch doesn't exist"
+          
+          echo "Branch deletion complete"
+          
+      - name: Verify deletion
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Remaining branches:"
+          gh api repos/${{ github.repository }}/branches --jq '.[].name'
