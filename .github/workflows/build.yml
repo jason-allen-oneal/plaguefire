@@ -59,25 +59,11 @@ jobs:
             main.py
         shell: bash
 
-      - name: Package build (Linux/macOS)
-        if: matrix.os != 'windows-latest'
-        run: |
-          cd dist
-          zip -r ../${{ runner.os }}-build.zip .
-        shell: bash
-
-      - name: Package build (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          cd dist
-          Compress-Archive -Path * -DestinationPath ../${{ runner.os }}-build.zip
-        shell: pwsh
-
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-build
-          path: ${{ runner.os }}-build.zip
+          path: dist/*
 
   release:
     name: Create Release
@@ -99,13 +85,9 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          # The softprops action will automatically find the artifacts in the 'builds' directory
-          # and upload them to the release. The pattern 'builds/**/*' is not needed
-          # as it will upload the directory structure as well.
-          # We will let the action handle the files.
           files: |
-            builds/Linux-build/Linux-build.zip
-            builds/macOS-build/macOS-build.zip
-            builds/Windows-build/Windows-build.zip
+            builds/Linux-build/plaguefire
+            builds/macOS-build/plaguefire
+            builds/Windows-build/plaguefire.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
