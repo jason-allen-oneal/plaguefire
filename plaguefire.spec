@@ -60,6 +60,8 @@ a = Analysis(
     datas=[
         (textual_path, 'textual'),
         (rich_path, 'rich'),
+        ('data', 'data'),
+        ('assets', 'assets'),
     ],
     hiddenimports=[
         'textual',
