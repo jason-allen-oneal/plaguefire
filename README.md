@@ -1,10 +1,8 @@
 # Plaguefire - A Terminal-based Roguelike RPG
 
-A classic roguelike dungeon crawler built with Python and Textual, featuring procedurally generated dungeons, strategic combat, magic systems, and character progression.
+Welcome to the world of **Plaguefire**, a classic roguelike RPG that runs directly in your terminal. Built with Python and the modern TUI framework [Textual](https://textual.textualize.io/), Plaguefire offers a nostalgic yet fresh dungeon-crawling experience.
 
-## Overview
-
-Plaguefire is a traditional roguelike game where players explore procedurally generated dungeons, battle monsters, collect loot, and develop their character through multiple classes and spell systems. The game features a rich terminal-based UI built with Textual, offering both classic ASCII aesthetics and modern interface elements.
+Delve into endless, procedurally generated dungeons, master a deep magic system, and choose your path from 8 races and 6 unique classes. Whether you're a seasoned adventurer or new to the genre, Plaguefire provides a rich, strategic, and highly customizable world to explore. Are you ready to face the darkness?
 
 ## Features
 
