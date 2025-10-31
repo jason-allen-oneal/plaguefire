@@ -29,12 +29,21 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
+      - name: Show installed textual location (debug)
+        run: |
+          echo "=== Textual package location ==="
+          python -c "import textual, os; print('textual.__file__:', textual.__file__)"
+          echo ""
+          echo "=== Site packages ==="
+          python -c "import site, json; print('site.getsitepackages():', json.dumps(site.getsitepackages(), indent=2))"
+          echo ""
+          echo "=== Sysconfig paths ==="
+          python -c "import sysconfig, json; print('sysconfig.get_paths():', json.dumps(sysconfig.get_paths(), indent=2))"
+        shell: bash
+
       - name: Build executable
         run: |
-          pyinstaller --onefile --clean \
-            --add-data "venv/lib/python*/site-packages/textual:." \
-            --add-data "venv/lib/python*/site-packages/rich:." \
-            main.py
+          pyinstaller --clean --onefile plaguefire.spec
         shell: bash
 
       - name: Package build
