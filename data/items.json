@@ -169,6 +169,19 @@
       },
       "weight": 20
     },
+    "CLOTHING_TRAVELERS_GARB": {
+      "name": "Traveler's Garb",
+      "type": "armor",
+      "slot": "armor_body",
+      "base_cost": 8,
+      "description": "Simple layered clothes suited for adventuring. Offers no real protection.",
+      "defense_bonus": 0,
+      "rarity_depth": {
+        "min": 0,
+        "max": 75
+      },
+      "weight": 25
+    },
     "BRIGANDINE_METAL": {
       "name": "Metal Brigandine Armor",
       "type": "armor",
@@ -1452,7 +1465,7 @@
       "effect": [
         "light_source",
         7,
-        300
+        5000
       ],
       "rarity_depth": {
         "min": 50,
@@ -1598,7 +1611,7 @@
       "effect": [
         "light_source",
         3,
-        100
+        1000
       ],
       "rarity_depth": {
         "min": 0,

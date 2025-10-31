@@ -7,6 +7,7 @@ import os
 import json
 import glob
 from app.lib.player import Player
+from app.lib.core.inventory import InventoryManager
 
 class ContinueScreen(Screen):
     """Screen to select a saved character to continue."""
@@ -107,9 +108,19 @@ class ContinueScreen(Screen):
             if "name" not in player_data_dict or "stats" not in player_data_dict:
                  raise ValueError("Save missing essential data.")
 
+            respawned = False
+            if player_data_dict.get("status", 1) == 0:
+                player_data_dict = self._reset_dead_player_data(player_data_dict)
+                respawned = True
+
             self.app.player = Player(player_data_dict)
 
-            self.notify(f"Loaded: {self.app.player.name}")
+            if respawned:
+                self.app.save_character()
+                self.notify(f"{self.app.player.name} has been restored to the surface.")
+            else:
+                self.notify(f"Loaded: {self.app.player.name}")
+
             debug(f"Successfully loaded player object: {self.app.player.to_dict()}")
             self.app.dungeon_levels = {}
             self.app.push_screen("dungeon")
@@ -121,6 +132,85 @@ class ContinueScreen(Screen):
         except Exception as e:
             self.notify(f"Unexpected error: {e}", severity="error")
             debug(f"Unexpected error loading file {load_path}: {e}")
+
+    def _reset_dead_player_data(self, data: dict) -> dict:
+        """Reset a dead character's save data to a fresh start while keeping their identity."""
+        reset_data = {}
+
+        keep_keys = [
+            "name",
+            "race",
+            "class",
+            "sex",
+            "history",
+            "social_class",
+            "base_stats",
+            "stats",
+            "stat_percentiles",
+            "height",
+            "weight",
+            "abilities",
+        ]
+        for key in keep_keys:
+            if key in data:
+                reset_data[key] = data[key]
+
+        reset_data["status"] = 1
+        reset_data["level"] = 1
+        reset_data["xp"] = 0
+        reset_data["next_level_xp"] = Player.XP_THRESHOLDS.get(1, 300)
+        reset_data["gold"] = 100
+        reset_data["depth"] = 0
+        reset_data["time"] = 0
+        reset_data["position"] = None
+        reset_data["deepest_depth"] = 1
+        reset_data["status_effects"] = []
+        reset_data["known_spells"] = []
+        reset_data["spells_available_to_learn"] = []
+        reset_data["spell_picks_available"] = 0
+        reset_data["spell_pick_awards"] = 0
+        reset_data["custom_inscriptions"] = {}
+
+        starter_inventory = self._build_starter_inventory()
+        reset_data["inventory_manager"] = starter_inventory.to_dict()
+
+        # Remove fields that should be recalculated
+        for obsolete in [
+            "inventory",
+            "equipment",
+            "hp",
+            "max_hp",
+            "mana",
+            "max_mana",
+            "light_radius",
+            "light_duration",
+            "profile_seed",
+        ]:
+            reset_data.pop(obsolete, None)
+
+        return reset_data
+
+    def _build_starter_inventory(self) -> InventoryManager:
+        """Create the default starting inventory for new characters."""
+        manager = InventoryManager()
+        manager.add_item("FOOD_RATION", quantity=5)
+
+        if manager.add_item("DAGGER_BODKIN"):
+            dagger_instances = manager.get_instances_by_name("Dagger (Bodkin)")
+            if dagger_instances:
+                manager.equip_instance(dagger_instances[-1].instance_id)
+
+        if manager.add_item("CLOTHING_TRAVELERS_GARB"):
+            garb_instances = manager.get_instances_by_name("Traveler's Garb")
+            if garb_instances:
+                manager.equip_instance(garb_instances[-1].instance_id)
+
+        if manager.add_item("TORCH"):
+            torch_instances = manager.get_instances_by_name("Wooden Torch")
+            if torch_instances:
+                manager.equip_instance(torch_instances[-1].instance_id)
+
+        return manager
 
 
     """Action back to title."""

@@ -27,6 +27,21 @@ class InventoryManager:
         self.stackable_types = ["potion", "scroll", "food", "ammunition"]
         self.equipment["light"] = None
 
+    def _normalize_slot_name(self, slot: Optional[str]) -> Optional[str]:
+        """Translate template slot names to legacy equipment keys."""
+        if not slot:
+            return slot
+        slot_mapping = {
+            "armor_body": "armor",
+            "armor_feet": "boots",
+            "armor_head": "helm",
+            "armor_hand": "gloves",
+            "armor_hands": "gloves",
+            "armor_legs": "legs",
+            "armor_shield": "shield",
+        }
+        return slot_mapping.get(slot, slot)
+
     def _is_light_source(self, instance: Optional[ItemInstance]) -> bool:
         return (
             instance is not None
@@ -197,13 +212,16 @@ class InventoryManager:
         if not instance.slot and not self._is_light_source(instance):
             return False, "Item cannot be equipped"
         
+        normalized_slot = self._normalize_slot_name(instance.slot)
+        if normalized_slot and instance.slot != normalized_slot:
+            instance.slot = normalized_slot
         slot: Optional[str] = None
         if self._is_light_source(instance):
             slot = "light"
             self.equipment.setdefault("light", None)
             if self.equipment.get("light"):
                 self.unequip_slot("light")
-        elif instance.slot == "ring":
+        elif normalized_slot == "ring":
             if not self.equipment.get("ring_left"):
                 slot = "ring_left"
             elif not self.equipment.get("ring_right"):
@@ -211,7 +229,7 @@ class InventoryManager:
             else:
                 self.unequip_slot("ring_left")
                 slot = "ring_left"
-        elif instance.slot == "quiver":
+        elif normalized_slot == "quiver":
             slot = "quiver"
             current_ammo = self.equipment.get("quiver")
             
@@ -222,7 +240,7 @@ class InventoryManager:
             elif current_ammo:
                 self.unequip_slot("quiver")
         else:
-            slot = instance.slot
+            slot = normalized_slot
             self.equipment.setdefault(slot, None)
             if self.equipment.get(slot):
                 self.unequip_slot(slot)
@@ -288,12 +306,20 @@ class InventoryManager:
             instance = ItemInstance.from_dict(inst_data)
             manager.instances.append(instance)
         
+        # Reset equipment to default light slot before loading
+        manager.equipment.clear()
+        manager.equipment["light"] = None
+
         for slot, inst_data in data.get("equipment", {}).items():
+            normalized_slot = manager._normalize_slot_name(slot)
             if inst_data:
                 instance = ItemInstance.from_dict(inst_data)
-                manager.equipment[slot] = instance
+                instance.slot = manager._normalize_slot_name(instance.slot)
+                if normalized_slot:
+                    manager.equipment[normalized_slot] = instance
             else:
-                manager.equipment[slot] = None
+                if normalized_slot:
+                    manager.equipment[normalized_slot] = None
 
         manager.ensure_light_slot_integrity()
         

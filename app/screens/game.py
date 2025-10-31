@@ -30,12 +30,12 @@ class GameScreen(Screen):
         (">", "descend", "Descend Stairs"), 
         ("<", "ascend", "Ascend Stairs"),
         ("=", "settings", "Settings"),
-        ("/", "identify_char", "Identify Character"),
         ("escape", "pause_menu", "Pause"),
         ("enter", "interact", "Interact/Enter"),
         ("ctrl+x", "save_and_quit", "Save and Quit"),
         ("ctrl+p", "repeat_message", "Repeat Message"),
         ("?", "help", "Help"),
+        ("/", "identify_char", "Identify Character"),
     ]
 
     engine: Engine
@@ -88,7 +88,7 @@ class GameScreen(Screen):
             "b": self.action_browse_book,
             "c": lambda: self._request_direction("close_door"),
             "d": self.action_drop_item,
-            "e": self.action_equipment_list,
+            "e": self.action_eat_food,
             "f": self.action_fire_throw,
             "g": self.action_pickup_item,
             "i": self.action_open_inventory,
@@ -107,11 +107,9 @@ class GameScreen(Screen):
             "x": self.action_exchange_weapon,
             "?": self.action_help,
             ".": lambda: self._request_direction("run"),
-            "period": lambda: self._request_direction("run"),
             "-": lambda: self._request_direction("move_no_pickup"),
             "B": lambda: self._request_direction("bash"),
             "D": lambda: self._request_direction("disarm"),
-            "E": self.action_eat_food,
             "F": self.action_fill_lamp,
             "G": self.action_gain_spells,
             "L": self.action_locate_map,
@@ -133,7 +131,7 @@ class GameScreen(Screen):
     def _request_direction(self, action: str):
         """Request a direction for the given action."""
         self._awaiting_direction = action
-        self.notify(f"Choose a direction for {action.replace('_', ' ')}...")
+        self.engine.log_event(f"Choose a direction for {action.replace('_', ' ')}...")
         debug(f"Awaiting direction for action: {action}")
     
     def _handle_direction_input(self, key: str):
@@ -157,7 +155,7 @@ class GameScreen(Screen):
         self._awaiting_direction = None
         
         if dx == 0 and dy == 0 and action != "look":
-            self.notify("Invalid direction.")
+            self.engine.log_event("Invalid direction.")
             return
 
         if action == "look":
@@ -428,11 +426,11 @@ class GameScreen(Screen):
             return
         
         if not self.app.player.mana_stat:
-            self.notify("Warriors cannot cast spells!", severity="warning")
+            self.engine.log_event("Warriors cannot cast spells!", severity="warning")
             return
         
         if not self.app.player.known_spells:
-            self.notify("You don't know any spells yet.", severity="info")
+            self.engine.log_event("You don't know any spells yet.", severity="info")
             return
         
         self.app.push_screen("cast_spell")
@@ -442,7 +440,7 @@ class GameScreen(Screen):
         if self._equip_first_available():
             debug("Action: Equip succeeded")
         else:
-            self.notify("You have nothing suitable to equip.")
+            self.engine.log_event("You have nothing suitable to equip.")
             debug("Action: Equip failed")
 
     def action_use_item(self):
@@ -450,7 +448,7 @@ class GameScreen(Screen):
         if self._use_inventory_item(lambda _: True, verb="use"):
             debug("Action: Use succeeded")
         else:
-            self.notify("You have nothing you can use right now.")
+            self.engine.log_event("You have nothing you can use right now.")
             debug("Action: Use failed")
 
     def action_take_off_item(self):
@@ -458,7 +456,7 @@ class GameScreen(Screen):
         player = self.engine.player
         has_equipment = any(item for item in player.equipment.values())
         if not has_equipment:
-            self.notify("You're not wearing anything to remove.")
+            self.engine.log_event("You're not wearing anything to remove.")
             debug("Action: Take Off failed - no equipment")
             return
 
@@ -471,17 +469,19 @@ class GameScreen(Screen):
         if self._use_inventory_item(lambda item: "Potion" in item, verb="quaff"):
             debug("Action: Quaff succeeded")
         else:
-            self.notify("You have no potions to drink.")
+            self.engine.log_event("You have no potions to drink.")
             debug("Action: Quaff failed")
 
     def action_eat_food(self):
         """Action eat food."""
-        food_keywords = ("Food", "Ration", "Mushroom", "Jerky", "Waybread", "Meal")
-        if self._use_inventory_item(lambda item: any(keyword in item for keyword in food_keywords), verb="eat"):
-            debug("Action: Eat succeeded")
-        else:
-            self.notify("You have nothing edible.")
-            debug("Action: Eat failed")
+        from app.screens.eat_food import EatFoodScreen
+        screen = EatFoodScreen()
+        if not screen.item_options:
+            self.engine.log_event("You have nothing edible.")
+            debug("Action: Eat failed - no food")
+            return
+        self.app.push_screen(screen)
+        debug("Action: Eat menu opened")
 
     def action_look_around(self):
         """Deprecated - use direction-based look instead."""
@@ -491,31 +491,31 @@ class GameScreen(Screen):
     def action_open_door(self):
         """Action open door."""
         if self.engine.open_adjacent_door():
-            self.notify("You open the nearby door.")
+            self.engine.log_event("You open the nearby door.")
             self.dungeon_view.update_map()
             debug("Action: Open door succeeded")
         else:
-            self.notify("There is no closed door next to you.")
+            self.engine.log_event("There is no closed door next to you.")
             debug("Action: Open door failed")
 
     def action_close_door(self):
         """Action close door."""
         if self.engine.close_adjacent_door():
-            self.notify("You close the nearby door.")
+            self.engine.log_event("You close the nearby door.")
             self.dungeon_view.update_map()
             debug("Action: Close door succeeded")
         else:
-            self.notify("There is no open door to close.")
+            self.engine.log_event("There is no open door to close.")
             debug("Action: Close door failed")
 
     def action_dig_wall(self):
         """Action dig wall."""
         if self.engine.dig_adjacent_wall():
-            self.notify("You carve through the stone.")
+            self.engine.log_event("You carve through the stone.")
             self.dungeon_view.update_map()
             debug("Action: Dig succeeded")
         else:
-            self.notify("No wall nearby to dig through.")
+            self.engine.log_event("No wall nearby to dig through.")
             debug("Action: Dig failed")
 
     def action_interact(self):
@@ -536,10 +536,10 @@ class GameScreen(Screen):
                               'Armory':'armory','Weapon Smith':'weapon_smith','Magic Shop':'magic_shop'}
                 screen_key = screen_map.get(building_name)
                 if screen_key: self.app.push_screen(screen_key)
-                else: debug(f"No screen key for building: {building_name}"); self.notify(f"{building_name} closed.", severity="warning")
-            else: debug(f"Invalid building index {building_index}"); self.notify("Nothing here.")
+                else: debug(f"No screen key for building: {building_name}"); self.engine.log_event(f"{building_name} closed.", severity="warning")
+            else: debug(f"Invalid building index {building_index}"); self.engine.log_event("Nothing here.")
         else:
-            self.notify("Nothing interesting here.")
+            self.engine.log_event("Nothing interesting here.")
 
     def action_ascend(self):
         """Action ascend."""
@@ -547,21 +547,21 @@ class GameScreen(Screen):
         if tile == STAIRS_UP:
              if self.engine.player.depth > 0:
                  debug("Player uses stairs up.")
-                 self.notify("You ascend towards the surface...")
+                 self.engine.log_event("You ascend towards the surface...")
                  new_depth = max(0, self.engine.player.depth - 25)
                  self._change_level(new_depth)
-             else: self.notify("You are already on the surface level.")
-        else: self.notify("There are no stairs up here.")
+             else: self.engine.log_event("You are already on the surface level.")
+        else: self.engine.log_event("There are no stairs up here.")
 
     def action_descend(self):
          """Action descend."""
          tile = self.engine.get_tile_at_player()
          if tile == STAIRS_DOWN:
              debug("Player uses stairs down.")
-             self.notify("You descend deeper into the dungeon...")
+             self.engine.log_event("You descend deeper into the dungeon...")
              new_depth = self.engine.player.depth + 25
              self._change_level(new_depth)
-         else: self.notify("There are no stairs down here.")
+         else: self.engine.log_event("There are no stairs down here.")
 
     def action_pause_menu(self):
         """Action pause menu."""
@@ -581,7 +581,7 @@ class GameScreen(Screen):
         player = self.engine.player
         for item in list(player.inventory):
             if player.equip(item):
-                self.notify(f"You equip {item}.")
+                self.engine.log_event(f"You equip {item}.")
                 self._refresh_ui()
                 return True
         return False
@@ -590,7 +590,7 @@ class GameScreen(Screen):
         player = self.engine.player
         for item in list(player.inventory):
             if predicate(item) and player.use_item(item):
-                self.notify(f"You {verb} {item}.")
+                self.engine.log_event(f"You {verb} {item}.")
                 self._refresh_ui()
                 return True
         return False
@@ -636,7 +636,7 @@ class GameScreen(Screen):
                 break
         if description is None:
             description = f"You see nothing of interest to the {direction}."
-        self.notify(description)
+        self.engine.log_event(description)
         debug(f"Look direction {direction}: {description}")
 
     def action_toggle_scroll(self):
@@ -722,12 +722,12 @@ class GameScreen(Screen):
         
         divine_classes = ["Priest", "Paladin"]
         if player.class_ not in divine_classes:
-            self.notify("You are not of a divine class and cannot pray for spells.", severity="warning")
+            self.engine.log_event("You are not of a divine class and cannot pray for spells.", severity="warning")
             debug(f"Action: Pray failed - {player.class_} is not a divine class")
             return
         
         if not player.known_spells:
-            self.notify("You don't know any prayers yet.", severity="info")
+            self.engine.log_event("You don't know any prayers yet.", severity="info")
             debug("Action: Pray - no known spells")
             return
         
@@ -757,7 +757,7 @@ class GameScreen(Screen):
     
     def action_version(self):
         """Show version and credits."""
-        self.notify("Rogue v1.0 - A roguelike dungeon crawler", timeout=5)
+        self.notify("Plaguefire v1.0 - A roguelike dungeon crawler", timeout=5)
         debug("Action: Version")
     
     def action_wear_wield(self):
@@ -791,7 +791,7 @@ class GameScreen(Screen):
             return
         
         if not getattr(self.app.player, 'mana_stat', None):
-            self.notify("You cannot learn spells!", severity="warning")
+            self.engine.log_event("You cannot learn spells!", severity="warning")
             return
         
         self.app.push_screen("learn_spell")
@@ -802,7 +802,7 @@ class GameScreen(Screen):
         if hasattr(self, 'engine') and self.engine and self.engine.player:
             x, y = self.engine.player.position
             depth = self.engine.player.depth
-            self.notify(f"You are at ({x}, {y}) on depth {depth}", timeout=3)
+            self.engine.log_event(f"You are at ({x}, {y}) on depth {depth}")
         debug("Action: Locate map")
     
     def action_show_map_reduced(self):
@@ -813,7 +813,7 @@ class GameScreen(Screen):
     
     def action_rest(self):
         """Rest for a period."""
-        self.notify("Resting...", timeout=2)
+        self.engine.log_event("Resting...")
         action_taken = self.engine.pass_turn("You rest to recover." )
         self._handle_engine_update(action_taken)
         debug("Action: Rest")
@@ -893,7 +893,7 @@ class GameScreen(Screen):
             lockpick_bonus = self.engine.player.get_lockpick_bonus()
             
             success, message, trap_type = chest.open_chest(player_skill, lockpick_bonus)
-            self.notify(message)
+            self.engine.log_event(message)
             
             if trap_type:
                 self._apply_trap_effect(trap_type)
@@ -905,7 +905,7 @@ class GameScreen(Screen):
                         if hasattr(self.engine, 'add_item_to_floor'):
                             self.engine.add_item_to_floor(tx, ty, item_id)
                         debug(f"Chest contents: {item_id}")
-                    self.notify(f"The chest contains {len(contents)} items!")
+                    self.engine.log_event(f"The chest contains {len(contents)} items!")
             
             debug(f"Open chest at ({tx}, {ty}): {message}")
             return
@@ -913,11 +913,11 @@ class GameScreen(Screen):
         tile = self.engine.get_tile_at_coords(tx, ty)
         if tile == DOOR_CLOSED:
             self.engine.game_map[ty][tx] = DOOR_OPEN
-            self.notify("You open the door.")
+            self.engine.log_event("You open the door.")
             self.dungeon_view.update_map()
             debug(f"Opened door at ({tx}, {ty})")
         else:
-            self.notify("There is nothing to open there.")
+            self.engine.log_event("There is nothing to open there.")
     
     def _close_door_direction(self, dx: int, dy: int):
         """Close a door in the given direction."""
@@ -927,11 +927,11 @@ class GameScreen(Screen):
         
         if tile == DOOR_OPEN:
             self.engine.game_map[ty][tx] = DOOR_CLOSED
-            self.notify("You close the door.")
+            self.engine.log_event("You close the door.")
             self.dungeon_view.update_map()
             debug(f"Closed door at ({tx}, {ty})")
         else:
-            self.notify("There is no open door there.")
+            self.engine.log_event("There is no open door there.")
     
     def _tunnel_direction(self, dx: int, dy: int):
         """Tunnel/dig in the given direction using the mining system."""
@@ -942,7 +942,7 @@ class GameScreen(Screen):
         mining_system = get_mining_system()
         
         if not mining_system.can_dig(tile):
-            self.notify("You cannot dig there.")
+            self.engine.log_event("You cannot dig there.")
             return
         
         weapon_name = None
@@ -955,7 +955,7 @@ class GameScreen(Screen):
         
         if success:
             self.engine.game_map[ty][tx] = FLOOR
-            self.notify(message)
+            self.engine.log_event(message)
             
             if treasure:
                 for item_id in treasure:
@@ -966,7 +966,7 @@ class GameScreen(Screen):
             self.dungeon_view.update_map()
             debug(f"Dug through at ({tx}, {ty})")
         else:
-            self.notify(message)
+            self.engine.log_event(message)
             debug(f"Digging in progress at ({tx}, {ty})")
     
     def _bash_direction(self, dx: int, dy: int):
@@ -981,7 +981,7 @@ class GameScreen(Screen):
             player_str = self.engine.player.stats.get('STR', 10)
             
             success, message, trap_type = chest.force_open(player_str)
-            self.notify(message)
+            self.engine.log_event(message)
             
             if trap_type:
                 self._apply_trap_effect(trap_type)
@@ -993,23 +993,23 @@ class GameScreen(Screen):
                         if hasattr(self.engine, 'add_item_to_floor'):
                             self.engine.add_item_to_floor(tx, ty, item_id)
                         debug(f"Chest contents: {item_id}")
-                    self.notify(f"The chest contains {len(contents)} items!")
+                    self.engine.log_event(f"The chest contains {len(contents)} items!")
             
             debug(f"Bash chest at ({tx}, {ty}): {message}")
             return
         
         entity = self.engine.get_entity_at(tx, ty)
         if entity:
-            self.notify(f"You bash {entity.name}!")
+            self.engine.log_event(f"You bash {entity.name}!")
             debug(f"Bashed entity at ({tx}, {ty})")
         else:
             tile = self.engine.get_tile_at_coords(tx, ty)
             if tile == DOOR_CLOSED:
                 self.engine.game_map[ty][tx] = DOOR_OPEN
-                self.notify("You bash open the door!")
+                self.engine.log_event("You bash open the door!")
                 self.dungeon_view.update_map()
             else:
-                self.notify("Nothing to bash there.")
+                self.engine.log_event("Nothing to bash there.")
     
     def _disarm_direction(self, dx: int, dy: int):
         """Disarm a trap in the given direction (works on chests)."""
@@ -1023,7 +1023,7 @@ class GameScreen(Screen):
             player_skill = self.engine.player.stats.get('DEX', 10)
             
             success, message = chest.disarm_trap(player_skill)
-            self.notify(message)
+            self.engine.log_event(message)
             
             if not success and chest.trapped:
                 self._apply_trap_effect(chest.trap_type)
@@ -1035,7 +1035,7 @@ class GameScreen(Screen):
             if self.engine.handle_disarm_trap(tx, ty):
                 self._refresh_ui()
         else:
-            self.notify("There is nothing to disarm there.")
+            self.engine.log_event("There is nothing to disarm there.")
         
         debug(f"Disarm direction ({dx}, {dy})")
     
@@ -1046,46 +1046,46 @@ class GameScreen(Screen):
         tile = self.engine.get_tile_at_coords(tx, ty)
         
         if tile == DOOR_CLOSED:
-            self.notify("You jam the door with a spike.")
+            self.engine.log_event("You jam the door with a spike.")
             debug(f"Jammed door at ({tx}, {ty})")
         else:
-            self.notify("There is no door there to jam.")
+            self.engine.log_event("There is no door there to jam.")
     
     def _apply_trap_effect(self, trap_type: str):
         """Apply the effects of a triggered trap."""
         if trap_type == "poison_needle":
             damage = roll_dice(1, 6)
             self.engine.player.hp -= damage
-            self.notify(f"A poison needle pricks you! You take {damage} damage.")
+            self.engine.log_event(f"A poison needle pricks you! You take {damage} damage.")
             
         elif trap_type == "poison_gas":
             damage = random.randint(2, 8)
             self.engine.player.hp -= damage
-            self.notify(f"Poison gas fills the air! You take {damage} damage.")
+            self.engine.log_event(f"Poison gas fills the air! You take {damage} damage.")
             
         elif trap_type == "summon_monster":
-            self.notify("The trap summons a monster!")
+            self.engine.log_event("The trap summons a monster!")
             
         elif trap_type == "alarm":
-            self.notify("An alarm sounds! Nearby monsters are alerted!")
+            self.engine.log_event("An alarm sounds! Nearby monsters are alerted!")
             
         elif trap_type == "explosion":
             damage = random.randint(5, 15)
             self.engine.player.hp -= damage
-            self.notify(f"An explosion erupts! You take {damage} damage.")
+            self.engine.log_event(f"An explosion erupts! You take {damage} damage.")
             
         elif trap_type == "dart":
             damage = roll_dice(1, 4)
             self.engine.player.hp -= damage
-            self.notify(f"A dart shoots out! You take {damage} damage.")
+            self.engine.log_event(f"A dart shoots out! You take {damage} damage.")
             
         elif trap_type == "magic_drain":
             if hasattr(self.engine.player, 'mana') and self.engine.player.mana > 0:
                 drain = min(random.randint(5, 15), self.engine.player.mana)
                 self.engine.player.mana -= drain
-                self.notify(f"The trap drains {drain} mana!")
+                self.engine.log_event(f"The trap drains {drain} mana!")
             else:
-                self.notify("The trap tries to drain your mana, but you have none!")
+                self.engine.log_event("The trap tries to drain your mana, but you have none!")
         
         if hasattr(self, 'hud_view'):
             self.hud_view.update_stats()
@@ -1131,9 +1131,9 @@ class GameScreen(Screen):
             self._refresh_ui()
         
         if steps_taken > 0:
-            self.notify(f"You run {steps_taken} step{'s' if steps_taken > 1 else ''}.")
+            self.engine.log_event(f"You run {steps_taken} step{'s' if steps_taken > 1 else ''}.")
         else:
-            self.notify("You cannot run in that direction.")
+            self.engine.log_event("You cannot run in that direction.")
         
         debug(f"Run direction ({dx}, {dy}) - took {steps_taken} steps")
     
@@ -1143,5 +1143,5 @@ class GameScreen(Screen):
         if moved:
             self._handle_engine_update(True)
         else:
-            self.notify("You cannot move that way.")
+            self.engine.log_event("You cannot move that way.")
         debug(f"Move no pickup ({dx}, {dy})")

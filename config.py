@@ -16,6 +16,18 @@ MAX_MAP_HEIGHT = 120  # Increased for larger dungeons
 DAY_NIGHT_CYCLE_LENGTH = 400  # Number of turns for a full day/night cycle
 DAY_DURATION = DAY_NIGHT_CYCLE_LENGTH // 2  # Turns spent in daytime
 
+# --- Hunger System ---
+HUNGER_MAX = 1000
+HUNGER_WELL_FED_THRESHOLD = 850
+HUNGER_SATIATED_THRESHOLD = 600
+HUNGER_HUNGRY_THRESHOLD = 350
+HUNGER_WEAK_THRESHOLD = 150
+HUNGER_STARVING_THRESHOLD = 50
+HUNGER_TURN_DECAY_BASE = 2
+HUNGER_MIN_DECAY = 1
+HUNGER_WEAK_DAMAGE_INTERVAL = 5
+HUNGER_STARVING_DAMAGE = 2
+
 # --- Large Dungeon Parameters ---
 LARGE_DUNGEON_THRESHOLD = 100  # Depth at which to start generating large dungeons
 MAX_LARGE_MAP_WIDTH = 500      # Maximum size for very large dungeons

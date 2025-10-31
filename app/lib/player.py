@@ -28,7 +28,8 @@ from config import (
     VIEWPORT_HEIGHT, VIEWPORT_WIDTH, STAT_NAMES,
     ABILITY_NAMES, RACE_DEFINITIONS, CLASS_DEFINITIONS,
     HISTORY_TABLES, PHYSICAL_PROFILES, WEAPON_KEYWORDS,
-    LIGHT_SOURCE_KEYWORDS, ARMOR_KEYWORDS
+    LIGHT_SOURCE_KEYWORDS, ARMOR_KEYWORDS,
+    HUNGER_MAX, HUNGER_WELL_FED_THRESHOLD
 )
 from debugtools import debug
 
@@ -333,6 +334,14 @@ class Player:
         self.depth: int = data.get("depth", 0)
         self.deepest_depth: int = data.get("deepest_depth", max(1, self.depth))
         self.time: int = data.get("time", 0)
+        self.max_hunger: int = data.get("max_hunger", HUNGER_MAX)
+        default_hunger = data.get("hunger", self.max_hunger)
+        self.hunger: int = max(0, min(self.max_hunger, default_hunger))
+        stored_state = data.get("hunger_state")
+        if stored_state:
+            self.hunger_state: str = stored_state
+        else:
+            self.hunger_state = "well_fed" if self.hunger >= HUNGER_WELL_FED_THRESHOLD else "satiated"
 
         infravision = self.abilities.get("infravision", 0)
         default_base_radius = 2 if infravision >= 30 else 1
@@ -713,7 +722,11 @@ class Player:
             "inventory_manager": self.inventory_manager.to_dict(),
             "position": self.position, "depth": self.depth,
             "deepest_depth": self.deepest_depth,
-            "time": self.time, "base_light_radius": self.base_light_radius, "light_radius": self.light_radius,
+            "time": self.time,
+            "max_hunger": self.max_hunger,
+            "hunger": self.hunger,
+            "hunger_state": self.hunger_state,
+            "base_light_radius": self.base_light_radius, "light_radius": self.light_radius,
             "light_duration": self.light_duration, 
             "status_effects": self.status_manager.get_active_effects_display(),
             "status": self.status,
@@ -1117,19 +1130,36 @@ class Player:
         Returns:
             Item name with inscription in format "Item Name {inscription}"
         """
+        base_name = item_name
+        instances = self.inventory_manager.get_instances_by_name(item_name)
+
+        if not instances:
+            for slot, instance in self.inventory_manager.equipment.items():
+                if instance and instance.item_name == item_name:
+                    instances = [instance]
+                    break
+
+        if instances:
+            instance = instances[0]
+            if not instance.identified:
+                data_loader = GameData()
+                unknown_name = data_loader.get_unknown_name(instance.item_id)
+                if unknown_name:
+                    base_name = unknown_name
+
         inscriptions = []
-        
+
         auto_inscription = self.get_item_inscription(item_name)
         if auto_inscription:
             inscriptions.append(auto_inscription)
-        
+
         custom_inscription = self.custom_inscriptions.get(item_name)
         if custom_inscription:
             inscriptions.append(custom_inscription)
-        
+
         if inscriptions:
-            return f"{item_name} {{{', '.join(inscriptions)}}}"
-        return item_name
+            return f"{base_name} {{{', '.join(inscriptions)}}}"
+        return base_name
     
     def set_custom_inscription(self, item_name: str, inscription: str) -> bool:
         """

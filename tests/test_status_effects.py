@@ -110,7 +110,7 @@ def test_effect_refresh():
 
 
 def test_new_status_effects():
-    """Test newly added status effects: Blindness, Paralysis, Poison."""
+    """Test newly added status effects: Blindness, Paralysis, Poisoned."""
     print("Test: New status effects...")
     
     manager = StatusEffectManager()
@@ -132,12 +132,12 @@ def test_new_status_effects():
     assert manager.has_behavior("paralyzed"), "Should have paralyzed behavior"
     print("✓ Paralysis effect works correctly")
     
-    # Test Poison
+    # Test Poisoned
     manager.clear_all()
-    manager.add_effect("Poison", duration=20)
-    assert manager.has_effect("Poison"), "Should have Poison effect"
+    manager.add_effect("Poisoned", duration=20)
+    assert manager.has_effect("Poisoned"), "Should have Poisoned effect"
     assert manager.has_behavior("poisoned"), "Should have poisoned behavior"
-    print("✓ Poison effect works correctly")
+    print("✓ Poisoned effect works correctly")
     
     print("✓ Test passed!\n")
     return True

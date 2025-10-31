@@ -57,7 +57,7 @@ class ThrowItemScreen(Screen):
     def _render_item_list(self) -> str:
         """Renders the throwable item list with Rich Text colors."""
         lines = [
-            f"[chartreuse1]Throw an Item[/chartreuse1]",
+            f"[chartreuse1]Fire/Throw an Item[/chartreuse1]",
             "[chartreuse1]" + "=" * 50 + "[/chartreuse1]",
             ""
         ]

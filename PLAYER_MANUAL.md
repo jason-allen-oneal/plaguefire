@@ -686,7 +686,9 @@ Some spells are available to multiple classes at different levels and mana costs
 - Must be identified to know effects
 
 #### Food and Light
-- **Food**: Prevents hunger, eat with **E**
+- **Food**: Prevents hunger, eat with **E**. Staying fed keeps you "Well Fed" or "Satiated".
+- **Hunger**: Turns slowly drain your food stores. You'll feel *Hungry*, then grow *Weak*, and finally become *Starving* if you ignore it. Weakness causes periodic damage; starvation inflicts heavy damage every turn and will eventually kill you.
+- **Stats Matter**: High Strength or Constitution slows hunger. Staying overburdened speeds it up.
 - **Torches**: Provide light, burn out over time
 - **Lanterns**: Refillable with oil flasks (**F** to fill)
 

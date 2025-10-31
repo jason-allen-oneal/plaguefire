@@ -46,12 +46,12 @@ class HUDView(Static):
             
         player = self.engine.player
 
-        stats = player.stats
         level = player.level
         hp = player.hp
         max_hp = player.max_hp
         mana = getattr(player, "mana", 0)
         max_mana = getattr(player, "max_mana", 0)
+        hunger_state = getattr(player, "hunger_state", "satiated")
 
         gold = player.gold
         depth = player.depth
@@ -71,6 +71,7 @@ class HUDView(Static):
 
         hp_bar = self._create_bar_markup(hp, max_hp, bar_width, "bright_red")
         mp_bar = self._create_bar_markup(mana, max_mana, bar_width, "blue3")
+        hunger_display = hunger_state.replace("_", " ").title()
 
         hud_lines = [
             f"[bright_white]{player.name}[/bright_white]",
@@ -80,6 +81,7 @@ class HUDView(Static):
             separator,
             f"[bright_white]HP:[/bright_white] {hp_bar} {hp:>3}/{max_hp:<3}",
             f"[bright_blue]MP:[/bright_blue] {mp_bar} {mana:>3}/{max_mana:<3}",
+            f"[orange1]Hunger:[/orange1] {hunger_display}",
             f"[gold1]Gold:[/gold1] {gold:<6}",
             f"[magenta3]Depth:[/magenta3] {depth:<5} ft",
             separator,
@@ -102,7 +104,15 @@ class HUDView(Static):
         status_entries = []
         if getattr(self.engine, "searching", False):
             status_entries.append("[yellow1]Searching[/yellow1]")
-        
+
+        hunger_alert_states = {
+            "hungry": "[gold1]Hungry[/gold1]",
+            "weak": "[orange_red1]Weak from hunger[/orange_red1]",
+            "starving": "[red1]Starving[/red1]",
+        }
+        if hunger_state in hunger_alert_states:
+            status_entries.append(hunger_alert_states[hunger_state])
+
         if hasattr(player, 'status_manager') and player.status_manager.active_effects:
             for effect_name, effect in player.status_manager.active_effects.items():
                 status_entries.append(f"[cyan]{effect_name}[/cyan] ({effect.duration}t)")

@@ -14,6 +14,10 @@ class InventoryScreen(Screen):
     BINDINGS = [
         ("escape", "close", "Close"),
         ("q", "close", "Close"),
+        ("w", "wear", "Wear/Wield"),
+        ("t", "take_off", "Take Off"),
+        ("d", "drop", "Drop Item"),
+        ("e", "eat", "Eat Food"),
     ]
 
     def __init__(self, **kwargs):
@@ -25,23 +29,25 @@ class InventoryScreen(Screen):
 
     def compose(self):
         with Vertical(id="inventory-wrapper"):
-            self.title_widget = Static("Inventory", id="inventory-title")
-            yield self.title_widget
+            with Horizontal(id="inventory-columns"):
+                self.left_column = Static("", id="inventory-left", expand=True)
+                yield self.left_column
+                self.right_column = Static("", id="inventory-right", expand=True)
+                yield self.right_column
 
-            with VerticalScroll(id="inventory-scroll"):
-                with Horizontal(id="inventory-columns"):
-                    self.left_column = Static("", id="inventory-left", expand=True)
-                    yield self.left_column
-                    self.right_column = Static("", id="inventory-right", expand=True)
-                    yield self.right_column
-
-            self.footer_widget = Static("Press [Esc] to return to the dungeon.", id="inventory-footer")
+            self.footer_widget = Static(
+                "Press \[Esc] to return • \[W] Wear  \[T] Take Off  \[D] Drop  \[E] Eat",
+                id="inventory-footer",
+            )
             yield self.footer_widget
 
     def on_mount(self) -> None:
         self._refresh_contents()
 
     def on_show(self) -> None:
+        self._refresh_contents()
+
+    def on_resume(self) -> None:
         self._refresh_contents()
 
     def _refresh_contents(self) -> None:
@@ -56,10 +62,39 @@ class InventoryScreen(Screen):
             weight_display = f"[light_slate_gray]{current_weight/10:.1f} lbs / {capacity/10:.1f} lbs[/light_slate_gray]"
             overweight = " [bright_red]\\[OVERWEIGHT!][/bright_red]" if player.is_overweight() else ""
 
-            equipment = player.equipment if isinstance(getattr(player, "equipment", {}), dict) else {}
-            weapon = equipment.get("weapon")
-            armor = equipment.get("armor")
-            light = equipment.get("light")
+            equipment_manager = player.inventory_manager if hasattr(player, "inventory_manager") else None
+            equipment_entries = []
+            if equipment_manager:
+                slot_order = [
+                    ("weapon", "Weapon"),
+                    ("shield", "Shield"),
+                    ("armor", "Armor"),
+                    ("helm", "Helm"),
+                    ("gloves", "Gloves"),
+                    ("boots", "Boots"),
+                    ("ring_left", "Ring (L)"),
+                    ("ring_right", "Ring (R)"),
+                    ("quiver", "Quiver"),
+                    ("ammo", "Ammo"),
+                    ("light", "Light"),
+                ]
+                for slot_key, label in slot_order:
+                    instance = equipment_manager.equipment.get(slot_key)
+                    if instance:
+                        display_name = player.get_inscribed_item_name(instance.item_name)
+                        if getattr(instance, "quantity", 1) > 1:
+                            display_name += f" x{instance.quantity}"
+                    else:
+                        display_name = "Nothing"
+                    name = display_name
+                    equipment_entries.append(f"{label}: [bright_white]{name}[/bright_white]")
+            else:
+                equipment = player.equipment if isinstance(getattr(player, "equipment", {}), dict) else {}
+                equipment_entries = [
+                    f"Weapon: [bright_white]{player.get_inscribed_item_name(equipment.get('weapon')) if equipment.get('weapon') else 'Nothing'}[/bright_white]",
+                    f"Armor:  [bright_white]{player.get_inscribed_item_name(equipment.get('armor')) if equipment.get('armor') else 'Nothing'}[/bright_white]",
+                    f"Light:  [bright_white]{player.get_inscribed_item_name(equipment.get('light')) if equipment.get('light') else 'None'}[/bright_white]",
+                ]
 
             left_lines = [
                 "[chartreuse1]======Inventory======[/chartreuse1]",
@@ -68,10 +103,9 @@ class InventoryScreen(Screen):
                 f"Weight: {weight_display}{overweight}",
                 "",
                 "[dim]Equipment:[/dim]",
-                f"Weapon: [bright_white]{player.get_inscribed_item_name(weapon) if weapon else 'Nothing'}[/bright_white]",
-                f"Armor:  [bright_white]{player.get_inscribed_item_name(armor) if armor else 'Nothing'}[/bright_white]",
-                f"Light:  [bright_white]{player.get_inscribed_item_name(light) if light else 'None'}[/bright_white]",
             ]
+            left_lines.extend(equipment_entries)
+            left_lines.append("")
 
             inventory_items = player.inventory or []
             right_lines = [
@@ -109,3 +143,24 @@ class InventoryScreen(Screen):
 
     def action_close(self) -> None:
         self.app.pop_screen()
+
+    def action_wear(self) -> None:
+        from app.screens.wear_wield import WearWieldScreen
+        self.app.push_screen(WearWieldScreen())
+
+    def action_take_off(self) -> None:
+        from app.screens.take_off import TakeOffScreen
+        self.app.push_screen(TakeOffScreen())
+
+    def action_drop(self) -> None:
+        from app.screens.drop_item import DropItemScreen
+        self.app.push_screen(DropItemScreen())
+
+    def action_eat(self) -> None:
+        from app.screens.eat_food import EatFoodScreen
+        screen = EatFoodScreen()
+        if screen.item_options:
+            self.app.push_screen(screen)
+        else:
+            self.app.bell()
+            self.notify("You have nothing edible.", severity="warning")

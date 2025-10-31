@@ -92,7 +92,7 @@ class StatusEffectManager:
             "behavior": "paralyzed",
             "description": "Cannot move or act",
         },
-        "Poison": {
+        "Poisoned": {
             "behavior": "poisoned",
             "description": "Suffering from poison",
         },

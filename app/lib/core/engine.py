@@ -38,7 +38,10 @@ from config import (
     VIEWPORT_WIDTH, VIEWPORT_HEIGHT,
     MIN_MAP_WIDTH, MAX_MAP_WIDTH, MIN_MAP_HEIGHT, MAX_MAP_HEIGHT,
     LARGE_DUNGEON_THRESHOLD, MAX_LARGE_MAP_WIDTH, MAX_LARGE_MAP_HEIGHT,
-    QUARTZ_VEIN, MAGMA_VEIN, DAY_NIGHT_CYCLE_LENGTH, DAY_DURATION
+    QUARTZ_VEIN, MAGMA_VEIN, DAY_NIGHT_CYCLE_LENGTH, DAY_DURATION,
+    HUNGER_TURN_DECAY_BASE, HUNGER_MIN_DECAY, HUNGER_WELL_FED_THRESHOLD,
+    HUNGER_SATIATED_THRESHOLD, HUNGER_HUNGRY_THRESHOLD, HUNGER_WEAK_THRESHOLD,
+    HUNGER_STARVING_THRESHOLD, HUNGER_WEAK_DAMAGE_INTERVAL, HUNGER_STARVING_DAMAGE
 )
 from debugtools import debug, log_exception
 
@@ -185,6 +188,8 @@ class Engine:
         self.last_light_warning_time = -999
         self.overweight_warning_interval = 50
         self.light_out_alerted = False
+        self.last_poison_warning_time = -999
+        self.last_hunger_damage_time = -999
         
         if ground_items_override:
             self.ground_items = {tuple(pos): list(items) for pos, items in ground_items_override.items()}
@@ -382,9 +387,24 @@ class Engine:
         
         self.player.regenerate_mana()
         
+        was_poisoned = self.player.status_manager.has_effect("Poisoned")
         expired = self.player.status_manager.tick_effects()
         for effect_name in expired:
             self.log_event(f"{effect_name} effect wore off.")
+        if was_poisoned:
+            if self.player.status_manager.has_resistance("poison"):
+                if self.player.time - self.last_poison_warning_time >= 10:
+                    self.log_event("The poison courses through you, but your resistance holds.")
+                    self.last_poison_warning_time = self.player.time
+            else:
+                poison_damage = 1
+                if self.player.hp > 0:
+                    self._inflict_player_damage(poison_damage, "poison")
+                    if self.player.time - self.last_poison_warning_time >= 3 and self.player.hp > 0:
+                        self.log_event(f"The poison saps you! (-{poison_damage} HP)")
+                        self.last_poison_warning_time = self.player.time
+
+        self._update_player_hunger()
         
         if self.recall_active:
             self.recall_timer += 1
@@ -413,6 +433,92 @@ class Engine:
         
         self.update_entities()
         self.update_fov()
+
+    def _calculate_hunger_decay(self) -> int:
+        """Determine how much hunger should drop this turn."""
+        con_mod = self.player._get_modifier("CON")
+        str_mod = self.player._get_modifier("STR")
+        best_mod = max(con_mod, str_mod)
+        decay = HUNGER_TURN_DECAY_BASE - best_mod
+        if self.player.is_overweight():
+            decay += 1
+        return max(HUNGER_MIN_DECAY, decay)
+
+    def _determine_hunger_state(self, hunger_value: Optional[int] = None) -> str:
+        """Translate a hunger value into a descriptive state."""
+        value = hunger_value if hunger_value is not None else self.player.hunger
+        if value >= HUNGER_WELL_FED_THRESHOLD:
+            return "well_fed"
+        if value >= HUNGER_SATIATED_THRESHOLD:
+            return "satiated"
+        if value >= HUNGER_HUNGRY_THRESHOLD:
+            return "hungry"
+        if value >= HUNGER_WEAK_THRESHOLD:
+            return "weak"
+        if value > 0:
+            return "starving"
+        return "starving"
+
+    def _handle_hunger_state_change(self, previous: str, new_state: str, *, silent: bool = False) -> None:
+        """Handle messaging and bookkeeping when hunger state shifts."""
+        if previous == new_state:
+            return
+        self.player.hunger_state = new_state
+        if silent:
+            return
+
+        critical_states = {"hungry", "weak", "starving"}
+        if new_state in critical_states:
+            messages = {
+                "hungry": "You feel hungry.",
+                "weak": "You feel weak from hunger.",
+                "starving": "You are starving!",
+            }
+            self.log_event(messages.get(new_state, "You feel hungry."))
+        elif previous in critical_states and new_state in {"satiated", "well_fed"}:
+            self.log_event("You are no longer hungry.")
+        elif new_state == "well_fed" and previous not in {"well_fed", "satiated"}:
+            self.log_event("You feel well fed.")
+        elif new_state == "satiated" and previous in critical_states:
+            self.log_event("You feel satisfied once more.")
+
+        if new_state in {"satiated", "well_fed"}:
+            self.last_hunger_damage_time = self.player.time
+
+    def _adjust_player_hunger(self, delta: int, *, silent: bool = False) -> None:
+        """Modify the player's hunger value and update state."""
+        previous_state = self._determine_hunger_state()
+        new_value = max(0, min(self.player.max_hunger, self.player.hunger + delta))
+        self.player.hunger = new_value
+        new_state = self._determine_hunger_state(new_value)
+        self._handle_hunger_state_change(previous_state, new_state, silent=silent)
+
+    def _apply_hunger_effects(self, state: str) -> None:
+        """Apply penalties or damage associated with the current hunger state."""
+        if state == "weak":
+            if self.player.time - self.last_hunger_damage_time >= HUNGER_WEAK_DAMAGE_INTERVAL:
+                if self.player.hp > 0:
+                    self._inflict_player_damage(1, "starvation")
+                    if self.player.hp > 0:
+                        self.log_event("Hunger gnaws at you. (-1 HP)")
+                self.last_hunger_damage_time = self.player.time
+        elif state == "starving":
+            if self.player.hp > 0:
+                damage = HUNGER_STARVING_DAMAGE if self.player.hunger == 0 else max(1, HUNGER_STARVING_DAMAGE - 1)
+                self._inflict_player_damage(damage, "starvation")
+                if self.player.hp > 0:
+                    self.log_event(f"Starvation wracks your body! (-{damage} HP)")
+            self.last_hunger_damage_time = self.player.time
+
+    def _update_player_hunger(self) -> None:
+        """Update hunger each turn and apply consequences."""
+        if getattr(self.player, "status", 1) == 0:
+            return
+        decay = self._calculate_hunger_decay()
+        if decay <= 0:
+            decay = HUNGER_MIN_DECAY
+        self._adjust_player_hunger(-decay)
+        self._apply_hunger_effects(self.player.hunger_state)
 
     def handle_player_move(self, dx: int, dy: int, *, allow_pickup: bool = True) -> bool:
         """
@@ -822,25 +928,28 @@ class Engine:
     def _handle_identify_spell(self) -> None:
         """
         Handle the Identify spell - identifies a single unknown item.
-        This will be expanded to show a selection UI in the future.
-        For now, it identifies the first unidentified item.
         """
-        from app.lib.core.item import ItemInstance
-        
-        unidentified_item = None
-        
-        if hasattr(self.player, 'inventory_manager') and self.player.inventory_manager:
-            for instance in self.player.inventory_manager.instances:
-                if not instance.identified:
-                    unidentified_item = instance
-                    break
-        
-        if unidentified_item:
-            unidentified_item.identify()
-            self.log_event(f"You identify the {unidentified_item.item_name}!")
-        else:
+        if not hasattr(self.player, 'inventory_manager') or not self.player.inventory_manager.instances:
             self.log_event("You have no unidentified items.")
-    
+            return
+
+        unidentified_indices = [
+            idx for idx, instance in enumerate(self.player.inventory_manager.instances)
+            if not instance.identified
+        ]
+
+        if not unidentified_indices:
+            self.log_event("You have no unidentified items.")
+            return
+
+        if len(unidentified_indices) == 1:
+            self.identify_item_by_index(unidentified_indices[0])
+            return
+
+        from app.screens.identify_item import IdentifyItemScreen
+        self.app.push_screen(IdentifyItemScreen(self))
+        self.log_event("Choose an item to identify.")
+
     def _handle_detect_magic_spell(self) -> None:
         """
         Handle the Detect Magic spell - reveals magical properties of items.
@@ -970,8 +1079,9 @@ class Engine:
         
         elif effect_type == 'satiate':
             satiate_value = effect[1] if len(effect) > 1 else 10
+            self._adjust_player_hunger(satiate_value)
             if satiate_value > 0:
-                self.log_event(f"You drink {potion_name}. Refreshing!")
+                self.log_event(f"You drink {potion_name}. You feel nourished.")
             else:
                 self.log_event(f"You drink {potion_name}. It makes you thirsty!")
             return True
@@ -1006,6 +1116,7 @@ class Engine:
             
             if effect_type == 'satiate':
                 satiate_value = effect[1] if len(effect) > 1 else 50
+                self._adjust_player_hunger(satiate_value)
                 self.log_event(f"You eat {food_name}. That was satisfying!")
                 return True
             
@@ -1259,7 +1370,8 @@ class Engine:
             if not self.ground_items[pos_key]:
                 del self.ground_items[pos_key]
             
-            self.log_event(f"You pick up {item_name}.")
+            display_name = self.player.get_inscribed_item_name(item_name)
+            self.log_event(f"You pick up {display_name}.")
             self._end_player_turn()
             return True
         else:
@@ -1872,7 +1984,56 @@ class Engine:
             self.log_event("You feel more experienced! Choose a spell to learn.")
             self.app.push_screen("learn_spell")
 
+        if entity.template_id == "INFERNAL_LORD":
+            self._handle_infernal_lord_victory()
 
+
+
+    def _handle_infernal_lord_victory(self) -> None:
+        """Handle post-victory flow when the Infernal Lord is defeated."""
+        self.log_event("You have slain the Infernal Lord! The realm is saved!")
+        notify = getattr(self.app, "notify", None)
+        if callable(notify):
+            notify("Victory! The Infernal Lord falls and peace returns.", severity="success", timeout=8)
+
+        player = self.player
+        player.status = 1
+        player.level = 1
+        player.xp = 0
+        if hasattr(player, "_xp_threshold_for_level"):
+            player.next_level_xp = player._xp_threshold_for_level(1)
+        player.depth = 0
+        player.position = None
+        player.time = 0
+        player.hp = player.max_hp
+        player.mana = player.max_mana
+        if hasattr(player, "max_hunger"):
+            player.hunger = player.max_hunger
+            player.hunger_state = "well_fed"
+        player.status_manager.clear_all()
+        player.light_duration = max(player.light_duration, 0)
+
+        if hasattr(self.app, "dungeon_levels"):
+            self.app.dungeon_levels.clear()
+        if hasattr(self.app, "dungeon_entities"):
+            self.app.dungeon_entities.clear()
+        if hasattr(self.app, "dungeon_rooms"):
+            self.app.dungeon_rooms.clear()
+        if hasattr(self.app, "dungeon_ground_items"):
+            self.app.dungeon_ground_items.clear()
+        if hasattr(self.app, "dungeon_death_drops"):
+            self.app.dungeon_death_drops.clear()
+
+        game_screen = next(
+            (screen for screen in getattr(self.app, "screen_stack", []) if screen.__class__.__name__ == "GameScreen"),
+            None,
+        )
+        if game_screen and hasattr(game_screen, "_change_level"):
+            game_screen._change_level(0)
+        else:
+            player.depth = 0
+            player.position = None
+            self.app.save_character()
 
     def _calculate_xp_reward(self, entity: Entity, reward_multiplier: Optional[float] = None) -> int:
         level_to_xp = {0: 50, 1: 200, 2: 450, 3: 700, 4: 1100, 5: 1800, 6: 2300, 7: 2900, 8: 3900,
@@ -1919,6 +2080,28 @@ class Engine:
                 """
         self.combat_log.append(message)
         if len(self.combat_log) > 50: self.combat_log.pop(0)
+
+    def identify_item_by_index(self, item_index: int) -> bool:
+        """
+        Identify an inventory item by index.
+
+        Returns True if the item was newly identified.
+        """
+        manager = getattr(self.player, "inventory_manager", None)
+        if not manager:
+            return False
+
+        if not (0 <= item_index < len(manager.instances)):
+            return False
+
+        instance = manager.instances[item_index]
+        if instance.identified:
+            self.log_event(f"You already know the {instance.item_name}.")
+            return False
+
+        instance.identify()
+        self.log_event(f"You identify the {instance.item_name}!")
+        return True
 
     def _process_beggar_ai(self, entity: Entity, distance: float) -> None:
         behavior = getattr(entity, "behavior", "")

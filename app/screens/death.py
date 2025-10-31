@@ -32,23 +32,25 @@ class DeathScreen(Screen):
         return "unknown causes"
 
     def _build_tombstone(self, name: str, cause: str, player: Optional[object]) -> str:
+        if player:
+            cls = getattr(player, "class_", getattr(player, "char_class", "Adventurer"))
+            race = getattr(player, "race", "").strip()
+            level = getattr(player, "level", "?")
+            race_class_line = f"{race} {cls}".strip()
+            level_line = f"Level {level}"
+            depth_line = f"Depth {getattr(player, 'depth', 0)} ft"
+        
         rip_text = "~ R. I. P. ~"
         raw_lines: List[str] = [
             "",
             "Here lies",
             name.upper(),
+            race_class_line,
+            level_line,
+            depth_line,
             "",
             f"Killed by {cause}",
         ]
-
-        if player:
-            cls = getattr(player, "class_", getattr(player, "char_class", "Adventurer"))
-            race = getattr(player, "race", "").strip()
-            level = getattr(player, "level", "?")
-            raw_lines.append(f"{race} {cls}".strip())
-            raw_lines.append(f"Level {level}")
-            depth_line = f"Depth {getattr(player, 'depth', 0)} ft"
-            raw_lines.append(depth_line)
 
         raw_lines.append("")
 
@@ -72,7 +74,7 @@ class DeathScreen(Screen):
         base = " " * max(0, (total_width // 2) - 4) + "/_______\\"
 
         lines = [top, arch_mid, arch_lower] + body_lines + [bottom, base]
-        return "[gray70]" + "\n".join(lines) + "[/gray70]"
+        return "[gray70]" + "\n".join(lines)
 
     def _shorten(self, text: str, width: int) -> str:
         if len(text) <= width:

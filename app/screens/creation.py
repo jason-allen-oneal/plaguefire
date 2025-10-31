@@ -12,6 +12,7 @@ from rich.text import Text
 
 from app.lib.core.loader import GameData
 from app.lib.core.utils import roll_dice
+from app.lib.core.inventory import InventoryManager
 from app.lib.player import (
     Player,
     build_character_profile,
@@ -265,6 +266,7 @@ class CharacterCreationScreen(Screen):
             stat_block,
             Text(""),
             Text.assemble(Text.from_markup("[gold1]History:[/] "), Text(history)),
+            Text(""),
             Text.from_markup(f"[deep_sky_blue1]Social Class:[/] {social:>3}    [deep_sky_blue1]Height:[/] {height}    [deep_sky_blue1]Weight:[/] {weight} lbs"),
             Text.from_markup(f"[light_goldenrod1]Starting Gold:[/] {gold} gp"),
             Text(""),
@@ -272,6 +274,7 @@ class CharacterCreationScreen(Screen):
             ability_block,
             Text(""),
             Text.from_markup(instructions),
+            Text(""),
         ]
 
         final_text = Text()
@@ -425,6 +428,24 @@ class CharacterCreationScreen(Screen):
         sex = SEX_OPTIONS[self.sex_index]
         profile = self.current_profile
 
+        starter_inventory = InventoryManager()
+        starter_inventory.add_item("FOOD_RATION", quantity=5)
+
+        if starter_inventory.add_item("DAGGER_BODKIN"):
+            dagger_instances = starter_inventory.get_instances_by_name("Dagger (Bodkin)")
+            if dagger_instances:
+                starter_inventory.equip_instance(dagger_instances[-1].instance_id)
+
+        if starter_inventory.add_item("CLOTHING_TRAVELERS_GARB"):
+            garb_instances = starter_inventory.get_instances_by_name("Traveler's Garb")
+            if garb_instances:
+                starter_inventory.equip_instance(garb_instances[-1].instance_id)
+
+        if starter_inventory.add_item("TORCH"):
+            torch_instances = starter_inventory.get_instances_by_name("Wooden Torch")
+            if torch_instances:
+                starter_inventory.equip_instance(torch_instances[-1].instance_id)
+
         player_data = {
             "name": name,
             "race": race,
@@ -440,8 +461,7 @@ class CharacterCreationScreen(Screen):
             "abilities": profile.get("abilities"),
             "gold": profile.get("starting_gold", 100),
             "known_spells": self.chosen_starter_spells if self.chosen_starter_spells else [],
-            "inventory": ["Rations (3)", "Torch (5)", "Dagger"],
-            "equipment": {"weapon": "Dagger", "armor": None},
+            "inventory_manager": starter_inventory.to_dict(),
             "depth": 0,
             "time": 0,
             "level": 1,

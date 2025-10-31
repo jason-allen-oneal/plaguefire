@@ -7,7 +7,7 @@ COMMAND_REFERENCE: List[Tuple[str, str]] = [
     ("b", "Browse spell book"),
     ("c", "Close door"),
     ("d", "Drop item"),
-    ("e", "Show equipment"),
+    ("e", "Eat food"),
     ("f", "Fire/throw"),
     ("g", "Pick up item"),
     ("i", "Open inventory"),
@@ -28,7 +28,6 @@ COMMAND_REFERENCE: List[Tuple[str, str]] = [
     ("-", "Move without pickup"),
     ("B", "Bash"),
     ("D", "Disarm trap"),
-    ("E", "Eat food"),
     ("F", "Fill lamp"),
     ("G", "Gain spells"),
     ("L", "Locate map"),
@@ -40,4 +39,3 @@ COMMAND_REFERENCE: List[Tuple[str, str]] = [
     ("{", "Inscribe item"),
     ("?", "Item reference"),
 ]
-

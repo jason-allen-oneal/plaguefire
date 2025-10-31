@@ -44,10 +44,12 @@
     "gold_min_mult": 150,
     "gold_max_mult": 400,
     "drops": {
-      "DRAGON_SCALE_RED": 100,
       "GOLD_COINS": 100,
-      "GEM_RUBY": 50,
-      "SWORD_FLAMING": 15
+      "GEM_DIAMOND": 60,
+      "LONGSWORD_VORPAL": 20,
+      "RING_SEE_INVISIBLE": 30,
+      "SCROLL_LIGHT": 45,
+      "POTION_HEALING": 70
     },
     "depth": 975,
     "min_depth": 585,
@@ -74,10 +76,13 @@
     "gold_min_mult": 150,
     "gold_max_mult": 400,
     "drops": {
-      "DRAGON_SCALE_RED": 100,
       "GOLD_COINS": 100,
-      "GEM_RUBY": 50,
-      "SWORD_FLAMING": 15
+      "GEM_SAPPHIRE": 60,
+      "LONGSWORD_FROST_BRAND": 20,
+      "RING_RESIST_COLD": 35,
+      "STAFF_LIGHT": 30,
+      "SCROLL_MAGIC_MAPPING": 40,
+      "POTION_HEALING": 65
     },
     "depth": 975,
     "min_depth": 585,
@@ -104,10 +109,12 @@
     "gold_min_mult": 150,
     "gold_max_mult": 400,
     "drops": {
-      "DRAGON_SCALE_RED": 100,
       "GOLD_COINS": 100,
-      "GEM_RUBY": 50,
-      "SWORD_FLAMING": 15
+      "GEM_EMERALD": 60,
+      "TWO_HANDED_SWORD_ESPADON": 15,
+      "RING_SUSTAIN_CON": 35,
+      "SCROLL_IDENTIFY": 45,
+      "POTION_HEALING": 65
     },
     "depth": 975,
     "min_depth": 585,
@@ -134,10 +141,13 @@
     "gold_min_mult": 150,
     "gold_max_mult": 400,
     "drops": {
-      "DRAGON_SCALE_RED": 100,
       "GOLD_COINS": 100,
-      "GEM_RUBY": 50,
-      "SWORD_FLAMING": 15
+      "GEM_DIAMOND": 70,
+      "LONGSWORD_FLAME_TONGUE": 20,
+      "TWO_HANDED_SWORD_ZWEIHANDER": 15,
+      "RING_SPEED": 25,
+      "SCROLL_MAGIC_MAPPING": 50,
+      "POTION_HEALING": 75
     },
     "depth": 975,
     "min_depth": 585,
@@ -164,10 +174,12 @@
     "gold_min_mult": 150,
     "gold_max_mult": 400,
     "drops": {
-      "DRAGON_SCALE_RED": 100,
       "GOLD_COINS": 100,
-      "GEM_RUBY": 50,
-      "SWORD_FLAMING": 15
+      "GEM_SAPPHIRE": 60,
+      "LONGSWORD_FROST_BRAND": 25,
+      "RING_RESIST_COLD": 40,
+      "SCROLL_LIGHT": 40,
+      "POTION_HEALING": 65
     },
     "depth": 975,
     "min_depth": 585,
@@ -278,16 +290,20 @@
     "gold_min_mult": 200,
     "gold_max_mult": 500,
     "drops": {
-      "DEMON_HEART": 100,
-      "WHIP_FLAMING": 50,
-      "GEM_DIAMOND": 80
+      "GOLD_COINS": 100,
+      "GEM_DIAMOND": 70,
+      "TWO_HANDED_SWORD_ZWEIHANDER": 20,
+      "RING_SLAYING": 25,
+      "SCROLL_MAGIC_MAPPING": 45,
+      "POTION_HEALING": 75,
+      "STAFF_STARLIGHT": 15
     },
     "depth": 1225,
     "min_depth": 735,
     "max_depth": 1300,
     "spawn_chance": {
-      "base": 38,
-      "per_depth": -0.5
+      "base": 2,
+      "per_depth": 0.0
     },
     "flee_chance": 50
   },
@@ -1739,10 +1755,12 @@
     "gold_min_mult": 150,
     "gold_max_mult": 400,
     "drops": {
-      "DRAGON_SCALE_RED": 100,
       "GOLD_COINS": 100,
-      "GEM_RUBY": 50,
-      "SWORD_FLAMING": 15
+      "GEM_RUBY": 70,
+      "LONGSWORD_FLAME_TONGUE": 25,
+      "TWO_HANDED_SWORD_FLAMBERGE": 15,
+      "RING_RESIST_FIRE": 40,
+      "POTION_HEALING": 65
     },
     "depth": 975,
     "min_depth": 585,
@@ -1769,10 +1787,12 @@
     "gold_min_mult": 100,
     "gold_max_mult": 300,
     "drops": {
-      "DRAGON_SCALE_MULTI": 90,
       "GOLD_COINS": 100,
-      "GEM_DIAMOND": 30,
-      "SWORD_LONG_PLUS_1": 10
+      "GEM_DIAMOND": 50,
+      "LONGSWORD_FLAME_TONGUE": 15,
+      "TWO_HANDED_SWORD_ESPADON": 15,
+      "RING_SLAYING": 25,
+      "POTION_HEALING": 55
     },
     "depth": 725,
     "min_depth": 435,
@@ -1941,9 +1961,13 @@
     "gold_min_mult": 100,
     "gold_max_mult": 250,
     "drops": {
-      "SCROLL_GENOCIDE": 5,
-      "STAFF_POWER": 2,
-      "GEM_DIAMOND": 30
+      "GOLD_COINS": 100,
+      "GEM_DIAMOND": 60,
+      "SCROLL_IDENTIFY": 50,
+      "SCROLL_LIGHT": 40,
+      "STAFF_STARLIGHT": 15,
+      "RING_SEE_INVISIBLE": 25,
+      "POTION_HEALING": 70
     },
     "depth": 600,
     "min_depth": 360,
@@ -4486,9 +4510,13 @@
     "gold_min_mult": 100,
     "gold_max_mult": 250,
     "drops": {
-      "SCROLL_GENOCIDE": 5,
-      "STAFF_POWER": 2,
-      "GEM_DIAMOND": 30
+      "GOLD_COINS": 90,
+      "GEM_DIAMOND": 40,
+      "SCROLL_IDENTIFY": 35,
+      "SCROLL_LIGHT": 30,
+      "STAFF_LIGHT": 20,
+      "RING_SEE_INVISIBLE": 20,
+      "POTION_HEALING": 60
     },
     "depth": 600,
     "min_depth": 360,
@@ -4708,9 +4736,12 @@
     "gold_min_mult": 100,
     "gold_max_mult": 250,
     "drops": {
-      "SCROLL_GENOCIDE": 5,
-      "STAFF_POWER": 2,
-      "GEM_DIAMOND": 30
+      "GOLD_COINS": 80,
+      "GEM_DIAMOND": 25,
+      "SCROLL_IDENTIFY": 30,
+      "SCROLL_LIGHT": 25,
+      "RING_SEE_INVISIBLE": 15,
+      "POTION_HEALING": 50
     },
     "depth": 600,
     "min_depth": 360,
@@ -4939,10 +4970,12 @@
     "gold_min_mult": 100,
     "gold_max_mult": 300,
     "drops": {
-      "DRAGON_SCALE_MULTI": 90,
       "GOLD_COINS": 100,
-      "GEM_DIAMOND": 30,
-      "SWORD_LONG_PLUS_1": 10
+      "GEM_OPAL": 45,
+      "LONGSWORD_VORPAL": 12,
+      "RING_SEE_INVISIBLE": 25,
+      "SCROLL_LIGHT": 35,
+      "POTION_HEALING": 50
     },
     "depth": 725,
     "min_depth": 435,
@@ -4969,10 +5002,12 @@
     "gold_min_mult": 100,
     "gold_max_mult": 300,
     "drops": {
-      "DRAGON_SCALE_MULTI": 90,
       "GOLD_COINS": 100,
-      "GEM_DIAMOND": 30,
-      "SWORD_LONG_PLUS_1": 10
+      "GEM_SAPPHIRE": 45,
+      "LONGSWORD_FROST_BRAND": 15,
+      "RING_RESIST_COLD": 30,
+      "SCROLL_MAGIC_MAPPING": 35,
+      "POTION_HEALING": 55
     },
     "depth": 725,
     "min_depth": 435,
@@ -4999,10 +5034,12 @@
     "gold_min_mult": 100,
     "gold_max_mult": 300,
     "drops": {
-      "DRAGON_SCALE_MULTI": 90,
       "GOLD_COINS": 100,
-      "GEM_DIAMOND": 30,
-      "SWORD_LONG_PLUS_1": 10
+      "GEM_EMERALD": 45,
+      "TWO_HANDED_SWORD_ESPADON": 12,
+      "RING_SUSTAIN_CON": 28,
+      "SCROLL_IDENTIFY": 35,
+      "POTION_HEALING": 55
     },
     "depth": 725,
     "min_depth": 435,
@@ -5029,10 +5066,12 @@
     "gold_min_mult": 100,
     "gold_max_mult": 300,
     "drops": {
-      "DRAGON_SCALE_MULTI": 90,
       "GOLD_COINS": 100,
-      "GEM_DIAMOND": 30,
-      "SWORD_LONG_PLUS_1": 10
+      "GEM_RUBY": 45,
+      "LONGSWORD_FLAME_TONGUE": 15,
+      "RING_RESIST_FIRE": 30,
+      "SCROLL_IDENTIFY": 40,
+      "POTION_HEALING": 55
     },
     "depth": 725,
     "min_depth": 435,
@@ -5059,10 +5098,11 @@
     "gold_min_mult": 100,
     "gold_max_mult": 300,
     "drops": {
-      "DRAGON_SCALE_MULTI": 90,
       "GOLD_COINS": 100,
-      "GEM_DIAMOND": 30,
-      "SWORD_LONG_PLUS_1": 10
+      "GEM_SAPPHIRE": 45,
+      "LONGSWORD_FROST_BRAND": 15,
+      "RING_RESIST_COLD": 30,
+      "POTION_HEALING": 55
     },
     "depth": 725,
     "min_depth": 435,
@@ -5923,60 +5963,6 @@
     "max_depth": 70,
     "spawn_chance": {
       "base": 97,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
-  },
-  {
-    "id": "QUASIT",
-    "name": "Quasit",
-    "char": "q",
-    "hp_base": 12,
-    "hp_per_level": 2,
-    "attack_base": 3,
-    "attack_per_level": 1,
-    "defense_base": 2,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 6,
-    "gold_min_mult": 5,
-    "gold_max_mult": 10,
-    "drops": {
-      "GEM_GARNET": 5
-    },
-    "depth": 125,
-    "min_depth": 75,
-    "max_depth": 175,
-    "spawn_chance": {
-      "base": 93,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
-  },
-  {
-    "id": "QUYLTHULG",
-    "name": "Quylthulg",
-    "char": "Q",
-    "hp_base": 30,
-    "hp_per_level": 4,
-    "attack_base": 0,
-    "attack_per_level": 0,
-    "defense_base": 5,
-    "defense_per_level": 1,
-    "ai_type": "passive",
-    "hostile": false,
-    "detection_range": 5,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "QUYLTHULG_SAC": 10
-    },
-    "depth": 250,
-    "min_depth": 150,
-    "max_depth": 350,
-    "spawn_chance": {
-      "base": 87,
       "per_depth": -0.5
     },
     "flee_chance": 50
