@@ -23,109 +23,41 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Build executable (Windows)
+        if: matrix.os == 'windows-latest'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller
+          $sp = python -c "import site; print(site.getsitepackages()[0])"
+          Write-Host "Using site-packages: $sp"
+          pyinstaller --onefile --clean `
+            --hidden-import textual --hidden-import rich --hidden-import pygame `
+            --add-data "$sp/textual;textual" `
+            --add-data "$sp/rich;rich" `
+            --add-data "data;data" `
+            --add-data "assets;assets" `
+            --name plaguefire `
+            main.py
+        shell: pwsh
 
-      - name: Show installed textual location (debug)
-        run: |
-          python -c "import textual, os; print('=== Textual package location ==='); print('textual.__file__:', textual.__file__)"
-          python -c "import site, json; print('=== Site packages ==='); print('site.getsitepackages():', json.dumps(site.getsitepackages(), indent=2))"
-          python -c "import sysconfig, json; print('=== Sysconfig paths ==='); print('sysconfig.get_paths():', json.dumps(sysconfig.get_paths(), indent=2))"
-
-      - name: Build executable (Linux/macOS)
+      - name: Build executable (linux/macos)
         if: matrix.os != 'windows-latest'
         run: |
-          SITEPACKAGES=$(python -c "import site,sys; sp = site.getsitepackages()[0] if hasattr(site,'getsitepackages') else next(p for p in sys.path if 'site-packages' in p); print(sp)")
-          echo "Using site-packages: $SITEPACKAGES"
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+          SP=$(python -c "import site; p = site.getsitepackages()[0] if hasattr(site, 'getsitepackages') and site.getsitepackages() else site.getusersitepackages(); print(p)")
+          echo "site-packages: $SP"
           pyinstaller --onefile --clean \
             --hidden-import textual --hidden-import rich --hidden-import pygame \
-            --add-data "$SITEPACKAGES/textual:./textual" \
-            --add-data "$SITEPACKAGES/rich:./rich" \
-            --add-data "data:./data" \
-            --add-data "assets:./assets" \
+            --add-data "${SP}/textual:textual" \
+            --add-data "${SP}/rich:rich" \
+            --add-data "data:data" \
+            --add-data "assets:assets" \
             --name plaguefire \
             main.py
         shell: bash
-
-      - name: Build executable (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          # Resolve textual package directory robustly (works in venvs or system installs).
-          # This asks Python where the package file lives; fallback to sysconfig.get_paths()['purelib'] if import fails.
-          $textual_dir = (& python - <<'PY'
-import os
-try:
-    import textual
-    print(os.path.dirname(textual.__file__))
-except Exception:
-    import sysconfig
-    print(sysconfig.get_paths().get('purelib', ''))
-PY
-).Trim()
-
-          $rich_dir = (& python - <<'PY'
-import os
-try:
-    import rich
-    print(os.path.dirname(rich.__file__))
-except Exception:
-    import sysconfig
-    print(sysconfig.get_paths().get('purelib', ''))
-PY
-).Trim()
-
-          Write-Host "Resolved textual directory: '$textual_dir'"
-          Write-Host "Resolved rich directory:    '$rich_dir'"
-
-          if (-not $textual_dir) {
-            Write-Error "Could not resolve textual package directory. Ensure 'textual' is installed."
-            python - <<'PY'
-import site, sys, json, sysconfig
-print("site.getsitepackages() ->", getattr(site, 'getsitepackages', lambda: [])())
-print("sys.path ->", json.dumps(sys.path, indent=2))
-print("sysconfig.get_paths() ->", json.dumps(sysconfig.get_paths(), indent=2))
-PY
-            Exit 1
-          }
-
-          # If the textual_dir points to a .py file (package module), use its parent; if it already is a package dir, keep it
-          if (Test-Path $textual_dir -PathType Leaf) {
-            $textual_dir = Split-Path $textual_dir -Parent
-          }
-
-          if (Test-Path $textual_dir) {
-            Write-Host "Textual path exists: $textual_dir"
-          } else {
-            Write-Error "Textual package not found at $textual_dir. Check that 'textual' is installed in this runner's Python."
-            Exit 1
-          }
-
-          if (Test-Path $rich_dir) {
-            Write-Host "Rich path exists: $rich_dir"
-          } else {
-            Write-Error "Rich package not found at $rich_dir. Check that 'rich' is installed in this runner's Python."
-            Exit 1
-          }
-
-          # Build arguments - use ; separator for Windows add-data (SRC;DEST) and quote paths
-          $addDataArgs = @()
-          $addDataArgs += "--add-data `"$textual_dir;textual`""
-          $addDataArgs += "--add-data `"$rich_dir;rich`""
-          $addDataArgs += "--add-data `\"data;data`""
-          $addDataArgs += "--add-data `\"assets;assets`""
-
-          Write-Host "PyInstaller add-data args:"
-          $addDataArgs | ForEach-Object { Write-Host "  $_" }
-
-          # Run PyInstaller with the assembled add-data args
-          pyinstaller --onefile --clean `
-            --hidden-import textual --hidden-import rich --hidden-import pygame `
-            $addDataArgs `
-            --name plaguefire main.py
-        shell: pwsh
 
       - name: Package build (Linux/macOS)
         if: matrix.os != 'windows-latest'
