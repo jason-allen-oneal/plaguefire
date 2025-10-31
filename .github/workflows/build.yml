@@ -29,7 +29,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller
-          $sp = python -c "import site; print(site.getsitepackages()[0])"
+          $sp = python -c "import site; print(site.getsitepackages()[-1])" | Out-String; $sp = $sp.Trim()
           Write-Host "Using site-packages: $sp"
           pyinstaller --onefile --clean `
             --hidden-import textual --hidden-import rich --hidden-import pygame `
