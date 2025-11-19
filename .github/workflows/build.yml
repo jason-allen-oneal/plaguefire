@@ -35,9 +35,8 @@ jobs:
           $sp = python -c "import site; print(site.getsitepackages()[-1])" | Out-String; $sp = $sp.Trim()
           Write-Host "Using site-packages: $sp"
           pyinstaller --onefile --clean `
-            --hidden-import textual --hidden-import rich --hidden-import pygame `
-            --add-data "$sp/textual;textual" `
-            --add-data "$sp/rich;rich" `
+            --hidden-import pygame `
+            --add-data "$sp/pygame;pygame" `
             --add-data "data;data" `
             --add-data "assets;assets" `
             --name plaguefire `
@@ -50,9 +49,8 @@ jobs:
           SP=$(python -c "import site; p = site.getsitepackages()[0]; print(p)")
           echo "site-packages: $SP"
           pyinstaller --onefile --clean \
-            --hidden-import textual --hidden-import rich --hidden-import pygame \
-            --add-data "${SP}/textual:textual" \
-            --add-data "${SP}/rich:rich" \
+            --hidden-import pygame \
+            --add-data "${SP}/pygame:pygame" \
             --add-data "data:data" \
             --add-data "assets:assets" \
             --name plaguefire \
