@@ -1,524 +1,646 @@
+"""
+Shop screen system for Pygame interface.
 
-from textual.screen import Screen
-from textual.widgets import Static
-from textual import log
-from debugtools import debug
+Handles buying, selling, and haggling in shops with button-based UI.
+"""
+
+import pygame
 import random
-from typing import NamedTuple, List, Optional, TYPE_CHECKING, Tuple
-from app.lib.player import Player
-from app.lib.core.item import ItemInstance
-from app.lib.core.loader import GameData
-from rich.markup import escape as escape_markup
+from typing import List, Optional
+from app.screens.screen import Screen
+from app.model.item import ItemInstance
+from app.lib.core.engine.generation.item import ItemGenerator
+from app.lib.core.logger import debug
+from app.lib.ui.gui import get_button_theme
+import app.lib.ui.theme as theme
 
-if TYPE_CHECKING:
-    from app.plaguefire import RogueApp
 
-class ShopItem(NamedTuple):
-    """ShopItem class."""
-    name: str
-    cost: int
-    description: str = "An item."
-    item_id: Optional[str] = None
-
-class BaseShopScreen(Screen):
-    """BaseShopScreen class."""
-    BINDINGS = [
-        ("up", "cursor_up", "Cursor Up"),
-        ("down", "cursor_down", "Cursor Down"),
-        ("b", "buy_action", "Buy Mode / Buy"),
-        ("s", "sell_action", "Sell Mode / Sell"),
-        ("h", "haggle", "Haggle"),
-        ("l", "leave_shop", "Leave"),
-        ("escape", "leave_shop", "Leave"),
-    ]
-
-    app: 'RogueApp'
-
-    def __init__(
-        self,
-        shop_name: str = "Mysterious Shop",
-        owner_name: str = "Shopkeeper",
-        catchphrases: Optional[List[str]] = None,
-        items_for_sale: Optional[List[ShopItem]] = None,
-        allowed_actions: Optional[List[str]] = None,
-        restock_interval: int = 100,
-        **kwargs
-    ):
-        """Initialize the instance."""
-        super().__init__(**kwargs)
+class ShopScreen(Screen):
+    def _draw_wrapped_text(self, surface, text, font, color, rect):
+        """Draw text wrapped within a rect (left-aligned, multi-line)."""
+        if not text:
+            return
+        words = text.split()
+        lines = []
+        line = ''
+        for word in words:
+            test_line = f'{line} {word}'.strip()
+            if font.size(test_line)[0] <= rect.width:
+                line = test_line
+            else:
+                lines.append(line)
+                line = word
+        if line:
+            lines.append(line)
+        y = rect.y
+        for l in lines:
+            txt_surf = font.render(l, True, color)
+            surface.blit(txt_surf, (rect.x, y))
+            y += font.get_linesize()
+    """Base shop screen with buy/sell/service functionality."""
+    
+    def __init__(self, game, shop_type: str, shop_name: str, owner_name: str, item_pool: Optional[List[str]] = None):
+        """
+        Initialize shop screen.
+        
+        Args:
+            game: Game instance
+            shop_type: Type of shop (general, armor, weapons, magic, temple, tavern)
+            shop_name: Display name of the shop
+            owner_name: Name of the shopkeeper
+            item_pool: Optional list of specific item IDs this shop sells
+        """
+        super().__init__(game)
+        self.shop_type = shop_type
         self.shop_name = shop_name
         self.owner_name = owner_name
-        self.catchphrases = catchphrases or ["Welcome!", "Looking for something?", "Fine wares."]
-        self._data_loader = GameData()
-
-        raw_inventory = list(items_for_sale) if items_for_sale is not None else self._generate_default_items()
-        self.initial_items_for_sale: List[ShopItem] = [
-            self._resolve_shop_item(item) for item in raw_inventory
-        ]
-        self.items_for_sale: List[ShopItem] = list(self.initial_items_for_sale)
-        self.restock_interval = restock_interval
-        self.last_restock_time: int = 0
+        self.item_pool = item_pool
         
-        effective_allowed = list(allowed_actions) if allowed_actions is not None else ['buy', 'sell', 'leave']
-        if ('buy' in effective_allowed or 'sell' in effective_allowed) and 'haggle' not in effective_allowed:
-            effective_allowed.append('haggle')
-        if 'leave' not in effective_allowed:
-            effective_allowed.append('leave')
-        self.allowed_actions = effective_allowed
-        debug(f"[{self.shop_name}] Initialized with allowed_actions: {self.allowed_actions}")
-
-        self.selected_index: int = 0
-        self.player_gold: int = self.app.player.gold if hasattr(self.app, "player") and isinstance(self.app.player, Player) else 0
-        self.current_greeting: str = ""
-        self.data_changed: bool = False
-        self.selling_mode: bool = False
+        # Initialize item generator
+        self.item_generator = ItemGenerator(game.loader)
+        
+        # Shop inventory
+        self.inventory: List[ItemInstance] = []
+        self._generate_inventory()
+        
+        # Shop services (override in subclasses)
+        self.services: List[dict] = []
+        
+        # UI state
+        self.mode = "buy"  # "buy", "sell", or "services"
+        self.selected_index = 0
+        self.scroll_offset = 0
+        self.max_visible_items = 10
+        
+        # Haggling state
         self.haggled_price: Optional[int] = None
-        self.haggle_attempted_this_selection: bool = False
-
+        self.haggle_attempted = False
+        
+        # Fonts
+        self.font_large = game.assets.font("fonts", "header.ttf", size=32)
+        self.font_medium = game.assets.font("fonts", "text-bold.ttf", size=24)
+        self.font_small = game.assets.font("fonts", "text.ttf", size=20)
+        self.font_small_bold = game.assets.font("fonts", "text-bold.ttf", size=20)
+        
+        # Load button sprites
+        gui_spritesheet = game.assets.spritesheet("sprites", "gui.png")
+        theme = get_button_theme()
+        self.btn_normal = gui_spritesheet.get(*theme["normal"]).convert_alpha()
+        self.btn_hover = gui_spritesheet.get(*theme["hover"]).convert_alpha()
+        
+        # Button rects (initialized in draw)
+        self.btn_buy_rect = None
+        self.btn_sell_rect = None
+        self.btn_services_rect = None
+        self.btn_haggle_rect = None
+        self.btn_back_rect = None
+        # Primary action button for current mode (Buy / Sell)
+        self.btn_action_rect = None
+        self.item_rects = []
     
-    def _get_charisma_price_modifier(self) -> float:
+    def _generate_inventory(self):
+        """Generate shop inventory based on shop type."""
+        if self.item_pool:
+            # If item_pool is provided, generate ALL items from the pool
+            self.inventory = []
+            for item_id in self.item_pool:
+                item = self.item_generator.generate_item(item_id)
+                if item:
+                    self.inventory.append(item)
+            debug(f"Generated {len(self.inventory)} items from item pool for {self.shop_name}")
+        else:
+            # Generate 10-20 items for the shop using category-based generation
+            count = random.randint(10, 20)
+            self.inventory = self.item_generator.generate_shop_inventory(
+                self.shop_type, 
+                count=count,
+                depth=0,  # Town shops have depth 0 items
+                item_pool=None
+            )
+            debug(f"Generated {len(self.inventory)} items for {self.shop_name}")
+    
+    def _get_charisma_modifier(self) -> float:
         """
-        Calculate price modifier based on player's charisma (0.85 to 1.15 range).
+        Calculate price modifier based on player's charisma.
         
-        The formula is: modifier = 1.0 - ((CHA - 10) * 0.02)
-        - Each point of CHA above 10 gives a 2% discount
-        - Each point of CHA below 10 adds a 2% markup
-        - The modifier is clamped between 0.85 (15% discount) and 1.15 (15% markup)
-        
-        Examples:
-        - CHA 18: 1.0 - (8 * 0.02) = 0.84, clamped to 0.85 (15% discount)
-        - CHA 10: 1.0 - (0 * 0.02) = 1.00 (no change)
-        - CHA 3: 1.0 - (-7 * 0.02) = 1.14 (14% markup)
+        Returns:
+            Price modifier (0.85 to 1.15)
         """
-        if not self.app.player:
+        if not self.game.player:
             return 1.0
         
-        cha_stat = self.app.player.stats.get('CHA', 10)
+        cha_stat = self.game.player.stats.get('CHA', 10)
         modifier = 1.0 - ((cha_stat - 10) * 0.02)
         return max(0.85, min(1.15, modifier))
     
-    def _apply_charisma_to_price(self, base_price: int) -> int:
-        """Apply charisma modifier to a price."""
-        modifier = self._get_charisma_price_modifier()
-        return max(1, int(base_price * modifier))
+    def _get_buy_price(self, item: ItemInstance) -> int:
+        """Get the price to buy an item (with charisma modifier)."""
+        base_price = item.base_cost
+        if self.haggled_price is not None:
+            return self.haggled_price
+        return max(1, int(base_price * self._get_charisma_modifier()))
     
-    def _check_and_restock(self) -> bool:
-        """
-        Check if shop should restock and restock if needed.
-        Returns True if restocking occurred.
-        """
-        if not self.app.player:
-            return False
-        
-        current_time = self.app.player.time
-        
-        if self.last_restock_time == 0:
-            self.last_restock_time = current_time
-            return False
-        
-        time_since_restock = current_time - self.last_restock_time
-        
-        if time_since_restock >= self.restock_interval:
-            debug(f"[{self.shop_name}] Restocking inventory (time: {current_time}, last: {self.last_restock_time})")
-            self.items_for_sale = list(self.initial_items_for_sale)
-            self.last_restock_time = current_time
-            self.notify(f"{self.owner_name} has restocked the shelves!", severity="information")
-            return True
-        
-        return False
-
-    def _generate_default_items(self) -> List[ShopItem]:
-        debug(f"[{self.shop_name}] Generating default items (subclass should override).")
-        return [ ShopItem(name="Generic Item", cost=10, description="A placeholder.") ]
-
-    def get_shop_greeting(self) -> str:
-        """Get shop greeting."""
-        phrase = random.choice(self.catchphrases)
-        owner_markup = (
-            self.owner_name
-            if "[" in self.owner_name and "]" in self.owner_name
-            else escape_markup(self.owner_name)
-        )
-        phrase_markup = (
-            phrase if ("[" in phrase and "]" in phrase) else escape_markup(phrase)
-        )
-        return f'{owner_markup}: "{phrase_markup}"'
-
-    def _reset_haggle_state(self):
-        """Resets haggle price and attempt flag."""
-        self.haggled_price = None
-        self.haggle_attempted_this_selection = False
-
-    def _resolve_shop_item(self, item: ShopItem) -> ShopItem:
-        """Ensure shop item references a valid item template when available."""
-        item_id = item.item_id
-        if not item_id:
-            resolved_id = self._data_loader.get_item_id_by_name(item.name)
-            if not resolved_id:
-                template = self._data_loader.get_item(item.name)
-                resolved_id = template.get("id") if template else None
-            item_id = resolved_id
-
-        if item_id == item.item_id:
-            return item
-
-        if not item_id:
-            debug(f"[{self.shop_name}] No item template found for '{item.name}'.")
-
-        return ShopItem(
-            name=item.name,
-            cost=item.cost,
-            description=item.description,
-            item_id=item_id
-        )
-
-    def _get_current_list_and_item(self) -> Tuple[Optional[List], Optional[ShopItem | str]]:
-        """Gets the list (shop items or player inventory) and selected item based on mode."""
-        if self.selling_mode:
-            current_list = self.app.player.inventory if self.app.player else []
-            if current_list and self.selected_index < len(current_list):
-                return current_list, current_list[self.selected_index]
-            return current_list, None
-        else:
-            current_list = self.items_for_sale
-            if current_list and self.selected_index < len(current_list):
-                return current_list, current_list[self.selected_index]
-            return current_list, None
-
-    def _get_item_sell_price(self, item_name: str) -> Tuple[int, int]:
-        """Estimates sell price. Returns (sell_price, original_cost_estimate)."""
-        original_cost = 10
-        for shop_item in self.items_for_sale:
-             if shop_item.name == item_name:
-                 original_cost = shop_item.cost; break
-        else:
-            template_id = self._data_loader.get_item_id_by_name(item_name)
-            template = self._data_loader.get_item(template_id) if template_id else None
-            if template and isinstance(template.get("base_cost"), int):
-                original_cost = template["base_cost"]
-            else:
-                debug(f"'{item_name}' not sold here, estimating base cost.")
-        sell_price = max(1, original_cost // 2)
-        return sell_price, original_cost
-
-
-    def action_buy_action(self):
-        """Handles 'B' key: Switches to buy mode or buys selected item."""
-        if 'buy' not in self.allowed_actions or not self.app.player: return
-
-        if self.selling_mode:
-            self.selling_mode = False
-            self._reset_haggle_state()
-            inv_len = len(self.items_for_sale)
-            self.selected_index = max(0, min(self.selected_index, inv_len - 1)) if inv_len > 0 else 0
-            self.notify("Browsing items for sale.")
-            debug("Switched to buy mode.")
-            self._update_display()
-        else:
-            self._buy_selected_item()
-
-    def action_sell_action(self):
-        """Handles 'S' key: Switches to sell mode or sells selected item."""
-        if 'sell' not in self.allowed_actions or not self.app.player: return
-
-        if not self.selling_mode:
-            self.selling_mode = True
-            self._reset_haggle_state()
-            inv_len = len(self.app.player.inventory)
-            self.selected_index = max(0, min(self.selected_index, inv_len - 1)) if inv_len > 0 else 0
-            self.notify("Select item from your inventory to sell.")
-            debug("Switched to sell mode.")
-            self._update_display()
-        else:
-            self._sell_selected_item()
-
-    def action_haggle(self):
-        """Attempts to haggle the price of the selected item."""
-        debug(f"Action: Haggle triggered. Allowed: {'haggle' in self.allowed_actions}. Attempted: {self.haggle_attempted_this_selection}")
-
-        if 'haggle' not in self.allowed_actions or not self.app.player:
-             debug("Haggle check failed: Not allowed or no player.")
-             return
-        if self.haggle_attempted_this_selection:
-            self.notify("You've already tried haggling for this.", severity="warning")
-            debug("Haggle check failed: Already attempted.")
+    def _get_sell_price(self, item: ItemInstance) -> int:
+        """Get the price when selling an item (half of buy price)."""
+        if self.haggled_price is not None:
+            return self.haggled_price
+        return max(1, item.base_cost // 2)
+    
+    def _attempt_haggle(self):
+        """Attempt to haggle the current item's price."""
+        if self.haggle_attempted:
+            self.game.toasts.show("Already haggled this item!", (255, 100, 100))
             return
-
-        current_list, selected_item_data = self._get_current_list_and_item()
-        if not selected_item_data:
-            self.notify("Nothing selected to haggle over.", severity="warning"); return
-
-        base_price: int; item_name: str
-        if self.selling_mode:
-            item_name = selected_item_data
-            sell_price, _ = self._get_item_sell_price(item_name); base_price = sell_price
-        else:
-            item: ShopItem = selected_item_data
-            base_price = self._apply_charisma_to_price(item.cost)
-            item_name = item.name
-
-        debug(f"Attempting haggle on '{item_name}'. Base price (CHA-adjusted): {base_price}gp.")
-        self.haggle_attempted_this_selection = True
-
-        cha_modifier = self.app.player._get_modifier('CHA')
-        success_chance = 20 + (cha_modifier * 5); roll = random.randint(1, 100); succeeded = roll <= success_chance
-        debug(f"Haggle Check: CHA Mod={cha_modifier}, Chance={success_chance}%, Rolled={roll}")
-
-        if succeeded:
-            adjustment_percent = random.uniform(0.10, 0.20); price_change = int(base_price * adjustment_percent)
-            if self.selling_mode:
-                self.haggled_price = base_price + price_change
-                self.notify(f"Success! Offer: {self.haggled_price}gp (was {base_price}).")
+        
+        if not self.game.player:
+            return
+        
+        # Get current item (services mode doesn't support haggling)
+        if self.mode == "services":
+            return
+        
+        current_list = self._get_current_list()
+        if not current_list or self.selected_index >= len(current_list):
+            return
+        
+        item_or_service = current_list[self.selected_index]
+        
+        # Type guard: ensure we have an ItemInstance
+        if not isinstance(item_or_service, ItemInstance):
+            return
+        
+        item = item_or_service
+        base_price = self._get_buy_price(item) if self.mode == "buy" else self._get_sell_price(item)
+        
+        # Calculate success chance based on CHA
+        cha_modifier = self.game.player._get_modifier('CHA')
+        success_chance = 20 + (cha_modifier * 5)
+        roll = random.randint(1, 100)
+        
+        self.haggle_attempted = True
+        
+        if roll <= success_chance:
+            # Success! Adjust price
+            adjustment = random.uniform(0.10, 0.20)
+            if self.mode == "buy":
+                self.haggled_price = max(1, int(base_price * (1 - adjustment)))
+                saved = base_price - self.haggled_price
+                self.game.toasts.show(f"Haggled down to {self.haggled_price}gp (saved {saved}gp)!", (0, 255, 0))
             else:
-                self.haggled_price = max(1, base_price - price_change)
-                self.notify(f"Success! Price: {self.haggled_price}gp (was {base_price}).")
-            debug(f"Haggle success! New price: {self.haggled_price}")
+                self.haggled_price = int(base_price * (1 + adjustment))
+                gained = self.haggled_price - base_price
+                self.game.toasts.show(f"Haggled up to {self.haggled_price}gp (gained {gained}gp)!", (0, 255, 0))
         else:
             self.haggled_price = None
-            self.notify(f"{self.owner_name} isn't budging on the price.")
-            debug("Haggle failed.")
-
-        self._update_display()
-
-
-    def _buy_selected_item(self):
-        """Logic to buy the currently selected shop item, considering haggled price and charisma."""
-        current_list, selected_item = self._get_current_list_and_item()
-        if not isinstance(selected_item, ShopItem):
-             self.notify("Cannot buy this.", severity="warning"); return
-
-        self.player_gold = self.app.player.gold
-
-        charisma_adjusted_price = self._apply_charisma_to_price(selected_item.cost)
+            self.game.toasts.show("Haggle failed!", (255, 100, 100))
+    
+    def _buy_item(self):
+        """Purchase the selected item."""
+        if not self.game.player or not self.inventory:
+            return
         
-        price_to_pay = self.haggled_price if self.haggled_price is not None else charisma_adjusted_price
-
-        debug(f"Buy: '{selected_item.name}' (Pay: {price_to_pay}gp, CHA-adjusted: {charisma_adjusted_price}gp, Base: {selected_item.cost}gp). Has: {self.player_gold}gp.")
-
-        if self.player_gold >= price_to_pay:
-            try:
-                 self.app.player.gold -= price_to_pay
-
-                 add_success = False
-                 target_identifier = selected_item.item_id
-                 if target_identifier:
-                     add_success = self.app.player.inventory_manager.add_item(target_identifier)
-                 else:
-                     resolved_id = self._data_loader.get_item_id_by_name(selected_item.name)
-                     if resolved_id:
-                         add_success = self.app.player.inventory_manager.add_item(resolved_id)
-                     else:
-                         add_success = self.app.player.inventory_manager.add_item(selected_item.name)
-
-                 if not add_success:
-                     self.app.player.gold += price_to_pay
-                     self.player_gold = self.app.player.gold
-                     self.notify(f"Could not add {selected_item.name} to your inventory.", severity="error")
-                     debug(f"Buy fail: add_item returned False for '{selected_item.name}'.")
-                     self._reset_haggle_state()
-                     return
-
-                 self.player_gold = self.app.player.gold
-                 self.data_changed = True
-                 self.notify(f"Bought {selected_item.name} for {price_to_pay} gold.")
-                 debug(f"Purchase ok. Inv: {self.app.player.inventory}")
-                 self.app.bell()
-                 self.items_for_sale.pop(self.selected_index)
-                 self._reset_haggle_state()
-                 self.selected_index = max(0, min(self.selected_index, len(self.items_for_sale) - 1))
-                 self._update_display()
-
-            except Exception as e:
-                 log.error(f"Buy Error: {e}"); self.notify("Error buying item.", severity="error")
-                 self._reset_haggle_state()
-        else:
-            self.notify("Not enough gold.", severity="error"); debug("Buy fail: no gold.")
-            self._reset_haggle_state()
-
-
-    def _sell_selected_item(self):
-        """Logic to sell the currently selected player inventory item, considering haggled price."""
-        current_list, item_to_sell_name = self._get_current_list_and_item()
-        if not isinstance(item_to_sell_name, str):
-            self.notify("Cannot sell this.", severity="warning"); return
-
-        if self.haggled_price is not None:
-             price_to_receive = self.haggled_price
-             debug(f"Attempting to sell '{item_to_sell_name}' for HAGGLED price {price_to_receive}gp.")
-        else:
-             sell_price, original_cost = self._get_item_sell_price(item_to_sell_name)
-             price_to_receive = sell_price
-             debug(f"Attempting to sell '{item_to_sell_name}' for {price_to_receive}gp (Base cost: {original_cost}).")
-
-        try:
-            sold_item = self.app.player.inventory.pop(self.selected_index)
-            self.app.player.gold += price_to_receive
-            self.player_gold = self.app.player.gold
-            self.data_changed = True
-            self.notify(f"You sold {sold_item} for {price_to_receive} gold.")
-            debug(f"Sell ok. Gold: {self.player_gold}, Inv: {self.app.player.inventory}")
-            self.app.bell()
-            self._reset_haggle_state()
-            self.selected_index = max(0, min(self.selected_index, len(self.app.player.inventory) - 1))
-            self._update_display()
-
-        except Exception as e:
-            log.error(f"Sell Error: {e}"); self.notify("Error selling item.", severity="error")
-            self._reset_haggle_state()
-
-
-
-    def compose(self):
-        """Compose."""
-        yield Static("Loading shop...", id="shop-display", markup=True)
-
-    def on_mount(self):
-        """On mount."""
-        debug(f"Mounting {self.shop_name} screen.")
-        self.focus()
-        if self.app.player: self.player_gold = self.app.player.gold
+        if self.selected_index >= len(self.inventory):
+            return
         
-        self._check_and_restock()
+        item = self.inventory[self.selected_index]
+        price = self._get_buy_price(item)
         
-        self.current_greeting = self.get_shop_greeting()
-        self.data_changed = False
-        self.selling_mode = False
-        self._reset_haggle_state()
-        self.selected_index = max(0, min(self.selected_index, len(self.items_for_sale) - 1))
-        self._update_display()
-
-    def render_shop_text(self) -> str:
-        """Render shop text."""
-        shop_title = (
-            self.shop_name
-            if ("[" in self.shop_name and "]" in self.shop_name)
-            else escape_markup(self.shop_name)
-        )
-        greeting_text = (self.current_greeting or "").replace("\n", " ")
-        lines = [
-            f"[green]=== {shop_title} ===[/green]",
-            f"[deep_sky_blue3][italic]{greeting_text}[/italic][/deep_sky_blue3]" if greeting_text else "",
-            f"Your Gold: [yellow]{self.player_gold}[/yellow]",
-            "-" * 30
-        ]
-        lines = [line for line in lines if line]
-        current_list, selected_item_data = self._get_current_list_and_item()
-        list_title: str
-
-        if self.selling_mode:
-            list_title = "[magenta]Your Inventory to Sell:[/magenta]"
-            inv_list = current_list if current_list else []
-            lines.append(list_title)
-            if not inv_list: lines.append("Nothing to sell.")
+        if self.game.player.gold >= price:
+            # Add to player inventory
+            if self.game.player.inventory_manager.add_instance(item):
+                self.game.player.gold -= price
+                self.inventory.pop(self.selected_index)
+                self.selected_index = min(self.selected_index, max(0, len(self.inventory) - 1))
+                self._reset_haggle()
+                self.game.toasts.show(f"Bought {item.item_name} for {price}gp", (0, 255, 0))
             else:
-                for index, item_name in enumerate(inv_list):
-                    is_selected = index == self.selected_index
-                    prefix = "[yellow]> [/yellow]" if is_selected else "  "
-                    letter = chr(ord('a') + index)
-                    display_price: int
-                    if is_selected and self.haggled_price is not None:
-                         display_price = self.haggled_price
-                    else:
-                         display_price, _ = self._get_item_sell_price(item_name)
-                    letter_token = f"\\[{letter}]"
-                    price_token = f"[yellow]{display_price}gp[/yellow]"
-                    item_label = escape_markup(item_name)
-                    if is_selected:
-                        lines.append(f"{prefix}{letter_token} [bold white]{item_label:<20}[/bold white] ({price_token})")
-                    else:
-                        lines.append(f"{prefix}{letter_token} {item_label:<20} ({price_token})")
+                self.game.toasts.show("Inventory full!", (255, 100, 100))
         else:
-            list_title = "[cyan]Items for Sale:[/cyan]"
-            shop_list = current_list if current_list else []
-            lines.append(list_title)
-            if not shop_list: lines.append("No items for sale.")
-            else:
-                for index, item in enumerate(shop_list):
-                    is_selected = index == self.selected_index
-                    prefix = "[yellow]> [/yellow]" if is_selected else "  "
-                    letter = chr(ord('a') + index)
-                    if is_selected and self.haggled_price is not None:
-                        display_price = self.haggled_price
-                    else:
-                        display_price = self._apply_charisma_to_price(item.cost)
-                    letter_token = f"\\[{letter}]"
-                    price_token = f"[yellow]{display_price}gp[/yellow]"
-                    item_label = escape_markup(item.name)
-                    name_token = f"[bold white]{item_label:<20}[/bold white]" if is_selected else f"{item_label:<20}"
-                    lines.append(f"{prefix}{letter_token} {name_token} ({price_token})")
-
-        lines.append("-" * 30)
-
-        display_description = "No description available."
-        if selected_item_data:
-            if self.selling_mode:
-                item_name = selected_item_data
-                for shop_item in self.items_for_sale:
-                    if shop_item.name == item_name: display_description = shop_item.description; break
-            else:
-                display_description = selected_item_data.description
-            lines.append(f"[dim]Description:[/dim] {escape_markup(display_description)}")
-            lines.append("-" * 30)
-
-        lines.append(f"[dim]{self._generate_help_text()}[/dim]")
-        return "\n".join(lines)
-
-    def _generate_help_text(self) -> str:
-        """Generates help text based on mode and allowed actions."""
-        can_haggle = 'haggle' in self.allowed_actions and not self.haggle_attempted_this_selection
-        debug(f"Generate Help: Allowed={self.allowed_actions}, Attempted={self.haggle_attempted_this_selection}, Can Haggle={can_haggle}")
-
-        _, selected_item = self._get_current_list_and_item()
-        actions = [r"\[Up/Down] Select"]
-
-        if self.selling_mode:
-            if 'sell' in self.allowed_actions and selected_item: actions.append(r"\[S]ell Selected")
-            if can_haggle and selected_item: actions.append(r"\[H]aggle Price")
-            if 'buy' in self.allowed_actions: actions.append(r"\[B]uy Mode")
+            self.game.toasts.show("Not enough gold!", (255, 100, 100))
+    
+    def _sell_item(self):
+        """Sell the selected item from player inventory."""
+        if not self.game.player or not self.game.player.inventory:
+            return
+        
+        if self.selected_index >= len(self.game.player.inventory):
+            return
+        
+        item = self.game.player.inventory[self.selected_index]
+        price = self._get_sell_price(item)
+        
+        # Remove from inventory and give gold
+        self.game.player.inventory.pop(self.selected_index)
+        self.game.player.gold += price
+        self.selected_index = min(self.selected_index, max(0, len(self.game.player.inventory) - 1))
+        self._reset_haggle()
+        self.game.toasts.show(f"Sold {item.item_name} for {price}gp", (255, 215, 0))
+    
+    def _use_service(self, service):
+        """Use a shop service."""
+        if not self.game.player:
+            return
+        
+        cost = service["cost"]
+        if self.game.player.gold >= cost:
+            self.game.player.gold -= cost
+            service["action"]()  # Call the service action
         else:
-            if 'buy' in self.allowed_actions and selected_item: actions.append(r"\[B]uy Selected")
-            if can_haggle and selected_item: actions.append(r"\[H]aggle Price")
-            if 'sell' in self.allowed_actions: actions.append(r"\[S]ell Mode")
+            self.game.toasts.show("Not enough gold!", (255, 100, 100))
+    
+    def _get_current_list(self):
+        """Get the current item/service list based on mode."""
+        if self.mode == "buy":
+            return self.inventory
+        elif self.mode == "sell":
+            if self.game.player and hasattr(self.game.player, 'inventory'):
+                # Return the items list from the inventory manager
+                if hasattr(self.game.player.inventory, 'items'):
+                    return self.game.player.inventory.items
+                elif hasattr(self.game.player.inventory, 'get_all_items'):
+                    return self.game.player.inventory.get_all_items()
+            return []
+        elif self.mode == "services":
+            return self.services
+        return []
+    
+    def _reset_haggle(self):
+        """Reset haggle state."""
+        self.haggled_price = None
+        self.haggle_attempted = False
+    
+    def handle_events(self, events):
+        """Handle input events."""
+        # Ensure back button rect exists BEFORE processing mouse events so first click works.
+        if self.btn_back_rect is None:
+            # Mirror layout logic from _draw_back_button (width/height/position)
+            win_w, win_h = self.game.surface.get_size()
+            btn_w, btn_h = 200, 60
+            self.btn_back_rect = pygame.Rect(win_w - btn_w - 40, win_h - btn_h - 30, btn_w, btn_h)
+        for event in events:
+            # Mouse wheel scrolling
+            if event.type == pygame.MOUSEWHEEL:
+                current_list = self._get_current_list()
+                max_scroll = max(0, len(current_list) - self.max_visible_items)
+                
+                if event.y > 0:  # Scroll up
+                    self.scroll_offset = max(0, self.scroll_offset - 1)
+                elif event.y < 0:  # Scroll down
+                    self.scroll_offset = min(max_scroll, self.scroll_offset + 1)
+            
+            # Keyboard scrolling
+            elif event.type == pygame.KEYDOWN:
+                # ESC exits shop
+                if event.key == pygame.K_ESCAPE:
+                    self.game.screens.pop()
+                    return
+                
+                current_list = self._get_current_list()
+                max_scroll = max(0, len(current_list) - self.max_visible_items)
+                
+                if event.key == pygame.K_UP:
+                    self.selected_index = max(0, self.selected_index - 1)
+                    # Auto-scroll to keep selection visible
+                    if self.selected_index < self.scroll_offset:
+                        self.scroll_offset = self.selected_index
+                elif event.key == pygame.K_DOWN:
+                    self.selected_index = min(len(current_list) - 1, self.selected_index + 1)
+                    # Auto-scroll to keep selection visible
+                    if self.selected_index >= self.scroll_offset + self.max_visible_items:
+                        self.scroll_offset = self.selected_index - self.max_visible_items + 1
+                elif event.key == pygame.K_PAGEUP:
+                    self.scroll_offset = max(0, self.scroll_offset - self.max_visible_items)
+                elif event.key == pygame.K_PAGEDOWN:
+                    self.scroll_offset = min(max_scroll, self.scroll_offset + self.max_visible_items)
+            
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                debug(f"Shop mouse click at {event.pos}, back_rect: {self.btn_back_rect}")
+                
+                # Check back button first (independent of other buttons)
+                if self.btn_back_rect and self.btn_back_rect.collidepoint(event.pos):
+                    debug("Back button clicked!")
+                    self.game.screens.pop()
+                    return
+                
+                # Mode buttons
+                elif self.btn_buy_rect and self.btn_buy_rect.collidepoint(event.pos):
+                    self.mode = "buy"
+                    self.selected_index = 0
+                    self._reset_haggle()
+                elif self.btn_sell_rect and self.btn_sell_rect.collidepoint(event.pos):
+                    self.mode = "sell"
+                    self.selected_index = 0
+                    self._reset_haggle()
+                elif self.btn_services_rect and self.btn_services_rect.collidepoint(event.pos) and self.services:
+                    self.mode = "services"
+                    self.selected_index = 0
+                    self._reset_haggle()
+                
+                # Action buttons
+                elif self.btn_haggle_rect and self.btn_haggle_rect.collidepoint(event.pos):
+                    if self.mode != "services":
+                        self._attempt_haggle()
+                elif self.btn_action_rect and self.btn_action_rect.collidepoint(event.pos):
+                    # Mode-specific primary action button
+                    if self.mode == "buy":
+                        self._buy_item()
+                    elif self.mode == "sell":
+                        self._sell_item()
+                
+                # Item/service clicks
+                else:
+                    for i, rect in enumerate(self.item_rects):
+                        if rect.collidepoint(event.pos):
+                            visible_index = i + self.scroll_offset
+                            if visible_index == self.selected_index:
+                                # Double click - perform action
+                                if self.mode == "buy":
+                                    self._buy_item()
+                                elif self.mode == "sell":
+                                    self._sell_item()
+                                elif self.mode == "services":
+                                    current_list = self._get_current_list()
+                                    if visible_index < len(current_list):
+                                        self._use_service(current_list[visible_index])
+                            else:
+                                # Single click - select
+                                self.selected_index = visible_index
+                                self._reset_haggle()
+                            break
+    
+    def draw(self, surface):
+        """Draw the shop screen."""
+        win_w, win_h = surface.get_size()
+        surface.fill(theme.BG_DARK)
+        title = self.font_large.render(self.shop_name, True, theme.ACCENT)
+        surface.blit(title, (win_w // 2 - title.get_width() // 2, 20))
+        owner = self.font_small.render(f"Shopkeeper: {self.owner_name}", True, theme.TEXT_MUTED)
+        surface.blit(owner, (win_w // 2 - owner.get_width() // 2, 65))
+        
+        # Draw gold
+        if self.game.player:
+            gold_text = self.font_medium.render(f"Gold: {self.game.player.gold}", True, theme.GOLD)
+            surface.blit(gold_text, (40, 110))
+        
+        # Draw mode tabs
+        self._draw_mode_tabs(surface, win_w)
+        
+        # Draw item/service list
+        self._draw_list(surface, win_w, win_h)
+        
+        # Draw action buttons
+        self._draw_action_buttons(surface, win_w, win_h)
+        
+        # Draw back button
+        self._draw_back_button(surface, win_w, win_h)
+    
+    def _draw_mode_tabs(self, surface, win_w):
+        """Draw the mode selection tabs."""
+        tab_w, tab_h = 180, 50
+        tab_y = 110
+        tab_start_x = win_w // 2 - (tab_w * 1.5 + 20)
+        
+        # Buy tab
+        self.btn_buy_rect = pygame.Rect(tab_start_x, tab_y, tab_w, tab_h)
+        self._draw_tab_button(surface, "Buy", self.btn_buy_rect, self.mode == "buy")
+        
+        # Sell tab
+        self.btn_sell_rect = pygame.Rect(tab_start_x + tab_w + 10, tab_y, tab_w, tab_h)
+        self._draw_tab_button(surface, "Sell", self.btn_sell_rect, self.mode == "sell")
+        
+        # Services tab (only if shop has services)
+        if self.services:
+            self.btn_services_rect = pygame.Rect(tab_start_x + (tab_w + 10) * 2, tab_y, tab_w, tab_h)
+            self._draw_tab_button(surface, "Services", self.btn_services_rect, self.mode == "services")
+        else:
+            self.btn_services_rect = None
+    
+    def _draw_tab_button(self, surface, label, rect, active):
+        """Draw a tab button."""
+        hover = rect.collidepoint(pygame.mouse.get_pos())
+        if active:
+            color, border_color = theme.BG_MID, theme.ACCENT
+        elif hover:
+            color, border_color = theme.BG_MID, theme.ACCENT_HOVER
+        else:
+            color, border_color = theme.BG_DARKER, theme.ACCENT_DIM
+        pygame.draw.rect(surface, color, rect, border_radius=8)
+        pygame.draw.rect(surface, border_color, rect, 2, border_radius=8)
+        font = self.font_small_bold if active else self.font_small
+        text_color = theme.ACCENT if active else theme.TEXT_PRIMARY
+        surface.blit(font.render(label, True, text_color), font.render(label, True, text_color).get_rect(center=rect.center))
+    
+    def _draw_list(self, surface, win_w, win_h):
+        current_list = self._get_current_list()
+        list_y = 180
+        # More vertical space for services
+        item_h = 50 if self.mode != "services" else 80
+        list_bottom = win_h - 140
+        available_height = list_bottom - list_y
+        self.max_visible_items = max(1, available_height // (item_h + 8))
+        self.item_rects = []
+        max_scroll = max(0, len(current_list) - self.max_visible_items)
+        self.scroll_offset = max(0, min(self.scroll_offset, max_scroll))
+        container_rect = pygame.Rect(30, list_y - 10, win_w - 60, available_height + 10)
+        pygame.draw.rect(surface, theme.BG_MID, container_rect, border_radius=8)
+        pygame.draw.rect(surface, theme.ACCENT_DIM, container_rect, 2, border_radius=8)
 
-        actions.append(r"\[L]eave Shop")
-        return " | ".join(actions)
+        # Draw items/services
+        visible_count = 0
+        for i, entry in enumerate(current_list):
+            if i < self.scroll_offset or visible_count >= self.max_visible_items:
+                continue
 
-    def _update_display(self):
-        try:
-            current_list, _ = self._get_current_list_and_item()
-            list_len = len(current_list) if current_list else 0
-            self.selected_index = max(0, min(self.selected_index, list_len - 1)) if list_len > 0 else 0
-            shop_widget = self.query_one("#shop-display", Static)
-            shop_widget.update(self.render_shop_text())
-            debug(f"Shop display updated. Mode={'Sell' if self.selling_mode else 'Buy'}. Index={self.selected_index}")
-        except Exception as e: log.error(f"Error updating shop display: {e}")
+            y = list_y + visible_count * (item_h + 8)
+            rect = pygame.Rect(40, y, win_w - 80, item_h)
+            self.item_rects.append(rect)
+            visible_count += 1
 
-    def action_cursor_up(self):
-        """Action cursor up."""
-        current_list, _ = self._get_current_list_and_item()
-        list_len = len(current_list) if current_list else 0
-        if list_len == 0: return
-        self._reset_haggle_state()
-        self.selected_index = (self.selected_index - 1) % list_len
-        debug(f"Cursor up. New index: {self.selected_index}")
-        self._update_display()
+            # Background
+            selected = (i == self.selected_index)
+            hover = rect.collidepoint(pygame.mouse.get_pos())
 
-    def action_cursor_down(self):
-        """Action cursor down."""
-        current_list, _ = self._get_current_list_and_item()
-        list_len = len(current_list) if current_list else 0
-        if list_len == 0: return
-        self._reset_haggle_state()
-        self.selected_index = (self.selected_index + 1) % list_len
-        debug(f"Cursor down. New index: {self.selected_index}")
-        self._update_display()
+            if selected:
+                bg_color = theme.PANEL_BG
+                border_color = theme.ACCENT
+            elif hover:
+                bg_color = theme.BG_MID
+                border_color = theme.ACCENT_HOVER
+            else:
+                bg_color = theme.BG_DARKER
+                border_color = theme.ACCENT_DIM
 
-    def action_leave_shop(self):
-        """Action leave shop."""
-        debug(f"Leaving {self.shop_name}.")
-        if self.data_changed:
-             debug("Data changed, saving character...")
-             self.notify("Saving...")
-             self.app.save_character()
-        else: debug("No changes made.")
-        self.app.pop_screen()
+            # Card-like panel for each service
+            pygame.draw.rect(surface, bg_color, rect, border_radius=10)
+            pygame.draw.rect(surface, border_color, rect, 2 if selected or hover else 1, border_radius=10)
+
+            # Content
+            if self.mode == "services":
+                # Service display - entry is a dict
+                if isinstance(entry, dict):
+                    name = entry.get("name", "Unknown Service")
+                    desc = entry.get("description", "")
+                    cost = entry.get("cost", 0)
+
+                    # Name (top left)
+                    name_surf = self.font_small_bold.render(name, True, theme.TEXT_PRIMARY)
+                    surface.blit(name_surf, (rect.x + 18, rect.y + 10))
+
+                    # Cost (top right)
+                    cost_surf = self.font_small_bold.render(f"{cost}gp", True, theme.GOLD)
+                    surface.blit(cost_surf, (rect.right - cost_surf.get_width() - 18, rect.y + 12))
+
+                    # Description (bottom, wrapped if needed)
+                    desc_rect = pygame.Rect(rect.x + 18, rect.y + 38, rect.width - 36, rect.height - 44)
+                    self._draw_wrapped_text(surface, desc, self.font_small, theme.TEXT_MUTED, desc_rect)
+            else:
+                # Item display - entry is an ItemInstance
+                if isinstance(entry, ItemInstance):
+                    name = entry.item_name
+                    
+                    # Draw item image/icon if available
+                    icon_size = 40
+                    icon_x = rect.x + 10
+                    icon_y = rect.centery - icon_size // 2
+                    
+                    # Try to load item image
+                    item_image = None
+                    if hasattr(entry, 'image') and entry.image:
+                        try:
+                            # Try different possible paths for the image
+                            image_path = entry.image
+                            
+                            # If path doesn't start with "items/", try adding it
+                            if not image_path.startswith("items/"):
+                                # Try items/ prefix
+                                image_path = f"items/{image_path}"
+                            
+                            item_image = self.game.assets.image("images", image_path)
+                            
+                            # If that didn't work, try without items/ prefix
+                            if not item_image:
+                                item_image = self.game.assets.image("images", entry.image)
+                            
+                            if item_image:
+                                # Scale to icon size
+                                item_image = pygame.transform.scale(item_image, (icon_size, icon_size))
+                            else:
+                                debug(f"Failed to load image for {entry.image}: {entry.image}")
+                        except Exception as e:
+                            # If image loading fails, item_image stays None
+                            debug(f"Error loading image for {entry.image}: {e}")
+                            item_image = None
+                    
+                    # Draw image or placeholder
+                    if item_image:
+                        # Draw background for icon
+                        icon_bg = pygame.Rect(icon_x - 2, icon_y - 2, icon_size + 4, icon_size + 4)
+                        pygame.draw.rect(surface, theme.BG_MID, icon_bg, border_radius=4)
+                        surface.blit(item_image, (icon_x, icon_y))
+                    else:
+                        # Draw placeholder icon
+                        icon_bg = pygame.Rect(icon_x, icon_y, icon_size, icon_size)
+                        pygame.draw.rect(surface, theme.BG_MID, icon_bg, border_radius=4)
+                        pygame.draw.rect(surface, theme.ACCENT_DIM, icon_bg, 1, border_radius=4)
+                        # Draw a simple "?" or first letter
+                        placeholder_font = self.game.assets.font("fonts", "text-bold.ttf", size=24)
+                        placeholder_text = placeholder_font.render(name[0].upper() if name else "?", True, theme.TEXT_MUTED)
+                        surface.blit(placeholder_text, (icon_x + icon_size // 2 - placeholder_text.get_width() // 2, 
+                                                        icon_y + icon_size // 2 - placeholder_text.get_height() // 2))
+                    
+                    # Draw item name (shifted right to make room for icon)
+                    text_x = icon_x + icon_size + 15
+                    name_surf = self.font_small_bold.render(name, True, theme.TEXT_PRIMARY)
+                    surface.blit(name_surf, (text_x, rect.centery - name_surf.get_height() // 2))
+                    
+                    # Price
+                    if self.mode == "buy":
+                        price = self._get_buy_price(entry)
+                    else:
+                        price = self._get_sell_price(entry)
+                    
+                    # Show haggled price differently
+                    if selected and self.haggled_price is not None:
+                        base_cost = entry.base_cost
+                        old_price = base_cost if self.mode == "buy" else (base_cost // 2)
+                        old_surf = self.font_small.render(f"{old_price}gp", True, theme.TEXT_MUTED)
+                        price_surf = self.font_small_bold.render(f"{price}gp", True, theme.ACCENT)
+                        
+                        surface.blit(old_surf, (rect.right - old_surf.get_width() - 15, rect.centery - 15))
+                        # Draw strikethrough
+                        pygame.draw.line(surface, theme.TEXT_MUTED, 
+                                       (rect.right - old_surf.get_width() - 15, rect.centery - 7),
+                                       (rect.right - 15, rect.centery - 7), 1)
+                        surface.blit(price_surf, (rect.right - price_surf.get_width() - 15, rect.centery + 3))
+                    else:
+                        price_surf = self.font_small_bold.render(f"{price}gp", True, theme.GOLD)
+                        surface.blit(price_surf, (rect.right - price_surf.get_width() - 15, rect.centery - price_surf.get_height() // 2))
+        
+        # Draw scroll indicators
+        if len(current_list) > self.max_visible_items:
+            # Show up arrow if can scroll up
+            if self.scroll_offset > 0:
+                arrow_up_surf = self.font_medium.render("▲", True, theme.ACCENT_DIM)
+                surface.blit(arrow_up_surf, (win_w - 50, list_y))
+            
+            # Show down arrow if can scroll down
+            if self.scroll_offset + self.max_visible_items < len(current_list):
+                arrow_down_surf = self.font_medium.render("▼", True, theme.ACCENT_DIM)
+                surface.blit(arrow_down_surf, (win_w - 50, list_bottom - 30))
+            
+            # Show scroll position indicator
+            scroll_info = self.font_small.render(
+                f"{self.scroll_offset + 1}-{min(self.scroll_offset + self.max_visible_items, len(current_list))} of {len(current_list)}", 
+                True, theme.TEXT_MUTED
+            )
+            surface.blit(scroll_info, (win_w - scroll_info.get_width() - 40, list_y - 35))
+    
+    def _draw_action_buttons(self, surface, win_w, win_h):
+        """Draw action buttons."""
+        btn_w, btn_h = 200, 60
+        btn_y = win_h - btn_h - 30
+        # Default clear
+        self.btn_haggle_rect = None
+        self.btn_action_rect = None
+
+        if self.mode != "services":
+            # Haggle button (center)
+            self.btn_haggle_rect = pygame.Rect(win_w // 2 - btn_w // 2, btn_y, btn_w, btn_h)
+            enabled_haggle = len(self._get_current_list()) > 0 and not self.haggle_attempted
+            self._draw_sprite_button(surface, "Haggle", self.btn_haggle_rect, enabled_haggle)
+
+            # Mode-specific action (Buy / Sell) to the left of Haggle
+            action_x = self.btn_haggle_rect.x - btn_w - 12
+            self.btn_action_rect = pygame.Rect(action_x, btn_y, btn_w, btn_h)
+            current_list = self._get_current_list()
+            enabled_action = len(current_list) > 0
+            if self.mode == "buy":
+                label = "Buy"
+            elif self.mode == "sell":
+                label = "Sell"
+            else:
+                label = None
+
+            if label:
+                self._draw_sprite_button(surface, label, self.btn_action_rect, enabled_action)
+        else:
+            self.btn_haggle_rect = None
+            self.btn_action_rect = None
+    
+    def _draw_back_button(self, surface, win_w, win_h):
+        """Draw the back button (mouse only; ESC key also supported)."""
+        btn_w, btn_h = 200, 60
+        self.btn_back_rect = pygame.Rect(win_w - btn_w - 40, win_h - btn_h - 30, btn_w, btn_h)
+        self._draw_sprite_button(surface, "← Back", self.btn_back_rect, True)
+    
+    def _draw_sprite_button(self, surface, label, rect, enabled=True):
+        hover = rect.collidepoint(pygame.mouse.get_pos()) and enabled
+        base = self.btn_hover if hover else self.btn_normal
+        btn_surface = pygame.transform.scale(base, (rect.width, rect.height))
+        if not enabled:
+            btn_surface = btn_surface.copy()
+            btn_surface.fill((100, 100, 100), special_flags=pygame.BLEND_MULT)
+        surface.blit(btn_surface, rect)
+        color = theme.TEXT_INVERT if enabled else theme.TEXT_MUTED
+        surface.blit(self.font_small_bold.render(label, True, color), self.font_small_bold.render(label, True, color).get_rect(center=rect.center))
+

@@ -1,0 +1,223 @@
+[
+    {
+        "name": "Amulet of Charisma",
+        "type": "amulet",
+        "slot": "amulet",
+        "base_cost": 1000,
+        "description": "Enhances Charisma.",
+        "effect": [
+            "stat_bonus",
+            "CHA",
+            1
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 2,
+        "image": "amulet/charisma.png",
+        "id": "AMULET_CHARISMA"
+    },
+    {
+        "name": "Amulet of Strength",
+        "type": "amulet",
+        "slot": "amulet",
+        "base_cost": 1000,
+        "description": "Enhances Strength.",
+        "effect": [
+            "stat_bonus",
+            "STR",
+            1
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 2,
+        "image": "ITEMS/amulet/strength.png",
+        "id": "AMULET_STRENGTH"
+    },
+    {
+        "name": "Amulet of Dexterity",
+        "type": "amulet",
+        "slot": "amulet",
+        "base_cost": 1000,
+        "description": "Enhances Dexterity.",
+        "effect": [
+            "stat_bonus",
+            "DEX",
+            1
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 2,
+        "image": "ITEMS/amulet/dexterity.png",
+        "id": "AMULET_DEXTERITY"
+    },
+    {
+        "name": "Amulet of Intelligence",
+        "type": "amulet",
+        "slot": "amulet",
+        "base_cost": 1000,
+        "description": "Enhances Intelligence.",
+        "effect": [
+            "stat_bonus",
+            "INT",
+            1
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 2,
+        "image": "ITEMS/amulet/intelligence.png",
+        "id": "AMULET_INTELLIGENCE"
+    },
+    {
+        "name": "Amulet of Constitution",
+        "type": "amulet",
+        "slot": "amulet",
+        "base_cost": 1000,
+        "description": "Enhances Constitution.",
+        "effect": [
+            "stat_bonus",
+            "CON",
+            1
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 2,
+        "image": "ITEMS/amulet/constitution.png",
+        "id": "AMULET_CONSTITUTION"
+    },
+    {
+        "name": "Amulet of Doom",
+        "type": "amulet",
+        "slot": "amulet",
+        "base_cost": 10,
+        "description": "Brings ill fortune.",
+        "effect": [
+            "cursed",
+            "doom"
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 2,
+        "image": "amulet/doom.png",
+        "id": "AMULET_DOOM"
+    },
+    {
+        "name": "Amulet of Resist Acid",
+        "type": "amulet",
+        "slot": "amulet",
+        "base_cost": 600,
+        "description": "Protects against acid.",
+        "effect": [
+            "resistance",
+            "acid",
+            1
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 2,
+        "image": "amulet/resist_acid.png",
+        "id": "AMULET_RESIST_ACID"
+    },
+    {
+        "name": "Amulet of Searching",
+        "type": "amulet",
+        "slot": "amulet",
+        "base_cost": 400,
+        "description": "Aids in finding secrets.",
+        "effect": [
+            "searching"
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 2,
+        "image": "amulet/searching.png",
+        "id": "AMULET_SEARCHING"
+    },
+    {
+        "name": "Amulet of Slow Digestion",
+        "type": "amulet",
+        "slot": "amulet",
+        "base_cost": 300,
+        "description": "Lessens hunger.",
+        "effect": [
+            "slow_digestion"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 2,
+        "image": "amulet/digestion_slow.png",
+        "id": "AMULET_SLOW_DIGESTION"
+    },
+    {
+        "name": "Amulet of Teleportation",
+        "type": "amulet",
+        "slot": "amulet",
+        "base_cost": 800,
+        "description": "Causes random blinking.",
+        "effect": [
+            "teleportitis"
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 2,
+        "image": "amulet/teleportation.png",
+        "id": "AMULET_TELEPORTATION"
+    },
+    {
+        "name": "Amulet of The Magi",
+        "type": "amulet",
+        "slot": "amulet",
+        "base_cost": 1500,
+        "description": "Enhances magical ability.",
+        "effect": [
+            "stat_bonus",
+            "INT",
+            2
+        ],
+        "rarity_depth": {
+            "min": 700,
+            "max": 1300
+        },
+        "weight": 2,
+        "image": "amulet/magi.png",
+        "id": "AMULET_THE_MAGI"
+    },
+    {
+        "name": "Amulet of Wisdom",
+        "type": "amulet",
+        "slot": "amulet",
+        "base_cost": 1000,
+        "description": "Enhances Wisdom.",
+        "effect": [
+            "stat_bonus",
+            "WIS",
+            1
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 2,
+        "image": "amulet/wisdom.png",
+        "id": "AMULET_WISDOM"
+    }
+]

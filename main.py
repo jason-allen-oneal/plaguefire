@@ -1,7 +1,9 @@
-# main.py — minimal entry point
+# main.py
 
-from app.plaguefire import RogueApp
+import os
+from app.plaguefire import Plaguefire
 
 if __name__ == "__main__":
-    app = RogueApp()
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    app = Plaguefire(project_root)
     app.run()

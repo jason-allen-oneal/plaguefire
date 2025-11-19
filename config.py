@@ -1,11 +1,27 @@
-# config.py
-
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, Tuple
 
 DEBUG = True
 
-VIEWPORT_WIDTH = 98
-VIEWPORT_HEIGHT = 32
+WINDOW_WIDTH = 1280
+WINDOW_HEIGHT = 720
+# Enable experimental dirty-rectangle rendering for performance. Set to
+# False to force full redraws each frame (safer but slower). Toggleable per
+# MapView for debugging and progressive rollout.
+RENDER_DIRTY_RECTS = True
+
+# ====================
+# Map Tile Constants
+# ====================
+WALL = '#'
+FLOOR = '.'
+STAIRS_DOWN = '>'
+STAIRS_UP = '<'
+DOOR_CLOSED = '+'
+DOOR_OPEN = "'"
+SECRET_DOOR = 'S'
+SECRET_DOOR_FOUND = 's'
+QUARTZ_VEIN = '%'
+MAGMA_VEIN = '*'
 
 MIN_MAP_WIDTH = 100
 MAX_MAP_WIDTH = 300  # Increased for larger dungeons
@@ -14,7 +30,9 @@ MAX_MAP_HEIGHT = 120  # Increased for larger dungeons
 
 # --- Day/Night Cycle ---
 DAY_NIGHT_CYCLE_LENGTH = 400  # Number of turns for a full day/night cycle
-DAY_DURATION = DAY_NIGHT_CYCLE_LENGTH // 2  # Turns spent in daytime
+DAY_DURATION = int(DAY_NIGHT_CYCLE_LENGTH * 0.75)  # Day is ~75% of the cycle
+NIGHT_BASE_RADIUS = 1  # Minimal FOV radius at night without a light source (dungeon default when unlit)
+DAY_GLOBAL_LOS = True  # Daytime in town uses global line-of-sight (no distance falloff)
 
 # --- Hunger System ---
 HUNGER_MAX = 1000
@@ -33,26 +51,57 @@ LARGE_DUNGEON_THRESHOLD = 100  # Depth at which to start generating large dungeo
 MAX_LARGE_MAP_WIDTH = 500      # Maximum size for very large dungeons
 MAX_LARGE_MAP_HEIGHT = 200
 
-# --- Tile Characters ---
-WALL = "#"
-FLOOR = "."
-PLAYER = "@"
-STAIRS_DOWN = ">"
-STAIRS_UP = "<"
-DOOR_CLOSED = "+"
-DOOR_OPEN = "'"
-SECRET_DOOR = "H"  # Hidden secret door (looks like wall)
-SECRET_DOOR_FOUND = "+"  # Revealed secret door
+# --- Viewport Constants ---
+VIEWPORT_WIDTH = 100   # Width of the visible map area (matches town layout)
+VIEWPORT_HEIGHT = 32   # Height of the visible map area (matches town layout)
 
-# --- Mining Tile Characters ---
-QUARTZ_VEIN = "%"  # Richest mineral vein
-MAGMA_VEIN = "%"   # Magma vein with some treasure
-GRANITE = "#"      # Granite rock (same as wall but mineable)
+WEAPON_KEYWORDS = ["Sword", "Dagger", "Mace", "Bow", "Axe", "Spear"]
+LIGHT_SOURCE_KEYWORDS = ["Torch", "Lantern"]
+ARMOR_KEYWORDS = ["Armor", "Mail", "Shield", "Helm", "Boots", "Gloves"]
 
-# --- Window Size (Adjust if needed based on VIEWPORT + HUD) ---
-WINDOW_COLS = 130   # e.g., 98 viewport + 30 hud + padding
-WINDOW_ROWS = 34    # e.g., 32 viewport + padding
+# ====================
+# Game Constants
+# ====================
+MAX_LEVEL = 100
+SHOP_INDEX = [None, "general", "armor", "magic", "temple", "weapons", "tavern"]
+SHOP_MAP = {
+    "general": "General Store",
+    "armor": "Armory",
+    "magic": "Magic Shop",
+    "temple": "Temple",
+    "weapons": "Blacksmith",
+    "tavern": "Tavern",
+}
 
+CLASS_ORDER = ["Warrior", "Mage", "Priest", "Rogue", "Ranger", "Paladin"]
+SEX_OPTIONS = ["Male", "Female"]
+
+XP_THRESHOLDS = {
+    1: 300, 2: 900, 3: 2700, 4: 6500, 5: 14000, 6: 23000, 7: 34000, 8: 48000,
+    9: 64000, 10: 85000, 11: 100000, 12: 120000, 13: 140000, 14: 165000, 15: 195000,
+    16: 225000, 17: 265000, 18: 305000, 19: 355000, 20: 405000,
+    21: 465000, 22: 535000, 23: 615000, 24: 705000, 25: 805000,
+    26: 925000, 27: 1060000, 28: 1210000, 29: 1375000, 30: 1550000,
+    31: 1750000, 32: 1975000, 33: 2225000, 34: 2500000, 35: 2800000,
+    36: 3130000, 37: 3490000, 38: 3880000, 39: 4300000, 40: 4750000,
+    41: 5230000, 42: 5750000, 43: 6310000, 44: 6910000, 45: 7550000,
+    46: 8240000, 47: 8980000, 48: 9770000, 49: 10610000, 50: 11520000,
+    51: 12540000, 52: 13680000, 53: 14940000, 54: 16340000, 55: 17870000,
+    56: 19550000, 57: 21380000, 58: 23380000, 59: 25550000, 60: 27900000,
+    61: 30450000, 62: 33200000, 63: 36150000, 64: 39320000, 65: 42720000,
+    66: 46360000, 67: 50250000, 68: 54400000, 69: 58820000, 70: 63520000,
+    71: 68520000, 72: 73830000, 73: 79470000, 74: 85460000, 75: 91810000,
+    76: 98540000, 77: 105670000, 78: 113210000, 79: 121180000, 80: 129620000,
+    81: 138570000, 82: 148070000, 83: 158170000, 84: 168910000, 85: 180340000,
+    86: 192510000, 87: 205470000, 88: 219270000, 89: 233970000, 90: 249620000,
+    91: 266300000, 92: 284070000, 93: 302990000, 94: 323130000, 95: 344550000,
+    96: 367330000, 97: 391540000, 98: 417270000, 99: 444600000, 100: 473630000
+}
+
+
+MAX_STARTER_SPELLS = 1
+MAX_NAME_LENGTH = 16
+# character trait definitions
 STAT_NAMES = ["STR", "INT", "WIS", "DEX", "CON", "CHA"]
 ABILITY_NAMES = [
     "fighting",
@@ -769,7 +818,3 @@ PHYSICAL_PROFILES: Dict[str, Dict[str, Dict[str, Tuple[int, int]]]] = {
         "female": {"height": (78, 4), "weight": (260, 35)},
     },
 }
-
-WEAPON_KEYWORDS = ["Sword", "Dagger", "Mace", "Bow", "Axe", "Spear"]
-LIGHT_SOURCE_KEYWORDS = ["Torch", "Lantern"]
-ARMOR_KEYWORDS = ["Armor", "Mail", "Shield", "Helm", "Boots", "Gloves"]

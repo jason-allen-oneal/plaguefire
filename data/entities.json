@@ -1,5 +1,6 @@
 [
   {
+    "image": "air_spirit/",
     "id": "AIR_SPIRIT",
     "name": "Unstable Air Elemental",
     "char": "E",
@@ -26,7 +27,8 @@
     },
     "flee_chance": 50,
     "mana": 30,
-    "max_mana": 30
+    "max_mana": 30,
+    "can_open_doors": false
   },
   {
     "id": "ANCIENT_BLACK_DRAGON",
@@ -58,7 +60,9 @@
       "base": 51,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "ANCIENT_BLUE_DRAGON",
@@ -91,7 +95,9 @@
       "base": 51,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "ANCIENT_GREEN_DRAGON",
@@ -123,7 +129,9 @@
       "base": 51,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "ANCIENT_MULTI_HUED_DRAGON",
@@ -156,7 +164,9 @@
       "base": 51,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "ANCIENT_WHITE_DRAGON",
@@ -188,7 +198,17 @@
       "base": 51,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "damage_type": "cold",
+    "resistances": {
+      "cold": 100,
+      "physical": 30
+    },
+    "vulnerabilities": {
+      "fire": 25
+    },
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "ANT_GIANT_BLACK",
@@ -215,7 +235,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "ant/",
+    "can_open_doors": false
   },
   {
     "id": "ANT_GIANT_RED",
@@ -243,36 +265,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 20
-  },
-  {
-    "id": "ANT_LION_GIANT_GREY",
-    "name": "Giant Grey Ant Lion",
-    "char": "A",
-    "hp_base": 20,
-    "hp_per_level": 4,
-    "attack_base": 5,
-    "attack_per_level": 1,
-    "defense_base": 4,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 3,
-    "gold_min_mult": 5,
-    "gold_max_mult": 15,
-    "drops": {
-      "ANT_LION_MANDIBLE": 20
-    },
-    "depth": 150,
-    "min_depth": 90,
-    "max_depth": 210,
-    "spawn_chance": {
-      "base": 92,
-      "per_depth": -0.5
-    },
     "flee_chance": 20,
-    "sleeps_during_night": true,
-    "sleeps_during_day": false
+    "image": "ant/",
+    "can_open_doors": false
   },
   {
     "id": "INFERNAL_LORD",
@@ -305,7 +300,9 @@
       "base": 2,
       "per_depth": 0.0
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "can_open_doors": true,
+    "image": "infernal_lord/"
   },
   {
     "id": "BANSHEE",
@@ -332,10 +329,13 @@
       "base": 88,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "can_open_doors": true,
+    "image": "banshee.png"
   },
   {
     "id": "BATTLE_SCARRED_VETERAN",
+    "can_open_doors": true,
     "name": "Battle-Scarred Iron Guard",
     "char": "p",
     "hp_base": 10,
@@ -364,7 +364,8 @@
     },
     "flee_chance": 70,
     "sleeps_during_day": true,
-    "sleeps_during_night": false
+    "sleeps_during_night": false,
+    "image": ""
   },
   {
     "id": "BAT_GIANT_BROWN",
@@ -393,7 +394,9 @@
     },
     "flee_chance": 70,
     "sleeps_during_day": true,
-    "sleeps_during_night": false
+    "sleeps_during_night": false,
+    "image": "bat/",
+    "can_open_doors": false
   },
   {
     "id": "BAT_GIANT_FIRE",
@@ -423,7 +426,9 @@
     },
     "flee_chance": 70,
     "sleeps_during_day": true,
-    "sleeps_during_night": false
+    "sleeps_during_night": false,
+    "image": "bat/",
+    "can_open_doors": false
   },
   {
     "id": "BEETLE_KILLER_FIRE",
@@ -450,36 +455,9 @@
       "base": 93,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "BERZERKER",
-    "name": "Greenflame Berserker",
-    "char": "p",
-    "hp_base": 10,
-    "hp_per_level": 3,
-    "attack_base": 2,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 7,
-    "gold_min_mult": 5,
-    "gold_max_mult": 15,
-    "drops": {
-      "SWORD_SHORT": 25,
-      "LEATHER_ARMOR": 20,
-      "GOLD_COINS": 30
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "can_open_doors": true,
+    "image": "beetle/"
   },
   {
     "id": "BLACK_DRAGON_BAT",
@@ -508,7 +486,9 @@
     },
     "flee_chance": 0,
     "sleeps_during_day": true,
-    "sleeps_during_night": false
+    "sleeps_during_night": false,
+    "image": "bat/",
+    "can_open_doors": false
   },
   {
     "id": "BLACK_HARPY",
@@ -536,10 +516,13 @@
       "base": 91,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "harpy/",
+    "can_open_doors": false
   },
   {
     "id": "BLACK_KNIGHT",
+    "can_open_doors": true,
     "name": "Corrupted Iron Guard Captain",
     "char": "p",
     "hp_base": 10,
@@ -565,7 +548,8 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "black_knight/"
   },
   {
     "id": "BLACK_MAMBA",
@@ -592,36 +576,9 @@
       "base": 93,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "BLACK_MOLD",
-    "name": "Black Corrupted Mold",
-    "char": "m",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "passive",
-    "hostile": true,
-    "detection_range": 1,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "MOLD_SPORE": 5
-    },
-    "depth": 25,
-    "min_depth": 25,
-    "max_depth": 75,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0,
-    "clone_rate": 0.02,
-    "clone_max_population": 16
+    "flee_chance": 50,
+    "image": "black_mamba/",
+    "can_open_doors": false
   },
   {
     "id": "BLACK_MUSHROOM_PATCH",
@@ -649,7 +606,9 @@
       "per_depth": -0.5
     },
     "flee_chance": 50,
-    "clone_rate": 0.015
+    "clone_rate": 0.015,
+    "image": "mushroom/",
+    "can_open_doors": false
   },
   {
     "id": "BLACK_NAGA",
@@ -677,7 +636,9 @@
       "base": 86,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "naga/",
+    "can_open_doors": false
   },
   {
     "id": "BLACK_OOZE",
@@ -704,10 +665,13 @@
       "base": 92,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "ooze/",
+    "can_open_doors": false
   },
   {
     "id": "BLACK_ORC",
+    "can_open_doors": true,
     "name": "Greenflame-Touched Orc",
     "char": "o",
     "hp_base": 12,
@@ -733,7 +697,8 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "orc/"
   },
   {
     "id": "BLACK_WRAITH",
@@ -762,34 +727,9 @@
     },
     "flee_chance": 0,
     "mana": 35,
-    "max_mana": 35
-  },
-  {
-    "id": "BLACK_YEEK",
-    "name": "Mutant Black Creature",
-    "char": "y",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 7,
-    "gold_min_mult": 1,
-    "gold_max_mult": 3,
-    "drops": {
-      "YEEK_CLAW": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "max_mana": 35,
+    "image": "wraith.png",
+    "can_open_doors": false
   },
   {
     "id": "BLOODSHOT_EYE",
@@ -817,68 +757,9 @@
     "flee_chance": 50,
     "ranged_attack": "gaze",
     "ranged_damage": "1d4",
-    "ranged_range": 5
-  },
-  {
-    "id": "BLOODSHOT_ICKY_THING",
-    "name": "Bloodshot Icky-Thing",
-    "char": "i",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "wander",
-    "hostile": true,
-    "detection_range": 3,
-    "gold_min_mult": 0,
-    "gold_max_mult": 1,
-    "drops": {
-      "ICKY_GOO": 10
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50,
-    "ranged_attack": "spit",
-    "ranged_damage": "1d6",
-    "ranged_range": 4,
-    "clone_rate": 0.03,
-    "clone_max_population": 18
-  },
-  {
-    "id": "BLUBBERING_ICKY_THING",
-    "name": "Blubbering Icky-Thing",
-    "char": "i",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "wander",
-    "hostile": true,
-    "detection_range": 3,
-    "gold_min_mult": 0,
-    "gold_max_mult": 1,
-    "drops": {
-      "ICKY_GOO": 10
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50,
-    "clone_rate": 0.03,
-    "clone_max_population": 18
+    "ranged_range": 5,
+    "image": "eyeball.png",
+    "can_open_doors": false
   },
   {
     "id": "BLUBBERING_IDIOT",
@@ -908,7 +789,9 @@
       "base": 100,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "BLUE_DRAGON_BAT",
@@ -937,7 +820,9 @@
     },
     "flee_chance": 0,
     "sleeps_during_day": true,
-    "sleeps_during_night": false
+    "sleeps_during_night": false,
+    "image": "bat/",
+    "can_open_doors": false
   },
   {
     "id": "BLUE_JELLY",
@@ -964,66 +849,13 @@
       "base": 96,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "BLUE_WORM_MASS",
-    "name": "Blue Worm mass",
-    "char": "w",
-    "hp_base": 15,
-    "hp_per_level": 3,
-    "attack_base": 3,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 5,
-    "gold_min_mult": 0,
-    "gold_max_mult": 5,
-    "drops": {
-      "WORM_TOOTH": 10
-    },
-    "depth": 75,
-    "min_depth": 45,
-    "max_depth": 105,
-    "spawn_chance": {
-      "base": 96,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50,
-    "clone_rate": 0.025,
-    "clone_max_population": 16
-  },
-  {
-    "id": "BLUE_YEEK",
-    "name": "Mutant Blue Creature",
-    "char": "y",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 7,
-    "gold_min_mult": 1,
-    "gold_max_mult": 3,
-    "drops": {
-      "YEEK_CLAW": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "flee_chance": 0,
+    "image": "jelly/",
+    "can_open_doors": false
   },
   {
     "id": "BRIGAND",
+    "can_open_doors": true,
     "name": "Caravan Raider",
     "char": "p",
     "hp_base": 10,
@@ -1049,66 +881,12 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "BROWN_MOLD",
-    "name": "Brown Corrupted Mold",
-    "char": "m",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "passive",
-    "hostile": true,
-    "detection_range": 1,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "MOLD_SPORE": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0,
-    "clone_rate": 0.02,
-    "clone_max_population": 16
-  },
-  {
-    "id": "CENTIPEDE_GIANT_RED",
-    "name": "Giant Red Centipede",
-    "char": "c",
-    "hp_base": 6,
-    "hp_per_level": 2,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 4,
-    "gold_min_mult": 0,
-    "gold_max_mult": 2,
-    "drops": {
-      "CENTIPEDE_LEG": 30
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
+    "flee_chance": 50,
+    "image": ""
   },
   {
     "id": "CITIZEN_COMMONER",
+    "can_open_doors": true,
     "name": "Town Commoner",
     "char": "p",
     "hp_base": 6,
@@ -1132,10 +910,12 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": ""
   },
   {
     "id": "CITIZEN_GUARD",
+    "can_open_doors": true,
     "name": "Town Guard",
     "char": "G",
     "hp_base": 12,
@@ -1160,10 +940,12 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": ""
   },
   {
     "id": "CITIZEN_MERCHANT",
+    "can_open_doors": true,
     "name": "Traveling Merchant",
     "char": "p",
     "hp_base": 8,
@@ -1188,10 +970,12 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": ""
   },
   {
     "id": "CITIZEN_PRIEST",
+    "can_open_doors": true,
     "name": "Temple Acolyte",
     "char": "p",
     "hp_base": 7,
@@ -1218,36 +1002,8 @@
     },
     "flee_chance": 50,
     "mana": 10,
-    "max_mana": 10
-  },
-  {
-    "id": "CLEAR_ICKY_THING",
-    "name": "Clear Icky-Thing",
-    "char": "i",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "wander",
-    "hostile": true,
-    "detection_range": 3,
-    "gold_min_mult": 0,
-    "gold_max_mult": 1,
-    "drops": {
-      "ICKY_GOO": 10
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50,
-    "clone_rate": 0.03,
-    "clone_max_population": 18
+    "max_mana": 10,
+    "image": ""
   },
   {
     "id": "CLEAR_MUSHROOM_PATCH",
@@ -1275,7 +1031,9 @@
       "per_depth": -0.5
     },
     "flee_chance": 50,
-    "clone_rate": 0.015
+    "clone_rate": 0.015,
+    "image": "mushroom/",
+    "can_open_doors": false
   },
   {
     "id": "CLEAR_OOZE",
@@ -1302,34 +1060,9 @@
       "base": 92,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "CLEAR_YEEK",
-    "name": "Mutant Clear Creature",
-    "char": "y",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 7,
-    "gold_min_mult": 1,
-    "gold_max_mult": 3,
-    "drops": {
-      "YEEK_CLAW": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "flee_chance": 0,
+    "image": "ooze/",
+    "can_open_doors": false
   },
   {
     "id": "CLOUD_GIANT",
@@ -1357,34 +1090,9 @@
       "base": 88,
       "per_depth": -0.5
     },
-    "flee_chance": 20
-  },
-  {
-    "id": "COINS_CREEPING_COPPER",
-    "name": "Cursed Copper Coins",
-    "char": "$",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "wander",
-    "hostile": true,
-    "detection_range": 3,
-    "gold_min_mult": 1,
-    "gold_max_mult": 5,
-    "drops": {
-      "COPPER_COINS": 100
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "flee_chance": 20,
+    "image": "giant/",
+    "can_open_doors": false
   },
   {
     "id": "COPPERHEAD_SNAKE",
@@ -1411,90 +1119,9 @@
       "base": 93,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "CREEPING_GOLD_COINS",
-    "name": "Cursed Gold Coins",
-    "char": "$",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "wander",
-    "hostile": true,
-    "detection_range": 3,
-    "gold_min_mult": 1,
-    "gold_max_mult": 5,
-    "drops": {
-      "COPPER_COINS": 100
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
-  },
-  {
-    "id": "CREEPING_SILVER_COINS",
-    "name": "Cursed Silver Coins",
-    "char": "$",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "wander",
-    "hostile": true,
-    "detection_range": 3,
-    "gold_min_mult": 1,
-    "gold_max_mult": 5,
-    "drops": {
-      "COPPER_COINS": 100
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
-  },
-  {
-    "id": "CRIMSON_MOLD",
-    "name": "Crimson Corrupted Mold",
-    "char": "m",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "passive",
-    "hostile": true,
-    "detection_range": 1,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "MOLD_SPORE": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0,
-    "clone_rate": 0.02,
-    "clone_max_population": 16
+    "flee_chance": 50,
+    "image": "snake/",
+    "can_open_doors": false
   },
   {
     "id": "CRYSTAL_OOZE",
@@ -1521,7 +1148,9 @@
       "base": 92,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "ooze/",
+    "can_open_doors": false
   },
   {
     "id": "OOZE_ACIDIC",
@@ -1546,34 +1175,9 @@
       "base": 91,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "DEATH_QUASIT",
-    "name": "Death Quasit",
-    "char": "q",
-    "hp_base": 12,
-    "hp_per_level": 2,
-    "attack_base": 3,
-    "attack_per_level": 1,
-    "defense_base": 2,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 6,
-    "gold_min_mult": 5,
-    "gold_max_mult": 10,
-    "drops": {
-      "GEM_GARNET": 5
-    },
-    "depth": 125,
-    "min_depth": 75,
-    "max_depth": 175,
-    "spawn_chance": {
-      "base": 93,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "flee_chance": 0,
+    "image": "ooze/",
+    "can_open_doors": false
   },
   {
     "id": "DEATH_WATCH_BEETLE",
@@ -1600,7 +1204,9 @@
       "base": 93,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "beetle/",
+    "can_open_doors": false
   },
   {
     "id": "DISENCHANTER_BAT",
@@ -1629,7 +1235,9 @@
     },
     "flee_chance": 70,
     "sleeps_during_day": true,
-    "sleeps_during_night": false
+    "sleeps_during_night": false,
+    "image": "bat/",
+    "can_open_doors": false
   },
   {
     "id": "DISENCHANTER_EYE",
@@ -1654,36 +1262,9 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "DISENCHANTER_MOLD",
-    "name": "Disenchanter Corrupted Mold",
-    "char": "m",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "passive",
-    "hostile": true,
-    "detection_range": 1,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "MOLD_SPORE": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0,
-    "clone_rate": 0.02,
-    "clone_max_population": 16
+    "flee_chance": 50,
+    "image": "eyeball.png",
+    "can_open_doors": false
   },
   {
     "id": "DISENCHANTER_OOZE",
@@ -1710,34 +1291,9 @@
       "base": 92,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "DISENCHANTER_WORM",
-    "name": "Disenchanter Worm",
-    "char": "w",
-    "hp_base": 15,
-    "hp_per_level": 3,
-    "attack_base": 3,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 5,
-    "gold_min_mult": 0,
-    "gold_max_mult": 5,
-    "drops": {
-      "WORM_TOOTH": 10
-    },
-    "depth": 75,
-    "min_depth": 45,
-    "max_depth": 105,
-    "spawn_chance": {
-      "base": 96,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "flee_chance": 0,
+    "image": "ooze/",
+    "can_open_doors": false
   },
   {
     "id": "DRAGON_ANCIENT_RED",
@@ -1769,7 +1325,9 @@
       "base": 51,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "DRAGON_MATURE_MULTI",
@@ -1801,7 +1359,9 @@
       "base": 63,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "DRAGON_YOUNG_RED",
@@ -1830,7 +1390,9 @@
       "base": 82,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "DROOLING_HARPY",
@@ -1858,7 +1420,9 @@
       "base": 91,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "harpy/",
+    "can_open_doors": false
   },
   {
     "id": "EARTH_ELEMENTAL",
@@ -1887,7 +1451,9 @@
     },
     "flee_chance": 50,
     "mana": 40,
-    "max_mana": 40
+    "max_mana": 40,
+    "image": "earth_elemental/",
+    "can_open_doors": false
   },
   {
     "id": "EARTH_SPIRIT",
@@ -1914,7 +1480,9 @@
       "base": 83,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "earth_spirit/",
+    "can_open_doors": false
   },
   {
     "id": "ELEMENTAL_FIRE",
@@ -1943,7 +1511,17 @@
     },
     "flee_chance": 50,
     "mana": 40,
-    "max_mana": 40
+    "max_mana": 40,
+    "damage_type": "fire",
+    "resistances": {
+      "fire": 75,
+      "cold": 0
+    },
+    "vulnerabilities": {
+      "cold": 50
+    },
+    "image": "elemental_fire/",
+    "can_open_doors": false
   },
   {
     "id": "EMPEROR_LICH",
@@ -1976,7 +1554,18 @@
       "base": 70,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "damage_type": "arcane",
+    "resistances": {
+      "cold": 50,
+      "arcane": 40
+    },
+    "vulnerabilities": {
+      "holy": 100,
+      "fire": 25
+    },
+    "image": "lich/",
+    "can_open_doors": true
   },
   {
     "id": "EMPEROR_WIGHT",
@@ -2003,7 +1592,9 @@
       "base": 87,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "wight/",
+    "can_open_doors": false
   },
   {
     "id": "EYE_FLOATING",
@@ -2028,7 +1619,9 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "eyeball.png",
+    "can_open_doors": false
   },
   {
     "id": "FILTHY_STREET_URCHIN",
@@ -2058,7 +1651,9 @@
       "base": 100,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "FIRE_GIANT",
@@ -2086,7 +1681,9 @@
       "base": 88,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "giant/",
+    "can_open_doors": false
   },
   {
     "id": "FIRE_SPIRIT",
@@ -2113,7 +1710,9 @@
       "base": 83,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "fire_spirit/",
+    "can_open_doors": false
   },
   {
     "id": "FLESH_GOLEM",
@@ -2138,7 +1737,9 @@
       "base": 88,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "golem/",
+    "can_open_doors": true
   },
   {
     "id": "FLY_GIANT_HOUSE",
@@ -2163,7 +1764,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "fly/",
+    "can_open_doors": false
   },
   {
     "id": "FOREST_WIGHT",
@@ -2190,34 +1793,9 @@
       "base": 87,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "FROG_GIANT_GREEN",
-    "name": "Giant Green Frog",
-    "char": "f",
-    "hp_base": 7,
-    "hp_per_level": 2,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 0,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 5,
-    "gold_min_mult": 0,
-    "gold_max_mult": 2,
-    "drops": {
-      "FROG_LEG": 10
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
+    "flee_chance": 0,
+    "image": "wight/",
+    "can_open_doors": false
   },
   {
     "id": "FROST_GIANT",
@@ -2245,90 +1823,16 @@
       "base": 88,
       "per_depth": -0.5
     },
-    "flee_chance": 20
-  },
-  {
-    "id": "GHOST",
-    "name": "Restless Spirit",
-    "char": "G",
-    "hp_base": 20,
-    "hp_per_level": 4,
-    "attack_base": 4,
-    "attack_per_level": 1,
-    "defense_base": 5,
-    "defense_per_level": 2,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 9,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "ECTOPLASM": 15
-    },
-    "depth": 225,
-    "min_depth": 135,
-    "max_depth": 315,
-    "spawn_chance": {
-      "base": 88,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0
-  },
-  {
-    "id": "GHOST_INVISIBLE_STALKER",
-    "name": "Invisible Stalker",
-    "char": "G",
-    "hp_base": 30,
-    "hp_per_level": 5,
-    "attack_base": 6,
-    "attack_per_level": 2,
-    "defense_base": 6,
-    "defense_per_level": 2,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 7,
-    "gold_min_mult": 10,
-    "gold_max_mult": 30,
-    "drops": {
-      "GEM_OPAL": 10
-    },
-    "depth": 350,
-    "min_depth": 210,
-    "max_depth": 489,
-    "spawn_chance": {
-      "base": 82,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0
-  },
-  {
-    "id": "GIANT_BLACK_ANT_LION",
-    "name": "Giant Black Ant Lion",
-    "char": "A",
-    "hp_base": 20,
-    "hp_per_level": 4,
-    "attack_base": 5,
-    "attack_per_level": 1,
-    "defense_base": 4,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 3,
-    "gold_min_mult": 5,
-    "gold_max_mult": 15,
-    "drops": {
-      "ANT_LION_MANDIBLE": 20
-    },
-    "depth": 150,
-    "min_depth": 90,
-    "max_depth": 210,
-    "spawn_chance": {
-      "base": 92,
-      "per_depth": -0.5
-    },
     "flee_chance": 20,
-    "sleeps_during_night": true,
-    "sleeps_during_day": false
+    "damage_type": "cold",
+    "resistances": {
+      "cold": 90
+    },
+    "vulnerabilities": {
+      "fire": 50
+    },
+    "image": "giant/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_BLACK_BAT",
@@ -2357,34 +1861,9 @@
     },
     "flee_chance": 70,
     "sleeps_during_day": true,
-    "sleeps_during_night": false
-  },
-  {
-    "id": "GIANT_BLACK_CENTIPEDE",
-    "name": "Giant Black Centipede",
-    "char": "c",
-    "hp_base": 6,
-    "hp_per_level": 2,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 4,
-    "gold_min_mult": 0,
-    "gold_max_mult": 2,
-    "drops": {
-      "CENTIPEDE_LEG": 30
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
+    "sleeps_during_night": false,
+    "image": "hoary_bat/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_BLACK_DRAGON_FLY",
@@ -2409,34 +1888,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "GIANT_BLACK_FROG",
-    "name": "Giant Black Frog",
-    "char": "f",
-    "hp_base": 7,
-    "hp_per_level": 2,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 0,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 5,
-    "gold_min_mult": 0,
-    "gold_max_mult": 2,
-    "drops": {
-      "FROG_LEG": 10
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
+    "flee_chance": 0,
+    "image": "fly/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_BLACK_LOUSE",
@@ -2463,7 +1917,9 @@
     },
     "flee_chance": 20,
     "clone_rate": 0.04,
-    "clone_max_population": 24
+    "clone_max_population": 24,
+    "image": "louse/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_BLACK_RAT",
@@ -2491,34 +1947,9 @@
       "per_depth": -0.5
     },
     "flee_chance": 70,
-    "sleeps_during_day": true
-  },
-  {
-    "id": "GIANT_BLUE_CENTIPEDE",
-    "name": "Giant Blue Centipede",
-    "char": "c",
-    "hp_base": 6,
-    "hp_per_level": 2,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 4,
-    "gold_min_mult": 0,
-    "gold_max_mult": 2,
-    "drops": {
-      "CENTIPEDE_LEG": 30
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
+    "sleeps_during_day": true,
+    "image": "rat/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_BLUE_DRAGON_FLY",
@@ -2543,11 +1974,13 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "fly/",
+    "can_open_doors": false
   },
   {
-    "id": "GIANT_BROWN_SCORPION",
-    "name": "Giant Brown Scorpion",
+    "id": "GIANT_FROZEN_SCORPION",
+    "name": "Giant Frozen Scorpion",
     "char": "S",
     "hp_base": 18,
     "hp_per_level": 4,
@@ -2570,7 +2003,12 @@
       "base": 91,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "vulnerabilities": {
+      "fire": 50
+    },
+    "flee_chance": 20,
+    "image": "frozen_scorpion/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_CLEAR_ANT",
@@ -2597,34 +2035,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 20
-  },
-  {
-    "id": "GIANT_CLEAR_CENTIPEDE",
-    "name": "Giant Clear Centipede",
-    "char": "c",
-    "hp_base": 6,
-    "hp_per_level": 2,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 4,
-    "gold_min_mult": 0,
-    "gold_max_mult": 2,
-    "drops": {
-      "CENTIPEDE_LEG": 30
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "ant/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_EBONY_ANT",
@@ -2651,57 +2064,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 20
-  },
-  {
-    "id": "GIANT_FIRE_TICK",
-    "name": "Giant Fire Tick",
-    "char": "t",
-    "hp_base": 6,
-    "hp_per_level": 2,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 4,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {},
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
-  },
-  {
-    "id": "GIANT_FLEA",
-    "name": "Giant Flea",
-    "char": "F",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "wander",
-    "hostile": true,
-    "detection_range": 4,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {},
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "ant/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_FRUIT_FLY",
@@ -2726,7 +2091,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "fly/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_GLOWING_RAT",
@@ -2753,7 +2120,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "image": "rat/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_GNAT",
@@ -2778,7 +2147,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "fly/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_GREEN_DRAGON_FLY",
@@ -2803,7 +2174,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "fly/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_GREEN_FLY",
@@ -2828,7 +2201,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "fly/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_GREY_BAT",
@@ -2857,7 +2232,9 @@
     },
     "flee_chance": 70,
     "sleeps_during_day": true,
-    "sleeps_during_night": false
+    "sleeps_during_night": false,
+    "image": "bat/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_HILL",
@@ -2885,7 +2262,9 @@
       "base": 88,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "giant/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_HUNTER_ANT",
@@ -2915,7 +2294,9 @@
     "flee_chance": 20,
     "ranged_attack": "acid spit",
     "ranged_damage": "1d4",
-    "ranged_range": 4
+    "ranged_range": 4,
+    "image": "ant/",
+    "can_open_doors": true
   },
   {
     "id": "GIANT_LIGHTNING_BAT",
@@ -2944,7 +2325,9 @@
     },
     "flee_chance": 70,
     "sleeps_during_day": true,
-    "sleeps_during_night": false
+    "sleeps_during_night": false,
+    "image": "bat/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_LONG_EARED_BAT",
@@ -2973,92 +2356,9 @@
     },
     "flee_chance": 70,
     "sleeps_during_day": true,
-    "sleeps_during_night": false
-  },
-  {
-    "id": "GIANT_MOTTLED_ANT_LION",
-    "name": "Giant Mottled Ant Lion",
-    "char": "A",
-    "hp_base": 20,
-    "hp_per_level": 4,
-    "attack_base": 5,
-    "attack_per_level": 1,
-    "defense_base": 4,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 3,
-    "gold_min_mult": 5,
-    "gold_max_mult": 15,
-    "drops": {
-      "ANT_LION_MANDIBLE": 20
-    },
-    "depth": 150,
-    "min_depth": 90,
-    "max_depth": 210,
-    "spawn_chance": {
-      "base": 92,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20,
-    "sleeps_during_night": true,
-    "sleeps_during_day": false
-  },
-  {
-    "id": "GIANT_PURPLE_WORM",
-    "name": "Giant Purple Worm",
-    "char": "w",
-    "hp_base": 15,
-    "hp_per_level": 3,
-    "attack_base": 3,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 5,
-    "gold_min_mult": 0,
-    "gold_max_mult": 5,
-    "drops": {
-      "WORM_TOOTH": 10
-    },
-    "depth": 75,
-    "min_depth": 45,
-    "max_depth": 105,
-    "spawn_chance": {
-      "base": 96,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
-  },
-  {
-    "id": "GIANT_RED_ANT_LION",
-    "name": "Giant Red Ant Lion",
-    "char": "A",
-    "hp_base": 20,
-    "hp_per_level": 4,
-    "attack_base": 5,
-    "attack_per_level": 1,
-    "defense_base": 4,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 3,
-    "gold_min_mult": 5,
-    "gold_max_mult": 15,
-    "drops": {
-      "ANT_LION_MANDIBLE": 20
-    },
-    "depth": 150,
-    "min_depth": 90,
-    "max_depth": 210,
-    "spawn_chance": {
-      "base": 92,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20,
-    "sleeps_during_night": true,
-    "sleeps_during_day": false
+    "sleeps_during_night": false,
+    "image": "hoary_bat/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_RED_BAT",
@@ -3087,7 +2387,9 @@
     },
     "flee_chance": 70,
     "sleeps_during_day": true,
-    "sleeps_during_night": false
+    "sleeps_during_night": false,
+    "image": "bat/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_RED_DRAGON_FLY",
@@ -3112,88 +2414,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "GIANT_RED_FROG",
-    "name": "Giant Red Frog",
-    "char": "f",
-    "hp_base": 7,
-    "hp_per_level": 2,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 0,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 5,
-    "gold_min_mult": 0,
-    "gold_max_mult": 2,
-    "drops": {
-      "FROG_LEG": 10
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
-  },
-  {
-    "id": "GIANT_RED_SCORPION",
-    "name": "Giant Red Scorpion",
-    "char": "S",
-    "hp_base": 18,
-    "hp_per_level": 4,
-    "attack_base": 4,
-    "attack_per_level": 1,
-    "defense_base": 4,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 5,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "SCORPION_STINGER": 20
-    },
-    "depth": 175,
-    "min_depth": 105,
-    "max_depth": 244,
-    "spawn_chance": {
-      "base": 91,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
-  },
-  {
-    "id": "GIANT_RED_SPECKLED_FROG",
-    "name": "Giant Red Speckled Frog",
-    "char": "f",
-    "hp_base": 7,
-    "hp_per_level": 2,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 0,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 5,
-    "gold_min_mult": 0,
-    "gold_max_mult": 2,
-    "drops": {
-      "FROG_LEG": 10
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
+    "flee_chance": 0,
+    "image": "fly/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_SILVER_ANT",
@@ -3220,7 +2443,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "ant/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_SPOTTED_RAT",
@@ -3249,7 +2474,9 @@
     },
     "flee_chance": 70,
     "clone_rate": 0.04,
-    "clone_max_population": 18
+    "clone_max_population": 18,
+    "image": "rat/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_STATIC_ANT",
@@ -3276,7 +2503,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "ant/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_TAN_BAT",
@@ -3305,7 +2534,9 @@
     },
     "flee_chance": 70,
     "sleeps_during_day": true,
-    "sleeps_during_night": false
+    "sleeps_during_night": false,
+    "image": "bat/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_TROLL",
@@ -3333,7 +2564,9 @@
       "base": 90,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "troll/",
+    "can_open_doors": true
   },
   {
     "id": "GIANT_WHITE_ANT",
@@ -3360,63 +2593,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 20
-  },
-  {
-    "id": "GIANT_WHITE_ANT_LION",
-    "name": "Giant White Ant Lion",
-    "char": "A",
-    "hp_base": 20,
-    "hp_per_level": 4,
-    "attack_base": 5,
-    "attack_per_level": 1,
-    "defense_base": 4,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 3,
-    "gold_min_mult": 5,
-    "gold_max_mult": 15,
-    "drops": {
-      "ANT_LION_MANDIBLE": 20
-    },
-    "depth": 150,
-    "min_depth": 90,
-    "max_depth": 210,
-    "spawn_chance": {
-      "base": 92,
-      "per_depth": -0.5
-    },
     "flee_chance": 20,
-    "sleeps_during_night": true,
-    "sleeps_during_day": false
-  },
-  {
-    "id": "GIANT_WHITE_CENTIPEDE",
-    "name": "Giant White Centipede",
-    "char": "c",
-    "hp_base": 6,
-    "hp_per_level": 2,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 4,
-    "gold_min_mult": 0,
-    "gold_max_mult": 2,
-    "drops": {
-      "CENTIPEDE_LEG": 30
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
+    "image": "ant/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_WHITE_DRAGON_FLY",
@@ -3441,7 +2620,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "fly/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_WHITE_MOUSE",
@@ -3470,7 +2651,9 @@
     },
     "flee_chance": 20,
     "clone_rate": 0.04,
-    "clone_max_population": 20
+    "clone_max_population": 20,
+    "image": "mouse/",
+    "can_open_doors": false
   },
   {
     "id": "GIANT_WHITE_RAT",
@@ -3499,111 +2682,9 @@
     },
     "flee_chance": 70,
     "clone_rate": 0.04,
-    "clone_max_population": 18
-  },
-  {
-    "id": "GIANT_WHITE_TICK",
-    "name": "Giant White Tick",
-    "char": "t",
-    "hp_base": 6,
-    "hp_per_level": 2,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 4,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {},
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
-  },
-  {
-    "id": "GIANT_YELLOW_CENTIPEDE",
-    "name": "Giant Yellow Centipede",
-    "char": "c",
-    "hp_base": 6,
-    "hp_per_level": 2,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 4,
-    "gold_min_mult": 0,
-    "gold_max_mult": 2,
-    "drops": {
-      "CENTIPEDE_LEG": 30
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
-  },
-  {
-    "id": "GIANT_YELLOW_SCORPION",
-    "name": "Giant Yellow Scorpion",
-    "char": "S",
-    "hp_base": 18,
-    "hp_per_level": 4,
-    "attack_base": 4,
-    "attack_per_level": 1,
-    "defense_base": 4,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 5,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "SCORPION_STINGER": 20
-    },
-    "depth": 175,
-    "min_depth": 105,
-    "max_depth": 244,
-    "spawn_chance": {
-      "base": 91,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
-  },
-  {
-    "id": "GIANT_YELLOW_TICK",
-    "name": "Giant Yellow Tick",
-    "char": "t",
-    "hp_base": 6,
-    "hp_per_level": 2,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 4,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {},
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
+    "clone_max_population": 18,
+    "image": "rat/",
+    "can_open_doors": false
   },
   {
     "id": "GOLEM_CLAY",
@@ -3628,34 +2709,9 @@
       "base": 88,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "GRAPE_JELLY",
-    "name": "Grape Jelly",
-    "char": "J",
-    "hp_base": 10,
-    "hp_per_level": 3,
-    "attack_base": 2,
-    "attack_per_level": 1,
-    "defense_base": 0,
-    "defense_per_level": 1,
-    "ai_type": "wander",
-    "hostile": true,
-    "detection_range": 3,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "JELLY_BLOB": 5
-    },
-    "depth": 75,
-    "min_depth": 45,
-    "max_depth": 105,
-    "spawn_chance": {
-      "base": 96,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "golem/",
+    "can_open_doors": true
   },
   {
     "id": "GRAVE_WIGHT",
@@ -3682,7 +2738,9 @@
       "base": 87,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "wight/",
+    "can_open_doors": false
   },
   {
     "id": "GREEDY_LITTLE_GNOME",
@@ -3711,7 +2769,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "GREEN_DRAGON_BAT",
@@ -3740,63 +2800,9 @@
     },
     "flee_chance": 0,
     "sleeps_during_day": true,
-    "sleeps_during_night": false
-  },
-  {
-    "id": "GREEN_GLUTTON_GHOST",
-    "name": "Green Glutton Ghost",
-    "char": "G",
-    "hp_base": 20,
-    "hp_per_level": 4,
-    "attack_base": 4,
-    "attack_per_level": 1,
-    "defense_base": 5,
-    "defense_per_level": 2,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 9,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "ECTOPLASM": 15
-    },
-    "depth": 225,
-    "min_depth": 135,
-    "max_depth": 315,
-    "spawn_chance": {
-      "base": 88,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0
-  },
-  {
-    "id": "GREEN_ICKY_THING",
-    "name": "Green Icky-Thing",
-    "char": "i",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "wander",
-    "hostile": true,
-    "detection_range": 3,
-    "gold_min_mult": 0,
-    "gold_max_mult": 1,
-    "drops": {
-      "ICKY_GOO": 10
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50,
-    "clone_rate": 0.03,
-    "clone_max_population": 18
+    "sleeps_during_night": false,
+    "image": "hoary_bat/",
+    "can_open_doors": false
   },
   {
     "id": "GREEN_OOZE",
@@ -3823,36 +2829,9 @@
       "base": 92,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "GREY_ICKY_THING",
-    "name": "Grey Icky-Thing",
-    "char": "i",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "wander",
-    "hostile": true,
-    "detection_range": 3,
-    "gold_min_mult": 0,
-    "gold_max_mult": 1,
-    "drops": {
-      "ICKY_GOO": 10
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50,
-    "clone_rate": 0.03,
-    "clone_max_population": 18
+    "flee_chance": 0,
+    "image": "ooze/",
+    "can_open_doors": false
   },
   {
     "id": "GREY_MUSHROOM_PATCH",
@@ -3879,7 +2858,9 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "mushroom/",
+    "can_open_doors": false
   },
   {
     "id": "GUARDIAN_NAGA",
@@ -3907,36 +2888,9 @@
       "base": 86,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "HAIRY_MOLD",
-    "name": "Hairy Corrupted Mold",
-    "char": "m",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "passive",
-    "hostile": true,
-    "detection_range": 1,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "MOLD_SPORE": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0,
-    "clone_rate": 0.02,
-    "clone_max_population": 16
+    "flee_chance": 50,
+    "image": "naga/",
+    "can_open_doors": true
   },
   {
     "id": "HARPY_GREY",
@@ -3964,36 +2918,9 @@
       "base": 91,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "HOBGOBLIN",
-    "name": "Hobgoblin Enforcer",
-    "char": "H",
-    "hp_base": 15,
-    "hp_per_level": 3,
-    "attack_base": 4,
-    "attack_per_level": 1,
-    "defense_base": 3,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 7,
-    "gold_min_mult": 5,
-    "gold_max_mult": 15,
-    "drops": {
-      "SWORD_SHORT": 15,
-      "CHAIN_MAIL_RUSTY": 10,
-      "GOLD_COINS": 20
-    },
-    "depth": 100,
-    "min_depth": 60,
-    "max_depth": 140,
-    "spawn_chance": {
-      "base": 95,
-      "per_depth": -0.5
-    },
-    "flee_chance": 70
+    "flee_chance": 50,
+    "image": "harpy/",
+    "can_open_doors": false
   },
   {
     "id": "HUGE_BROWN_BAT",
@@ -4022,7 +2949,9 @@
     },
     "flee_chance": 70,
     "sleeps_during_day": true,
-    "sleeps_during_night": false
+    "sleeps_during_night": false,
+    "image": "bat/",
+    "can_open_doors": false
   },
   {
     "id": "HUGE_WHITE_BAT",
@@ -4051,7 +2980,9 @@
     },
     "flee_chance": 70,
     "sleeps_during_day": true,
-    "sleeps_during_night": false
+    "sleeps_during_night": false,
+    "image": "bat/",
+    "can_open_doors": false
   },
   {
     "id": "HUMAN_BANDIT",
@@ -4080,7 +3011,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "HUMAN_MAGE_NOVICE",
@@ -4111,7 +3044,9 @@
     },
     "flee_chance": 50,
     "mana": 15,
-    "max_mana": 15
+    "max_mana": 15,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "ICE_TROLL",
@@ -4139,36 +3074,9 @@
       "base": 90,
       "per_depth": -0.5
     },
-    "flee_chance": 20
-  },
-  {
-    "id": "ICKY_THING_BLUE",
-    "name": "Blue Icky-Thing",
-    "char": "i",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "wander",
-    "hostile": true,
-    "detection_range": 3,
-    "gold_min_mult": 0,
-    "gold_max_mult": 1,
-    "drops": {
-      "ICKY_GOO": 10
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50,
-    "clone_rate": 0.03,
-    "clone_max_population": 18
+    "flee_chance": 20,
+    "image": "troll/",
+    "can_open_doors": true
   },
   {
     "id": "IRIDESCENT_BEETLE",
@@ -4195,7 +3103,9 @@
       "base": 93,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "beetle/",
+    "can_open_doors": false
   },
   {
     "id": "IRON_GOLEM",
@@ -4220,36 +3130,9 @@
       "base": 88,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "JACKAL",
-    "name": "Jackal",
-    "char": "j",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 6,
-    "gold_min_mult": 0,
-    "gold_max_mult": 1,
-    "drops": {
-      "JACKAL_PELT": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50,
-    "sleeps_during_night": true,
-    "sleeps_during_day": false
+    "flee_chance": 0,
+    "image": "golem/",
+    "can_open_doors": true
   },
   {
     "id": "JELLY_GREEN",
@@ -4276,7 +3159,9 @@
       "base": 96,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "jelly/",
+    "can_open_doors": false
   },
   {
     "id": "KILLER_BLACK_BEETLE",
@@ -4303,7 +3188,9 @@
       "base": 93,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "beetle/",
+    "can_open_doors": false
   },
   {
     "id": "KILLER_BLUE_BEETLE",
@@ -4330,7 +3217,9 @@
       "base": 93,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "beetle/",
+    "can_open_doors": false
   },
   {
     "id": "KILLER_BORING_BEETLE",
@@ -4357,7 +3246,9 @@
       "base": 93,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "beetle/",
+    "can_open_doors": false
   },
   {
     "id": "KILLER_BROWN_BEETLE",
@@ -4384,7 +3275,9 @@
       "base": 93,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "beetle/",
+    "can_open_doors": false
   },
   {
     "id": "KILLER_GREEN_BEETLE",
@@ -4411,88 +3304,9 @@
       "base": 93,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "KILLER_RED_BEETLE",
-    "name": "Killer Red Beetle",
-    "char": "K",
-    "hp_base": 12,
-    "hp_per_level": 3,
-    "attack_base": 3,
-    "attack_per_level": 1,
-    "defense_base": 3,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 5,
-    "gold_min_mult": 1,
-    "gold_max_mult": 5,
-    "drops": {
-      "BEETLE_GLAND": 10
-    },
-    "depth": 125,
-    "min_depth": 75,
-    "max_depth": 175,
-    "spawn_chance": {
-      "base": 93,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
-  },
-  {
-    "id": "KILLER_SLICER_BEETLE",
-    "name": "Killer Slicer Beetle",
-    "char": "K",
-    "hp_base": 12,
-    "hp_per_level": 3,
-    "attack_base": 3,
-    "attack_per_level": 1,
-    "defense_base": 3,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 5,
-    "gold_min_mult": 1,
-    "gold_max_mult": 5,
-    "drops": {
-      "BEETLE_GLAND": 10
-    },
-    "depth": 125,
-    "min_depth": 75,
-    "max_depth": 175,
-    "spawn_chance": {
-      "base": 93,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
-  },
-  {
-    "id": "KILLER_STAG_BEETLE",
-    "name": "Killer Stag Beetle",
-    "char": "K",
-    "hp_base": 12,
-    "hp_per_level": 3,
-    "attack_base": 3,
-    "attack_per_level": 1,
-    "defense_base": 3,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 5,
-    "gold_min_mult": 1,
-    "gold_max_mult": 5,
-    "drops": {
-      "BEETLE_GLAND": 10
-    },
-    "depth": 125,
-    "min_depth": 75,
-    "max_depth": 175,
-    "spawn_chance": {
-      "base": 93,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "beetle/",
+    "can_open_doors": false
   },
   {
     "id": "KING_LICH",
@@ -4525,37 +3339,9 @@
       "base": 70,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "KING_VAMPIRE",
-    "name": "King Vampire",
-    "char": "V",
-    "hp_base": 70,
-    "hp_per_level": 8,
-    "attack_base": 9,
-    "attack_per_level": 2,
-    "defense_base": 9,
-    "defense_per_level": 2,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 9,
-    "gold_min_mult": 50,
-    "gold_max_mult": 150,
-    "drops": {
-      "VAMPIRE_DUST": 20,
-      "AMULET_ADORNMENT": 5
-    },
-    "depth": 475,
-    "min_depth": 285,
-    "max_depth": 665,
-    "spawn_chance": {
-      "base": 76,
-      "per_depth": -0.5
-    },
     "flee_chance": 0,
-    "mana": 60,
-    "max_mana": 60
+    "image": "lich/",
+    "can_open_doors": true
   },
   {
     "id": "KOBOLD",
@@ -4583,7 +3369,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "image": "naga/",
+    "can_open_doors": true
   },
   {
     "id": "LARGE_BLACK_SNAKE",
@@ -4610,7 +3398,9 @@
       "base": 93,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "snake/",
+    "can_open_doors": false
   },
   {
     "id": "LARGE_BROWN_SNAKE",
@@ -4637,7 +3427,9 @@
       "base": 93,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "snake/",
+    "can_open_doors": false
   },
   {
     "id": "LARGE_GREEN_SNAKE",
@@ -4664,7 +3456,9 @@
       "base": 93,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "snake/",
+    "can_open_doors": false
   },
   {
     "id": "LARGE_GREY_SNAKE",
@@ -4691,7 +3485,9 @@
       "base": 93,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "snake/",
+    "can_open_doors": false
   },
   {
     "id": "LARGE_WHITE_SNAKE",
@@ -4718,7 +3514,9 @@
       "base": 93,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "snake/",
+    "can_open_doors": false
   },
   {
     "id": "LICH",
@@ -4752,34 +3550,9 @@
     },
     "flee_chance": 0,
     "mana": 60,
-    "max_mana": 60
-  },
-  {
-    "id": "LOST_SOUL",
-    "name": "Lost Soul",
-    "char": "G",
-    "hp_base": 20,
-    "hp_per_level": 4,
-    "attack_base": 4,
-    "attack_per_level": 1,
-    "defense_base": 5,
-    "defense_per_level": 2,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 9,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "ECTOPLASM": 15
-    },
-    "depth": 225,
-    "min_depth": 135,
-    "max_depth": 315,
-    "spawn_chance": {
-      "base": 88,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "max_mana": 60,
+    "image": "lich/",
+    "can_open_doors": true
   },
   {
     "id": "LOUSE_GIANT_WHITE",
@@ -4806,7 +3579,9 @@
     },
     "flee_chance": 20,
     "clone_rate": 0.04,
-    "clone_max_population": 24
+    "clone_max_population": 24,
+    "image": "louse/",
+    "can_open_doors": false
   },
   {
     "id": "MAGE",
@@ -4837,7 +3612,9 @@
     },
     "flee_chance": 50,
     "mana": 30,
-    "max_mana": 30
+    "max_mana": 30,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "MAGIC_USER",
@@ -4866,7 +3643,9 @@
       "base": 96,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "MANGY_LOOKING_LEPER",
@@ -4895,64 +3674,9 @@
       "base": 100,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "MASTER_VAMPIRE",
-    "name": "Master Vampire",
-    "char": "V",
-    "hp_base": 70,
-    "hp_per_level": 8,
-    "attack_base": 9,
-    "attack_per_level": 2,
-    "defense_base": 9,
-    "defense_per_level": 2,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 9,
-    "gold_min_mult": 50,
-    "gold_max_mult": 150,
-    "drops": {
-      "VAMPIRE_DUST": 20,
-      "AMULET_ADORNMENT": 5
-    },
-    "depth": 475,
-    "min_depth": 285,
-    "max_depth": 665,
-    "spawn_chance": {
-      "base": 76,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0,
-    "mana": 55,
-    "max_mana": 55
-  },
-  {
-    "id": "MASTER_YEEK",
-    "name": "Mutant Master Creature",
-    "char": "y",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 7,
-    "gold_min_mult": 1,
-    "gold_max_mult": 3,
-    "drops": {
-      "YEEK_CLAW": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "MATURE_BLACK_DRAGON",
@@ -4984,7 +3708,9 @@
       "base": 63,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "MATURE_BLUE_DRAGON",
@@ -5016,7 +3742,9 @@
       "base": 63,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "MATURE_GREEN_DRAGON",
@@ -5048,7 +3776,9 @@
       "base": 63,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "MATURE_RED_DRAGON",
@@ -5080,7 +3810,9 @@
       "base": 63,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "MATURE_WHITE_DRAGON",
@@ -5111,7 +3843,9 @@
       "base": 63,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "MEAN_LOOKING_MERCENARY",
@@ -5141,88 +3875,9 @@
       "base": 100,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "METALLIC_BLUE_CENTIPEDE",
-    "name": "Metallic Blue Centipede",
-    "char": "c",
-    "hp_base": 6,
-    "hp_per_level": 2,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 4,
-    "gold_min_mult": 0,
-    "gold_max_mult": 2,
-    "drops": {
-      "CENTIPEDE_LEG": 30
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
-  },
-  {
-    "id": "METALLIC_GREEN_CENTIPEDE",
-    "name": "Metallic Green Centipede",
-    "char": "c",
-    "hp_base": 6,
-    "hp_per_level": 2,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 4,
-    "gold_min_mult": 0,
-    "gold_max_mult": 2,
-    "drops": {
-      "CENTIPEDE_LEG": 30
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
-  },
-  {
-    "id": "METALLIC_RED_CENTIPEDE",
-    "name": "Metallic Red Centipede",
-    "char": "c",
-    "hp_base": 6,
-    "hp_per_level": 2,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 4,
-    "gold_min_mult": 0,
-    "gold_max_mult": 2,
-    "drops": {
-      "CENTIPEDE_LEG": 30
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "MOANING_SPIRIT",
@@ -5249,63 +3904,9 @@
       "base": 83,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "MOLD_GREEN",
-    "name": "Green Corrupted Mold",
-    "char": "m",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "passive",
-    "hostile": true,
-    "detection_range": 1,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "MOLD_SPORE": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0,
-    "clone_rate": 0.02,
-    "clone_max_population": 16
-  },
-  {
-    "id": "MUMMIFIED_KOBOLD",
-    "name": "Ancient Undead Kobold",
-    "char": "M",
-    "hp_base": 25,
-    "hp_per_level": 5,
-    "attack_base": 5,
-    "attack_per_level": 1,
-    "defense_base": 4,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 6,
-    "gold_min_mult": 10,
-    "gold_max_mult": 30,
-    "drops": {
-      "ANCIENT_BANDAGE": 20
-    },
-    "depth": 200,
-    "min_depth": 120,
-    "max_depth": 280,
-    "spawn_chance": {
-      "base": 90,
-      "per_depth": -0.5
-    },
-    "flee_chance": 70
+    "flee_chance": 50,
+    "image": "moaning_spirit/",
+    "can_open_doors": false
   },
   {
     "id": "MUMMIFIED_ORC",
@@ -5332,7 +3933,9 @@
       "base": 90,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "orc/",
+    "can_open_doors": true
   },
   {
     "id": "MUMMIFIED_TROLL",
@@ -5359,7 +3962,9 @@
       "base": 90,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "troll/",
+    "can_open_doors": true
   },
   {
     "id": "MUMMY_HUMAN",
@@ -5386,7 +3991,9 @@
       "base": 90,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "MUSHROOM_PATCH_SHRIEKER",
@@ -5413,7 +4020,9 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "mushroom/",
+    "can_open_doors": false
   },
   {
     "id": "NAGA_GREEN",
@@ -5441,7 +4050,9 @@
       "base": 86,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "naga/",
+    "can_open_doors": false
   },
   {
     "id": "NASTY_LITTLE_GNOME",
@@ -5470,7 +4081,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "NECROMANCER",
@@ -5501,7 +4114,9 @@
     },
     "flee_chance": 50,
     "mana": 40,
-    "max_mana": 40
+    "max_mana": 40,
+    "image": "necromancer/",
+    "can_open_doors": true
   },
   {
     "id": "NETHER_WRAITH",
@@ -5528,36 +4143,9 @@
       "base": 85,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "NINJA",
-    "name": "Ninja",
-    "char": "p",
-    "hp_base": 10,
-    "hp_per_level": 3,
-    "attack_base": 2,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 7,
-    "gold_min_mult": 5,
-    "gold_max_mult": 15,
-    "drops": {
-      "SWORD_SHORT": 25,
-      "LEATHER_ARMOR": 20,
-      "GOLD_COINS": 30
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "flee_chance": 0,
+    "image": "wraith/",
+    "can_open_doors": false
   },
   {
     "id": "NOVICE_PRIEST",
@@ -5588,7 +4176,9 @@
     },
     "flee_chance": 50,
     "mana": 15,
-    "max_mana": 15
+    "max_mana": 15,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "NOVICE_ROGUE",
@@ -5618,7 +4208,9 @@
       "per_depth": -0.5
     },
     "flee_chance": 50,
-    "behavior": "thief"
+    "can_open_doors": true,
+    "behavior": "thief",
+    "image": ""
   },
   {
     "id": "NOVICE_WARRIOR",
@@ -5647,67 +4239,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 20
-  },
-  {
-    "id": "OGRE",
-    "name": "Mutated Ogre",
-    "char": "O",
-    "hp_base": 25,
-    "hp_per_level": 6,
-    "attack_base": 6,
-    "attack_per_level": 1,
-    "defense_base": 3,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 7,
-    "gold_min_mult": 10,
-    "gold_max_mult": 30,
-    "drops": {
-      "CLUB_WOODEN": 30,
-      "GOLD_COINS": 50,
-      "GEM_GARNET": 5
-    },
-    "depth": 175,
-    "min_depth": 105,
-    "max_depth": 244,
-    "spawn_chance": {
-      "base": 91,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
-  },
-  {
-    "id": "OGRE_MAGE",
-    "name": "Ogre Mage",
-    "char": "o",
-    "hp_base": 25,
-    "hp_per_level": 6,
-    "attack_base": 6,
-    "attack_per_level": 1,
-    "defense_base": 3,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 7,
-    "gold_min_mult": 10,
-    "gold_max_mult": 30,
-    "drops": {
-      "CLUB_WOODEN": 30,
-      "GOLD_COINS": 50,
-      "GEM_GARNET": 5
-    },
-    "depth": 175,
-    "min_depth": 105,
-    "max_depth": 244,
-    "spawn_chance": {
-      "base": 91,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50,
-    "mana": 30,
-    "max_mana": 30
+    "flee_chance": 20,
+    "can_open_doors": true,
+    "image": ""
   },
   {
     "id": "OOZE_GREY",
@@ -5734,7 +4268,9 @@
       "base": 92,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "ooze/",
+    "can_open_doors": false
   },
   {
     "id": "ORC",
@@ -5763,7 +4299,9 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "can_open_doors": true,
+    "image": "orc/"
   },
   {
     "id": "ORC_SHAMAN",
@@ -5794,7 +4332,9 @@
     },
     "flee_chance": 20,
     "mana": 20,
-    "max_mana": 20
+    "max_mana": 20,
+    "image": "orc/",
+    "can_open_doors": true
   },
   {
     "id": "ORC_WARRIOR",
@@ -5823,7 +4363,9 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "orc/",
+    "can_open_doors": true
   },
   {
     "id": "ORC_ZOMBIE",
@@ -5850,7 +4392,9 @@
       "base": 96,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "orc/",
+    "can_open_doors": true
   },
   {
     "id": "PITIFUL_LOOKING_BEGGAR",
@@ -5880,34 +4424,9 @@
       "base": 100,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "POLTERGEIST",
-    "name": "Poltergeist",
-    "char": "G",
-    "hp_base": 20,
-    "hp_per_level": 4,
-    "attack_base": 4,
-    "attack_per_level": 1,
-    "defense_base": 5,
-    "defense_per_level": 2,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 9,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "ECTOPLASM": 15
-    },
-    "depth": 225,
-    "min_depth": 135,
-    "max_depth": 315,
-    "spawn_chance": {
-      "base": 88,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "can_open_doors": true,
+    "image": ""
   },
   {
     "id": "PRIEST",
@@ -5938,7 +4457,9 @@
     },
     "flee_chance": 50,
     "mana": 25,
-    "max_mana": 25
+    "max_mana": 25,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "PURPLE_MUSHROOM_PATCH",
@@ -5965,7 +4486,9 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "mushroom/",
+    "can_open_doors": false
   },
   {
     "id": "RADIATION_EYE",
@@ -5990,7 +4513,9 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "eyeball.png",
+    "can_open_doors": false
   },
   {
     "id": "RATTLESNAKE",
@@ -6017,7 +4542,9 @@
       "base": 93,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "image": "snake/",
+    "can_open_doors": false
   },
   {
     "id": "RAT_GIANT_GREY",
@@ -6044,7 +4571,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "image": "rat/",
+    "can_open_doors": false
   },
   {
     "id": "RED_DRAGON_BAT",
@@ -6073,36 +4602,9 @@
     },
     "flee_chance": 0,
     "sleeps_during_day": true,
-    "sleeps_during_night": false
-  },
-  {
-    "id": "RED_ICKY_THING",
-    "name": "Red Icky-Thing",
-    "char": "i",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "wander",
-    "hostile": true,
-    "detection_range": 3,
-    "gold_min_mult": 0,
-    "gold_max_mult": 1,
-    "drops": {
-      "ICKY_GOO": 10
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50,
-    "clone_rate": 0.03,
-    "clone_max_population": 18
+    "sleeps_during_night": false,
+    "image": "hoary_bat/",
+    "can_open_doors": false
   },
   {
     "id": "RED_JELLY",
@@ -6129,36 +4631,9 @@
       "base": 96,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "RED_MOLD",
-    "name": "Red Corrupted Mold",
-    "char": "m",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "passive",
-    "hostile": true,
-    "detection_range": 1,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "MOLD_SPORE": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
     "flee_chance": 0,
-    "clone_rate": 0.02,
-    "clone_max_population": 16
+    "image": "jelly/",
+    "can_open_doors": false
   },
   {
     "id": "RED_NAGA",
@@ -6186,34 +4661,9 @@
       "base": 86,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "RED_WORM_MASS",
-    "name": "Red Worm mass",
-    "char": "w",
-    "hp_base": 15,
-    "hp_per_level": 3,
-    "attack_base": 3,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 5,
-    "gold_min_mult": 0,
-    "gold_max_mult": 5,
-    "drops": {
-      "WORM_TOOTH": 10
-    },
-    "depth": 75,
-    "min_depth": 45,
-    "max_depth": 105,
-    "spawn_chance": {
-      "base": 96,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "naga/",
+    "can_open_doors": false
   },
   {
     "id": "REPTILE_KING_COBRA",
@@ -6240,34 +4690,9 @@
       "base": 93,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "ROTTING_QUYLTHULG",
-    "name": "Rotting Quylthulg",
-    "char": "Q",
-    "hp_base": 30,
-    "hp_per_level": 4,
-    "attack_base": 0,
-    "attack_per_level": 0,
-    "defense_base": 5,
-    "defense_per_level": 1,
-    "ai_type": "passive",
-    "hostile": false,
-    "detection_range": 5,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "QUYLTHULG_SAC": 10
-    },
-    "depth": 250,
-    "min_depth": 150,
-    "max_depth": 350,
-    "spawn_chance": {
-      "base": 87,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "snake/",
+    "can_open_doors": false
   },
   {
     "id": "ROT_JELLY",
@@ -6294,34 +4719,9 @@
       "base": 96,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "SCORPION_GIANT_BLACK",
-    "name": "Giant Black Scorpion",
-    "char": "S",
-    "hp_base": 18,
-    "hp_per_level": 4,
-    "attack_base": 4,
-    "attack_per_level": 1,
-    "defense_base": 4,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 5,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "SCORPION_STINGER": 20
-    },
-    "depth": 175,
-    "min_depth": 105,
-    "max_depth": 244,
-    "spawn_chance": {
-      "base": 91,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
+    "flee_chance": 0,
+    "image": "jelly/",
+    "can_open_doors": false
   },
   {
     "id": "SCRUFFY_LOOKING_HOBBIT",
@@ -6350,7 +4750,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "SEEDY_LOOKING_HUMAN",
@@ -6380,36 +4782,9 @@
       "per_depth": -0.5
     },
     "flee_chance": 50,
-    "behavior": "thief"
-  },
-  {
-    "id": "SHIMMERING_MOLD",
-    "name": "Shimmering Corrupted Mold",
-    "char": "m",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "passive",
-    "hostile": true,
-    "detection_range": 1,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "MOLD_SPORE": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0,
-    "clone_rate": 0.02,
-    "clone_max_population": 16
+    "behavior": "thief",
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "SILVER_JELLY",
@@ -6436,7 +4811,9 @@
       "base": 96,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "jelly/",
+    "can_open_doors": false
   },
   {
     "id": "SILVER_MOUSE",
@@ -6465,7 +4842,9 @@
     },
     "flee_chance": 50,
     "clone_rate": 0.04,
-    "clone_max_population": 20
+    "clone_max_population": 20,
+    "image": "mouse/",
+    "can_open_doors": false
   },
   {
     "id": "SINGING_HAPPY_DRUNK",
@@ -6495,63 +4874,9 @@
       "base": 100,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "SKELETON_2_HEADED_TROLL",
-    "name": "Skeletal 2-Headed Troll",
-    "char": "s",
-    "hp_base": 8,
-    "hp_per_level": 2,
-    "attack_base": 2,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 6,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "BONE_FRAGMENT": 20,
-      "SWORD_SHORT_RUSTY": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0
-  },
-  {
-    "id": "SKELETON_HOBGOBLIN",
-    "name": "Skeletal Hobgoblin",
-    "char": "s",
-    "hp_base": 8,
-    "hp_per_level": 2,
-    "attack_base": 2,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 6,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "BONE_FRAGMENT": 20,
-      "SWORD_SHORT_RUSTY": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0
+    "flee_chance": 50,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "SKELETON_HUMAN",
@@ -6579,35 +4904,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "SKELETON_KOBOLD",
-    "name": "Skeletal Kobold",
-    "char": "s",
-    "hp_base": 8,
-    "hp_per_level": 2,
-    "attack_base": 2,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 6,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "BONE_FRAGMENT": 20,
-      "SWORD_SHORT_RUSTY": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "skeleton_human/",
+    "can_open_doors": true
   },
   {
     "id": "SKELETON_ORC",
@@ -6635,7 +4934,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "skeleton/",
+    "can_open_doors": true
   },
   {
     "id": "SKELETON_TROLL",
@@ -6663,7 +4964,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "skeleton/",
+    "can_open_doors": true
   },
   {
     "id": "SORCERER",
@@ -6694,7 +4997,9 @@
     },
     "flee_chance": 20,
     "mana": 35,
-    "max_mana": 35
+    "max_mana": 35,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "SPIRIT_TROLL",
@@ -6721,7 +5026,9 @@
       "base": 83,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "troll/",
+    "can_open_doors": true
   },
   {
     "id": "SPOTTED_MUSHROOM_PATCH",
@@ -6748,7 +5055,9 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "mushroom/",
+    "can_open_doors": false
   },
   {
     "id": "SQUINT_EYED_ROGUE",
@@ -6778,7 +5087,9 @@
       "per_depth": -0.5
     },
     "flee_chance": 50,
-    "behavior": "thief"
+    "behavior": "thief",
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "STONE_GIANT",
@@ -6806,7 +5117,9 @@
       "base": 88,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "giant/",
+    "can_open_doors": false
   },
   {
     "id": "STONE_GOLEM",
@@ -6831,7 +5144,9 @@
       "base": 88,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "golem/",
+    "can_open_doors": true
   },
   {
     "id": "SWORDSMAN",
@@ -6860,32 +5175,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "TICK_GIANT_BROWN",
-    "name": "Giant Brown Tick",
-    "char": "t",
-    "hp_base": 6,
-    "hp_per_level": 2,
-    "attack_base": 1,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 4,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {},
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
+    "flee_chance": 50,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "TROLL",
@@ -6913,62 +5205,9 @@
       "base": 90,
       "per_depth": -0.5
     },
-    "flee_chance": 20
-  },
-  {
-    "id": "TWO_HEADED_TROLL",
-    "name": "Mutant Two-Headed Troll",
-    "char": "T",
-    "hp_base": 30,
-    "hp_per_level": 6,
-    "attack_base": 6,
-    "attack_per_level": 1,
-    "defense_base": 3,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 7,
-    "gold_min_mult": 8,
-    "gold_max_mult": 25,
-    "drops": {
-      "TROLL_BLOOD": 10,
-      "CLUB_SPIKED": 15
-    },
-    "depth": 200,
-    "min_depth": 120,
-    "max_depth": 280,
-    "spawn_chance": {
-      "base": 90,
-      "per_depth": -0.5
-    },
-    "flee_chance": 20
-  },
-  {
-    "id": "TUNNELING_HORROR",
-    "name": "Tunneling Horror",
-    "char": "U",
-    "hp_base": 60,
-    "hp_per_level": 9,
-    "attack_base": 10,
-    "attack_per_level": 2,
-    "defense_base": 8,
-    "defense_per_level": 2,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 6,
-    "gold_min_mult": 30,
-    "gold_max_mult": 80,
-    "drops": {
-      "TUNNELING_HORROR_CLAW": 15
-    },
-    "depth": 425,
-    "min_depth": 255,
-    "max_depth": 595,
-    "spawn_chance": {
-      "base": 78,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "flee_chance": 20,
+    "image": "troll/",
+    "can_open_doors": true
   },
   {
     "id": "ORC_ELITE_WARRIOR",
@@ -6997,93 +5236,9 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 20
-  },
-  {
-    "id": "VAMPIRE",
-    "name": "Vampire Lord",
-    "char": "V",
-    "hp_base": 70,
-    "hp_per_level": 8,
-    "attack_base": 9,
-    "attack_per_level": 2,
-    "defense_base": 9,
-    "defense_per_level": 2,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 9,
-    "gold_min_mult": 50,
-    "gold_max_mult": 150,
-    "drops": {
-      "VAMPIRE_DUST": 20,
-      "AMULET_ADORNMENT": 5
-    },
-    "depth": 475,
-    "min_depth": 285,
-    "max_depth": 665,
-    "spawn_chance": {
-      "base": 76,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0,
-    "mana": 50,
-    "max_mana": 50
-  },
-  {
-    "id": "VIOLET_MOLD",
-    "name": "Violet Corrupted Mold",
-    "char": "m",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "passive",
-    "hostile": true,
-    "detection_range": 1,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "MOLD_SPORE": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0,
-    "clone_rate": 0.02,
-    "clone_max_population": 16
-  },
-  {
-    "id": "VORPAL_BUNNY",
-    "name": "Vorpal Bunny",
-    "char": "G",
-    "hp_base": 20,
-    "hp_per_level": 4,
-    "attack_base": 4,
-    "attack_per_level": 1,
-    "defense_base": 5,
-    "defense_per_level": 2,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 9,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "ECTOPLASM": 15
-    },
-    "depth": 225,
-    "min_depth": 135,
-    "max_depth": 315,
-    "spawn_chance": {
-      "base": 88,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "flee_chance": 20,
+    "image": "orc/",
+    "can_open_doors": true
   },
   {
     "id": "WARRIOR",
@@ -7112,7 +5267,9 @@
       "base": 98,
       "per_depth": -0.5
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "",
+    "can_open_doors": true
   },
   {
     "id": "WATER_ELEMENTAL",
@@ -7141,7 +5298,9 @@
     },
     "flee_chance": 50,
     "mana": 40,
-    "max_mana": 40
+    "max_mana": 40,
+    "image": "water_elemental/",
+    "can_open_doors": false
   },
   {
     "id": "WATER_SPIRIT",
@@ -7168,7 +5327,9 @@
       "base": 83,
       "per_depth": -0.5
     },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "water_spirit/",
+    "can_open_doors": false
   },
   {
     "id": "WHITE_DRAGON_BAT",
@@ -7197,7 +5358,9 @@
     },
     "flee_chance": 0,
     "sleeps_during_day": true,
-    "sleeps_during_night": false
+    "sleeps_during_night": false,
+    "image": "hoary_bat/",
+    "can_open_doors": false
   },
   {
     "id": "WHITE_HARPY",
@@ -7225,36 +5388,9 @@
       "base": 91,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "WHITE_ICKY_THING",
-    "name": "White Icky-Thing",
-    "char": "i",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "wander",
-    "hostile": true,
-    "detection_range": 3,
-    "gold_min_mult": 0,
-    "gold_max_mult": 1,
-    "drops": {
-      "ICKY_GOO": 10
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
     "flee_chance": 50,
-    "clone_rate": 0.03,
-    "clone_max_population": 18
+    "image": "harpy/",
+    "can_open_doors": false
   },
   {
     "id": "WHITE_JELLY",
@@ -7281,7 +5417,9 @@
       "base": 96,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "jelly/",
+    "can_open_doors": false
   },
   {
     "id": "WHITE_MUSHROOM_PATCH",
@@ -7308,61 +5446,9 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "WHITE_WORM_MASS",
-    "name": "White Worm mass",
-    "char": "w",
-    "hp_base": 15,
-    "hp_per_level": 3,
-    "attack_base": 3,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 5,
-    "gold_min_mult": 0,
-    "gold_max_mult": 5,
-    "drops": {
-      "WORM_TOOTH": 10
-    },
-    "depth": 75,
-    "min_depth": 45,
-    "max_depth": 105,
-    "spawn_chance": {
-      "base": 96,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
-  },
-  {
-    "id": "WHITE_WRAITH",
-    "name": "White Wraith",
-    "char": "W",
-    "hp_base": 35,
-    "hp_per_level": 5,
-    "attack_base": 6,
-    "attack_per_level": 1,
-    "defense_base": 6,
-    "defense_per_level": 2,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 8,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "ECTOPLASM": 10
-    },
-    "depth": 300,
-    "min_depth": 180,
-    "max_depth": 420,
-    "spawn_chance": {
-      "base": 85,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0
+    "flee_chance": 50,
+    "image": "mushroom/",
+    "can_open_doors": false
   },
   {
     "id": "WIGHT_BARROW",
@@ -7389,144 +5475,9 @@
       "base": 87,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "WOODEN_MOLD",
-    "name": "Wooden Corrupted Mold",
-    "char": "m",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "passive",
-    "hostile": true,
-    "detection_range": 1,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "MOLD_SPORE": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
     "flee_chance": 0,
-    "clone_rate": 0.02,
-    "clone_max_population": 16
-  },
-  {
-    "id": "WORM_MASS_GREEN",
-    "name": "Green Worm mass",
-    "char": "w",
-    "hp_base": 15,
-    "hp_per_level": 3,
-    "attack_base": 3,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 5,
-    "gold_min_mult": 0,
-    "gold_max_mult": 5,
-    "drops": {
-      "WORM_TOOTH": 10
-    },
-    "depth": 75,
-    "min_depth": 45,
-    "max_depth": 105,
-    "spawn_chance": {
-      "base": 96,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
-  },
-  {
-    "id": "WRAITH_GREY",
-    "name": "Grey Wraith",
-    "char": "W",
-    "hp_base": 35,
-    "hp_per_level": 5,
-    "attack_base": 6,
-    "attack_per_level": 1,
-    "defense_base": 6,
-    "defense_per_level": 2,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 8,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "ECTOPLASM": 10
-    },
-    "depth": 300,
-    "min_depth": 180,
-    "max_depth": 420,
-    "spawn_chance": {
-      "base": 85,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0
-  },
-  {
-    "id": "XORN",
-    "name": "Xorn",
-    "char": "X",
-    "hp_base": 50,
-    "hp_per_level": 7,
-    "attack_base": 8,
-    "attack_per_level": 2,
-    "defense_base": 10,
-    "defense_per_level": 2,
-    "ai_type": "passive",
-    "hostile": false,
-    "detection_range": 6,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "GEM_RANDOM": 50
-    },
-    "depth": 375,
-    "min_depth": 225,
-    "max_depth": 525,
-    "spawn_chance": {
-      "base": 81,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
-  },
-  {
-    "id": "YEEK_BROWN",
-    "name": "Mutant Brown Creature",
-    "char": "y",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 7,
-    "gold_min_mult": 1,
-    "gold_max_mult": 3,
-    "drops": {
-      "YEEK_CLAW": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "image": "wight/",
+    "can_open_doors": false
   },
   {
     "id": "YELLOW_JELLY",
@@ -7553,36 +5504,9 @@
       "base": 96,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "YELLOW_MOLD",
-    "name": "Yellow Corrupted Mold",
-    "char": "m",
-    "hp_base": 4,
-    "hp_per_level": 1,
-    "attack_base": 1,
-    "attack_per_level": 0,
-    "defense_base": 0,
-    "defense_per_level": 0,
-    "ai_type": "passive",
-    "hostile": true,
-    "detection_range": 1,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "MOLD_SPORE": 5
-    },
-    "depth": 25,
-    "min_depth": 15,
-    "max_depth": 35,
-    "spawn_chance": {
-      "base": 98,
-      "per_depth": -0.5
-    },
     "flee_chance": 0,
-    "clone_rate": 0.02,
-    "clone_max_population": 16
+    "image": "jelly/",
+    "can_open_doors": false
   },
   {
     "id": "YELLOW_MUSHROOM_PATCH",
@@ -7609,61 +5533,9 @@
       "base": 97,
       "per_depth": -0.5
     },
-    "flee_chance": 50
-  },
-  {
-    "id": "YELLOW_WORM_MASS",
-    "name": "Yellow Worm mass",
-    "char": "w",
-    "hp_base": 15,
-    "hp_per_level": 3,
-    "attack_base": 3,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 5,
-    "gold_min_mult": 0,
-    "gold_max_mult": 5,
-    "drops": {
-      "WORM_TOOTH": 10
-    },
-    "depth": 75,
-    "min_depth": 45,
-    "max_depth": 105,
-    "spawn_chance": {
-      "base": 96,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
-  },
-  {
-    "id": "YETI",
-    "name": "Yeti",
-    "char": "Y",
-    "hp_base": 45,
-    "hp_per_level": 7,
-    "attack_base": 8,
-    "attack_per_level": 1,
-    "defense_base": 5,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 7,
-    "gold_min_mult": 10,
-    "gold_max_mult": 30,
-    "drops": {
-      "YETI_FUR": 25
-    },
-    "depth": 225,
-    "min_depth": 135,
-    "max_depth": 315,
-    "spawn_chance": {
-      "base": 88,
-      "per_depth": -0.5
-    },
-    "flee_chance": 50
+    "flee_chance": 50,
+    "image": "mushroom/",
+    "can_open_doors": false
   },
   {
     "id": "YOUNG_BLACK_DRAGON",
@@ -7692,7 +5564,9 @@
       "base": 82,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "YOUNG_BLUE_DRAGON",
@@ -7721,7 +5595,9 @@
       "base": 82,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "YOUNG_GREEN_DRAGON",
@@ -7750,7 +5626,9 @@
       "base": 82,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "YOUNG_MULTI_HUED_DRAGON",
@@ -7779,7 +5657,9 @@
       "base": 82,
       "per_depth": -0.5
     },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "YOUNG_WHITE_DRAGON",
@@ -7808,61 +5688,9 @@
       "base": 82,
       "per_depth": -0.5
     },
-    "flee_chance": 0
-  },
-  {
-    "id": "ZOMBIE_HUMAN",
-    "name": "Risen Refugee",
-    "char": "z",
-    "hp_base": 15,
-    "hp_per_level": 4,
-    "attack_base": 2,
-    "attack_per_level": 1,
-    "defense_base": 0,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 4,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "FILTHY_RAGS": 10
-    },
-    "depth": 75,
-    "min_depth": 45,
-    "max_depth": 105,
-    "spawn_chance": {
-      "base": 96,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0
-  },
-  {
-    "id": "ZOMBIE_KOBOLD",
-    "name": "Risen Kobold",
-    "char": "z",
-    "hp_base": 15,
-    "hp_per_level": 4,
-    "attack_base": 2,
-    "attack_per_level": 1,
-    "defense_base": 0,
-    "defense_per_level": 1,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 4,
-    "gold_min_mult": 0,
-    "gold_max_mult": 0,
-    "drops": {
-      "FILTHY_RAGS": 10
-    },
-    "depth": 75,
-    "min_depth": 45,
-    "max_depth": 105,
-    "spawn_chance": {
-      "base": 96,
-      "per_depth": -0.5
-    },
-    "flee_chance": 0
+    "flee_chance": 0,
+    "image": "dragon/",
+    "can_open_doors": false
   },
   {
     "id": "GOBLIN_ARCHER",
@@ -7895,39 +5723,9 @@
       "base": 70,
       "per_depth": -0.3
     },
-    "flee_chance": 70
-  },
-  {
-    "id": "KOBOLD_SLINGER",
-    "name": "Kobold Slinger",
-    "char": "k",
-    "hp_base": 5,
-    "hp_per_level": 1,
-    "attack_base": 2,
-    "attack_per_level": 1,
-    "defense_base": 1,
-    "defense_per_level": 0,
-    "ai_type": "aggressive",
-    "hostile": true,
-    "detection_range": 7,
-    "ranged_attack": {
-      "name": "stone",
-      "damage": "1d4"
-    },
-    "ranged_range": 5,
-    "gold_min_mult": 1,
-    "gold_max_mult": 5,
-    "drops": {
-      "SHOT_IRON": 60
-    },
-    "depth": 25,
-    "min_depth": 10,
-    "max_depth": 100,
-    "spawn_chance": {
-      "base": 80,
-      "per_depth": -0.4
-    },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "image": "goblin/",
+    "can_open_doors": true
   },
   {
     "id": "ORC_CROSSBOWMAN",
@@ -7961,7 +5759,9 @@
       "base": 60,
       "per_depth": -0.3
     },
-    "flee_chance": 20
+    "flee_chance": 20,
+    "image": "orc/",
+    "can_open_doors": true
   },
   {
     "id": "WOLF_DIRE",
@@ -7992,34 +5792,9 @@
     },
     "flee_chance": 50,
     "sleeps_during_day": false,
-    "sleeps_during_night": true
-  },
-  {
-    "id": "HYENA_PACK",
-    "name": "Hyena",
-    "char": "h",
-    "hp_base": 12,
-    "hp_per_level": 2,
-    "attack_base": 4,
-    "attack_per_level": 1,
-    "defense_base": 2,
-    "defense_per_level": 0,
-    "ai_type": "pack",
-    "pack_id": "hyena_pack",
-    "pack_coordination": true,
-    "hostile": true,
-    "detection_range": 7,
-    "gold_min_mult": 0,
-    "gold_max_mult": 1,
-    "drops": {},
-    "depth": 35,
-    "min_depth": 15,
-    "max_depth": 100,
-    "spawn_chance": {
-      "base": 70,
-      "per_depth": -0.4
-    },
-    "flee_chance": 50
+    "sleeps_during_night": true,
+    "image": "wolf/",
+    "can_open_doors": false
   },
   {
     "id": "GOBLIN_RAIDER",
@@ -8049,7 +5824,9 @@
       "base": 68,
       "per_depth": -0.35
     },
-    "flee_chance": 70
+    "flee_chance": 70,
+    "image": "goblin/",
+    "can_open_doors": true
   },
   {
     "id": "GOBLIN_SHAMAN",
@@ -8084,7 +5861,9 @@
       "per_depth": -0.3
     },
     "flee_chance": 70,
-    "max_mana": 20
+    "max_mana": 20,
+    "image": "goblin/",
+    "can_open_doors": true
   },
   {
     "id": "ORC_WARLOCK",
@@ -8120,7 +5899,9 @@
       "per_depth": -0.25
     },
     "flee_chance": 20,
-    "max_mana": 30
+    "max_mana": 30,
+    "image": "orc/",
+    "can_open_doors": true
   },
   {
     "id": "DARK_PRIEST",
@@ -8156,6 +5937,8 @@
       "per_depth": -0.2
     },
     "flee_chance": 50,
-    "max_mana": 40
+    "max_mana": 40,
+    "image": "dark_priest/",
+    "can_open_doors": true
   }
 ]

@@ -1,0 +1,217 @@
+[
+    {
+        "name": "large broken bone",
+        "type": "misc",
+        "base_cost": 0,
+        "description": "A large bone fragment.",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 10,
+        "image": "shield/large_shield_1_old.png",
+        "id": "BONE_BROKEN_LARGE"
+    },
+    {
+        "name": "empty bottle",
+        "type": "misc",
+        "base_cost": 1,
+        "description": "An empty glass bottle.",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 10,
+        "image": "book/bookmark_new.png",
+        "id": "BOTTLE_EMPTY"
+    },
+    {
+        "name": "Large iron chest",
+        "type": "misc",
+        "base_cost": 0,
+        "description": "A locked chest.",
+        "container": true,
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 200,
+        "image": "shield/large_shield_1_old.png",
+        "id": "CHEST_IRON_LARGE"
+    },
+    {
+        "name": "Small iron chest",
+        "type": "misc",
+        "base_cost": 0,
+        "description": "A locked chest.",
+        "container": true,
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 100,
+        "image": "shield/small_wooden.png",
+        "id": "CHEST_IRON_SMALL"
+    },
+    {
+        "name": "Large steel chest",
+        "type": "misc",
+        "base_cost": 0,
+        "description": "A locked chest.",
+        "container": true,
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 200,
+        "image": "shield/large_shield_1_old.png",
+        "id": "CHEST_STEEL_LARGE"
+    },
+    {
+        "name": "Small steel chest",
+        "type": "misc",
+        "base_cost": 0,
+        "description": "A locked chest.",
+        "container": true,
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 100,
+        "image": "shield/small_wooden.png",
+        "id": "CHEST_STEEL_SMALL"
+    },
+    {
+        "name": "Large wooden chest",
+        "type": "misc",
+        "base_cost": 0,
+        "description": "A locked chest.",
+        "container": true,
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 200,
+        "image": "shield/large_wooden.png",
+        "id": "CHEST_WOODEN_LARGE"
+    },
+    {
+        "name": "Small wooden chest",
+        "type": "misc",
+        "base_cost": 0,
+        "description": "A locked chest.",
+        "container": true,
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 100,
+        "image": "shield/small_wooden.png",
+        "id": "CHEST_WOODEN_SMALL"
+    },
+    {
+        "name": "Flask of oil",
+        "type": "misc",
+        "base_cost": 10,
+        "description": "Flammable oil.",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 10,
+        "image": "shield/shield_of_reflection.png",
+        "id": "FLASK_OIL"
+    },
+    {
+        "name": "Brass Lantern",
+        "type": "misc",
+        "slot": "light",
+        "base_cost": 40,
+        "description": "Provides light.",
+        "effect": [
+            "light_source",
+            5,
+            5000
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 50,
+        "image": "misc/lantern_brass.png",
+        "id": "LANTERN_BRASS"
+    },
+    {
+        "name": "some rubble",
+        "type": "misc",
+        "base_cost": 0,
+        "description": "Pile of rocks.",
+        "obstacle": true,
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 10,
+        "image": "book/bookmark_new.png",
+        "id": "RUBBLE"
+    },
+    {
+        "name": "some shards of pottery",
+        "type": "misc",
+        "base_cost": 0,
+        "description": "Broken clay.",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 10,
+        "image": "shield/shield_of_reflection.png",
+        "id": "SHARDS_POTTERY"
+    },
+    {
+        "name": "Iron Spike",
+        "type": "misc",
+        "base_cost": 5,
+        "description": "Can be used to wedge doors.",
+        "damage": "1d1",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 10,
+        "image": "",
+        "id": "SPIKE_IRON"
+    },
+    {
+        "name": "broken set of teeth",
+        "type": "misc",
+        "base_cost": 0,
+        "description": "Someone's teeth.",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 10,
+        "image": "shield/shield_of_reflection.png",
+        "id": "TEETH_BROKEN"
+    },
+    {
+        "name": "Wooden Torch",
+        "type": "misc",
+        "slot": "light",
+        "base_cost": 10,
+        "description": "Provides light.",
+        "effect": [
+            "light_source",
+            3,
+            1000
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 30,
+        "image": "misc/torch.png",
+        "id": "TORCH"
+    }
+]

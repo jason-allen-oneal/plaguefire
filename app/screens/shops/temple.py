@@ -1,70 +1,103 @@
+"""
+Temple - Sells potions, scrolls, and offers healing/blessing services.
+"""
 
-from app.screens.shop import BaseShopScreen, ShopItem
-from typing import List
-import random
+from app.screens.shop import ShopScreen
 
-class TempleScreen(BaseShopScreen):
 
-    """TempleScreen class."""
-    BINDINGS = [
-        ("up", "cursor_up", "Cursor Up"),
-        ("down", "cursor_down", "Cursor Down"),
-        ("b", "buy_action", "Buy Mode / Buy"),
-        ("h", "haggle", "Haggle"),
-        ("e", "heal_action", "Heal"),
-        ("l", "leave_shop", "Leave"),
-        ("escape", "leave_shop", "Leave"),
-    ]
-
-    def __init__(self, **kwargs):
-        """Initialize the instance."""
-        super().__init__(
-            shop_name="The Sacred Temple",
-            owner_name="Sister Elara",
-            catchphrases=["May the light guide you.", "Need healing, traveler?", "Blessings upon you."],
-            items_for_sale=self._generate_temple_inventory(),
-            allowed_actions=['buy', 'heal', 'leave'],
-            **kwargs
-        )
-
-    def _generate_temple_inventory(self) -> List[ShopItem]:
-        """Generate items/services for the temple."""
-        inventory = [
-            ShopItem(name="Scroll of Blessing", cost=25, description="A prayer for your safety.", item_id="SCROLL_BLESSING"),
-            ShopItem(name="Potion of Cure Light Wounds", cost=30, description="Heals minor injuries.", item_id="POTION_CURE_LIGHT"),
-            ShopItem(name="Scroll of Remove Curse", cost=100, description="Lifts malevolent effects.", item_id="SCROLL_REMOVE_CURSE"),
-            ShopItem(name="Potion of Healing", cost=50, description="Restores health.", item_id="POTION_HEALING"),
-        ]
-        return inventory
-
-    def action_heal_action(self):
-        """Handle the 'E' key to heal the player."""
-        if 'heal' not in self.allowed_actions or not self.app.player:
-            return
-        
-        heal_cost = 30
-        
-        if self.app.player.hp >= self.app.player.max_hp:
-            self.notify("You are already at full health.", severity="warning")
-            return
-        
-        if self.app.player.gold < heal_cost:
-            self.notify(f"Not enough gold. Healing costs {heal_cost} gold.", severity="error")
-            return
-        
-        heal_amount = self.app.player.max_hp - self.app.player.hp
-        self.app.player.gold -= heal_cost
-        self.player_gold = self.app.player.gold
-        self.app.player.heal(heal_amount)
-        self.data_changed = True
-        
-        self.notify(f"Sister Elara heals you for {heal_amount} HP. (-{heal_cost} gold)")
-        self.app.bell()
-        self._update_display()
+class TempleScreen(ShopScreen):
+    """Temple selling holy items and offering services."""
     
-    def _generate_help_text(self) -> str:
-        """Override to add heal action to help text."""
-        base_help = super()._generate_help_text()
-        if 'heal' in self.allowed_actions:
-            return base_help.replace("[L]eave Shop", "[E]Heal Service | [L]eave Shop")
-        return base_help
+    def __init__(self, game):
+        item_ids = [
+            "AMULET_WISDOM", "ROBE", "SHOES_SOFT_LEATHER", "BOOK_CLERIC_BEGINNERS",
+            "BOOK_CLERIC_CHANTS", "BOOK_CLERIC_WISDOM", "POTION_CURE_LIGHT",
+            "POTION_GAIN_WIS", "POTION_HEROISM", "POTION_NEUTRALIZE_POISON",
+            "POTION_RESTORE_WIS", "SCROLL_HOLY_CHANT", "SCROLL_HOLY_PRAYER",
+            "SCROLL_REMOVE_CURSE"
+        ]
+
+        super().__init__(
+            game=game,
+            shop_type="temple",
+            shop_name="Temple of the Dawn",
+            owner_name="Sister Meridian",
+            item_pool=item_ids
+        )
+        
+        # Add temple-specific services
+        self.services = [
+            {
+                "name": "Minor Healing",
+                "description": "Restore 2d8 HP",
+                "cost": 50,
+                "action": self._minor_healing
+            },
+            {
+                "name": "Major Healing",
+                "description": "Restore 5d8 HP",
+                "cost": 200,
+                "action": self._major_healing
+            },
+            {
+                "name": "Cure Poison",
+                "description": "Remove poison effects",
+                "cost": 100,
+                "action": self._cure_poison
+            },
+            {
+                "name": "Remove Curse",
+                "description": "Remove curse from one item",
+                "cost": 500,
+                "action": self._remove_curse
+            },
+            {
+                "name": "Blessing",
+                "description": "+2 to all saves for 100 turns",
+                "cost": 300,
+                "action": self._blessing
+            }
+        ]
+
+        self.item_ids = [
+
+        ]
+    
+    def _minor_healing(self):
+        """Heal player for 2d8 HP."""
+        import random
+        if self.game.player:
+            heal_amount = sum(random.randint(1, 8) for _ in range(2))
+            old_hp = self.game.player.hp
+            self.game.player.hp = min(self.game.player.max_hp, self.game.player.hp + heal_amount)
+            actual_heal = self.game.player.hp - old_hp
+            self.game.toasts.add(f"Healed for {actual_heal} HP", (0, 255, 0))
+    
+    def _major_healing(self):
+        """Heal player for 5d8 HP."""
+        import random
+        if self.game.player:
+            heal_amount = sum(random.randint(1, 8) for _ in range(5))
+            old_hp = self.game.player.hp
+            self.game.player.hp = min(self.game.player.max_hp, self.game.player.hp + heal_amount)
+            actual_heal = self.game.player.hp - old_hp
+            self.game.toasts.add(f"Healed for {actual_heal} HP", (0, 255, 0))
+    
+    def _cure_poison(self):
+        """Remove poison from player."""
+        if self.game.player:
+            # TODO: Implement poison status when we have status effects
+            self.game.toasts.add("You feel cleansed", (0, 255, 0))
+    
+    def _remove_curse(self):
+        """Remove curse from one equipped item."""
+        if self.game.player:
+            # TODO: Implement curse removal when we have cursed items
+            self.game.toasts.add("Your equipment feels lighter", (0, 255, 0))
+    
+    def _blessing(self):
+        """Add blessing buff to player."""
+        if self.game.player:
+            # TODO: Implement blessing buff when we have status effects
+            self.game.toasts.add("You feel blessed", (255, 215, 0))
+

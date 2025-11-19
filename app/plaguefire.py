@@ -1,198 +1,46 @@
-"""
-Plaguefire - Main application module.
+from typing import Optional
+import pygame
+from app.lib.core.game_engine import Game
+from app.model.player import Player
 
-This module contains the RogueApp class which is the main Textual application.
-It manages:
-- Screen navigation and state
-- Global settings (sound, difficulty, command mode)
-- Save/load coordination
-- Theme management
-- Audio system integration
+from app.lib.core.logger import debug, log_exception
 
-The RogueApp serves as the entry point and coordinator for the entire game,
-delegating game logic to the Engine class and UI rendering to screen classes.
-"""
+class Plaguefire:
+    def __init__(self, project_root):
+        pygame.init()
+        pygame.display.set_caption("Plaguefire")
+        self.engine: Game = Game(project_root)
+        self.engine.init()
 
-import os
-import json
-from typing import Dict, List, Any, Optional, Tuple
-from textual import log
+    def run(self):
+        while self.engine.running:
+            dt = self.engine.clock.tick(60) / 1000
+            events = pygame.event.get()
 
-from app.lib.player import Player
-from app.lib.entity import Entity
-from app.lib.core.loader import GameData
-from app.lib.core.sound import SoundManager
+            for e in events:
+                if e.type == pygame.QUIT:
+                    # Ensure we stop the engine's main loop. Previously this
+                    # set `self.running` which is a non-existent attribute on
+                    # Plaguefire, so the engine kept running. Set the engine's
+                    # running flag instead.
+                    try:
+                        self.engine.running = False
+                    except Exception:
+                        # Fallback: break out of the loop by returning from run
+                        return
 
+            self.engine.screens.handle_events(events)
+            # Update sound manager (handles random ambient events)
+            try:
+                if hasattr(self.engine, 'sound') and self.engine.sound:
+                    self.engine.sound.update()
+            except Exception:
+                pass
+            current = self.engine.screens.current()
+            if current:
+                current.update(dt)
 
-from app.screens.shops.armor import ArmorShopScreen
-from app.screens.shops.magic import MagicShopScreen
-from app.screens.shops.tavern import TavernScreen
-from app.screens.shops.temple import TempleScreen
-from app.screens.shops.weapon import WeaponShopScreen
-from app.screens.shops.general_store import GeneralStoreScreen
-from textual.app import App
-from app.screens.title import TitleScreen
-from app.screens.game import GameScreen
-from app.screens.settings import SettingsScreen
-from app.screens.creation import CharacterCreationScreen
-from app.screens.continue_screen import ContinueScreen
-from app.screens.inventory import InventoryScreen
-from app.screens.learn_spell import SpellLearningScreen
-from app.screens.cast_spell import CastSpellScreen
-from app.screens.pause_menu import PauseMenuScreen
-from app.screens.death import DeathScreen
-from css import CSS
-from debugtools import debug, log_exception
-from textual.drivers.linux_driver import LinuxDriver
+            self.engine.screens.draw(self.engine.surface)
+            pygame.display.flip()
 
-
-MapData = List[List[str]]
-
-class TruecolorLinuxDriver(LinuxDriver):
-    """Force Rich console to always use truecolor."""
-    def __init__(self, *args, **kwargs):
-        """Initialize the instance."""
-        super().__init__(*args, **kwargs)
-        self.console.color_system = "truecolor"
-        self.console.force_terminal = True
-        
-
-class RogueApp(App[None]):
-    """RogueApp class."""
-    DRIVER_CLASS = TruecolorLinuxDriver
-    CSS = CSS
-    color_system = "truecolor"
-    SAVE_DIR = "saves"
-
-    SCREENS = {
-        "title": TitleScreen,
-        "continue": ContinueScreen,
-        "settings": SettingsScreen,
-        "character_creation": CharacterCreationScreen,
-        "dungeon": GameScreen,
-        "inventory": InventoryScreen,
-        "learn_spell": SpellLearningScreen,
-        "cast_spell": CastSpellScreen,
-        "pause_menu": PauseMenuScreen,
-        "armory": ArmorShopScreen,
-        "general_store": GeneralStoreScreen,
-        "magic_shop": MagicShopScreen,
-        "tavern": TavernScreen,
-        "temple": TempleScreen,
-        "weapon_smith": WeaponShopScreen,
-        "death": DeathScreen,
-    }
-
-    dungeon_levels: Dict[int, MapData] = {}
-    dungeon_entities: Dict[int, List[Entity]] = {}
-    dungeon_rooms: Dict[int, List] = {}
-    dungeon_ground_items: Dict[int, Dict[Tuple[int, int], List[str]]] = {}
-    dungeon_death_drops: Dict[int, List[Dict[str, Any]]] = {}
-    player: Optional[Player] = None
-
-    def __init__(self, **kwargs):
-        """Initialize the instance."""
-        super().__init__(**kwargs)
-        self.data = GameData()
-        self.sound = SoundManager()
-
-        self._music_enabled = self.data.config.get("music_enabled", True)
-        self._sfx_enabled = self.data.config.get("sfx_enabled", True)
-        self._difficulty = self.data.config.get("difficulty", "Normal")
-        # Command mode is fixed to the classic/original scheme.
-        self._command_mode = "original"
-
-        self.sound.set_music_enabled(self._music_enabled)
-        self.sound.set_sfx_enabled(self._sfx_enabled)
-
-        self.sound.load_sfx("title", "title.wav")
-        self.sound.load_sfx("whoosh", "whoosh.mp3")
-    
-    def get_music(self) -> bool:
-        """Get music."""
-        return self._music_enabled
-
-    def get_sfx(self) -> bool:
-        """Get sfx."""
-        return self._sfx_enabled
-
-    def get_difficulty(self) -> str:
-        """Get difficulty."""
-        return self._difficulty
-
-    def get_command_mode(self) -> str:
-        """Get command mode."""
-        return self._command_mode
-
-    def set_command_mode(self, mode: str):
-        """
-                Set command mode.
-                
-                Args:
-                    mode: TODO
-                """
-        # Command mode is fixed; toggling is ignored.
-        self._command_mode = "original"
-
-    def on_mount(self):
-        """Called when the app starts."""
-        self.dungeon_levels = {}
-        self.dungeon_entities = {}
-        self.dungeon_rooms = {}
-        self.dungeon_ground_items = {}
-        self.dungeon_death_drops = {}
-        self.player = None
-        
-        self.push_screen("title")
-    
-    def toggle_music(self):
-        """Toggle music."""
-        self._music_enabled = not self._music_enabled
-        self.data.config["music_enabled"] = self._music_enabled
-        self.data.save_config()
-        self.sound.set_music_enabled(self._music_enabled)
-
-    def toggle_sfx(self):
-        """Toggle sfx."""
-        self._sfx_enabled = not self._sfx_enabled
-        self.data.config["sfx_enabled"] = self._sfx_enabled
-        self.data.save_config()
-        self.sound.set_sfx_enabled(self._sfx_enabled)
-
-    def cycle_difficulty(self):
-        """Cycle difficulty."""
-        order = ["Easy", "Normal", "Hard", "Nightmare"]
-        i = order.index(self._difficulty)
-        self._difficulty = order[(i + 1) % len(order)]
-        self.data.config["difficulty"] = self._difficulty
-        self.data.save_config()
-    
-    def save_character(self):
-        """Saves the current app.player object state to a JSON file."""
-        if not self.player:
-             debug("Save called but no player object exists.")
-             return
-
-        player_data = self.player.to_dict()
-
-        os.makedirs(self.SAVE_DIR, exist_ok=True)
-        char_name = player_data.get("name", "hero")
-        safe_char_name = "".join(c for c in char_name if c.isalnum() or c in (' ', '_')).rstrip()
-        filename = f"{safe_char_name.lower().replace(' ', '_')}.json"
-        save_path = os.path.join(self.SAVE_DIR, filename)
-
-        try:
-            with open(save_path, "w") as f:
-                json.dump(player_data, f, indent=4)
-                debug(f"Character saved: {save_path}")
-        except Exception as e:
-            log_exception(e)
-            self.notify(f"Error saving character: {e}", severity="error", timeout=10)
-
-
-def main():
-    """Main."""
-    RogueApp().run()
-
-if __name__ == "__main__":
-    main()
+        pygame.quit()

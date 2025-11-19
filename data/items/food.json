@@ -1,0 +1,87 @@
+[
+    {
+        "name": "Pint of Riverside Ale",
+        "type": "food",
+        "base_cost": 3,
+        "description": "Frothy dock worker's ale, brewed in Stormreach's Riverside district.",
+        "effect": [
+            "satiate",
+            50
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 3,
+        "image": "food/ale.png",
+        "id": "FOOD_ALE"
+    },
+    {
+        "name": "Strip of Beef Jerky",
+        "type": "food",
+        "base_cost": 4,
+        "description": "Tough and salty.",
+        "effect": [
+            "satiate",
+            150
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 3,
+        "image": "food/beef_jerky_old.png",
+        "id": "FOOD_JERKY"
+    },
+    {
+        "name": "Ration of Food",
+        "type": "food",
+        "base_cost": 5,
+        "description": "Standard travel provisions.",
+        "effect": [
+            "satiate",
+            200
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 3,
+        "image": "food/bread_ration_old.png",
+        "id": "FOOD_RATION"
+    },
+    {
+        "name": "Slime Mold",
+        "type": "food",
+        "base_cost": 1,
+        "description": "Edible?... Maybe.",
+        "effect": [
+            "satiate",
+            30
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 3,
+        "image": "food/slime_mold.png",
+        "id": "FOOD_SLIME_MOLD"
+    },
+    {
+        "name": "Piece of Elvish Waybread",
+        "type": "food",
+        "base_cost": 20,
+        "description": "Highly nutritious.",
+        "effect": [
+            "satiate",
+            500
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 3,
+        "image": "food/bread_ration_new.png",
+        "id": "FOOD_WAYBREAD"
+    }
+]

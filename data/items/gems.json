@@ -1,0 +1,80 @@
+[
+    {
+        "name": "diamond",
+        "type": "gem",
+        "base_cost": 1000,
+        "description": "A sparkling diamond.",
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 1,
+        "image": "ring/diamond.png",
+        "id": "GEM_DIAMOND"
+    },
+    {
+        "name": "emerald",
+        "type": "gem",
+        "base_cost": 750,
+        "description": "A green emerald.",
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 1,
+        "image": "ring/emerald.png",
+        "id": "GEM_EMERALD"
+    },
+    {
+        "name": "garnet",
+        "type": "gem",
+        "base_cost": 100,
+        "description": "A red garnet.",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 1,
+        "image": "book/bookmark_new.png",
+        "id": "GEM_GARNET"
+    },
+    {
+        "name": "opal",
+        "type": "gem",
+        "base_cost": 400,
+        "description": "An iridescent opal.",
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 1,
+        "image": "ring/opal.png",
+        "id": "GEM_OPAL"
+    },
+    {
+        "name": "ruby",
+        "type": "gem",
+        "base_cost": 800,
+        "description": "A red ruby.",
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 1,
+        "image": "ring/ruby.png",
+        "id": "GEM_RUBY"
+    },
+    {
+        "name": "sapphire",
+        "type": "gem",
+        "base_cost": 700,
+        "description": "A blue sapphire.",
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 1,
+        "image": "ring/ring_sapphire.png",
+        "id": "GEM_SAPPHIRE"
+    }
+]

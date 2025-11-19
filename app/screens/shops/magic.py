@@ -1,73 +1,65 @@
+"""
+Magic Shop - Sells scrolls, wands, staves, rings, and offers identification services.
+"""
 
-from app.screens.shop import BaseShopScreen, ShopItem
-from typing import List
-import random
+from app.screens.shop import ShopScreen
 
-class MagicShopScreen(BaseShopScreen):
 
-    """MagicShopScreen class."""
-    BINDINGS = [
-        ("up", "cursor_up", "Cursor Up"),
-        ("down", "cursor_down", "Cursor Down"),
-        ("b", "buy_action", "Buy Mode / Buy"),
-        ("s", "sell_action", "Sell Mode / Sell"),
-        ("h", "haggle", "Haggle"),
-        ("i", "identify_action", "Identify Item"),
-        ("l", "leave_shop", "Leave"),
-        ("escape", "leave_shop", "Leave"),
+class MagicShopScreen(ShopScreen):
+    """Magic shop selling magical items and services."""
+
+    item_ids = [
+        "SCROLL_MAGIC_MISSILE", "SCROLL_TELEPORT", "WAND_LIGHTNING_BOLT",
+        "WAND_FIREBALL", "STAFF_HEALING", "RING_PROTECTION",
+        "RING_INVISIBILITY", "STAFF_DETECT_INVISIBLE", "WAND_COLD_BALLS",
+        "POTION_INFRAVISION", "POTION_CURE_LIGHT", "SCROLL_IDENTIFY"
     ]
-
-    def __init__(self, **kwargs):
-        """Initialize the instance."""
-        super().__init__(
-            shop_name="Arcane Curiosities",
-            owner_name="Elara Meadowlight",
-            catchphrases=["Seeking the arcane?", "Mysteries await.", "Careful with that!"] ,
-            items_for_sale=self._generate_magic_inventory(),
-            allowed_actions=['buy', 'sell', 'identify', 'leave'],
-            **kwargs
-        )
-        self.identify_cost = 50
-
-    def _generate_magic_inventory(self) -> List[ShopItem]:
-        """Generate scrolls, potions, wands."""
-        inventory = [
-            ShopItem(name="Scroll of Identify", cost=100, description="Reveals item properties.", item_id="SCROLL_IDENTIFY"),
-            ShopItem(name="Scroll of Magic Mapping", cost=125, description="Unleashes arcane insight.", item_id="SCROLL_MAGIC_MAPPING"),
-            ShopItem(name="Potion of Healing", cost=50, description="Restores some health.", item_id="POTION_HEALING"),
-            ShopItem(name="Potion of Restore Mana", cost=75, description="Restores magical energy.", item_id="POTION_RESTORE_MANA"),
-        ]
-        if random.random() < 0.2:
-            inventory.append(ShopItem(name="Wand of Magic Missile", cost=200, description="Shoots small sparks.", item_id="WAND_MAGIC_MISSILE"))
-        return inventory
-
-    def action_identify_action(self):
-        """Handle the 'I' key to identify an item from player's inventory."""
-        if 'identify' not in self.allowed_actions or not self.app.player:
-            return
-        
-        if not self.app.player.inventory:
-            self.notify("You have no items to identify.", severity="warning")
-            return
-        
-        if self.app.player.gold < self.identify_cost:
-            self.notify(f"Not enough gold. Identification costs {self.identify_cost} gold.", severity="error")
-            return
-        
-        item_to_identify = self.app.player.inventory[0] if self.app.player.inventory else None
-        
-        if item_to_identify:
-            self.app.player.gold -= self.identify_cost
-            self.player_gold = self.app.player.gold
-            self.data_changed = True
-            
-            self.notify(f"Elara examines '{item_to_identify}' closely... It appears to be a {item_to_identify}! (-{self.identify_cost} gold)")
-            self.app.bell()
-            self._update_display()
     
-    def _generate_help_text(self) -> str:
-        """Override to add identify action to help text."""
-        base_help = super()._generate_help_text()
-        if 'identify' in self.allowed_actions:
-            return base_help.replace("[L]eave Shop", f"[I]dentify ({self.identify_cost}gp) | [L]eave Shop")
-        return base_help
+    def __init__(self, game):
+        super().__init__(
+            game=game,
+            shop_type="magic",
+            shop_name="The Mystic Emporium",
+            owner_name="Zephyr the Enchanter"
+        )
+        
+        # Add magic shop services
+        self.services = [
+            {
+                "name": "Identify Item",
+                "description": "Reveal item properties",
+                "cost": 100,
+                "action": self._identify_item
+            },
+            {
+                "name": "Identify All",
+                "description": "Reveal all unidentified items",
+                "cost": 500,
+                "action": self._identify_all
+            },
+            {
+                "name": "Recharge Wand",
+                "description": "Restore charges to a wand",
+                "cost": 300,
+                "action": self._recharge_wand
+            }
+        ]
+    
+    def _identify_item(self):
+        """Identify one item in player inventory."""
+        if self.game.player:
+            # TODO: Implement item identification when we have unidentified items
+            self.game.toasts.add("Item revealed!", (200, 150, 255))
+    
+    def _identify_all(self):
+        """Identify all items in player inventory."""
+        if self.game.player:
+            # TODO: Implement identification system
+            self.game.toasts.add("All items revealed!", (200, 150, 255))
+    
+    def _recharge_wand(self):
+        """Recharge a wand's charges."""
+        if self.game.player:
+            # TODO: Implement wand recharging when we have wands with charges
+            self.game.toasts.add("Wand recharged!", (200, 150, 255))
+

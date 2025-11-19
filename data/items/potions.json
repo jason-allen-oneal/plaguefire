@@ -1,0 +1,746 @@
+[
+    {
+        "name": "Potion of Apple Juice",
+        "type": "potion",
+        "base_cost": 5,
+        "description": "Refreshing?",
+        "effect": [
+            "satiate",
+            20
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 4,
+        "image": "potion/golden.png",
+        "id": "POTION_APPLE_JUICE"
+    },
+    {
+        "name": "Potion of Blindness",
+        "type": "potion",
+        "base_cost": 20,
+        "description": "Murky liquid.",
+        "effect": [
+            "status",
+            "blind",
+            20
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 4,
+        "image": "potion/cyan_new.png",
+        "id": "POTION_BLINDNESS"
+    },
+    {
+        "name": "Potion of Boldness",
+        "type": "potion",
+        "base_cost": 100,
+        "description": "Grants courage.",
+        "effect": [
+            "buff",
+            "bold",
+            30
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 4,
+        "image": "potion/bubbly.png",
+        "id": "POTION_BOLDNESS"
+    },
+    {
+        "name": "Potion of Charisma",
+        "type": "potion",
+        "base_cost": 300,
+        "description": "Enhances charm (temporary?).",
+        "effect": [
+            "buff",
+            "CHA",
+            2,
+            50
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 4,
+        "image": "potion/ruby_new.png",
+        "id": "POTION_CHARISMA"
+    },
+    {
+        "name": "Potion of Confusion",
+        "type": "potion",
+        "base_cost": 20,
+        "description": "Swirling colors.",
+        "effect": [
+            "status",
+            "confused",
+            15
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 4,
+        "image": "potion/brilliant_blue_new.png",
+        "id": "POTION_CONFUSION"
+    },
+    {
+        "name": "Potion of Cure Critical Wounds",
+        "type": "potion",
+        "base_cost": 100,
+        "description": "Major healing.",
+        "effect": [
+            "heal",
+            40
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 4,
+        "image": "potion/brown_new.png",
+        "id": "POTION_CURE_CRITICAL"
+    },
+    {
+        "name": "Potion of Cure Light Wounds",
+        "type": "potion",
+        "base_cost": 30,
+        "description": "Minor healing.",
+        "effect": [
+            "heal",
+            10
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 2,
+        "image": "potion/clear.png",
+        "id": "POTION_CURE_LIGHT"
+    },
+    {
+        "name": "Potion of Cure Serious Wounds",
+        "type": "potion",
+        "base_cost": 60,
+        "description": "Moderate healing.",
+        "effect": [
+            "heal",
+            25
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 4,
+        "image": "potion/cloudy.png",
+        "id": "POTION_CURE_SERIOUS"
+    },
+    {
+        "name": "Potion of Detect Invisible",
+        "type": "potion",
+        "base_cost": 120,
+        "description": "Clear liquid.",
+        "effect": [
+            "buff",
+            "see_invisible",
+            30
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 4,
+        "image": "potion/effervescent.png",
+        "id": "POTION_DETECT_INVISIBLE"
+    },
+    {
+        "name": "Potion of Gain Constitution",
+        "type": "potion",
+        "base_cost": 1000,
+        "description": "Permanently increases CON.",
+        "effect": [
+            "perm_stat_increase",
+            "CON",
+            1
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 4,
+        "image": "potion/fizzy.png",
+        "id": "POTION_GAIN_CON"
+    },
+    {
+        "name": "Potion of Gain Dexterity",
+        "type": "potion",
+        "base_cost": 1000,
+        "description": "Permanently increases DEX.",
+        "effect": [
+            "perm_stat_increase",
+            "DEX",
+            1
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 4,
+        "image": "potion/murky.png",
+        "id": "POTION_GAIN_DEX"
+    },
+    {
+        "name": "Potion of Gain Experience",
+        "type": "potion",
+        "base_cost": 500,
+        "description": "Grants knowledge.",
+        "effect": [
+            "gain_xp",
+            100
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 4,
+        "image": "potion/puce.png",
+        "id": "POTION_GAIN_EXPERIENCE"
+    },
+    {
+        "name": "Potion of Gain Intelligence",
+        "type": "potion",
+        "base_cost": 1000,
+        "description": "Permanently increases INT.",
+        "effect": [
+            "perm_stat_increase",
+            "INT",
+            1
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 4,
+        "image": "potion/silver.png",
+        "id": "POTION_GAIN_INT"
+    },
+    {
+        "name": "Potion of Gain Strength",
+        "type": "potion",
+        "base_cost": 1000,
+        "description": "Permanently increases STR.",
+        "effect": [
+            "perm_stat_increase",
+            "STR",
+            1
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 4,
+        "image": "potion/yellow_new.png",
+        "id": "POTION_GAIN_STR"
+    },
+    {
+        "name": "Potion of Gain Wisdom",
+        "type": "potion",
+        "base_cost": 1000,
+        "description": "Permanently increases WIS.",
+        "effect": [
+            "perm_stat_increase",
+            "WIS",
+            1
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 4,
+        "image": "potion/black_new.png",
+        "id": "POTION_GAIN_WIS"
+    },
+    {
+        "name": "Potion of Haste Self",
+        "type": "potion",
+        "base_cost": 400,
+        "description": "Speeds you up.",
+        "effect": [
+            "buff",
+            "speed",
+            1,
+            20
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 4,
+        "image": "potion/brilliant_blue_new.png",
+        "id": "POTION_HASTE_SELF"
+    },
+    {
+        "name": "Potion of Healing",
+        "type": "potion",
+        "base_cost": 50,
+        "description": "Standard healing potion.",
+        "effect": [
+            "heal",
+            20
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 4,
+        "image": "potion/brown_new.png",
+        "id": "POTION_HEALING"
+    },
+    {
+        "name": "Potion of Heroism",
+        "type": "potion",
+        "base_cost": 200,
+        "description": "Grants temporary bravery and skill.",
+        "effect": [
+            "buff",
+            "heroism",
+            30
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 4,
+        "image": "potion/cloudy.png",
+        "id": "POTION_HEROISM"
+    },
+    {
+        "name": "Potion of Infra-Vision",
+        "type": "potion",
+        "base_cost": 100,
+        "description": "See heat signatures.",
+        "effect": [
+            "buff",
+            "infravision",
+            40
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 4,
+        "image": "potion/cyan_new.png",
+        "id": "POTION_INFRAVISION"
+    },
+    {
+        "name": "Potion of Invulnerability",
+        "type": "potion",
+        "base_cost": 800,
+        "description": "Makes you nearly immune to damage.",
+        "effect": [
+            "buff",
+            "invulnerable",
+            10
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 4,
+        "image": "potion/effervescent.png",
+        "id": "POTION_INVULNERABILITY"
+    },
+    {
+        "name": "Potion of Lose Intelligence",
+        "type": "potion",
+        "base_cost": 10,
+        "description": "Dulls the mind.",
+        "effect": [
+            "temp_stat_drain",
+            "INT",
+            1,
+            50
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 4,
+        "image": "potion/fizzy.png",
+        "id": "POTION_LOSE_INT"
+    },
+    {
+        "name": "Potion of Lose Wisdom",
+        "type": "potion",
+        "base_cost": 10,
+        "description": "Induces folly.",
+        "effect": [
+            "temp_stat_drain",
+            "WIS",
+            1,
+            50
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 4,
+        "image": "potion/golden.png",
+        "id": "POTION_LOSE_WIS"
+    },
+    {
+        "name": "Potion of Neutralize Poison",
+        "type": "potion",
+        "base_cost": 75,
+        "description": "An antidote.",
+        "effect": [
+            "cure_status",
+            "poisoned"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 4,
+        "image": "potion/murky.png",
+        "id": "POTION_NEUTRALIZE_POISON"
+    },
+    {
+        "name": "Potion of Poison",
+        "type": "potion",
+        "base_cost": 25,
+        "description": "Vile liquid.",
+        "effect": [
+            "status",
+            "poisoned",
+            15
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 4,
+        "image": "potion/puce.png",
+        "id": "POTION_POISON"
+    },
+    {
+        "name": "Potion of Resist Cold",
+        "type": "potion",
+        "base_cost": 150,
+        "description": "Wards off cold.",
+        "effect": [
+            "buff",
+            "resist_cold",
+            30
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 4,
+        "image": "potion/golden.png",
+        "id": "POTION_RESIST_COLD"
+    },
+    {
+        "name": "Potion of Resist Heat",
+        "type": "potion",
+        "base_cost": 150,
+        "description": "Wards off fire.",
+        "effect": [
+            "buff",
+            "resist_fire",
+            30
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 4,
+        "image": "potion/ruby_new.png",
+        "id": "POTION_RESIST_HEAT"
+    },
+    {
+        "name": "Potion of Restore Charisma",
+        "type": "potion",
+        "base_cost": 200,
+        "description": "Restores drained CHA.",
+        "effect": [
+            "restore_stat",
+            "CHA"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 4,
+        "image": "potion/silver.png",
+        "id": "POTION_RESTORE_CHA"
+    },
+    {
+        "name": "Potion of Restore Constitution",
+        "type": "potion",
+        "base_cost": 200,
+        "description": "Restores drained CON.",
+        "effect": [
+            "restore_stat",
+            "CON"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 4,
+        "image": "potion/yellow_new.png",
+        "id": "POTION_RESTORE_CON"
+    },
+    {
+        "name": "Potion of Restore Dexterity",
+        "type": "potion",
+        "base_cost": 200,
+        "description": "Restores drained DEX.",
+        "effect": [
+            "restore_stat",
+            "DEX"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 4,
+        "image": "potion/potion_bubbly.png",
+        "id": "POTION_RESTORE_DEX"
+    },
+    {
+        "name": "Potion of Restore Intelligence",
+        "type": "potion",
+        "base_cost": 200,
+        "description": "Restores drained INT.",
+        "effect": [
+            "restore_stat",
+            "INT"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 4,
+        "image": "potion/effervescent.png",
+        "id": "POTION_RESTORE_INT"
+    },
+    {
+        "name": "Potion of Restore Mana",
+        "type": "potion",
+        "base_cost": 80,
+        "description": "Replenishes magical energy.",
+        "effect": [
+            "restore_mana",
+            20
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 4,
+        "image": "potion/fizzy.png",
+        "id": "POTION_RESTORE_MANA"
+    },
+    {
+        "name": "Potion of Restore Strength",
+        "type": "potion",
+        "base_cost": 200,
+        "description": "Restores drained STR.",
+        "effect": [
+            "restore_stat",
+            "STR"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 4,
+        "image": "potion/cyan_new.png",
+        "id": "POTION_RESTORE_STR"
+    },
+    {
+        "name": "Potion of Restore Wisdom",
+        "type": "potion",
+        "base_cost": 200,
+        "description": "Restores drained WIS.",
+        "effect": [
+            "restore_stat",
+            "WIS"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 4,
+        "image": "potion/cloudy.png",
+        "id": "POTION_RESTORE_WIS"
+    },
+    {
+        "name": "Potion of Salt Water",
+        "type": "potion",
+        "base_cost": 2,
+        "description": "Thirst-inducing.",
+        "effect": [
+            "satiate",
+            -50
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 4,
+        "image": "potion/cloudy.png",
+        "id": "POTION_SALT_WATER"
+    },
+    {
+        "name": "Potion of Sleep",
+        "type": "potion",
+        "base_cost": 30,
+        "description": "Induces drowsiness.",
+        "effect": [
+            "status",
+            "asleep",
+            10
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 4,
+        "image": "potion/brilliant_blue_new.png",
+        "id": "POTION_SLEEP"
+    },
+    {
+        "name": "Potion of Slime Mold Juice",
+        "type": "potion",
+        "base_cost": 3,
+        "description": "Slimy.",
+        "effect": [
+            "satiate",
+            10
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 4,
+        "image": "potion/potion_bubbly.png",
+        "id": "POTION_SLIME_MOLD_JUICE"
+    },
+    {
+        "name": "Potion of Slowness",
+        "type": "potion",
+        "base_cost": 20,
+        "description": "Makes you sluggish.",
+        "effect": [
+            "debuff",
+            "speed",
+            -1,
+            20
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 4,
+        "image": "potion/black_new.png",
+        "id": "POTION_SLOWNESS"
+    },
+    {
+        "name": "Potion of Slow Poison",
+        "type": "potion",
+        "base_cost": 50,
+        "description": "Slows poison's effect.",
+        "effect": [
+            "slow_poison"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 4,
+        "image": "potion/cyan_new.png",
+        "id": "POTION_SLOW_POISON"
+    },
+    {
+        "name": "Potion of Super Heroism",
+        "type": "potion",
+        "base_cost": 500,
+        "description": "Grants great temporary power.",
+        "effect": [
+            "buff",
+            "super_heroism",
+            20
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 4,
+        "image": "potion/black_new.png",
+        "id": "POTION_SUPER_HEROISM"
+    },
+    {
+        "name": "Potion of Ugliness",
+        "type": "potion",
+        "base_cost": 10,
+        "description": "Warts may appear.",
+        "effect": [
+            "temp_stat_drain",
+            "CHA",
+            1,
+            50
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 4,
+        "image": "potion/puce.png",
+        "id": "POTION_UGLINESS"
+    },
+    {
+        "name": "Potion of Water",
+        "type": "potion",
+        "base_cost": 1,
+        "description": "Plain water.",
+        "effect": [
+            "satiate",
+            10
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 4,
+        "image": "potion/clear.png",
+        "id": "POTION_WATER"
+    },
+    {
+        "name": "Potion of Weakness",
+        "type": "potion",
+        "base_cost": 15,
+        "description": "Saps your strength.",
+        "effect": [
+            "temp_stat_drain",
+            "STR",
+            1,
+            50
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 4,
+        "image": "potion/silver.png",
+        "id": "POTION_WEAKNESS"
+    }
+]

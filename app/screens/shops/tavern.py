@@ -1,122 +1,84 @@
+"""
+Tavern - Sells food, drink, and offers rest/rumor services.
+"""
 
-from app.screens.shop import BaseShopScreen, ShopItem
-from typing import List
-import random
+from app.screens.shop import ShopScreen
 
-class TavernScreen(BaseShopScreen):
 
-    """TavernScreen class."""
-    BINDINGS = [
-        ("up", "cursor_up", "Cursor Up"),
-        ("down", "cursor_down", "Cursor Down"),
-        ("b", "buy_action", "Buy Mode / Buy"),
-        ("h", "haggle", "Haggle"),
-        ("r", "rumor_action", "Ask for Rumors"),
-        ("s", "rest_action", "Rest at Inn"),
-        ("l", "leave_shop", "Leave"),
-        ("escape", "leave_shop", "Leave"),
+class TavernScreen(ShopScreen):
+    """Tavern selling food and offering rest."""
+    
+    # Define specific items this shop sells
+    item_ids = [
+        # Food & Drink
+        "FOOD_ALE",
+        "FOOD_WINE",
+        "FOOD_RATION",
+        "FOOD_BISCUIT",
+        "FOOD_JERKY",
+        # Healing drinks
+        "POTION_APPLE_JUICE",
+        "POTION_CURE_LIGHT",
     ]
-
-    def __init__(self, **kwargs):
-        """Initialize the instance."""
+    
+    def __init__(self, game):
         super().__init__(
-            shop_name="The Drunken Dragon",
-            owner_name="Barkeep Bill",
-            catchphrases=["Pull up a stool!", "What'll ya have?", "Heard any good rumors?"],
-            items_for_sale=self._generate_tavern_inventory(),
-            allowed_actions=['buy', 'rumor', 'rest', 'leave'],
-            **kwargs
+            game=game,
+            shop_type="tavern",
+            shop_name="The Rusty Flagon",
+            owner_name="Barlow the Barkeep",
+            item_pool=self.item_ids
         )
-        self.rumor_cost = 10
-        self.rest_cost = 20
-
-    def _generate_tavern_inventory(self) -> List[ShopItem]:
-        """Generate items/services for the tavern."""
-        inventory = [
-            ShopItem(name="Pint of Fine Ale", cost=2, description="Warms the belly.", item_id="FOOD_ALE"),
-            ShopItem(name="Piece of Elvish Waybread", cost=5, description="Better than rations.", item_id="FOOD_WAYBREAD"),
+        
+        # Add tavern services
+        self.services = [
+            {
+                "name": "Rest (Short)",
+                "description": "Recover 1d6 HP and remove fatigue",
+                "cost": 10,
+                "action": self._short_rest
+            },
+            {
+                "name": "Rest (Long)",
+                "description": "Fully restore HP and remove all conditions",
+                "cost": 50,
+                "action": self._long_rest
+            },
+            {
+                "name": "Buy a Round",
+                "description": "Hear local rumors and gossip",
+                "cost": 25,
+                "action": self._buy_round
+            }
         ]
-        return inventory
-
-    def action_rumor_action(self):
-        """Handle the 'R' key to get a rumor."""
-        if 'rumor' not in self.allowed_actions or not self.app.player:
-            return
-        
-        if self.app.player.gold < self.rumor_cost:
-            self.notify(f"Not enough gold. Rumors cost {self.rumor_cost} gold.", severity="error")
-            return
-        
-        self.app.player.gold -= self.rumor_cost
-        self.player_gold = self.app.player.gold
-        self.data_changed = True
-        
-        rumors = [
-            "They say the dungeon holds ancient treasures...",
-            "I heard strange noises coming from below last night.",
-            "A traveling merchant mentioned seeing glowing eyes in the dark.",
-            "The temple offers healing services, if you need them.",
-            "Be careful in the depths - the monsters get tougher.",
-            "Some say there's magical equipment in the deeper levels.",
-            "The shopkeeper at the magic shop knows about enchantments.",
-            "Torches don't last forever, better stock up!",
-        ]
-        
+    
+    def _short_rest(self):
+        """Short rest - recover some HP."""
         import random
+        if self.game.player:
+            heal_amount = random.randint(1, 6)
+            old_hp = self.game.player.hp
+            self.game.player.hp = min(self.game.player.max_hp, self.game.player.hp + heal_amount)
+            actual_heal = self.game.player.hp - old_hp
+            self.game.toasts.add(f"You rest and recover {actual_heal} HP", (0, 255, 0))
+    
+    def _long_rest(self):
+        """Long rest - fully restore HP."""
+        if self.game.player:
+            old_hp = self.game.player.hp
+            self.game.player.hp = self.game.player.max_hp
+            actual_heal = self.game.player.hp - old_hp
+            self.game.toasts.add(f"You sleep soundly and wake refreshed (+{actual_heal} HP)", (0, 255, 0))
+    
+    def _buy_round(self):
+        """Buy drinks for the tavern, hear rumors."""
+        import random
+        rumors = [
+            "A merchant mentions strange lights in the old ruins...",
+            "You overhear talk of a treasure hidden in the depths...",
+            "Someone whispers about a dragon's hoard to the north...",
+            "A drunk adventurer babbles about a secret passage...",
+            "The locals speak fearfully of creatures in the sewers..."
+        ]
         rumor = random.choice(rumors)
-        self.notify(f"Barkeep whispers: '{rumor}' (-{self.rumor_cost} gold)")
-        self.app.bell()
-        self._update_display()
-    
-    def action_rest_action(self):
-        """Handle the 'S' key to rest at the inn."""
-        if 'rest' not in self.allowed_actions or not self.app.player:
-            return
-        
-        if self.app.player.gold < self.rest_cost:
-            self.notify(f"Not enough gold. Rest costs {self.rest_cost} gold.", severity="error")
-            return
-        
-        needs_hp = self.app.player.hp < self.app.player.max_hp
-        needs_mana = self.app.player.mana < self.app.player.max_mana
-        
-        if not needs_hp and not needs_mana:
-            self.notify("You're already at full health and mana!", severity="warning")
-            return
-        
-        self.app.player.gold -= self.rest_cost
-        self.player_gold = self.app.player.gold
-        self.data_changed = True
-        
-        old_hp = self.app.player.hp
-        old_mana = self.app.player.mana
-        
-        self.app.player.hp = self.app.player.max_hp
-        self.app.player.mana = self.app.player.max_mana
-        
-        hp_restored = self.app.player.hp - old_hp
-        mana_restored = self.app.player.mana - old_mana
-        
-        message_parts = []
-        if hp_restored > 0:
-            message_parts.append(f"+{hp_restored} HP")
-        if mana_restored > 0:
-            message_parts.append(f"+{mana_restored} MP")
-        
-        restore_msg = " and ".join(message_parts)
-        self.notify(f"You rest at the inn. Restored {restore_msg}. (-{self.rest_cost} gold)")
-        self.app.bell()
-        self._update_display()
-    
-    def _generate_help_text(self) -> str:
-        """Override to add rumor and rest actions to help text."""
-        base_help = super()._generate_help_text()
-        additions = []
-        if 'rumor' in self.allowed_actions:
-            additions.append(f"[R]umor ({self.rumor_cost}gp)")
-        if 'rest' in self.allowed_actions:
-            additions.append(f"Re[S]t ({self.rest_cost}gp)")
-        
-        if additions:
-            return base_help.replace("[L]eave Shop", " | ".join(additions) + " | [L]eave Shop")
-        return base_help
+        self.game.toasts.add(rumor, (255, 215, 0))

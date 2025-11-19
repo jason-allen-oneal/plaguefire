@@ -1,0 +1,41 @@
+[
+    {
+        "name": "Quarter-bits",
+        "type": "currency",
+        "base_cost": 1,
+        "description": "Copper quarter-bits stamped with the four kingdoms of Travia.",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 0,
+        "image": "weapon/quarterstaff_2.png",
+        "id": "COPPER_COINS"
+    },
+    {
+        "name": "Quadbits",
+        "type": "currency",
+        "base_cost": 20,
+        "description": "Gold quadbits, the standard currency of Travia's four kingdoms.",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 0,
+        "image": "book/bookmark_new.png",
+        "id": "GOLD_COINS"
+    },
+    {
+        "name": "Half-bits",
+        "type": "currency",
+        "base_cost": 5,
+        "description": "Silver half-bits, common trade coins in Stormreach markets.",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 0,
+        "image": "book/bookmark_new.png",
+        "id": "SILVER_COINS"
+    }
+]

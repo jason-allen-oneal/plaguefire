@@ -10,11 +10,11 @@ application.
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
-from debugtools import debug, log_exception
+from typing import Any, Dict, List, Optional, Mapping
+from app.lib.core.logger import debug
 
 
-class GameData:
+class Loader:
     """
     Universal loader and cache for all static and runtime game data.
     
@@ -24,7 +24,7 @@ class GameData:
     rather than loading JSON files directly.
     """
 
-    _instance: Optional["GameData"] = None
+    _instance: Optional["Loader"] = None
 
     def __new__(cls, data_dir: str = "data"):
         """
@@ -43,11 +43,12 @@ class GameData:
 
     def __init__(self, data_dir: str = "data"):
         """
-        Initialize the GameData loader.
+        Initialize the loader.
         
         Args:
             data_dir: Directory containing JSON data files (default: "data")
         """
+        # Performance: early return if already initialized
         if self._initialized:
             return
         self._initialized = True
@@ -64,6 +65,7 @@ class GameData:
         self.unknown_name_mapping: Dict[str, str] = {}
 
         self.load_all()
+    # Note: identified_types & unknown_name_mapping can be overridden by a loaded save.
 
     def _load_json(self, filename: str) -> Optional[Any]:
         """
@@ -77,7 +79,7 @@ class GameData:
         """
         path = self.data_dir / filename
         if not path.exists():
-            log_exception(f"Missing file: {path}")
+            debug(f"Missing file: {path}")
             return None
         try:
             with open(path, "r", encoding="utf-8") as f:
@@ -85,7 +87,7 @@ class GameData:
             debug(f"Loaded {filename}")
             return data
         except Exception as e:
-            log_exception(f"Failed to load {filename}: {e}")
+            debug(f"Failed to load {filename}: {e}")
             return None
 
     def _save_json(self, filename: str, data: Any) -> bool:
@@ -107,7 +109,7 @@ class GameData:
             debug(f"Saved {filename}")
             return True
         except Exception as e:
-            log_exception(f"Failed to save {filename}: {e}")
+            debug(f"Failed to save {filename}: {e}")
             return False
 
     def _load_data_as_dict(self, filename: str, key_field: str = "id") -> Dict[str, Dict]:
@@ -128,18 +130,18 @@ class GameData:
         if data is None:
             return {}
         if not isinstance(data, list):
-            log_exception(f"Data in {filename} is not a list as expected.")
+            debug(f"Data in {filename} is not a list as expected.")
             return {}
 
         result_dict = {}
         for item in data:
             if not isinstance(item, dict):
-                log_exception(f"Item in {filename} is not a dict: {item}")
+                debug(f"Item in {filename} is not a dict: {item}")
                 continue
             
             key = item.get(key_field)
             if key is None:
-                log_exception(f"Item in {filename} missing key field '{key_field}': {item}")
+                debug(f"Item in {filename} missing key field '{key_field}': {item}")
                 continue
             
             result_dict[str(key)] = item
@@ -158,6 +160,8 @@ class GameData:
         self.load_spells()
         self.load_config()
         self.load_unknown_names()
+        self.load_traps_and_chests()
+        debug("All core + trap/chest data loaded")
 
     def load_entities(self):
         """
@@ -169,31 +173,80 @@ class GameData:
         if self.entities:
             debug(f"Loaded {len(self.entities)} entity templates")
 
+    def _load_item_categories(self) -> Dict[str, Dict[str, Any]]:
+        """
+        Load item categories from split files or the legacy items.json file.
+        
+        Returns:
+            Dictionary mapping category name to its item definitions.
+        """
+        categories: Dict[str, Dict[str, Any]] = {}
+        items_dir = self.data_dir / "items"
+        if items_dir.exists():
+            for path in sorted(items_dir.glob("*.json")):
+                try:
+                    with path.open("r", encoding="utf-8") as handle:
+                        category_items = json.load(handle)
+                except Exception as exc:
+                    debug(f"Failed to load split item file {path.name}: {exc}")
+                    continue
+
+                # Accept both the legacy dict-of-items format and the newer
+                # array-of-objects format. If an array is provided, convert it
+                # into a dictionary keyed by the item's 'id' (or fallback to
+                # 'name' or an index-based key) so the rest of the loader can
+                # continue treating categories as dicts.
+                if isinstance(category_items, dict):
+                    categories[path.stem] = category_items
+                elif isinstance(category_items, list):
+                    converted: Dict[str, Any] = {}
+                    for idx, it in enumerate(category_items):
+                        if not isinstance(it, dict):
+                            debug(f"Item at index {idx} in {path.name} is not an object; skipping.")
+                            continue
+                        key = it.get("id")
+                        if key is None:
+                            # try name, otherwise create a stable fallback key
+                            key = it.get("name") or f"{path.stem}_{idx}"
+                            debug(f"Item in {path.name} missing 'id'; using fallback key '{key}'")
+                        converted[str(key)] = it
+                    if converted:
+                        categories[path.stem] = converted
+                    else:
+                        debug(f"No valid items found in {path.name}")
+                else:
+                    debug(f"Split item file {path.name} has unexpected type {type(category_items)}; skipping.")
+                    continue
+
+            if categories:
+                debug(f"Loaded {len(categories)} categories from split item files")
+                return categories
+            debug("data/items exists but contained no valid category files; falling back to items.json")
+
+        data = self._load_json("items.json")
+        if isinstance(data, dict):
+            return data
+        if data is not None:
+            debug("items.json is not structured as a dictionary of categories.")
+        return {}
+
     def load_items(self):
         """
-        Load item definitions from items.json.
+        Load item definitions from split category files (preferred) or items.json.
         
         Builds two lookup tables: one by item ID and one by item name.
-        The items.json file is structured as a dictionary of categories.
         """
-        data = self._load_json("items.json")
-        if not data:
-            self.items = {}
-            self.items_by_name = {}
-            return
-            
+        category_data = self._load_item_categories()
         self.items = {}
         self.items_by_name = {}
-        
-        if not isinstance(data, dict):
-            log_exception("items.json is not structured as a dictionary of categories.")
+        if not category_data:
+            debug("No item categories available; skipping item load.")
             return
 
-        for category, items in data.items():
+        for category, items in category_data.items():
             if not isinstance(items, dict):
-                log_exception(f"Category '{category}' in items.json is not a dict.")
+                debug(f"Category '{category}' is not a dict; skipping.")
                 continue
-                
             for item_id, item in items.items():
                 item["category"] = category
                 item["id"] = item_id
@@ -213,6 +266,41 @@ class GameData:
         self.spells = self._load_data_as_dict("spells.json", "id")
         if self.spells:
             debug(f"Loaded {len(self.spells)} spell templates")
+
+    def load_traps_and_chests(self):
+        """Load trap and chest definitions from traps.json.
+
+        File structure:
+        {
+          "TRAPS": { trap_id: { ... } },
+          "CHESTS": { chest_id: { ... } }
+        }
+        """
+        data = self._load_json("traps.json") or {}
+        self.traps: Dict[str, Dict] = {}
+        self.chests: Dict[str, Dict] = {}
+        if not isinstance(data, dict):
+            debug("traps.json malformed; expected object root")
+            return
+        traps = data.get("TRAPS", {})
+        chests = data.get("CHESTS", {})
+        if isinstance(traps, dict):
+            for tid, tdef in traps.items():
+                if isinstance(tdef, dict):
+                    tdef["id"] = tid
+                    self.traps[tid] = tdef
+        if isinstance(chests, dict):
+            for cid, cdef in chests.items():
+                if isinstance(cdef, dict):
+                    cdef["id"] = cid
+                    self.chests[cid] = cdef
+        debug(f"Loaded {len(self.traps)} traps, {len(self.chests)} chests")
+
+    def get_trap(self, trap_id: str) -> Optional[Dict]:
+        return getattr(self, 'traps', {}).get(trap_id)
+
+    def get_chest(self, chest_id: str) -> Optional[Dict]:
+        return getattr(self, 'chests', {}).get(chest_id)
 
     def load_config(self):
         """
@@ -297,13 +385,13 @@ class GameData:
         """
         return self.entities.get(entity_id)
 
-    def _is_within_depth(self, depth: int, bounds: Optional[Dict[str, int]]) -> bool:
+    def _is_within_depth(self, depth: int, bounds: Optional[Mapping[str, Optional[int]]]) -> bool:
         """
         Check if a depth is within provided min/max bounds.
         
         Args:
             depth: Dungeon depth to check
-            bounds: Dictionary with optional 'min' and 'max' keys
+            bounds: Mapping with optional 'min' and 'max' keys whose values may be None
             
         Returns:
             True if depth is within bounds (or bounds is None)
@@ -523,8 +611,10 @@ class GameData:
         normalized_depth = max(0, depth)
         filtered: List[Dict] = []
         for item in self.items.values():
-            if category and item.get("category") != category:
-                continue
+            if category:
+                item_cat = (item.get("category") or "").lower()
+                if item_cat != str(category).lower():
+                    continue
             rarity = item.get("rarity_depth")
             if rarity is None:
                 filtered.append(item)
@@ -586,3 +676,44 @@ class GameData:
         """
         self.identified_types[item_id] = True
         debug(f"Identified item type: {item_id}")
+
+    # ---------------------------
+    # Persistence helpers
+    # ---------------------------
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize identification-related state for save files.
+
+        Returns only data that must persist across sessions (global identification
+        and the stable mapping of unknown names so potions/scrolls don't reshuffle).
+        """
+        return {
+            "identified_types": dict(self.identified_types),
+            "unknown_name_mapping": dict(self.unknown_name_mapping),
+        }
+
+    def apply_dict(self, data: Dict[str, Any]) -> None:
+        """Apply previously saved identification state.
+
+        Safely updates identified_types and unknown_name_mapping without re-randomizing.
+        Call AFTER load_all so base templates exist.
+        """
+        try:
+            ident = data.get("identified_types")
+            if isinstance(ident, dict):
+                # Only keep keys that still exist in current items set
+                self.identified_types = {k: bool(v) for k, v in ident.items() if k in self.items}
+            mapping = data.get("unknown_name_mapping")
+            if isinstance(mapping, dict):
+                # Only keep mappings for existing items needing identification
+                self.unknown_name_mapping = {
+                    k: str(v) for k, v in mapping.items() if k in self.items
+                }
+        except Exception as e:
+            debug(f"Failed applying saved identification data: {e}")
+
+    @classmethod
+    def from_dict(cls, payload: Dict[str, Any]) -> None:
+        """Convenience to apply identification data to the singleton loader."""
+        loader = cls()
+        loader.apply_dict(payload)
+        # Intentionally no return (method returns None)

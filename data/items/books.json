@@ -1,0 +1,138 @@
+[
+    {
+        "name": "Beginners Handbook",
+        "type": "book",
+        "base_cost": 100,
+        "description": "Basic prayers.",
+        "spells": [
+            "detect_evil",
+            "cure_light_wounds"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "books/dark_blue_new.png",
+        "id": "BOOK_CLERIC_BEGINNERS"
+    },
+    {
+        "name": "Chants and Blessings",
+        "type": "book",
+        "base_cost": 300,
+        "description": "Advanced prayers.",
+        "spells": [
+            "cure_serious_wounds",
+            "protection_evil"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 30,
+        "image": "books/chant.png",
+        "id": "BOOK_CLERIC_CHANTS"
+    },
+    {
+        "name": "Exorcism and Dispelling",
+        "type": "book",
+        "base_cost": 500,
+        "description": "Potent divine magic.",
+        "spells": [
+            "dispel_undead",
+            "remove_curse"
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 30,
+        "image": "books/exorcism.png",
+        "id": "BOOK_CLERIC_EXORCISM"
+    },
+    {
+        "name": "Words of Wisdom",
+        "type": "book",
+        "base_cost": 200,
+        "description": "More prayers.",
+        "spells": [
+            "bless",
+            "remove_fear"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 30,
+        "image": "books/wisdom.png",
+        "id": "BOOK_CLERIC_WISDOM"
+    },
+    {
+        "name": "Magik I",
+        "type": "book",
+        "base_cost": 200,
+        "description": "More spells.",
+        "spells": [
+            "phase_door",
+            "light"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 30,
+        "image": "books/magik1.png",
+        "id": "BOOK_MAGE_1"
+    },
+    {
+        "name": "Magik II",
+        "type": "book",
+        "base_cost": 300,
+        "description": "Advanced spells.",
+        "spells": [
+            "fire_bolt",
+            "sleep_monster"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 30,
+        "image": "books/magik2.png",
+        "id": "BOOK_MAGE_2"
+    },
+    {
+        "name": "Beginners-Magik",
+        "type": "book",
+        "base_cost": 100,
+        "description": "Basic spells.",
+        "spells": [
+            "magic_missile",
+            "detect_monsters"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "books/light_gray_new.png",
+        "id": "BOOK_MAGE_BEGINNERS"
+    },
+    {
+        "name": "The Mages Guide to Power",
+        "type": "book",
+        "base_cost": 500,
+        "description": "Potent magic.",
+        "spells": [
+            "teleport",
+            "lightning_bolt"
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 30,
+        "image": "books/power.png",
+        "id": "BOOK_MAGE_POWER"
+    }
+]

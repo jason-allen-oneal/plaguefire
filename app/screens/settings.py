@@ -1,108 +1,115 @@
-from textual.screen import Screen
-from textual.widgets import Static
-from textual.containers import Vertical
-from rich.text import Text
-
-def colored_text(content: str, color: str, align: str = "center", **styles) -> Static:
-    """
-    Create a Textual Static widget that preserves Rich markup colors.
-
-    Args:
-        content (str): A string containing Rich markup, e.g. "[chartreuse1]Hello[/]".
-        align (str): Horizontal text alignment ("left", "center", "right"). Default is "center".
-        **styles: Any additional style overrides for the widget (e.g., background, padding).
-
-    Returns:
-        Static: A Textual Static widget ready to yield or mount.
-    """
-    widget = Static(Text.from_markup(f"[{color}]{content}[/{color}]"))
-    widget.styles.text_align = align
-
-    for key, value in styles.items():
-        setattr(widget.styles, key, value)
-
-    return widget
+import pygame
+from app.lib.core.game_engine import Game
+from app.screens.screen import Screen, FadeTransition
+from app.lib.ui.gui import get_button_theme, draw_border
+import app.lib.ui.theme as theme
 
 
 class SettingsScreen(Screen):
-    """Settings screen with toggles for music, sfx, and difficulty."""
-    color_system = "truecolor"
+    def __init__(self, game: Game):
+        super().__init__(game)
+        self.game = game
+        self.bg = game.assets.image("images", "paper.png")
+        self.gui = game.assets.spritesheet("sprites", "gui.png")
 
-    BINDINGS = [
-        ("m", "toggle_music", "Toggle Music"),
-        ("s", "toggle_sfx", "Toggle Sound Effects"),
-        ("d", "cycle_difficulty", "Change Difficulty"),
-        ("escape", "back_to_title", "Back to Title"),
-    ]
+        self.font_title = game.assets.font("fonts", "title.ttf", size=64)
+        self.font_menu = game.assets.font("fonts", "header.ttf", size=32)
+        self.font_small = game.assets.font("fonts", "header.ttf", size=24)
 
-    DEFAULT_CSS = """
-    Screen {
-        background: #0a0618;
-    }
-    """
+        # pull config data directly from loader
+        self.config = self.game.data.get("config", {})
 
-    def compose(self):
-        """Compose."""
-        header = colored_text("====== Settings ======", color="chartreuse1")
-        self.settings_display = Static(self.render_settings(), markup=False)
-        self.settings_display.styles.text_align = "center"
+        # load GUI button assets
+        button_theme = get_button_theme()
+        x, y, w, h = button_theme["normal"]
+        self.button_normal = self.gui.get(x, y, w, h)
+        x, y, w, h = button_theme["hover"]
+        self.button_hover = self.gui.get(x, y, w, h)
 
-        layout = Vertical(header, self.settings_display, id="settings_layout")
-        layout.styles.align_horizontal = "center"
-        layout.styles.align_vertical = "middle"
-        layout.styles.content_align = ("center", "middle")
-        yield layout
+        # preload hover sound
+        self.game.sound.load_sfx("menu_hover", "whoosh.mp3")
 
-    def render_settings(self) -> str:
-        """Render settings."""
-        music = "ON" if self.app.get_music() else "OFF"
-        sfx = "ON" if self.app.get_sfx() else "OFF"
-        diff = self.app.get_difficulty()
-        return (
-            f"[M]usic: {music}\n"
-            f"[S]ound Effects: {sfx}\n"
-            f"[D]ifficulty: {diff}\n"
-            "\n[ESC] Return to Title"
-        )
+        # --- settings buttons ---
+        win_w, _ = self.game.surface.get_size()
+        self.buttons = []
 
-    def refresh_display(self):
-        """Refresh display."""
-        self.settings_display.update(self.render_settings())
+        y = 250
+        for label in ["Toggle Music", "Toggle SFX", "Difficulty", "Back"]:
+            rect = self.button_normal.get_rect(center=(win_w // 2, y))
+            self.buttons.append({"label": label, "rect": rect, "hovered": False})
+            y += 80
 
-    def action_toggle_music(self):
-        """Action toggle music."""
-        self.app.toggle_music()
-        if self.app.get_sfx():
-            self.app.sound.play_sfx("title")
-        self.refresh_display()
-        state = "ON" if self.app.get_music() else "OFF"
-        self.notify(f"[bright_yellow]Music {state}[/bright_yellow]", timeout=2)
+    def handle_events(self, events):
+        mouse_pos = pygame.mouse.get_pos()
+        for e in events:
+            if e.type == pygame.KEYDOWN and e.key in (pygame.K_ESCAPE, pygame.K_RETURN):
+                self._save_and_exit()
+            elif e.type == pygame.MOUSEBUTTONDOWN and e.button == 1:
+                for button in self.buttons:
+                    if button["rect"].collidepoint(mouse_pos):
+                        self._on_click(button["label"])
 
-    def action_toggle_sfx(self):
-        """Action toggle sfx."""
-        self.app.toggle_sfx()
-        if self.app.get_sfx():
-            self.app.sound.play_sfx("title")
-        self.refresh_display()
-        state = "ON" if self.app.get_sfx() else "OFF"
-        self.notify(f"[bright_yellow]Sound Effects {state}[/bright_yellow]", timeout=2)
+    def _on_click(self, label):
+        """Perform an action based on the clicked button."""
+        if label == "Toggle Music":
+            self.config["music_enabled"] = not self.config.get("music_enabled", True)
+            self.game.sound.set_music_enabled(self.config["music_enabled"])
+        elif label == "Toggle SFX":
+            self.config["sfx_enabled"] = not self.config.get("sfx_enabled", True)
+            self.game.sound.set_sfx_enabled(self.config["sfx_enabled"])
+        elif label == "Difficulty":
+            order = ["Easy", "Normal", "Hard"]
+            current = self.config.get("difficulty", "Normal")
+            idx = (order.index(current) + 1) % len(order)
+            self.config["difficulty"] = order[idx]
+        elif label == "Back":
+            self._save_and_exit()
 
-    def action_cycle_difficulty(self):
-        """Action cycle difficulty."""
-        self.app.cycle_difficulty()
-        if self.app.get_sfx():
-            self.app.sound.play_sfx("title")
-        self.refresh_display()
-        self.notify(f"[bright_yellow]Difficulty: {self.app.get_difficulty()}[/bright_yellow]", timeout=2)
+    def _save_and_exit(self):
+        """Persist config changes and return to the title screen."""
+        from app.screens.title import TitleScreen
+        self.game.data["config"] = self.config
+        self.game.loader.save_config()
+        self.game.screens.push(FadeTransition(self.game, TitleScreen(self.game)))
 
-    def action_back_to_title(self):
-        """Action back to title."""
-        self.app.pop_screen()
-        self.app.push_screen("title")
+    def draw(self, surface):
+        win_w, win_h = surface.get_size()
+        surface.blit(pygame.transform.scale(self.bg, (win_w, win_h)), (0, 0))
+        theme.apply_overlay(surface, theme.BG_DARK, 200)
 
-    def on_unmount(self):
-        """Persist settings when leaving."""
-        self.app.data.config["music_enabled"] = self.app.get_music()
-        self.app.data.config["sfx_enabled"] = self.app.get_sfx()
-        self.app.data.config["difficulty"] = self.app.get_difficulty()
-        self.app.data.save_config()
+        # Title
+        title = self.font_title.render("SETTINGS", True, theme.ACCENT)
+        surface.blit(title, title.get_rect(center=(win_w // 2, 100)))
+
+        # Content frame
+        content_w, content_h = 520, 360
+        content_rect = pygame.Rect(0, 0, content_w, content_h)
+        content_rect.center = (win_w // 2, 360)
+        draw_border(surface, self.gui, content_rect)
+        panel_overlay = pygame.Surface((content_rect.width, content_rect.height), pygame.SRCALPHA)
+        panel_overlay.fill((*theme.BG_MID, 160))
+        surface.blit(panel_overlay, content_rect.topleft)
+
+        mouse_pos = pygame.mouse.get_pos()
+        for button in self.buttons:
+            hovered = button["rect"].collidepoint(mouse_pos)
+            if hovered and not button["hovered"]:
+                self.game.sound.play_sfx("menu_hover")
+            button["hovered"] = hovered
+            base = self.button_hover if hovered else self.button_normal
+            surface.blit(base, button["rect"])
+
+            label_text = self._render_label(button["label"])
+            color = theme.ACCENT if hovered else theme.TEXT_PRIMARY
+            label = self.font_menu.render(label_text, True, color)
+            surface.blit(label, label.get_rect(center=button["rect"].center))
+
+    def _render_label(self, label):
+        """Render dynamic text based on config."""
+        if label == "Toggle Music":
+            return f"Music: {'On' if self.config.get('music_enabled', True) else 'Off'}"
+        if label == "Toggle SFX":
+            return f"SFX: {'On' if self.config.get('sfx_enabled', True) else 'Off'}"
+        if label == "Difficulty":
+            return f"Difficulty: {self.config.get('difficulty', 'Normal')}"
+        return label
