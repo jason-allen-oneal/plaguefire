@@ -1,15 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from random import randint
 
+from plaguefire.core.CharacterCreation import create_player, get_allowed_classes, list_races
+from plaguefire.core.CharacterData import SEX_OPTIONS
 from plaguefire.core.GameState import GameState
-from plaguefire.core.SaveStore import (
-    CharacterSlot,
-    create_default_character,
-    list_characters,
-    load_player,
-    save_player,
-)
+from plaguefire.core.SaveStore import CharacterSlot, list_characters, load_player, save_player
 from plaguefire.frontends.common.KeyMap import key_to_action
 
 
@@ -19,7 +16,6 @@ TEXT_KEYS_BLOCKED = {
     "LEFT",
     "RIGHT",
     "CTRL_C",
-    "SPACE",
 }
 
 
@@ -37,6 +33,12 @@ class ClientSession:
 
     characters: list[CharacterSlot] = field(default_factory=list)
     game_state: GameState | None = None
+
+    creation_name: str = ""
+    creation_sex_index: int = 0
+    creation_race_index: int = 0
+    creation_class_index: int = 0
+    creation_seed: int = field(default_factory=lambda: randint(1, 999999))
 
     def handle_key(self, key: str) -> None:
         if key == "CTRL_C":
@@ -71,6 +73,22 @@ class ClientSession:
                 cancel=self.go_character_list,
                 max_length=24,
             )
+            return
+
+        if self.screen == "character_sex_select":
+            self.handle_sex_select_key(key)
+            return
+
+        if self.screen == "character_race_select":
+            self.handle_race_select_key(key)
+            return
+
+        if self.screen == "character_class_select":
+            self.handle_class_select_key(key)
+            return
+
+        if self.screen == "character_preview":
+            self.handle_preview_key(key)
             return
 
     def handle_game_key(self, key: str) -> None:
@@ -110,9 +128,7 @@ class ClientSession:
             return
 
         if key in {"n", "N"}:
-            self.input_buffer = ""
-            self.message = ""
-            self.screen = "character_name_input"
+            self.start_character_creation()
             return
 
         if key in {"r", "R"}:
@@ -147,14 +163,99 @@ class ClientSession:
         if key in TEXT_KEYS_BLOCKED:
             return
 
-        if len(key) != 1:
+        if key == "SPACE":
+            character = " "
+        elif len(key) == 1:
+            character = key
+        else:
             return
 
         if len(self.input_buffer) >= max_length:
             return
 
-        if key.isprintable():
-            self.input_buffer += key
+        if character.isprintable():
+            self.input_buffer += character
+
+    def handle_sex_select_key(self, key: str) -> None:
+        if key == "ESC":
+            self.screen = "character_name_input"
+            self.input_buffer = self.creation_name
+            return
+
+        if key in {"UP", "LEFT"}:
+            self.creation_sex_index = (self.creation_sex_index - 1) % len(SEX_OPTIONS)
+            return
+
+        if key in {"DOWN", "RIGHT"}:
+            self.creation_sex_index = (self.creation_sex_index + 1) % len(SEX_OPTIONS)
+            return
+
+        if key in {"m", "M"}:
+            self.creation_sex_index = self.sex_options().index("Male")
+            return
+
+        if key in {"f", "F"}:
+            self.creation_sex_index = self.sex_options().index("Female")
+            return
+
+        if key == "ENTER":
+            self.screen = "character_race_select"
+            return
+
+    def handle_race_select_key(self, key: str) -> None:
+        races = self.race_options()
+
+        if key == "ESC":
+            self.screen = "character_sex_select"
+            return
+
+        if key in {"UP", "LEFT"}:
+            self.creation_race_index = (self.creation_race_index - 1) % len(races)
+            self.clamp_class_index()
+            return
+
+        if key in {"DOWN", "RIGHT"}:
+            self.creation_race_index = (self.creation_race_index + 1) % len(races)
+            self.clamp_class_index()
+            return
+
+        if key == "ENTER":
+            self.clamp_class_index()
+            self.screen = "character_class_select"
+            return
+
+    def handle_class_select_key(self, key: str) -> None:
+        classes = self.class_options()
+
+        if key == "ESC":
+            self.screen = "character_race_select"
+            return
+
+        if key in {"UP", "LEFT"}:
+            self.creation_class_index = (self.creation_class_index - 1) % len(classes)
+            return
+
+        if key in {"DOWN", "RIGHT"}:
+            self.creation_class_index = (self.creation_class_index + 1) % len(classes)
+            return
+
+        if key == "ENTER":
+            self.screen = "character_preview"
+            return
+
+    def handle_preview_key(self, key: str) -> None:
+        if key == "ESC":
+            self.screen = "character_class_select"
+            return
+
+        if key in {"r", "R"}:
+            self.creation_seed = randint(1, 999999)
+            self.message = "Stats rerolled."
+            return
+
+        if key in {"ENTER", "c", "C"}:
+            self.finish_character_creation()
+            return
 
     def submit_username(self) -> None:
         username = self.input_buffer.strip()
@@ -167,6 +268,16 @@ class ClientSession:
         self.refresh_character_list()
         self.screen = "character_list"
 
+    def start_character_creation(self) -> None:
+        self.creation_name = ""
+        self.creation_sex_index = 0
+        self.creation_race_index = 0
+        self.creation_class_index = 0
+        self.creation_seed = randint(1, 999999)
+        self.input_buffer = ""
+        self.message = ""
+        self.screen = "character_name_input"
+
     def submit_character_name(self) -> None:
         character_name = self.input_buffer.strip()
 
@@ -174,7 +285,22 @@ class ClientSession:
             self.message = "Enter a character name first."
             return
 
-        player = create_default_character(self.username, character_name)
+        self.creation_name = character_name
+        self.input_buffer = ""
+        self.message = ""
+        self.screen = "character_sex_select"
+
+    def finish_character_creation(self) -> None:
+        player = create_player(
+            name=self.creation_name,
+            race_name=self.selected_race(),
+            class_name=self.selected_class(),
+            sex=self.selected_sex(),
+            chosen_spells=[],
+            seed=self.creation_seed,
+        )
+
+        save_player(self.username, player)
         self.start_game(player)
 
     def refresh_character_list(self) -> None:
@@ -199,3 +325,44 @@ class ClientSession:
         self.refresh_character_list()
         self.screen = "character_list"
         self.input_buffer = ""
+
+    def sex_options(self) -> list[str]:
+        return list(SEX_OPTIONS)
+
+    def race_options(self) -> list[str]:
+        return list_races()
+
+    def class_options(self) -> list[str]:
+        return get_allowed_classes(self.selected_race())
+
+    def selected_sex(self) -> str:
+        options = self.sex_options()
+        return options[self.creation_sex_index % len(options)]
+
+    def selected_race(self) -> str:
+        races = self.race_options()
+        return races[self.creation_race_index % len(races)]
+
+    def selected_class(self) -> str:
+        classes = self.class_options()
+        self.creation_class_index %= len(classes)
+        return classes[self.creation_class_index]
+
+    def clamp_class_index(self) -> None:
+        classes = self.class_options()
+
+        if not classes:
+            self.creation_class_index = 0
+            return
+
+        self.creation_class_index %= len(classes)
+
+    def preview_player(self):
+        return create_player(
+            name=self.creation_name,
+            race_name=self.selected_race(),
+            class_name=self.selected_class(),
+            sex=self.selected_sex(),
+            chosen_spells=[],
+            seed=self.creation_seed,
+        )
