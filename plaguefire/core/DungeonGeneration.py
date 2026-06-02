@@ -17,12 +17,12 @@ DOWNSTAIRS = ">"
 CLOSED_DOOR = "+"
 OPEN_DOOR = "'"
 
-# Internal only. Renderer must never show this glyph directly.
+# Internal only. This must render as WALL.
 SECRET_DOOR = "s"
 
 FLOOR_TILES = {ROOM_FLOOR, CORRIDOR_FLOOR, UPSTAIRS, DOWNSTAIRS, OPEN_DOOR}
-WALKABLE_DUNGEON_TILES = FLOOR_TILES
 DOOR_TILES = {CLOSED_DOOR, OPEN_DOOR, SECRET_DOOR}
+CONNECTIVITY_TILES = FLOOR_TILES | DOOR_TILES
 
 
 @dataclass(frozen=True)
@@ -54,6 +54,12 @@ class Room:
 
 
 @dataclass(frozen=True)
+class Doorway:
+    door: tuple[int, int]
+    outside: tuple[int, int]
+
+
+@dataclass(frozen=True)
 class DungeonMap:
     depth: int
     tiles: list[str]
@@ -72,6 +78,7 @@ def generate_dungeon(
 
     grid = [[SOLID_ROCK for _ in range(width)] for _ in range(height)]
     rooms: list[Room] = []
+    door_positions: list[tuple[int, int]] = []
 
     target_rooms = min(34, 16 + depth // 2)
     max_attempts = 900
@@ -80,8 +87,9 @@ def generate_dungeon(
         if len(rooms) >= target_rooms:
             break
 
-        room_width = rng.randint(7, 18)
-        room_height = rng.randint(4, 9)
+        # These dimensions include the room wall boundary.
+        room_width = rng.randint(9, 20)
+        room_height = rng.randint(6, 11)
 
         x = rng.randint(3, width - room_width - 4)
         y = rng.randint(3, height - room_height - 4)
@@ -94,18 +102,18 @@ def generate_dungeon(
         carve_room(grid, room)
 
         if rooms:
-            connect_rooms(grid, rooms[-1], room, rng)
+            door_positions.extend(connect_rooms(grid, rooms[-1], room, rng))
 
         rooms.append(room)
 
     if not rooms:
-        fallback = Room(x=width // 2 - 5, y=height // 2 - 3, width=10, height=6)
+        fallback = Room(x=width // 2 - 6, y=height // 2 - 4, width=12, height=8)
         carve_room(grid, fallback)
         rooms.append(fallback)
 
-    add_extra_connections(grid, rooms, rng)
-    add_walls_around_floors(grid)
-    place_doors(grid, rng)
+    door_positions.extend(add_extra_connections(grid, rooms, rng))
+    add_walls_around_corridors(grid)
+    mark_doors(grid, door_positions, rng)
 
     upstairs_room = rooms[0]
     downstairs_room = farthest_room_from(upstairs_room, rooms)
@@ -134,12 +142,23 @@ def generate_dungeon(
 def carve_room(grid: list[list[str]], room: Room) -> None:
     for y in range(room.y, room.y2 + 1):
         for x in range(room.x, room.x2 + 1):
-            grid[y][x] = ROOM_FLOOR
+            if x in {room.x, room.x2} or y in {room.y, room.y2}:
+                grid[y][x] = WALL
+            else:
+                grid[y][x] = ROOM_FLOOR
 
 
-def connect_rooms(grid: list[list[str]], first: Room, second: Room, rng: random.Random) -> None:
-    x1, y1 = first.center
-    x2, y2 = second.center
+def connect_rooms(
+    grid: list[list[str]],
+    first: Room,
+    second: Room,
+    rng: random.Random,
+) -> list[tuple[int, int]]:
+    first_doorway = doorway_toward(first, second, rng)
+    second_doorway = doorway_toward(second, first, rng)
+
+    x1, y1 = first_doorway.outside
+    x2, y2 = second_doorway.outside
 
     if rng.choice([True, False]):
         carve_horizontal_tunnel(grid, x1, x2, y1)
@@ -148,12 +167,42 @@ def connect_rooms(grid: list[list[str]], first: Room, second: Room, rng: random.
         carve_vertical_tunnel(grid, y1, y2, x1)
         carve_horizontal_tunnel(grid, x1, x2, y2)
 
+    return [first_doorway.door, second_doorway.door]
 
-def add_extra_connections(grid: list[list[str]], rooms: list[Room], rng: random.Random) -> None:
+
+def doorway_toward(room: Room, target: Room, rng: random.Random) -> Doorway:
+    room_cx, room_cy = room.center
+    target_cx, target_cy = target.center
+
+    dx = target_cx - room_cx
+    dy = target_cy - room_cy
+
+    if abs(dx) >= abs(dy):
+        if dx >= 0:
+            y = rng.randint(room.y + 1, room.y2 - 1)
+            return Doorway(door=(room.x2, y), outside=(room.x2 + 1, y))
+
+        y = rng.randint(room.y + 1, room.y2 - 1)
+        return Doorway(door=(room.x, y), outside=(room.x - 1, y))
+
+    if dy >= 0:
+        x = rng.randint(room.x + 1, room.x2 - 1)
+        return Doorway(door=(x, room.y2), outside=(x, room.y2 + 1))
+
+    x = rng.randint(room.x + 1, room.x2 - 1)
+    return Doorway(door=(x, room.y), outside=(x, room.y - 1))
+
+
+def add_extra_connections(
+    grid: list[list[str]],
+    rooms: list[Room],
+    rng: random.Random,
+) -> list[tuple[int, int]]:
     if len(rooms) < 5:
-        return
+        return []
 
-    attempts = max(1, len(rooms) // 7)
+    door_positions: list[tuple[int, int]] = []
+    attempts = max(1, len(rooms) // 8)
 
     for _ in range(attempts):
         first = rng.choice(rooms)
@@ -162,29 +211,31 @@ def add_extra_connections(grid: list[list[str]], rooms: list[Room], rng: random.
         if first == second:
             continue
 
-        connect_rooms(grid, first, second, rng)
+        door_positions.extend(connect_rooms(grid, first, second, rng))
+
+    return door_positions
 
 
 def carve_horizontal_tunnel(grid: list[list[str]], x1: int, x2: int, y: int) -> None:
     for x in range(min(x1, x2), max(x1, x2) + 1):
         if in_bounds(grid, x, y):
-            if grid[y][x] == SOLID_ROCK:
+            if grid[y][x] in {SOLID_ROCK, WALL}:
                 grid[y][x] = CORRIDOR_FLOOR
 
 
 def carve_vertical_tunnel(grid: list[list[str]], y1: int, y2: int, x: int) -> None:
     for y in range(min(y1, y2), max(y1, y2) + 1):
         if in_bounds(grid, x, y):
-            if grid[y][x] == SOLID_ROCK:
+            if grid[y][x] in {SOLID_ROCK, WALL}:
                 grid[y][x] = CORRIDOR_FLOOR
 
 
-def add_walls_around_floors(grid: list[list[str]]) -> None:
+def add_walls_around_corridors(grid: list[list[str]]) -> None:
     wall_positions: set[tuple[int, int]] = set()
 
     for y, row in enumerate(grid):
         for x, tile in enumerate(row):
-            if tile not in {ROOM_FLOOR, CORRIDOR_FLOOR, UPSTAIRS, DOWNSTAIRS}:
+            if tile not in {CORRIDOR_FLOOR, UPSTAIRS, DOWNSTAIRS}:
                 continue
 
             for nx, ny in neighbors_8(x, y):
@@ -198,59 +249,33 @@ def add_walls_around_floors(grid: list[list[str]]) -> None:
         grid[y][x] = WALL
 
 
-def place_doors(grid: list[list[str]], rng: random.Random) -> None:
-    candidates: list[tuple[int, int]] = []
+def mark_doors(
+    grid: list[list[str]],
+    door_positions: list[tuple[int, int]],
+    rng: random.Random,
+) -> None:
+    unique_positions = list(dict.fromkeys(door_positions))
+    rng.shuffle(unique_positions)
 
-    for y in range(1, len(grid) - 1):
-        for x in range(1, len(grid[y]) - 1):
-            if grid[y][x] != WALL:
-                continue
+    actual_doors: list[tuple[int, int]] = []
 
-            if is_horizontal_door_candidate(grid, x, y) or is_vertical_door_candidate(grid, x, y):
-                candidates.append((x, y))
+    for x, y in unique_positions:
+        if not in_bounds(grid, x, y):
+            continue
 
-    rng.shuffle(candidates)
-
-    # Avoid over-door-ing the map. Moria-like dungeons should have doors,
-    # but not every room edge should become a door.
-    max_doors = max(4, min(30, len(candidates) // 3))
-    placed = 0
-
-    for x, y in candidates:
-        if placed >= max_doors:
-            break
+        if grid[y][x] not in {WALL, CORRIDOR_FLOOR}:
+            continue
 
         if has_adjacent_door(grid, x, y):
             continue
 
-        grid[y][x] = SECRET_DOOR if rng.randint(1, 8) == 1 else CLOSED_DOOR
-        placed += 1
+        grid[y][x] = SECRET_DOOR if rng.randint(1, 7) == 1 else CLOSED_DOOR
+        actual_doors.append((x, y))
 
-
-def is_horizontal_door_candidate(grid: list[list[str]], x: int, y: int) -> bool:
-    left = grid[y][x - 1]
-    right = grid[y][x + 1]
-    up = grid[y - 1][x]
-    down = grid[y + 1][x]
-
-    return (
-        {left, right} == {ROOM_FLOOR, CORRIDOR_FLOOR}
-        and up in {WALL, SOLID_ROCK}
-        and down in {WALL, SOLID_ROCK}
-    )
-
-
-def is_vertical_door_candidate(grid: list[list[str]], x: int, y: int) -> bool:
-    left = grid[y][x - 1]
-    right = grid[y][x + 1]
-    up = grid[y - 1][x]
-    down = grid[y + 1][x]
-
-    return (
-        {up, down} == {ROOM_FLOOR, CORRIDOR_FLOOR}
-        and left in {WALL, SOLID_ROCK}
-        and right in {WALL, SOLID_ROCK}
-    )
+    # Guarantee at least one secret door when the level has several doors.
+    if actual_doors and not any(grid[y][x] == SECRET_DOOR for x, y in actual_doors):
+        x, y = rng.choice(actual_doors)
+        grid[y][x] = SECRET_DOOR
 
 
 def has_adjacent_door(grid: list[list[str]], x: int, y: int) -> bool:
@@ -335,13 +360,13 @@ def reachable_floor_count(tiles: list[str], start: tuple[int, int]) -> int:
             if (nx, ny) in seen:
                 continue
 
-            if tiles[ny][nx] not in FLOOR_TILES:
+            if tiles[ny][nx] not in CONNECTIVITY_TILES:
                 continue
 
             seen.add((nx, ny))
             queue.append((nx, ny))
 
-    return len(seen)
+    return sum(1 for x, y in seen if tiles[y][x] in FLOOR_TILES)
 
 
 def total_floor_count(tiles: list[str]) -> int:
@@ -358,3 +383,7 @@ def total_blank_count(tiles: list[str]) -> int:
 
 def total_door_count(tiles: list[str]) -> int:
     return sum(1 for row in tiles for tile in row if tile in DOOR_TILES)
+
+
+def total_secret_door_count(tiles: list[str]) -> int:
+    return sum(1 for row in tiles for tile in row if tile == SECRET_DOOR)

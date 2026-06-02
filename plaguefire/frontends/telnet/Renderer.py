@@ -176,6 +176,8 @@ def render_stats_column(state: GameState, height: int) -> list[str]:
 
 
 def render_map_area(state: GameState, width: int, height: int) -> list[str]:
+    state.refresh_fov()
+
     lines: list[str] = []
 
     map_width, map_height = map_dimensions(state.map_data)
@@ -199,11 +201,23 @@ def render_map_area(state: GameState, width: int, height: int) -> list[str]:
                 rendered_row.append("@")
                 continue
 
-            rendered_row.append(tile_for_render(state.map_data, map_x, map_y))
+            rendered_row.append(tile_for_state(state, map_x, map_y))
 
         lines.append("".join(rendered_row))
 
     return lines
+
+
+def tile_for_state(state: GameState, x: int, y: int) -> str:
+    if not state.is_explored(x, y):
+        return " "
+
+    tile = tile_for_render(state.map_data, x, y)
+
+    if not state.is_visible(x, y):
+        return tile
+
+    return tile
 
 
 def map_dimensions(map_data: list[str]) -> tuple[int, int]:
@@ -309,6 +323,7 @@ def render_help(terminal_width: int, terminal_height: int) -> str:
         "  c            Character sheet",
         "  i            Inventory",
         "  s            Spells",
+        "  x            Search adjacent tiles",
         "  ?            Help",
         "  Esc          Return to game",
         "  q            Quit",

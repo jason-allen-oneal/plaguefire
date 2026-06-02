@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from plaguefire.core.Action import Action
 from plaguefire.core.DungeonGeneration import (
     CLOSED_DOOR,
@@ -7,6 +9,7 @@ from plaguefire.core.DungeonGeneration import (
     display_tile,
     generate_dungeon,
     total_door_count,
+    total_secret_door_count,
 )
 from plaguefire.core.GameState import GameState
 
@@ -15,6 +18,12 @@ def test_generated_dungeon_can_have_doors():
     dungeon = generate_dungeon(depth=1, seed=1234)
 
     assert total_door_count(dungeon.tiles) > 0
+
+
+def test_generated_dungeon_has_secret_doors_internally():
+    dungeon = generate_dungeon(depth=1, seed=1234)
+
+    assert total_secret_door_count(dungeon.tiles) > 0
 
 
 def test_secret_door_displays_as_wall_not_marker():
@@ -72,7 +81,8 @@ def test_secret_door_blocks_movement_until_searched():
     assert state.tile_at(2, 1) == SECRET_DOOR
     assert display_tile(state.tile_at(2, 1)) == WALL
 
-    state.handle_action(Action.search())
+    with patch("plaguefire.core.GameState.random.randint", return_value=1):
+        state.handle_action(Action.search())
 
     assert state.tile_at(2, 1) == CLOSED_DOOR
     assert "secret door" in state.messages[-1]

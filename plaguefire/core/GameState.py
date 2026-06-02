@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 
 from plaguefire.core.Action import Action, ActionType, DIRECTION_DELTAS
 from plaguefire.core.CharacterCreation import create_player
+from plaguefire.core.Fov import compute_fov
 from plaguefire.core.DungeonGeneration import CLOSED_DOOR, CORRIDOR_FLOOR, OPEN_DOOR, ROOM_FLOOR, SECRET_DOOR, DungeonMap, generate_dungeon
 from plaguefire.core.ItemCatalog import get_item_name, get_item_price
 from plaguefire.core.Shop import ShopDefinition, get_shop
@@ -42,6 +43,10 @@ class GameState:
     shop_mode: str = "buy"
     shop_selection_index: int = 0
     inventory_selection_index: int = 0
+
+    visible_tiles: set[tuple[int, int]] = field(default_factory=set)
+    explored_by_depth: dict[int, set[tuple[int, int]]] = field(default_factory=dict)
+    fov_radius: int = 12
 
     haggle_attempted: set[str] = field(default_factory=set)
     haggle_price_adjustments: dict[str, int] = field(default_factory=dict)
@@ -216,6 +221,7 @@ class GameState:
             self.set_tile(target_x, target_y, OPEN_DOOR)
             self.turn += 1
             self.player.time += 1
+            self.refresh_fov()
             self.log("You open the door.")
             return
 
@@ -231,6 +237,7 @@ class GameState:
         self.player_y = target_y
         self.turn += 1
         self.player.time += 1
+        self.refresh_fov()
 
         tile = self.tile_at(target_x, target_y)
 
@@ -279,6 +286,8 @@ class GameState:
         if reset_position:
             self.player_x, self.player_y = starting_position()
 
+        self.refresh_fov()
+
     def enter_dungeon_depth(self, depth: int, arrival: str) -> None:
         if depth <= 0:
             self.enter_town(reset_position=True)
@@ -312,7 +321,38 @@ class GameState:
         self.map_data[y] = row[:x] + tile + row[x + 1:]
 
     def search(self) -> None:
-        found = 0
+        secret_doors = self.adjacent_secret_door_positions()
+
+        self.turn += 1
+        self.player.time += 1
+
+        if not secret_doors:
+            self.log("You search carefully, but find nothing.")
+            return
+
+        chance = self.search_success_chance()
+        found: list[tuple[int, int]] = []
+
+        for x, y in secret_doors:
+            if random.randint(1, 100) <= chance:
+                found.append((x, y))
+
+        if not found:
+            self.log("You search carefully, but find nothing.")
+            return
+
+        for x, y in found:
+            self.set_tile(x, y, CLOSED_DOOR)
+
+        self.refresh_fov()
+
+        if len(found) == 1:
+            self.log("You found a secret door.")
+        else:
+            self.log(f"You found {len(found)} secret doors.")
+
+    def adjacent_secret_door_positions(self) -> list[tuple[int, int]]:
+        positions: list[tuple[int, int]] = []
 
         for y in range(self.player_y - 1, self.player_y + 2):
             for x in range(self.player_x - 1, self.player_x + 2):
@@ -320,16 +360,68 @@ class GameState:
                     continue
 
                 if self.tile_at(x, y) == SECRET_DOOR:
-                    self.set_tile(x, y, CLOSED_DOOR)
-                    found += 1
+                    positions.append((x, y))
 
-        self.turn += 1
-        self.player.time += 1
+        return positions
 
-        if found:
-            self.log("You found a secret door.")
+    def search_success_chance(self) -> int:
+        intelligence = self.player.get_modifier("INT")
+        wisdom = self.player.get_modifier("WIS")
+        class_bonus = {
+            "Rogue": 15,
+            "Ranger": 8,
+            "Priest": 5,
+            "Mage": 5,
+        }.get(self.player.character_class, 0)
+
+        ability_bonus = self.search_ability_bonus()
+        chance = 35 + intelligence * 4 + wisdom * 3 + class_bonus + ability_bonus
+
+        return max(10, min(90, chance))
+
+    def search_ability_bonus(self) -> int:
+        for key in ("search", "searching", "perception", "Perception", "Searching"):
+            if key not in self.player.abilities:
+                continue
+
+            try:
+                return int(float(self.player.abilities[key]) // 10)
+            except (TypeError, ValueError):
+                return 0
+
+        return 0
+
+    def refresh_fov(self) -> None:
+        if self.player.depth <= 0:
+            self.visible_tiles = {
+                (x, y)
+                for y, row in enumerate(self.map_data)
+                for x in range(len(row))
+            }
         else:
-            self.log("You search but find nothing.")
+            self.visible_tiles = compute_fov(
+                map_data=self.map_data,
+                origin_x=self.player_x,
+                origin_y=self.player_y,
+                radius=self.fov_radius,
+            )
+
+        self.current_explored_tiles().update(self.visible_tiles)
+
+    def current_explored_tiles(self) -> set[tuple[int, int]]:
+        return self.explored_by_depth.setdefault(self.player.depth, set())
+
+    def is_visible(self, x: int, y: int) -> bool:
+        if not self.visible_tiles:
+            self.refresh_fov()
+
+        return (x, y) in self.visible_tiles
+
+    def is_explored(self, x: int, y: int) -> bool:
+        if not self.current_explored_tiles():
+            self.refresh_fov()
+
+        return (x, y) in self.current_explored_tiles()
 
     def tile_at(self, x: int, y: int) -> str:
         if y < 0 or y >= len(self.map_data):
