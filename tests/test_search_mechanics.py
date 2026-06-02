@@ -80,10 +80,27 @@ def test_search_success_chance_is_bounded():
     state.player.stats["INT"] = 3
     state.player.stats["WIS"] = 3
 
-    assert 10 <= state.search_success_chance() <= 90
+    assert 20 <= state.search_success_chance() <= 95
 
     state.player.stats["INT"] = 25
     state.player.stats["WIS"] = 25
     state.player.character_class = "Rogue"
 
-    assert 10 <= state.search_success_chance() <= 90
+    assert 20 <= state.search_success_chance() <= 95
+
+
+def test_search_chance_is_reasonable_for_default_character():
+    state = GameState()
+
+    assert state.search_success_chance() >= 60
+
+
+def test_searching_ability_improves_search_chance():
+    state = GameState()
+    state.player.abilities["searching"] = 0
+    low = state.search_success_chance()
+
+    state.player.abilities["searching"] = 10
+    high = state.search_success_chance()
+
+    assert high > low

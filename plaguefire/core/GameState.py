@@ -581,29 +581,40 @@ class GameState:
     def search_success_chance(self) -> int:
         intelligence = self.player.get_modifier("INT")
         wisdom = self.player.get_modifier("WIS")
+
         class_bonus = {
-            "Rogue": 15,
-            "Ranger": 8,
-            "Priest": 5,
-            "Mage": 5,
+            "Rogue": 20,
+            "Ranger": 12,
+            "Priest": 8,
+            "Mage": 8,
+            "Warrior": 5,
         }.get(self.player.character_class, 0)
 
         ability_bonus = self.search_ability_bonus()
-        chance = 35 + intelligence * 4 + wisdom * 3 + class_bonus + ability_bonus
 
-        return max(10, min(90, chance))
+        # Secret doors should be hidden, not miserable.
+        # A normal character should have a fair chance when actively searching.
+        chance = 55 + intelligence * 5 + wisdom * 4 + class_bonus + ability_bonus
+
+        return max(20, min(95, chance))
 
     def search_ability_bonus(self) -> int:
+        best = 0
+
         for key in ("search", "searching", "perception", "Perception", "Searching"):
             if key not in self.player.abilities:
                 continue
 
             try:
-                return int(float(self.player.abilities[key]) // 10)
+                value = float(self.player.abilities[key])
             except (TypeError, ValueError):
-                return 0
+                continue
 
-        return 0
+            # Old Plaguefire ability values are small decimals/ratings.
+            # Make them matter without letting them dominate the whole roll.
+            best = max(best, int(value * 2))
+
+        return best
 
     def refresh_fov(self) -> None:
         if self.player.depth <= 0:
