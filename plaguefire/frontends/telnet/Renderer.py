@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from plaguefire.core.GameState import GameState
+from plaguefire.core.ItemCatalog import get_item_name
+from plaguefire.core.SpellCatalog import get_spell_name
 from plaguefire.core.ItemCatalog import get_item_description, get_item_name, get_item_price
 
 
@@ -49,7 +51,7 @@ def render(state: GameState, terminal_width: int = 80, terminal_height: int = 24
         return render_character(state, terminal_width, terminal_height)
 
     if state.screen == "inventory":
-        return render_inventory(terminal_width, terminal_height)
+        return render_inventory(state, terminal_width, terminal_height)
 
     if state.screen == "spells":
         return render_spells(state, terminal_width, terminal_height)
@@ -294,12 +296,23 @@ def render_character(state: GameState, terminal_width: int, terminal_height: int
     return frame("CHARACTER", body, terminal_width, terminal_height)
 
 
-def render_inventory(terminal_width: int, terminal_height: int) -> str:
-    body = [
-        "Inventory is not implemented yet.",
-        "",
-        "Press Esc to return.",
-    ]
+def render_inventory(state: GameState, terminal_width: int, terminal_height: int) -> str:
+    body: list[str] = []
+
+    if not state.player.inventory:
+        body.append("You are carrying nothing.")
+    else:
+        for index, stack in enumerate(state.player.inventory, start=1):
+            item_id = stack.get("item_id", "")
+            quantity = stack.get("quantity", 1)
+            body.append(f"{index:>2}. {quantity}x {get_item_name(item_id)}")
+
+    body.extend(
+        [
+            "",
+            "Press Esc to return.",
+        ]
+    )
 
     return frame("INVENTORY", body, terminal_width, terminal_height)
 

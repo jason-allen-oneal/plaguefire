@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from plaguefire.core.ItemCatalog import get_item_name
+from plaguefire.core.SpellCatalog import get_spell_name
 from plaguefire.frontends.telnet.ClientSession import ClientSession
 from plaguefire.frontends.telnet.Renderer import frame, render as render_game
 
@@ -25,6 +27,9 @@ def render_client(session: ClientSession) -> str:
 
     if session.screen == "character_class_select":
         return render_class_select(session)
+
+    if session.screen == "character_spell_select":
+        return render_spell_select(session)
 
     if session.screen == "character_preview":
         return render_character_preview(session)
@@ -186,6 +191,58 @@ def render_class_select(session: ClientSession) -> str:
     return frame("CREATE CHARACTER: CLASS", body, session.terminal_width, session.terminal_height)
 
 
+def render_spell_select(session: ClientSession) -> str:
+    spells = session.starter_spell_options()
+
+    body = [
+        f"Name: {session.creation_name}",
+        f"Sex: {session.selected_sex()}",
+        f"Race: {session.selected_race()}",
+        f"Class: {session.selected_class()}",
+        "",
+        "Choose starter spell.",
+        "",
+    ]
+
+    if not spells:
+        body.extend(
+            [
+                "No starter spells are available for this class.",
+                "",
+                "Enter continues. Esc goes back.",
+            ]
+        )
+        return frame("CREATE CHARACTER: SPELLS", body, session.terminal_width, session.terminal_height)
+
+    for index, spell in enumerate(spells):
+        marker = "*" if spell.id in session.creation_selected_spells else " "
+        cursor = ">" if index == session.creation_spell_index else " "
+        class_info = spell.class_info(session.selected_class()) or {}
+        mana = class_info.get("mana", "?")
+        fail = class_info.get("base_failure", "?")
+        body.append(f"{cursor} [{marker}] {spell.name:<24} Mana {mana:<2} Fail {fail}%")
+
+    selected_names = [get_spell_name(spell_id) for spell_id in session.creation_selected_spells]
+
+    body.extend(
+        [
+            "",
+            f"Selected: {', '.join(selected_names) if selected_names else 'None'}",
+            "",
+            "Up/Down changes selection.",
+            "Space toggles spell.",
+            "Enter selects and continues.",
+            "c continues after selecting.",
+            "Esc goes back.",
+        ]
+    )
+
+    if session.message:
+        body.extend(["", session.message])
+
+    return frame("CREATE CHARACTER: SPELLS", body, session.terminal_width, session.terminal_height)
+
+
 def render_character_preview(session: ClientSession) -> str:
     try:
         player = session.preview_player()
@@ -231,6 +288,24 @@ def render_character_preview(session: ClientSession) -> str:
 
     for ability, value in sorted(player.abilities.items()):
         body.append(f"  {ability}: {value}")
+
+    body.extend(["", "Starting inventory:"])
+
+    if not player.inventory:
+        body.append("  None")
+    else:
+        for stack in player.inventory:
+            item_id = stack.get("item_id", "")
+            quantity = stack.get("quantity", 1)
+            body.append(f"  {quantity}x {get_item_name(item_id)}")
+
+    body.extend(["", "Known spells:"])
+
+    if not player.spells:
+        body.append("  None")
+    else:
+        for spell_id in player.spells:
+            body.append(f"  {get_spell_name(spell_id)}")
 
     body.extend(
         [

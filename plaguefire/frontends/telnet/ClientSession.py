@@ -4,9 +4,10 @@ from dataclasses import dataclass, field
 from random import randint
 
 from plaguefire.core.CharacterCreation import create_player, get_allowed_classes, list_races
-from plaguefire.core.CharacterData import SEX_OPTIONS
+from plaguefire.core.CharacterData import MAX_STARTER_SPELLS, SEX_OPTIONS
 from plaguefire.core.GameState import GameState
 from plaguefire.core.SaveStore import CharacterSlot, list_characters, load_player, save_player
+from plaguefire.core.SpellCatalog import starter_spells_for_class
 from plaguefire.frontends.common.KeyMap import key_to_action
 
 
@@ -38,6 +39,8 @@ class ClientSession:
     creation_sex_index: int = 0
     creation_race_index: int = 0
     creation_class_name: str = "Warrior"
+    creation_spell_index: int = 0
+    creation_selected_spells: list[str] = field(default_factory=list)
     creation_seed: int = field(default_factory=lambda: randint(1, 999999))
 
     def handle_key(self, key: str) -> None:
@@ -85,6 +88,10 @@ class ClientSession:
 
         if self.screen == "character_class_select":
             self.handle_class_select_key(key)
+            return
+
+        if self.screen == "character_spell_select":
+            self.handle_spell_select_key(key)
             return
 
         if self.screen == "character_preview":
@@ -212,11 +219,13 @@ class ClientSession:
         if key in {"UP", "LEFT"}:
             self.creation_race_index = (self.creation_race_index - 1) % len(races)
             self.ensure_selected_class_is_allowed()
+            self.clear_spell_selection()
             return
 
         if key in {"DOWN", "RIGHT"}:
             self.creation_race_index = (self.creation_race_index + 1) % len(races)
             self.ensure_selected_class_is_allowed()
+            self.clear_spell_selection()
             return
 
         if key == "ENTER":
@@ -237,20 +246,64 @@ class ClientSession:
         if key in {"UP", "LEFT"}:
             next_index = (current_index - 1) % len(classes)
             self.creation_class_name = classes[next_index]
+            self.clear_spell_selection()
             return
 
         if key in {"DOWN", "RIGHT"}:
             next_index = (current_index + 1) % len(classes)
             self.creation_class_name = classes[next_index]
+            self.clear_spell_selection()
             return
 
         if key == "ENTER":
+            if self.starter_spell_options():
+                self.screen = "character_spell_select"
+            else:
+                self.screen = "character_preview"
+            return
+
+    def handle_spell_select_key(self, key: str) -> None:
+        spells = self.starter_spell_options()
+
+        if key == "ESC":
+            self.screen = "character_class_select"
+            return
+
+        if not spells:
+            self.screen = "character_preview"
+            return
+
+        if key in {"UP", "LEFT"}:
+            self.creation_spell_index = (self.creation_spell_index - 1) % len(spells)
+            return
+
+        if key in {"DOWN", "RIGHT"}:
+            self.creation_spell_index = (self.creation_spell_index + 1) % len(spells)
+            return
+
+        if key in {"SPACE", "ENTER"}:
+            selected_spell = spells[self.creation_spell_index]
+            self.toggle_starter_spell(selected_spell.id)
+
+            if key == "ENTER" and self.creation_selected_spells:
+                self.screen = "character_preview"
+
+            return
+
+        if key in {"c", "C"}:
+            if not self.creation_selected_spells:
+                self.message = "Choose at least one starter spell."
+                return
+
             self.screen = "character_preview"
             return
 
     def handle_preview_key(self, key: str) -> None:
         if key == "ESC":
-            self.screen = "character_class_select"
+            if self.starter_spell_options():
+                self.screen = "character_spell_select"
+            else:
+                self.screen = "character_class_select"
             return
 
         if key in {"r", "R"}:
@@ -278,6 +331,8 @@ class ClientSession:
         self.creation_sex_index = 0
         self.creation_race_index = 0
         self.creation_class_name = "Warrior"
+        self.creation_spell_index = 0
+        self.creation_selected_spells = []
         self.creation_seed = randint(1, 999999)
         self.input_buffer = ""
         self.message = ""
@@ -301,7 +356,7 @@ class ClientSession:
             race_name=self.selected_race(),
             class_name=self.selected_class(),
             sex=self.selected_sex(),
-            chosen_spells=[],
+            chosen_spells=list(self.creation_selected_spells),
             seed=self.creation_seed,
         )
 
@@ -366,12 +421,32 @@ class ClientSession:
         if self.creation_class_name not in classes:
             self.creation_class_name = classes[0]
 
+    def starter_spell_options(self):
+        return starter_spells_for_class(self.selected_class(), level=1)
+
+    def clear_spell_selection(self) -> None:
+        self.creation_spell_index = 0
+        self.creation_selected_spells = []
+        self.message = ""
+
+    def toggle_starter_spell(self, spell_id: str) -> None:
+        if spell_id in self.creation_selected_spells:
+            self.creation_selected_spells.remove(spell_id)
+            self.message = ""
+            return
+
+        if len(self.creation_selected_spells) >= MAX_STARTER_SPELLS:
+            self.creation_selected_spells = self.creation_selected_spells[1:]
+
+        self.creation_selected_spells.append(spell_id)
+        self.message = ""
+
     def preview_player(self):
         return create_player(
             name=self.creation_name,
             race_name=self.selected_race(),
             class_name=self.selected_class(),
             sex=self.selected_sex(),
-            chosen_spells=[],
+            chosen_spells=list(self.creation_selected_spells),
             seed=self.creation_seed,
         )

@@ -4,6 +4,7 @@ from dataclasses import dataclass, field, asdict
 from typing import Any
 
 from plaguefire.core.CharacterData import STAT_NAMES, XP_THRESHOLDS
+from plaguefire.models.Inventory import Inventory
 
 
 @dataclass
@@ -46,6 +47,8 @@ class Player:
     spells: list[str] = field(default_factory=list)
     spell_cooldowns: dict[str, int] = field(default_factory=dict)
 
+    inventory: list[dict[str, Any]] = field(default_factory=list)
+
     position: list[int] = field(default_factory=lambda: [0, 0])
     time: int = 0
 
@@ -75,6 +78,8 @@ class Player:
         if self.next_level_xp <= 0:
             self.next_level_xp = self._xp_threshold_for_level(self.level)
 
+        self.inventory = Inventory.from_any(self.inventory).to_list()
+
     @property
     def class_(self) -> str:
         return self.character_class
@@ -90,6 +95,26 @@ class Player:
     @known_spells.setter
     def known_spells(self, value: list[str]) -> None:
         self.spells = value
+
+    def inventory_model(self) -> Inventory:
+        return Inventory.from_any(self.inventory)
+
+    def add_item(self, item_id: str, quantity: int = 1) -> None:
+        inventory = self.inventory_model()
+        inventory.add_item(item_id, quantity)
+        self.inventory = inventory.to_list()
+
+    def remove_item(self, item_id: str, quantity: int = 1) -> bool:
+        inventory = self.inventory_model()
+        removed = inventory.remove_item(item_id, quantity)
+
+        if removed:
+            self.inventory = inventory.to_list()
+
+        return removed
+
+    def item_quantity(self, item_id: str) -> int:
+        return self.inventory_model().count(item_id)
 
     def is_alive(self) -> bool:
         return self.hp > 0 and self.status > 0
@@ -277,12 +302,18 @@ class Player:
 
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
+        data["inventory"] = self.inventory_model().to_list()
         data["class"] = self.character_class
         data["known_spells"] = list(self.spells)
         return data
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Player":
+        inventory = data.get("inventory")
+
+        if inventory is None:
+            inventory = data.get("starting_equipment", [])
+
         return cls(
             name=data.get("name", "Hero"),
             age=data.get("age", 18),
@@ -311,6 +342,7 @@ class Player:
             mana=int(data.get("mana", data.get("max_mana", 0))),
             spells=list(data.get("spells", data.get("known_spells", []))),
             spell_cooldowns=dict(data.get("spell_cooldowns", {})),
+            inventory=Inventory.from_any(inventory).to_list(),
             position=list(data.get("position", [0, 0])),
             time=int(data.get("time", 0)),
             max_hunger=int(data.get("max_hunger", 1000)),

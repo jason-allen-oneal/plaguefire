@@ -302,6 +302,10 @@ def create_player_data(
         "spells": chosen_spells,
         "known_spells": chosen_spells,
         "spell_cooldowns": {},
+        "inventory": [
+            {"item_id": item_id, "quantity": quantity}
+            for item_id, quantity in get_starting_equipment(class_name)
+        ],
         "position": [0, 0],
         "time": 0,
         "max_hunger": 1000,
