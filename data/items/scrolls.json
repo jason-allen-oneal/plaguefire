@@ -1,0 +1,571 @@
+[
+    {
+        "name": "Scroll of Aggravate Monster",
+        "type": "scroll",
+        "base_cost": 50,
+        "description": "Angers nearby creatures.",
+        "effect": [
+            "aggravate"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 5,
+        "image": "scroll/scroll-grey.png",
+        "id": "SCROLL_AGGRAVATE_MONSTER"
+    },
+    {
+        "name": "Scroll of Blessing",
+        "type": "scroll",
+        "base_cost": 100,
+        "description": "Grants a temporary blessing.",
+        "effect": [
+            "bless",
+            20
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 5,
+        "image": "scroll/scroll-blue.png",
+        "id": "SCROLL_BLESSING"
+    },
+    {
+        "name": "Scroll of Create Food",
+        "type": "scroll",
+        "base_cost": 30,
+        "description": "Creates magical rations.",
+        "effect": [
+            "create_food"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 5,
+        "image": "scroll/scroll-brown.png",
+        "id": "SCROLL_CREATE_FOOD"
+    },
+    {
+        "name": "Scroll of Curse Armor",
+        "type": "scroll",
+        "base_cost": 20,
+        "description": "Curses equipped armor.",
+        "effect": [
+            "curse_armor"
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 5,
+        "image": "scroll/scroll-cyan.png",
+        "id": "SCROLL_CURSE_ARMOR"
+    },
+    {
+        "name": "Scroll of Curse Weapon",
+        "type": "scroll",
+        "base_cost": 20,
+        "description": "Curses equipped weapon.",
+        "effect": [
+            "curse_weapon"
+        ],
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 5,
+        "image": "scroll/scroll-green.png",
+        "id": "SCROLL_CURSE_WEAPON"
+    },
+    {
+        "name": "Scroll of Darkness",
+        "type": "scroll",
+        "base_cost": 40,
+        "description": "Creates magical darkness.",
+        "effect": [
+            "darkness",
+            10
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 5,
+        "image": "scroll/scroll_new.png",
+        "id": "SCROLL_DARKNESS"
+    },
+    {
+        "name": "Scroll of *Destruction*",
+        "type": "scroll",
+        "base_cost": 500,
+        "description": "Highly destructive magic.",
+        "effect": [
+            "destruction"
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 5,
+        "image": "scroll/scroll-purple.png",
+        "id": "SCROLL_DESTRUCTION"
+    },
+    {
+        "name": "Scroll of Detect Invisible",
+        "type": "scroll",
+        "base_cost": 80,
+        "description": "Reveals unseen creatures.",
+        "effect": [
+            "detect_invisible",
+            25
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 5,
+        "image": "scroll/scroll-red.png",
+        "id": "SCROLL_DETECT_INVISIBLE"
+    },
+    {
+        "name": "Scroll of Treasure Location",
+        "type": "scroll",
+        "base_cost": 90,
+        "description": "Detects treasure veins and ore deposits.",
+        "effect": [
+            "detect",
+            "treasure"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 200
+        },
+        "weight": 5,
+        "image": "scroll/scroll-yellow.png",
+        "id": "SCROLL_TREASURE_LOCATION"
+    },
+    {
+        "name": "Scroll of Dispel Undead",
+        "type": "scroll",
+        "base_cost": 150,
+        "description": "Damages nearby undead.",
+        "effect": [
+            "dispel_undead",
+            30
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 5,
+        "image": "scroll/scroll-blue.png",
+        "id": "SCROLL_DISPEL_UNDEAD"
+    },
+    {
+        "name": "Scroll of Door/Stair Location",
+        "type": "scroll",
+        "base_cost": 70,
+        "description": "Reveals nearby doors and stairs.",
+        "effect": [
+            "detect_doors_stairs"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 5,
+        "image": "scroll/scroll-brown.png",
+        "id": "SCROLL_DOOR_STAIR_LOCATION"
+    },
+    {
+        "name": "Scroll of Enchant Armor",
+        "type": "scroll",
+        "base_cost": 200,
+        "description": "Improves armor.",
+        "effect": [
+            "enchant_armor"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 5,
+        "image": "scroll/scroll-cyan.png",
+        "id": "SCROLL_ENCHANT_ARMOR"
+    },
+    {
+        "name": "Scroll of Enchant Weapon To-Dam",
+        "type": "scroll",
+        "base_cost": 200,
+        "description": "Improves weapon damage.",
+        "effect": [
+            "enchant_weapon_dam"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 5,
+        "image": "scroll/scroll-green.png",
+        "id": "SCROLL_ENCHANT_WEAPON_TO_DAM"
+    },
+    {
+        "name": "Scroll of Enchant Weapon To-Hit",
+        "type": "scroll",
+        "base_cost": 200,
+        "description": "Improves weapon accuracy.",
+        "effect": [
+            "enchant_weapon_hit"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 5,
+        "image": "scroll/scroll-grey.png",
+        "id": "SCROLL_ENCHANT_WEAPON_TO_HIT"
+    },
+    {
+        "name": "Scroll of Genocide",
+        "type": "scroll",
+        "base_cost": 300,
+        "description": "Eliminates a type of monster.",
+        "effect": [
+            "genocide"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 5,
+        "image": "scroll/scroll_new.png",
+        "id": "SCROLL_GENOCIDE"
+    },
+    {
+        "name": "Scroll of Holy Chant",
+        "type": "scroll",
+        "base_cost": 120,
+        "description": "A lesser blessing.",
+        "effect": [
+            "bless",
+            10
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 5,
+        "image": "scroll/scroll-purple.png",
+        "id": "SCROLL_HOLY_CHANT"
+    },
+    {
+        "name": "Scroll of Holy Prayer",
+        "type": "scroll",
+        "base_cost": 180,
+        "description": "A powerful blessing.",
+        "effect": [
+            "bless",
+            30
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 5,
+        "image": "scroll/scroll-red.png",
+        "id": "SCROLL_HOLY_PRAYER"
+    },
+    {
+        "name": "Scroll of Identify",
+        "type": "scroll",
+        "base_cost": 100,
+        "description": "Reveals an item's properties.",
+        "effect": [
+            "identify"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 5,
+        "image": "scroll/scroll-yellow.png",
+        "id": "SCROLL_IDENTIFY"
+    },
+    {
+        "name": "Scroll of Light",
+        "type": "scroll",
+        "base_cost": 25,
+        "description": "Illuminates the area.",
+        "effect": [
+            "light",
+            10
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 3,
+        "image": "scroll/scroll-blue.png",
+        "id": "SCROLL_LIGHT"
+    },
+    {
+        "name": "Scroll of Magic Mapping",
+        "type": "scroll",
+        "base_cost": 150,
+        "description": "Reveals the current level layout.",
+        "effect": [
+            "magic_mapping"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 5,
+        "image": "scroll/scroll-brown.png",
+        "id": "SCROLL_MAGIC_MAPPING"
+    },
+    {
+        "name": "Scroll of Monster Confusion",
+        "type": "scroll",
+        "base_cost": 75,
+        "description": "Confuses nearby monsters.",
+        "effect": [
+            "confuse_monsters"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 5,
+        "image": "scroll/scroll-cyan.png",
+        "id": "SCROLL_MONSTER_CONFUSION"
+    },
+    {
+        "name": "Scroll of Object Detection",
+        "type": "scroll",
+        "base_cost": 60,
+        "description": "Reveals nearby items.",
+        "effect": [
+            "detect_objects"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 5,
+        "image": "scroll/scroll-green.png",
+        "id": "SCROLL_OBJECT_DETECTION"
+    },
+    {
+        "name": "Scroll of Phase Door",
+        "type": "scroll",
+        "base_cost": 90,
+        "description": "Short range teleport.",
+        "effect": [
+            "phase_door"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 5,
+        "image": "scroll/scroll-grey.png",
+        "id": "SCROLL_PHASE_DOOR"
+    },
+    {
+        "name": "Scroll of Protection from Evil",
+        "type": "scroll",
+        "base_cost": 130,
+        "description": "Wards against evil creatures.",
+        "effect": [
+            "protection_evil",
+            50
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 5,
+        "image": "scroll/scroll_new.png",
+        "id": "SCROLL_PROTECTION_FROM_EVIL"
+    },
+    {
+        "name": "Scroll of Recharging",
+        "type": "scroll",
+        "base_cost": 250,
+        "description": "Restores charges to wands/staves.",
+        "effect": [
+            "recharging"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 5,
+        "image": "scroll/scroll-purple.png",
+        "id": "SCROLL_RECHARGING"
+    },
+    {
+        "name": "Scroll of Remove Curse",
+        "type": "scroll",
+        "base_cost": 160,
+        "description": "Lifts curses from items.",
+        "effect": [
+            "remove_curse"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 5,
+        "image": "scroll/scroll-red.png",
+        "id": "SCROLL_REMOVE_CURSE"
+    },
+    {
+        "name": "Scroll of Rune of Protection",
+        "type": "scroll",
+        "base_cost": 400,
+        "description": "Creates a protective ward.",
+        "effect": [
+            "rune_protection"
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 5,
+        "image": "scroll/scroll-yellow.png",
+        "id": "SCROLL_RUNE_OF_PROTECTION"
+    },
+    {
+        "name": "Scroll of Sleep Monster",
+        "type": "scroll",
+        "base_cost": 70,
+        "description": "Puts nearby monsters to sleep.",
+        "effect": [
+            "sleep_monsters"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 5,
+        "image": "scroll/scroll-blue.png",
+        "id": "SCROLL_SLEEP_MONSTER"
+    },
+    {
+        "name": "Scroll of Summon Monster",
+        "type": "scroll",
+        "base_cost": 100,
+        "description": "Summons a random creature.",
+        "effect": [
+            "summon_monster"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 5,
+        "image": "scroll/scroll-brown.png",
+        "id": "SCROLL_SUMMON_MONSTER"
+    },
+    {
+        "name": "Scroll of Summon Undead",
+        "type": "scroll",
+        "base_cost": 110,
+        "description": "Summons an undead creature.",
+        "effect": [
+            "summon_undead"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 5,
+        "image": "scroll/scroll-cyan.png",
+        "id": "SCROLL_SUMMON_UNDEAD"
+    },
+    {
+        "name": "Scroll of Teleport",
+        "type": "scroll",
+        "base_cost": 80,
+        "description": "Randomly teleports you.",
+        "effect": [
+            "teleport"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 5,
+        "image": "scroll/scroll-green.png",
+        "id": "SCROLL_TELEPORT"
+    },
+    {
+        "name": "Scroll of Teleport Level",
+        "type": "scroll",
+        "base_cost": 150,
+        "description": "Teleports you to another level.",
+        "effect": [
+            "teleport_level"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 5,
+        "image": "scroll/scroll-grey.png",
+        "id": "SCROLL_TELEPORT_LEVEL"
+    },
+    {
+        "name": "Scroll of Trap Detection",
+        "type": "scroll",
+        "base_cost": 60,
+        "description": "Reveals nearby traps.",
+        "effect": [
+            "detect_traps"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 5,
+        "image": "scroll/scroll_new.png",
+        "id": "SCROLL_TRAP_DETECTION"
+    },
+    {
+        "name": "Scroll of Treasure Detection",
+        "type": "scroll",
+        "base_cost": 60,
+        "description": "Reveals nearby treasure.",
+        "effect": [
+            "detect_treasure"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 5,
+        "image": "scroll/scroll-purple.png",
+        "id": "SCROLL_TREASURE_DETECTION"
+    },
+    {
+        "name": "Scroll of Word-of-Recall",
+        "type": "scroll",
+        "base_cost": 300,
+        "description": "Teleports you to town (depth 0).",
+        "effect": [
+            "recall"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 5,
+        "image": "scroll/scroll-red.png",
+        "id": "SCROLL_WORD_OF_RECALL"
+    }
+]

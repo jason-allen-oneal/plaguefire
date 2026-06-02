@@ -1,0 +1,867 @@
+[
+    {
+        "name": "Staff of Cure Light Wounds",
+        "type": "staff",
+        "base_cost": 300,
+        "description": "Heals minor wounds.",
+        "effect": [
+            "heal",
+            10
+        ],
+        "charges": [
+            10,
+            20
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 35,
+        "image": "ITEMS/staff/staff_0.png",
+        "id": "STAFF_CURE_LIGHT_WOUNDS"
+    },
+    {
+        "name": "Staff of Curing",
+        "type": "staff",
+        "base_cost": 500,
+        "description": "Heals and cures ailments.",
+        "effect": [
+            "heal",
+            20,
+            "cure_status",
+            "poisoned",
+            "blind"
+        ],
+        "charges": [
+            8,
+            16
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 50,
+        "image": "ITEMS/staff/staff_1.png",
+        "id": "STAFF_CURING"
+    },
+    {
+        "name": "Staff of Darkness",
+        "type": "staff",
+        "base_cost": 250,
+        "description": "Creates darkness.",
+        "effect": [
+            "darkness",
+            15
+        ],
+        "charges": [
+            7,
+            14
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 50,
+        "image": "ITEMS/staff/staff_2.png",
+        "id": "STAFF_DARKNESS"
+    },
+    {
+        "name": "Staff of Detect Evil",
+        "type": "staff",
+        "base_cost": 150,
+        "description": "Senses evil creatures.",
+        "effect": [
+            "detect_evil",
+            30
+        ],
+        "charges": [
+            10,
+            20
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 50,
+        "image": "ITEMS/staff/staff_3.png",
+        "id": "STAFF_DETECT_EVIL"
+    },
+    {
+        "name": "Staff of Detect Invisible",
+        "type": "staff",
+        "base_cost": 200,
+        "description": "Reveals the unseen.",
+        "effect": [
+            "detect_invisible",
+            30
+        ],
+        "charges": [
+            9,
+            18
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 50,
+        "image": "ITEMS/staff/staff_4.png",
+        "id": "STAFF_DETECT_INVISIBLE"
+    },
+    {
+        "name": "Staff of Treasure Location",
+        "type": "staff",
+        "base_cost": 160,
+        "description": "Locates treasure.",
+        "effect": [
+            "detect_treasure"
+        ],
+        "charges": [
+            10,
+            20
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 50,
+        "image": "ITEMS/staff/staff_5.png",
+        "id": "STAFF_TREASURE_LOCATION"
+    },
+    {
+        "name": "Staff of Dispel Evil",
+        "type": "staff",
+        "base_cost": 600,
+        "description": "Damages evil creatures.",
+        "effect": [
+            "dispel_evil",
+            40
+        ],
+        "charges": [
+            6,
+            12
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 50,
+        "image": "ITEMS/staff/staff_6.png",
+        "id": "STAFF_DISPEL_EVIL"
+    },
+    {
+        "name": "Staff of Door/Stair Location",
+        "type": "staff",
+        "base_cost": 180,
+        "description": "Locates exits.",
+        "effect": [
+            "detect_doors_stairs"
+        ],
+        "charges": [
+            10,
+            20
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 50,
+        "image": "ITEMS/staff/staff_7.png",
+        "id": "STAFF_DOOR_STAIR_LOCATION"
+    },
+    {
+        "name": "Staff of Haste Monsters",
+        "type": "staff",
+        "base_cost": 300,
+        "description": "Speeds up all monsters.",
+        "effect": [
+            "haste_monsters"
+        ],
+        "charges": [
+            5,
+            10
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 50,
+        "image": "ITEMS/staff/staff_8.png",
+        "id": "STAFF_HASTE_MONSTERS"
+    },
+    {
+        "name": "Staff of Light",
+        "type": "staff",
+        "base_cost": 100,
+        "description": "Provides illumination.",
+        "effect": [
+            "light",
+            20
+        ],
+        "charges": [
+            15,
+            25
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 35,
+        "image": "ITEMS/staff/staff_9.png",
+        "id": "STAFF_LIGHT"
+    },
+    {
+        "name": "Staff of Object Location",
+        "type": "staff",
+        "base_cost": 160,
+        "description": "Locates items.",
+        "effect": [
+            "detect_objects"
+        ],
+        "charges": [
+            10,
+            20
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 50,
+        "image": "ITEMS/staff/staff_0.png",
+        "id": "STAFF_OBJECT_LOCATION"
+    },
+    {
+        "name": "Staff of Remove Curse",
+        "type": "staff",
+        "base_cost": 400,
+        "description": "Lifts curses.",
+        "effect": [
+            "remove_curse"
+        ],
+        "charges": [
+            7,
+            14
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 50,
+        "image": "ITEMS/staff/staff_1.png",
+        "id": "STAFF_REMOVE_CURSE"
+    },
+    {
+        "name": "Staff of Sleep Monsters",
+        "type": "staff",
+        "base_cost": 350,
+        "description": "Puts multiple monsters to sleep.",
+        "effect": [
+            "sleep_monsters",
+            10
+        ],
+        "charges": [
+            6,
+            12
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 50,
+        "image": "ITEMS/staff/staff_2.png",
+        "id": "STAFF_SLEEP_MONSTERS"
+    },
+    {
+        "name": "Staff of Slowness",
+        "type": "staff",
+        "base_cost": 300,
+        "description": "Slows target.",
+        "effect": [
+            "slow_monster",
+            15
+        ],
+        "charges": [
+            7,
+            14
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 50,
+        "image": "ITEMS/staff/staff_3.png",
+        "id": "STAFF_SLOWNESS"
+    },
+    {
+        "name": "Staff of Speed",
+        "type": "staff",
+        "base_cost": 1000,
+        "description": "Grants haste.",
+        "effect": [
+            "haste_self",
+            20
+        ],
+        "charges": [
+            5,
+            10
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 50,
+        "image": "ITEMS/staff/staff_4.png",
+        "id": "STAFF_SPEED"
+    },
+    {
+        "name": "Staff of Starlight",
+        "type": "staff",
+        "base_cost": 400,
+        "description": "Calls down starlight.",
+        "effect": [
+            "starlight",
+            25,
+            3
+        ],
+        "charges": [
+            6,
+            12
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 50,
+        "image": "ITEMS/staff/staff_5.png",
+        "id": "STAFF_STARLIGHT"
+    },
+    {
+        "name": "Staff of Summoning",
+        "type": "staff",
+        "base_cost": 500,
+        "description": "Summons creatures.",
+        "effect": [
+            "summon_monster"
+        ],
+        "charges": [
+            4,
+            8
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 50,
+        "image": "ITEMS/staff/staff_6.png",
+        "id": "STAFF_SUMMONING"
+    },
+    {
+        "name": "Staff of Teleportation",
+        "type": "staff",
+        "base_cost": 450,
+        "description": "Teleports target.",
+        "effect": [
+            "teleport_other"
+        ],
+        "charges": [
+            7,
+            14
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 50,
+        "image": "ITEMS/staff/staff_7.png",
+        "id": "STAFF_TELEPORTATION"
+    },
+    {
+        "name": "Staff of Trap Location",
+        "type": "staff",
+        "base_cost": 160,
+        "description": "Locates traps.",
+        "effect": [
+            "detect_traps"
+        ],
+        "charges": [
+            10,
+            20
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 50,
+        "image": "ITEMS/staff/staff_8.png",
+        "id": "STAFF_TRAP_LOCATION"
+    },
+    {
+        "name": "Wand of Acid Balls",
+        "type": "wand",
+        "base_cost": 300,
+        "description": "Launches acid.",
+        "effect": [
+            "ball",
+            "acid",
+            20,
+            2
+        ],
+        "charges": [
+            5,
+            10
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/wand_brass.png",
+        "id": "WAND_ACID_BALLS"
+    },
+    {
+        "name": "Wand of Clone Monster",
+        "type": "wand",
+        "base_cost": 400,
+        "description": "Duplicates a monster.",
+        "effect": [
+            "clone_monster"
+        ],
+        "charges": [
+            3,
+            7
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/wand_silver.png",
+        "id": "WAND_CLONE_MONSTER"
+    },
+    {
+        "name": "Wand of Cold Balls",
+        "type": "wand",
+        "base_cost": 300,
+        "description": "Launches frost.",
+        "effect": [
+            "ball",
+            "cold",
+            20,
+            2
+        ],
+        "charges": [
+            5,
+            10
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/wand_copper.png",
+        "id": "WAND_COLD_BALLS"
+    },
+    {
+        "name": "Wand of Confuse Monster",
+        "type": "wand",
+        "base_cost": 150,
+        "description": "Confuses target.",
+        "effect": [
+            "confuse_monster",
+            15
+        ],
+        "charges": [
+            6,
+            12
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/gem_bone_new.png",
+        "id": "WAND_CONFUSE_MONSTER"
+    },
+    {
+        "name": "Wand of Disarming",
+        "type": "wand",
+        "base_cost": 100,
+        "description": "Knocks weapon away.",
+        "effect": [
+            "disarm"
+        ],
+        "charges": [
+            4,
+            8
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/gem_bronze_old.png",
+        "id": "WAND_DISARMING"
+    },
+    {
+        "name": "Wand of Drain Life",
+        "type": "wand",
+        "base_cost": 500,
+        "description": "Steals life force.",
+        "effect": [
+            "drain_life",
+            25
+        ],
+        "charges": [
+            3,
+            6
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/gem_bone_old.png",
+        "id": "WAND_DRAIN_LIFE"
+    },
+    {
+        "name": "Wand of Fire Balls",
+        "type": "wand",
+        "base_cost": 300,
+        "description": "Launches fire.",
+        "effect": [
+            "ball",
+            "fire",
+            25,
+            2
+        ],
+        "charges": [
+            5,
+            10
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/gem_gold_new.png",
+        "id": "WAND_FIRE_BALLS"
+    },
+    {
+        "name": "Wand of Fire Bolts",
+        "type": "wand",
+        "base_cost": 200,
+        "description": "Shoots fire bolts.",
+        "effect": [
+            "bolt",
+            "fire",
+            15
+        ],
+        "charges": [
+            8,
+            15
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/gem_brass_new.png",
+        "id": "WAND_FIRE_BOLTS"
+    },
+    {
+        "name": "Wand of Frost Bolts",
+        "type": "wand",
+        "base_cost": 200,
+        "description": "Shoots ice bolts.",
+        "effect": [
+            "bolt",
+            "cold",
+            15
+        ],
+        "charges": [
+            8,
+            15
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/gem_glass_new.png",
+        "id": "WAND_FROST_BOLTS"
+    },
+    {
+        "name": "Wand of Haste Monster",
+        "type": "wand",
+        "base_cost": 100,
+        "description": "Speeds up a monster.",
+        "effect": [
+            "haste_monster"
+        ],
+        "charges": [
+            5,
+            10
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/gem_wood_new.png",
+        "id": "WAND_HASTE_MONSTER"
+    },
+    {
+        "name": "Wand of Heal Monster",
+        "type": "wand",
+        "base_cost": 100,
+        "description": "Heals a monster.",
+        "effect": [
+            "heal_monster",
+            20
+        ],
+        "charges": [
+            5,
+            10
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/gem_ivory_new.png",
+        "id": "WAND_HEAL_MONSTER"
+    },
+    {
+        "name": "Wand of Light",
+        "type": "wand",
+        "base_cost": 50,
+        "description": "Creates light.",
+        "effect": [
+            "light",
+            15
+        ],
+        "charges": [
+            10,
+            20
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 7,
+        "image": "ITEMS/wand/gem_glass_old.png",
+        "id": "WAND_LIGHT"
+    },
+    {
+        "name": "Wand of Lightning Balls",
+        "type": "wand",
+        "base_cost": 350,
+        "description": "Launches electricity.",
+        "effect": [
+            "ball",
+            "lightning",
+            30,
+            2
+        ],
+        "charges": [
+            4,
+            9
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 7,
+        "image": "ITEMS/wand/gem_silver_new.png",
+        "id": "WAND_LIGHTNING_BALLS"
+    },
+    {
+        "name": "Wand of Lightning Bolts",
+        "type": "wand",
+        "base_cost": 250,
+        "description": "Shoots lightning.",
+        "effect": [
+            "bolt",
+            "lightning",
+            20
+        ],
+        "charges": [
+            6,
+            13
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 7,
+        "image": "ITEMS/wand/gem_iron_new.png",
+        "id": "WAND_LIGHTNING_BOLTS"
+    },
+    {
+        "name": "Wand of Magic Missile",
+        "type": "wand",
+        "base_cost": 180,
+        "description": "Shoots arcane bolts.",
+        "effect": [
+            "bolt",
+            "magic",
+            12
+        ],
+        "charges": [
+            8,
+            16
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/gem_plastic_new.png",
+        "id": "WAND_MAGIC_MISSILE"
+    },
+    {
+        "name": "Wand of Sleep Monster",
+        "type": "wand",
+        "base_cost": 140,
+        "description": "Puts a monster to sleep.",
+        "effect": [
+            "sleep_monster",
+            10
+        ],
+        "charges": [
+            6,
+            12
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/gem_ivory_old.png",
+        "id": "WAND_SLEEP_MONSTER"
+    },
+    {
+        "name": "Wand of Slow Monster",
+        "type": "wand",
+        "base_cost": 140,
+        "description": "Slows a monster.",
+        "effect": [
+            "slow_monster",
+            10
+        ],
+        "charges": [
+            6,
+            12
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/gem_wood_old.png",
+        "id": "WAND_SLOW_MONSTER"
+    },
+    {
+        "name": "Wand of Stinking Cloud",
+        "type": "wand",
+        "base_cost": 160,
+        "description": "Creates nauseous gas.",
+        "effect": [
+            "cloud",
+            "poison",
+            10,
+            2,
+            10
+        ],
+        "charges": [
+            5,
+            10
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/gem_lead_old.png",
+        "id": "WAND_STINKING_CLOUD"
+    },
+    {
+        "name": "Wand of Stone-to-Mud",
+        "type": "wand",
+        "base_cost": 130,
+        "description": "Turns rock into mud.",
+        "effect": [
+            "stone_to_mud"
+        ],
+        "charges": [
+            4,
+            9
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/gem_bronze_new.png",
+        "id": "WAND_STONE_TO_MUD"
+    },
+    {
+        "name": "Wand of Teleport Away",
+        "type": "wand",
+        "base_cost": 170,
+        "description": "Teleports a monster away.",
+        "effect": [
+            "teleport_other"
+        ],
+        "charges": [
+            5,
+            10
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/gem_lead_new.png",
+        "id": "WAND_TELEPORT_AWAY"
+    },
+    {
+        "name": "Wand of Trap/Door Destruction",
+        "type": "wand",
+        "base_cost": 110,
+        "description": "Destroys traps and doors.",
+        "effect": [
+            "destroy_traps_doors"
+        ],
+        "charges": [
+            6,
+            11
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/gem_iron_old.png",
+        "id": "WAND_TRAP_DOOR_DESTRUCTION"
+    },
+    {
+        "name": "Wand of Wonder",
+        "type": "wand",
+        "base_cost": 200,
+        "description": "Unpredictable effects.",
+        "effect": [
+            "wonder"
+        ],
+        "charges": [
+            8,
+            15
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 10,
+        "image": "ITEMS/wand/gem_gold_old.png",
+        "id": "WAND_WONDER"
+    }
+]

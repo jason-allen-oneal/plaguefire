@@ -1,0 +1,1069 @@
+[
+    {
+        "name": "Arrow",
+        "type": "missile",
+        "base_cost": 1,
+        "description": "Ammunition for bows.",
+        "damage": "1d4",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 1,
+        "slot": "quiver",
+        "image": "weapon/ranged/orcish_arrow.png",
+        "id": "ARROW"
+    },
+    {
+        "name": "Awl-Pike",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 60,
+        "description": "A long polearm.",
+        "damage": "1d8",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "weapon/spiked_flail_1_old.png",
+        "id": "AWL_PIKE"
+    },
+    {
+        "name": "Backsword",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 80,
+        "description": "A single-edged sword.",
+        "damage": "1d9",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "book/bookmark_new.png",
+        "id": "BACKSWORD"
+    },
+    {
+        "name": "Ball and Chain",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 40,
+        "description": "Clumsy but heavy.",
+        "damage": "2d4",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 140,
+        "image": "body/banded_mail_2.png",
+        "id": "BALL_AND_CHAIN"
+    },
+    {
+        "name": "Bastard Sword",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 150,
+        "description": "Can be used one or two-handed.",
+        "damage": "2d4",
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 30,
+        "image": "weapon/greatsword_3_old.png",
+        "id": "BASTARD_SWORD"
+    },
+    {
+        "name": "Battle Axe",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 110,
+        "description": "A standard battle axe.",
+        "damage": "1d8",
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 30,
+        "image": "weapon/battle_axe_2.png",
+        "id": "BATTLE_AXE"
+    },
+    {
+        "name": "Beaked Axe",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 80,
+        "description": "An axe with a spike.",
+        "damage": "2d6",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "weapon/battle_axe_2.png",
+        "id": "BEAKED_AXE"
+    },
+    {
+        "name": "Crossbow Bolt",
+        "type": "missile",
+        "base_cost": 1,
+        "description": "Ammunition for crossbows.",
+        "damage": "1d5",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 1,
+        "slot": "quiver",
+        "image": "book/bookmark_new.png",
+        "id": "BOLT"
+    },
+    {
+        "name": "Composite Bow",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 200,
+        "description": "A powerful bow.",
+        "damage_bonus": 3,
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 30,
+        "ammo_type": "ARROW",
+        "image": "weapon/hand_crossbow.png",
+        "id": "BOW_COMPOSITE"
+    },
+    {
+        "name": "Long Bow",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 150,
+        "description": "A large, powerful bow.",
+        "damage_bonus": 2,
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 30,
+        "ammo_type": "ARROW",
+        "image": "weapon/ranged/longbow.png",
+        "id": "BOW_LONG"
+    },
+    {
+        "name": "Short Bow",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 100,
+        "description": "A small, quick bow.",
+        "damage_bonus": 1,
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "ammo_type": "ARROW",
+        "image": "weapon/ranged/shortbow_1.png",
+        "id": "BOW_SHORT"
+    },
+    {
+        "name": "Broadsword",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 180,
+        "description": "A wide-bladed sword.",
+        "damage": "1d8",
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 30,
+        "image": "weapon/elven_broadsword.png",
+        "id": "BROADSWORD"
+    },
+    {
+        "name": "Broad Axe",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 90,
+        "description": "A wide-bladed axe.",
+        "damage": "2d6",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "weapon/broad_axe_6.png",
+        "id": "BROAD_AXE"
+    },
+    {
+        "name": "Cat-O-Nine Tails",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 15,
+        "description": "A multi-tailed whip.",
+        "damage": "1d4",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 30,
+        "image": "shield/small_wooden.png",
+        "id": "CAT_O_NINE_TAILS"
+    },
+    {
+        "name": "Wooden Club",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 5,
+        "description": "A simple wooden club.",
+        "damage": "1d3",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 30,
+        "image": "shield/small_wooden.png",
+        "id": "CLUB_WOODEN"
+    },
+    {
+        "name": "Heavy Crossbow",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 180,
+        "description": "Slow but powerful.",
+        "damage_bonus": 4,
+        "damage": "1d1",
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 45,
+        "ammo_type": "BOLT",
+        "image": "weapon/hand_crossbow.png",
+        "id": "CROSSBOW_HEAVY"
+    },
+    {
+        "name": "Light Crossbow",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 120,
+        "description": "Easier to load.",
+        "damage_bonus": 2,
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 21,
+        "ammo_type": "BOLT",
+        "image": "weapon/hand_crossbow.png",
+        "id": "CROSSBOW_LIGHT"
+    },
+    {
+        "name": "Cutlass",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 60,
+        "description": "A curved naval sword.",
+        "damage": "1d7",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "weapon/cutlass_6.png",
+        "id": "CUTLASS"
+    },
+    {
+        "name": "Dagger (Bodkin)",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 20,
+        "description": "A sharp-pointed dagger.",
+        "damage": "1d4",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 12,
+        "image": "weapon/dagger_6.png",
+        "id": "DAGGER_BODKIN"
+    },
+    {
+        "name": "Broken dagger",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 1,
+        "description": "Almost useless.",
+        "damage": "1d2",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 30,
+        "image": "weapon/dagger_6.png",
+        "id": "DAGGER_BROKEN"
+    },
+    {
+        "name": "Dagger (Main Gauche)",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 30,
+        "description": "A parrying dagger.",
+        "damage": "1d5",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 12,
+        "image": "weapon/dagger_6.png",
+        "id": "DAGGER_MAIN_GAUCHE"
+    },
+    {
+        "name": "Dagger (Misericorde)",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 25,
+        "description": "Used for finishing blows.",
+        "damage": "1d4",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 12,
+        "image": "weapon/dagger_6.png",
+        "id": "DAGGER_MISERICORDE"
+    },
+    {
+        "name": "Dagger (Stiletto)",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 25,
+        "description": "A thin piercing dagger.",
+        "damage": "1d4",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 12,
+        "image": "weapon/dagger_6.png",
+        "id": "DAGGER_STILETTO"
+    },
+    {
+        "name": "Executioner's Sword",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 250,
+        "description": "Large and heavy.",
+        "damage": "2d6",
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 30,
+        "image": "weapon/greatsword_3_old.png",
+        "id": "EXECUTIONERS_SWORD"
+    },
+    {
+        "name": "Fauchard",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 85,
+        "description": "A curved polearm.",
+        "damage": "1d10",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "book/bookmark_new.png",
+        "id": "FAUCHARD"
+    },
+    {
+        "name": "Flail",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 70,
+        "description": "A spiked ball on a chain.",
+        "damage": "2d6",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "weapon/flail_1_old.png",
+        "id": "FLAIL"
+    },
+    {
+        "name": "Foil",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 40,
+        "description": "A light fencing sword.",
+        "damage": "1d5",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "book/bookmark_new.png",
+        "id": "FOIL"
+    },
+    {
+        "name": "Glaive",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 75,
+        "description": "A polearm with a single-edged blade.",
+        "damage": "2d6",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "weapon/glaive_1.png",
+        "id": "GLAIVE"
+    },
+    {
+        "name": "Halberd",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 100,
+        "description": "A versatile polearm.",
+        "damage": "3d4",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "weapon/halberd_1.png",
+        "id": "HALBERD"
+    },
+    {
+        "name": "Javelin",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 10,
+        "description": "A light throwing spear.",
+        "damage": "1d4",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 30,
+        "image": "book/bookmark_new.png",
+        "id": "JAVELIN"
+    },
+    {
+        "name": "Katana",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 160,
+        "description": "A curved single-edged sword.",
+        "damage": "3d4",
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 30,
+        "image": "weapon/katana.png",
+        "id": "KATANA"
+    },
+    {
+        "name": "Lance",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 120,
+        "description": "Used from horseback (or maybe just long).",
+        "damage": "2d8",
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 30,
+        "image": "book/bookmark_new.png",
+        "id": "LANCE"
+    },
+    {
+        "name": "Longsword",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 100,
+        "description": "A standard long sword.",
+        "damage": "1d8",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "book/bookmark_new.png",
+        "id": "LONGSWORD"
+    },
+    {
+        "name": "Lucerne Hammer",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 95,
+        "description": "A polearm with hammer and spike.",
+        "damage": "2d5",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "weapon/lucern_hammer.png",
+        "id": "LUCERNE_HAMMER"
+    },
+    {
+        "name": "Mace",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 50,
+        "description": "A blunt weapon.",
+        "damage": "1d6",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "weapon/mace_2_new.png",
+        "id": "MACE"
+    },
+    {
+        "name": "Mace (Lead-filled)",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 80,
+        "description": "A heavy mace.",
+        "damage": "1d8",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "weapon/mace_2_new.png",
+        "id": "MACE_LEAD_FILLED"
+    },
+    {
+        "name": "Morningstar",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 90,
+        "description": "A spiked mace.",
+        "damage": "1d8",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "weapon/morningstar_6.png",
+        "id": "MORNINGSTAR"
+    },
+    {
+        "name": "Rounded Pebble",
+        "type": "missile",
+        "base_cost": 0,
+        "description": "Ammunition for slings.",
+        "damage": "1d2",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 1,
+        "slot": "quiver",
+        "image": "misc/misc_stone_old.png",
+        "id": "PEBBLE_ROUNDED"
+    },
+    {
+        "name": "Pick",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 20,
+        "description": "Used for mining or fighting.",
+        "damage": "1d3",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 30,
+        "digging_bonus": 2,
+        "image": "book/bookmark_new.png",
+        "id": "PICK"
+    },
+    {
+        "name": "Dwarven Pick",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 30,
+        "description": "A sturdy pickaxe.",
+        "damage": "1d4",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "digging_bonus": 4,
+        "image": "shield/dwarven_buckler_2.png",
+        "id": "PICK_DWARVEN"
+    },
+    {
+        "name": "Orcish Pick",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 25,
+        "description": "A crudely made pickaxe.",
+        "damage": "1d3",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "digging_bonus": 3,
+        "image": "body/orcish_ringmail.png",
+        "id": "PICK_ORCISH"
+    },
+    {
+        "name": "Pike",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 65,
+        "description": "A very long spear.",
+        "damage": "2d5",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "weapon/spiked_flail_1_old.png",
+        "id": "PIKE"
+    },
+    {
+        "name": "Rapier",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 50,
+        "description": "A slender thrusting sword.",
+        "damage": "1d6",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "weapon/rapier_3.png",
+        "id": "RAPIER"
+    },
+    {
+        "name": "Sabre",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 65,
+        "description": "A curved slashing sword.",
+        "damage": "1d7",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "weapon/sabre_2.png",
+        "id": "SABRE"
+    },
+    {
+        "name": "Iron Shot",
+        "type": "missile",
+        "base_cost": 2,
+        "description": "Ammunition for slings.",
+        "damage": "1d3",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 1,
+        "slot": "quiver",
+        "image": "",
+        "id": "SHOT_IRON"
+    },
+    {
+        "name": "Shovel",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 10,
+        "description": "Used for digging.",
+        "damage": "1d2",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 30,
+        "digging_bonus": 1,
+        "image": "book/bookmark_new.png",
+        "id": "SHOVEL"
+    },
+    {
+        "name": "Dwarven Shovel",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 20,
+        "description": "A sturdy shovel.",
+        "damage": "1d3",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 30,
+        "digging_bonus": 3,
+        "image": "shield/dwarven_buckler_2.png",
+        "id": "SHOVEL_DWARVEN"
+    },
+    {
+        "name": "Gnomish Shovel",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 15,
+        "description": "A small shovel.",
+        "damage": "1d2",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 30,
+        "digging_bonus": 2,
+        "image": "book/bookmark_new.png",
+        "id": "SHOVEL_GNOMISH"
+    },
+    {
+        "name": "Lockpicks",
+        "type": "tool",
+        "base_cost": 35,
+        "description": "A set of basic lockpicks for opening locks.",
+        "rarity_depth": {
+            "min": 10,
+            "max": 100
+        },
+        "weight": 2,
+        "lockpick_bonus": 3,
+        "image": "book/bookmark_new.png",
+        "id": "LOCKPICKS"
+    },
+    {
+        "name": "Thieves' Tools",
+        "type": "tool",
+        "base_cost": 75,
+        "description": "Professional lockpicking and trap disarming tools.",
+        "rarity_depth": {
+            "min": 30,
+            "max": 150
+        },
+        "weight": 3,
+        "lockpick_bonus": 5,
+        "image": "book/bookmark_new.png",
+        "id": "THIEVES_TOOLS"
+    },
+    {
+        "name": "Skeleton Key",
+        "type": "tool",
+        "base_cost": 120,
+        "description": "A master key that can open most locks.",
+        "rarity_depth": {
+            "min": 50,
+            "max": 200
+        },
+        "weight": 1,
+        "lockpick_bonus": 8,
+        "image": "book/bookmark_new.png",
+        "id": "SKELETON_KEY"
+    },
+    {
+        "name": "Sling",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 5,
+        "description": "Hurls stones.",
+        "damage_bonus": 0,
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 30,
+        "ammo_type": "SHOT_IRON",
+        "image": "weapon/ranged/sling_bullet_1_new.png",
+        "id": "SLING"
+    },
+    {
+        "name": "Small Sword",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 45,
+        "description": "A light thrusting sword.",
+        "damage": "1d6",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "shield/small_wooden.png",
+        "id": "SMALL_SWORD"
+    },
+    {
+        "name": "Spear",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 20,
+        "description": "A basic polearm.",
+        "damage": "1d6",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 30,
+        "image": "weapon/spear.png",
+        "id": "SPEAR"
+    },
+    {
+        "name": "Broken sword",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 1,
+        "description": "A shard of metal.",
+        "damage": "1d2",
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 30,
+        "image": "weapon/greatsword_3_old.png",
+        "id": "SWORD_BROKEN"
+    },
+    {
+        "name": "Thrusting Sword (Baselard)",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 70,
+        "description": "A type of short sword.",
+        "damage": "1d7",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "weapon/greatsword_3_old.png",
+        "id": "THRUSTING_SWORD_BASELARD"
+    },
+    {
+        "name": "Thrusting Sword (Bilbo)",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 55,
+        "description": "A cut-and-thrust sword.",
+        "damage": "1d6",
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 30,
+        "image": "weapon/greatsword_3_old.png",
+        "id": "THRUSTING_SWORD_BILBO"
+    },
+    {
+        "name": "Two-Handed Great Flail",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 140,
+        "description": "A large flail.",
+        "damage": "2d6",
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 150,
+        "image": "weapon/great_flail_2.png",
+        "id": "TWO_HANDED_GREAT_FLAIL"
+    },
+    {
+        "name": "Two-Handed Sword (Claymore)",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 200,
+        "description": "A large two-handed sword.",
+        "damage": "2d4",
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 150,
+        "image": "weapon/two_handed_sword.png",
+        "id": "TWO_HANDED_SWORD_CLAYMORE"
+    },
+    {
+        "name": "Two-Handed Sword (Espadon)",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 220,
+        "description": "A very large two-handed sword.",
+        "damage": "2d5",
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 150,
+        "image": "weapon/two_handed_sword.png",
+        "id": "TWO_HANDED_SWORD_ESPADON"
+    },
+    {
+        "name": "Two-Handed Sword (Flamberge)",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 280,
+        "description": "A wavy-bladed two-handed sword.",
+        "damage": "4d5",
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 150,
+        "image": "weapon/two_handed_sword.png",
+        "id": "TWO_HANDED_SWORD_FLAMBERGE"
+    },
+    {
+        "name": "Two-Handed Sword (No-Dachi)",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 260,
+        "description": "A long Japanese two-handed sword.",
+        "damage": "4d4",
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 150,
+        "image": "weapon/two_handed_sword.png",
+        "id": "TWO_HANDED_SWORD_NO_DACHI"
+    },
+    {
+        "name": "Two-Handed Sword (Zweihander)",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 300,
+        "description": "A massive German two-handed sword.",
+        "damage": "4d6",
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 150,
+        "image": "weapon/two_handed_sword.png",
+        "id": "TWO_HANDED_SWORD_ZWEIHANDER"
+    },
+    {
+        "name": "War Hammer",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 120,
+        "description": "Designed for crushing armor.",
+        "damage": "3d3",
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 30,
+        "image": "weapon/war_hammer.png",
+        "id": "WAR_HAMMER"
+    },
+    {
+        "name": "Flame Tongue Longsword",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 5000,
+        "description": "A longsword wreathed in flames.",
+        "damage": "1d10",
+        "damage_type": "fire",
+        "weapon_effect": {
+            "type": "flame",
+            "damage": "1d6"
+        },
+        "rarity_depth": {
+            "min": 250,
+            "max": 600
+        },
+        "weight": 30,
+        "image": "book/bookmark_new.png",
+        "id": "LONGSWORD_FLAME_TONGUE"
+    },
+    {
+        "name": "Frost Brand Longsword",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 5000,
+        "description": "A longsword that radiates freezing cold.",
+        "damage": "1d10",
+        "damage_type": "cold",
+        "weapon_effect": {
+            "type": "frost",
+            "damage": "1d6"
+        },
+        "rarity_depth": {
+            "min": 250,
+            "max": 600
+        },
+        "weight": 30,
+        "image": "book/bookmark_new.png",
+        "id": "LONGSWORD_FROST_BRAND"
+    },
+    {
+        "name": "Vorpal Longsword",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 8000,
+        "description": "A blade of devastating sharpness.",
+        "damage": "1d12",
+        "weapon_effect": {
+            "type": "vorpal",
+            "damage": "2d6"
+        },
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 30,
+        "image": "book/bookmark_new.png",
+        "id": "LONGSWORD_VORPAL"
+    },
+    {
+        "name": "Flaming Dagger",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 2000,
+        "description": "A dagger with a blade of fire.",
+        "damage": "1d4",
+        "weapon_effect": {
+            "type": "flame",
+            "damage": "1d4"
+        },
+        "rarity_depth": {
+            "min": 150,
+            "max": 400
+        },
+        "weight": 10,
+        "image": "weapon/dagger_6.png",
+        "id": "DAGGER_FLAME"
+    },
+    {
+        "name": "Frost Dagger",
+        "type": "weapon",
+        "slot": "weapon",
+        "base_cost": 2000,
+        "description": "A dagger that freezes on contact.",
+        "damage": "1d4",
+        "weapon_effect": {
+            "type": "frost",
+            "damage": "1d4"
+        },
+        "rarity_depth": {
+            "min": 150,
+            "max": 400
+        },
+        "weight": 10,
+        "image": "weapon/dagger_6.png",
+        "id": "DAGGER_FROST"
+    }
+]

@@ -1,0 +1,163 @@
+{
+  "TRAPS": {
+    "SPIKE_TRAP": {
+      "name": "Spike Trap",
+      "type": "mechanical",
+      "trigger_chance": 100,
+      "detection_difficulty": 35,
+      "disarm_difficulty": 30,
+      "effect": ["damage", "2d6"],
+      "sprite": "pressure_plate.png",
+      "single_use": true
+    },
+    "POISON_DART": {
+      "name": "Poison Dart",
+      "type": "projectile",
+      "trigger_chance": 100,
+      "detection_difficulty": 45,
+      "disarm_difficulty": 40,
+      "effect": ["damage_status", "1d6", "Poisoned", 15],
+      "sprite": "trap_dart.png",
+      "single_use": true
+    },
+    "FIRE_RUNE": {
+      "name": "Fire Rune",
+      "type": "magical",
+      "trigger_chance": 100,
+      "detection_difficulty": 55,
+      "disarm_difficulty": 50,
+      "effect": ["area_damage", "3d6", 2],
+      "sprite": "trap_magical.png",
+      "single_use": true
+    },
+    "TELEPORT_GLYPH": {
+      "name": "Teleport Glyph",
+      "type": "magical",
+      "trigger_chance": 100,
+      "detection_difficulty": 50,
+      "disarm_difficulty": 55,
+      "effect": ["teleport", 8],
+      "sprite": "trap_teleport.png",
+      "single_use": true
+    },
+    "ALARM_RUNE": {
+      "name": "Alarm Rune",
+      "type": "magical",
+      "trigger_chance": 100,
+      "detection_difficulty": 60,
+      "disarm_difficulty": 60,
+      "effect": ["alarm"],
+      "sprite": "trap_alarm.png",
+      "single_use": false
+    },
+    "GAS_TRAP": {
+      "name": "Gas Trap",
+      "type": "mechanical",
+      "trigger_chance": 100,
+      "detection_difficulty": 50,
+      "disarm_difficulty": 45,
+      "effect": ["area_status", "Poisoned", 10, 2],
+      "single_use": true,
+      "sprite": "gas_trap.png"
+    },
+    "NET_TRAP": {
+      "name": "Net Trap",
+      "type": "mechanical",
+      "trigger_chance": 100,
+      "detection_difficulty": 40,
+      "disarm_difficulty": 35,
+      "effect": ["immobilize", 3],
+      "single_use": true,
+      "sprite": "trap_net.png"
+    },
+    "ARROW_TRAP": {
+      "name": "Arrow Trap",
+      "type": "mechanical",
+      "trigger_chance": 100,
+      "detection_difficulty": 45,
+      "disarm_difficulty": 40,
+      "effect": ["damage", "1d8"],
+      "single_use": true,
+      "sprite": "trap_arrow.png"
+    },
+    "AXE_TRAP": {
+      "name": "Axe Trap",
+      "type": "mechanical",
+      "trigger_chance": 100,
+      "detection_difficulty": 55,
+      "disarm_difficulty": 50,
+      "effect": ["damage", "2d8"],
+      "single_use": true,
+      "sprite": "trap_axe.png"
+    },
+    "BLADE_TRAP": {
+      "name": "Blade Trap",
+      "type": "mechanical",
+      "trigger_chance": 100,
+      "detection_difficulty": 50,
+      "disarm_difficulty": 45,
+      "effect": ["line_damage", "1d10", 3],
+      "single_use": false,
+      "sprite": "trap_blade.png"
+    },
+    "BOLT_TRAP": {
+      "name": "Bolt Trap",
+      "type": "magical",
+      "trigger_chance": 100,
+      "detection_difficulty": 60,
+      "disarm_difficulty": 55,
+      "effect": ["elemental_bolt", "Lightning", "2d6"],
+      "single_use": true,
+      "sprite": "trap_bolt.png"
+    },
+    "NEEDLE_TRAP": {
+      "name": "Needle Trap",
+      "type": "mechanical",
+      "trigger_chance": 100,
+      "detection_difficulty": 45,
+      "disarm_difficulty": 40,
+      "effect": ["damage_status", "1d4", "Paralyzed", 2],
+      "single_use": true,
+      "sprite": "trap_needle.png"
+    },
+    "SHAFT_TRAP": {
+      "name": "Shaft Trap",
+      "type": "mechanical",
+      "trigger_chance": 100,
+      "detection_difficulty": 60,
+      "disarm_difficulty": 55,
+      "effect": ["drop_level", 1],
+      "single_use": true,
+      "sprite": "shaft.png"
+    }
+  },
+  "CHESTS": {
+    "COMMON_CHEST": {
+      "name": "Wooden Chest",
+      "locked": true,
+      "trap": "SPIKE_TRAP",
+      "detection_difficulty": 30,
+      "disarm_difficulty": 25,
+      "loot_table": [
+        ["POTION_HEAL_MINOR", 60],
+        ["SCROLL_LIGHT", 40],
+        ["GOLD:25", 80]
+      ],
+      "max_loot": 2
+    },
+    "ARCANE_CHEST": {
+      "name": "Arcane Chest",
+      "locked": true,
+      "trap": "FIRE_RUNE",
+      "detection_difficulty": 55,
+      "disarm_difficulty": 50,
+      "loot_table": [
+        ["POTION_MANA_MINOR", 60],
+        ["SCROLL_TELEPORT", 40],
+        ["GOLD:120", 70],
+        ["AMULET_INTELLIGENCE", 10]
+      ],
+      "max_loot": 3
+    }
+  }
+}

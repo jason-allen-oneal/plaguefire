@@ -1,0 +1,511 @@
+[
+    {
+        "name": "Ring of Aggravate Monster",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 50,
+        "description": "Makes monsters angry.",
+        "effect": [
+            "aggravate"
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_AGGRAVATE_MONSTER"
+    },
+    {
+        "name": "Ring of Feather Falling",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 200,
+        "description": "Slows your descent.",
+        "effect": [
+            "feather_fall"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_FEATHER_FALLING"
+    },
+    {
+        "name": "Ring of Gain Constitution",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 1000,
+        "description": "Increases Constitution.",
+        "effect": [
+            "stat_bonus",
+            "CON",
+            1
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_GAIN_CON"
+    },
+    {
+        "name": "Ring of Gain Dexterity",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 1000,
+        "description": "Increases Dexterity.",
+        "effect": [
+            "stat_bonus",
+            "DEX",
+            1
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_GAIN_DEX"
+    },
+    {
+        "name": "Ring of Gain Intelligence",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 1000,
+        "description": "Increases Intelligence.",
+        "effect": [
+            "stat_bonus",
+            "INT",
+            1
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_GAIN_INT"
+    },
+    {
+        "name": "Ring of Gain Strength",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 1000,
+        "description": "Increases Strength.",
+        "effect": [
+            "stat_bonus",
+            "STR",
+            1
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_GAIN_STR"
+    },
+    {
+        "name": "Ring of Increase Damage",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 800,
+        "description": "Hits harder.",
+        "effect": [
+            "damage_bonus",
+            1
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_INCREASE_DAMAGE"
+    },
+    {
+        "name": "Ring of Increase To-Hit",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 800,
+        "description": "More accurate attacks.",
+        "effect": [
+            "to_hit_bonus",
+            1
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 1,
+        "image": "ring/ring_gold_white.png",
+        "id": "RING_INCREASE_TO_HIT"
+    },
+    {
+        "name": "Ring of Lordly Protection (ACID)",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 1500,
+        "description": "Strong acid resistance.",
+        "effect": [
+            "resistance",
+            "acid",
+            3
+        ],
+        "rarity_depth": {
+            "min": 700,
+            "max": 1300
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_LORDLY_PROT_ACID"
+    },
+    {
+        "name": "Ring of Lordly Protection (COLD)",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 1500,
+        "description": "Strong cold resistance.",
+        "effect": [
+            "resistance",
+            "cold",
+            3
+        ],
+        "rarity_depth": {
+            "min": 700,
+            "max": 1300
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_LORDLY_PROT_COLD"
+    },
+    {
+        "name": "Ring of Lordly Protection (FIRE)",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 1500,
+        "description": "Strong fire resistance.",
+        "effect": [
+            "resistance",
+            "fire",
+            3
+        ],
+        "rarity_depth": {
+            "min": 700,
+            "max": 1300
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_LORDLY_PROT_FIRE"
+    },
+    {
+        "name": "Ring of Protection",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 500,
+        "description": "Increases defense.",
+        "effect": [
+            "defense_bonus",
+            1
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_PROTECTION"
+    },
+    {
+        "name": "Ring of Resist Cold",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 600,
+        "description": "Protects against cold.",
+        "effect": [
+            "resistance",
+            "cold",
+            1
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_RESIST_COLD"
+    },
+    {
+        "name": "Ring of Resist Fire",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 600,
+        "description": "Protects against fire.",
+        "effect": [
+            "resistance",
+            "fire",
+            1
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_RESIST_FIRE"
+    },
+    {
+        "name": "Ring of Searching",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 400,
+        "description": "Helps find secrets.",
+        "effect": [
+            "searching"
+        ],
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_SEARCHING"
+    },
+    {
+        "name": "Ring of See Invisible",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 700,
+        "description": "Reveals unseen things.",
+        "effect": [
+            "see_invisible"
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_SEE_INVISIBLE"
+    },
+    {
+        "name": "Ring of Slaying",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 1200,
+        "description": "Deadly strikes.",
+        "effect": [
+            "slaying_bonus",
+            2
+        ],
+        "rarity_depth": {
+            "min": 700,
+            "max": 1300
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_SLAYING"
+    },
+    {
+        "name": "Ring of Slow Digestion",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 300,
+        "description": "Reduces hunger.",
+        "effect": [
+            "slow_digestion"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_SLOW_DIGESTION"
+    },
+    {
+        "name": "Ring of Speed",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 2000,
+        "description": "Move faster.",
+        "effect": [
+            "speed",
+            1
+        ],
+        "rarity_depth": {
+            "min": 700,
+            "max": 1300
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_SPEED"
+    },
+    {
+        "name": "Ring of Stupidity",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 50,
+        "description": "Makes you dumber.",
+        "effect": [
+            "stat_bonus",
+            "INT",
+            -1
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_STUPIDITY"
+    },
+    {
+        "name": "Ring of Sustain Charisma",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 300,
+        "description": "Prevents Charisma drain.",
+        "effect": [
+            "sustain_stat",
+            "CHA"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_SUSTAIN_CHA"
+    },
+    {
+        "name": "Ring of Sustain Constitution",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 300,
+        "description": "Prevents Constitution drain.",
+        "effect": [
+            "sustain_stat",
+            "CON"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_SUSTAIN_CON"
+    },
+    {
+        "name": "Ring of Sustain Dexterity",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 300,
+        "description": "Prevents Dexterity drain.",
+        "effect": [
+            "sustain_stat",
+            "DEX"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_SUSTAIN_DEX"
+    },
+    {
+        "name": "Ring of Sustain Intelligence",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 300,
+        "description": "Prevents Intelligence drain.",
+        "effect": [
+            "sustain_stat",
+            "INT"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_SUSTAIN_INT"
+    },
+    {
+        "name": "Ring of Sustain Strength",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 300,
+        "description": "Prevents Strength drain.",
+        "effect": [
+            "sustain_stat",
+            "STR"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_SUSTAIN_STR"
+    },
+    {
+        "name": "Ring of Sustain Wisdom",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 300,
+        "description": "Prevents Wisdom drain.",
+        "effect": [
+            "sustain_stat",
+            "WIS"
+        ],
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_SUSTAIN_WIS"
+    },
+    {
+        "name": "Ring of Teleportation",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 800,
+        "description": "Uncontrolled blinking.",
+        "effect": [
+            "teleportitis"
+        ],
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_TELEPORTATION"
+    },
+    {
+        "name": "Ring of Weakness",
+        "type": "ring",
+        "slot": "ring",
+        "base_cost": 50,
+        "description": "Saps your strength.",
+        "effect": [
+            "stat_bonus",
+            "STR",
+            -1
+        ],
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 1,
+        "image": "ring/ring_plain_magenta.png",
+        "id": "RING_WEAKNESS"
+    }
+]

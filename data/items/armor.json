@@ -1,0 +1,512 @@
+[
+    {
+        "name": "Pair of Hard Leather Boots",
+        "type": "armor",
+        "slot": "armor_feet",
+        "base_cost": 30,
+        "description": "Sturdy boots.",
+        "defense_bonus": 1,
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 20,
+        "image": "feet/boots_leather_hard.png",
+        "id": "BOOTS_HARD_LEATHER"
+    },
+    {
+        "name": "Pair of Soft Leather Boots",
+        "type": "armor",
+        "slot": "armor_feet",
+        "base_cost": 15,
+        "description": "Comfortable boots.",
+        "defense_bonus": 0,
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 20,
+        "image": "feet/boots_leather_soft.png",
+        "id": "BOOTS_SOFT_LEATHER"
+    },
+    {
+        "name": "Traveler's Garb",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 8,
+        "description": "Simple layered clothes suited for adventuring. Offers no real protection.",
+        "defense_bonus": 0,
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 25,
+        "image": "body/traveler_garb.png",
+        "id": "CLOTHING_TRAVELERS_GARB"
+    },
+    {
+        "name": "Banded Mail Armor",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 500,
+        "description": "Plates riveted together.",
+        "defense_bonus": 5,
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 20,
+        "image": "body/banded_mail.png",
+        "id": "BANDED_MAIL"
+    },
+    {
+        "name": "Chain Mail",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 250,
+        "description": "Standard metal ring mail.",
+        "defense_bonus": 4,
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 140,
+        "image": "body/chain_mail.png",
+        "id": "CHAIN_MAIL"
+    },
+    {
+        "name": "Augmented Chain Mail",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 300,
+        "description": "Reinforced chain mail.",
+        "defense_bonus": 5,
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 140,
+        "image": "body/chain_mail_augmented.png",
+        "id": "CHAIN_MAIL_AUGMENTED"
+    },
+    {
+        "name": "Double Chain Mail",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 350,
+        "description": "Heavy, double-layered chain.",
+        "defense_bonus": 5,
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 140,
+        "image": "body/chain_mail_double.png",
+        "id": "CHAIN_MAIL_DOUBLE"
+    },
+    {
+        "name": "Cloak",
+        "type": "armor",
+        "slot": "armor_cloak",
+        "base_cost": 10,
+        "description": "Provides minimal protection.",
+        "defense_bonus": 0,
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 20,
+        "image": "cloak/cloak.png",
+        "id": "CLOAK"
+    },
+    {
+        "name": "Set of Gauntlets",
+        "type": "armor",
+        "slot": "armor_hands",
+        "base_cost": 80,
+        "description": "Metal hand protection.",
+        "defense_bonus": 1,
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 20,
+        "image": "hands/metal_gauntlets.png",
+        "id": "GAUNTLETS"
+    },
+    {
+        "name": "Set of Leather Gloves",
+        "type": "armor",
+        "slot": "armor_hands",
+        "base_cost": 10,
+        "description": "Basic hand coverings.",
+        "defense_bonus": 0,
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 20,
+        "image": "hands/leather_soft.png",
+        "id": "GLOVES_LEATHER"
+    },
+    {
+        "name": "Steel Helm",
+        "type": "armor",
+        "slot": "armor_head",
+        "base_cost": 150,
+        "description": "A strong steel helmet.",
+        "defense_bonus": 2,
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 20,
+        "image": "head/helmet_steel.png",
+        "id": "HELM_STEEL"
+    },
+    {
+        "name": "Laminated Armor",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 400,
+        "description": "Overlapping plates.",
+        "defense_bonus": 5,
+        "rarity_depth": {
+            "min": 250,
+            "max": 500
+        },
+        "weight": 20,
+        "image": "body/laminated.png",
+        "id": "LAMINATED_ARMOR"
+    },
+    {
+        "name": "Hard Leather Armor",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 150,
+        "description": "Stiffened leather.",
+        "defense_bonus": 2,
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 20,
+        "image": "body/leather_hard.png",
+        "id": "LEATHER_ARMOR_HARD"
+    },
+    {
+        "name": "Soft Leather Armor",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 80,
+        "description": "Flexible leather.",
+        "defense_bonus": 1,
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 20,
+        "image": "body/leather_soft.png",
+        "id": "LEATHER_ARMOR_SOFT"
+    },
+    {
+        "name": "Hard Leather Cap",
+        "type": "armor",
+        "slot": "armor_head",
+        "base_cost": 20,
+        "description": "Basic head protection.",
+        "defense_bonus": 1,
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 20,
+        "image": "head/cap_leather_hard.png",
+        "id": "LEATHER_CAP_HARD"
+    },
+    {
+        "name": "Soft Leather Cap",
+        "type": "armor",
+        "slot": "armor_head",
+        "base_cost": 10,
+        "description": "Simple leather cap.",
+        "defense_bonus": 0,
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 20,
+        "image": "head/cap_leather_soft.png",
+        "id": "LEATHER_CAP_SOFT"
+    },
+    {
+        "name": "Metal Helmet",
+        "type": "armor",
+        "slot": "armor_head",
+        "base_cost": 60,
+        "description": "Basic metal head protection.",
+        "defense_bonus": 1,
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 20,
+        "image": "head/helmet_metal.png",
+        "id": "METAL_HELMET"
+    },
+    {
+        "name": "Full Plate Armor",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 1500,
+        "description": "Excellent protection, very heavy.",
+        "defense_bonus": 7,
+        "rarity_depth": {
+            "min": 700,
+            "max": 1300
+        },
+        "weight": 200,
+        "image": "body/plate_full.png",
+        "id": "PLATE_ARMOR_FULL"
+    },
+    {
+        "name": "Ribbed Plate Armor",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 1000,
+        "description": "Reinforced plate armor.",
+        "defense_bonus": 6,
+        "rarity_depth": {
+            "min": 400,
+            "max": 800
+        },
+        "weight": 200,
+        "image": "body/plate_ribbed.png",
+        "id": "PLATE_ARMOR_RIBBED"
+    },
+    {
+        "name": "Hard Leather Ring Mail",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 180,
+        "description": "Hard leather with rings.",
+        "defense_bonus": 3,
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 20,
+        "image": "body/ring_mail_hard.png",
+        "id": "RING_MAIL_HARD"
+    },
+    {
+        "name": "Soft Leather Ring Mail",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 120,
+        "description": "Soft leather with rings.",
+        "defense_bonus": 2,
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 20,
+        "image": "body/ring_mail_soft.png",
+        "id": "RING_MAIL_SOFT"
+    },
+    {
+        "name": "Robe",
+        "type": "armor",
+        "slot": "armor_cloak",
+        "base_cost": 15,
+        "description": "Simple cloth robe.",
+        "defense_bonus": 0,
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 20,
+        "image": "body/robe.png",
+        "id": "ROBE"
+    },
+    {
+        "name": "Leather Scale Mail",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 220,
+        "description": "Leather scales on backing.",
+        "defense_bonus": 3,
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 120,
+        "image": "body/scale_mail_leather.png",
+        "id": "SCALE_MAIL_LEATHER"
+    },
+    {
+        "name": "Metal Scale Mail",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 300,
+        "description": "Metal scales on backing.",
+        "defense_bonus": 4,
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 120,
+        "image": "body/scale_mail_metal.png",
+        "id": "SCALE_MAIL_METAL"
+    },
+    {
+        "name": "Large Wooden Shield",
+        "type": "armor",
+        "slot": "shield",
+        "base_cost": 40,
+        "description": "A large shield made of hide.",
+        "defense_bonus": 2,
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 20,
+        "image": "shield/large_wooden.png",
+        "id": "SHIELD_WOODEN_LARGE"
+    },
+    {
+        "name": "Medium Wooden Shield",
+        "type": "armor",
+        "slot": "shield",
+        "base_cost": 30,
+        "description": "A medium shield.",
+        "defense_bonus": 1,
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 20,
+        "image": "shield/wooden.png",
+        "id": "SHIELD_WOODEN_MEDIUM"
+    },
+    {
+        "name": "Small Wooden Shield",
+        "type": "armor",
+        "slot": "shield",
+        "base_cost": 20,
+        "description": "A small buckler.",
+        "defense_bonus": 1,
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 20,
+        "image": "shield/small_wooden.png",
+        "id": "SHIELD_WOODEN_SMALL"
+    },
+    {
+        "name": "Large Metal Shield",
+        "type": "armor",
+        "slot": "shield",
+        "base_cost": 100,
+        "description": "A large metal shield.",
+        "defense_bonus": 3,
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 20,
+        "image": "shield/large_metal.png",
+        "id": "SHIELD_METAL_LARGE"
+    },
+    {
+        "name": "Medium Metal Shield",
+        "type": "armor",
+        "slot": "shield",
+        "base_cost": 80,
+        "description": "A medium metal shield.",
+        "defense_bonus": 2,
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 20,
+        "image": "shield/metal.png",
+        "id": "SHIELD_METAL_MEDIUM"
+    },
+    {
+        "name": "Small Metal Shield",
+        "type": "armor",
+        "slot": "shield",
+        "base_cost": 60,
+        "description": "A small metal buckler.",
+        "defense_bonus": 1,
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 20,
+        "image": "shield/small_metal.png",
+        "id": "SHIELD_METAL_SMALL"
+    },
+    {
+        "name": "Pair of Soft Leather Shoes",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 10,
+        "description": "Simple shoes.",
+        "defense_bonus": 0,
+        "rarity_depth": {
+            "min": 0,
+            "max": 75
+        },
+        "weight": 20,
+        "image": "feet/shoes_soft_leather.png",
+        "id": "SHOES_SOFT_LEATHER"
+    },
+    {
+        "name": "Hard Studded Leather",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 200,
+        "description": "Hard leather with studs.",
+        "defense_bonus": 3,
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 20,
+        "image": "body/studded_leather.png",
+        "id": "STUDDED_LEATHER_HARD"
+    },
+    {
+        "name": "Soft Studded Leather",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 150,
+        "description": "Soft leather with studs.",
+        "defense_bonus": 2,
+        "rarity_depth": {
+            "min": 100,
+            "max": 300
+        },
+        "weight": 20,
+        "image": "body/studded_leather.png",
+        "id": "STUDDED_LEATHER_SOFT"
+    },
+    {
+        "name": "Woven Cord Armor",
+        "type": "armor",
+        "slot": "armor_body",
+        "base_cost": 60,
+        "description": "Armor made from tough cord.",
+        "defense_bonus": 1,
+        "rarity_depth": {
+            "min": 50,
+            "max": 150
+        },
+        "weight": 20,
+        "image": "body/woven.png",
+        "id": "WOVEN_CORD_ARMOR"
+    }
+]

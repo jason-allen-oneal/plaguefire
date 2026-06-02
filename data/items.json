@@ -1,0 +1,17 @@
+{
+    "_comment": "Item definitions now live under data/items/<CATEGORY>.json",
+    "categories": [
+        "AMULETS",
+        "ARMOR",
+        "BOOKS",
+        "COINS",
+        "FOOD",
+        "GEMS",
+        "MISC",
+        "POTIONS",
+        "RINGS",
+        "SCROLLS",
+        "WANDS_STAVES",
+        "WEAPONS"
+    ]
+}
