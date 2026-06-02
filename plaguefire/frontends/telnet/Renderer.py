@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from plaguefire.core.GameState import GameState
+from plaguefire.core.ItemCatalog import get_item_description, get_item_name, get_item_price
 
 
 RESET = "\x1b[0m"
@@ -63,7 +64,7 @@ def render_game(state: GameState, terminal_width: int, terminal_height: int) -> 
     width, height = normalize_terminal_size(terminal_width, terminal_height)
 
     message_line = latest_message(state)
-    bottom_line = status_line(state, width)
+    bottom_line = status_line(state, width, height)
 
     body_height = height - 2
     map_width = width - STATS_WIDTH - 1
@@ -161,12 +162,22 @@ def render_map_area(state: GameState, width: int, height: int) -> list[str]:
     return lines
 
 
-def status_line(state: GameState, width: int) -> str:
+def status_line(state: GameState, width: int, height: int) -> str:
     player = state.player
 
     left = f"Turn {state.turn}"
     middle = f"Depth {player.depth}"
+
+    map_width = width - STATS_WIDTH - 1
+    map_height = height - 2
+    map_needed_width = max(len(row) for row in state.map_data) if state.map_data else 0
+    map_needed_height = len(state.map_data)
     right_parts = []
+
+    if map_width < map_needed_width or map_height < map_needed_height:
+        needed_width = map_needed_width + STATS_WIDTH + 1
+        needed_height = map_needed_height + 2
+        right_parts.append(f"Full town needs {needed_width}x{needed_height}")
 
     if player.hunger_state:
         right_parts.append(player.hunger_state)
@@ -330,32 +341,55 @@ def render_shop(state: GameState, terminal_width: int, terminal_height: int) -> 
             terminal_height,
         )
 
+    player = state.player
+
     body = [
         f"{shop.display_name}",
         f"Shopkeeper: {shop.owner_name}",
+        f"Gold: {player.gold}",
         "",
-        "Items:",
+        "Goods for sale:",
     ]
 
     if not shop.item_ids:
         body.append("  No items are currently stocked.")
     else:
+        left_column: list[str] = []
+        right_column: list[str] = []
+
         for index, item_id in enumerate(shop.item_ids, start=1):
-            body.append(f"  {index:>2}. {item_id}")
+            line = f"{index:>2}. {get_item_name(item_id):<30} {get_item_price(item_id):>4}gp"
+
+            if index % 2 == 1:
+                left_column.append(line)
+            else:
+                right_column.append(line)
+
+        rows = max(len(left_column), len(right_column))
+
+        for row in range(rows):
+            left = left_column[row] if row < len(left_column) else ""
+            right = right_column[row] if row < len(right_column) else ""
+            body.append(f"  {left:<40} {right}")
 
     body.extend(["", "Services:"])
 
     if not shop.services:
         body.append("  No services are currently offered.")
     else:
-        for service in shop.services:
-            body.append(f"  - {service.name} ({service.cost}gp): {service.description}")
+        for index, service in enumerate(shop.services, start=1):
+            body.append(
+                f"  {index}. {service.name:<20} {service.cost:>4}gp  {service.description}"
+            )
 
     body.extend(
         [
             "",
-            "Buying, selling, services, and haggling are not wired yet.",
-            "Press Esc to leave the shop.",
+            "Controls:",
+            "  b buy mode    s sell mode    v services    h haggle",
+            "  Esc leave shop",
+            "",
+            "Shop interaction is display-only for now. Buy/sell comes next.",
         ]
     )
 

@@ -175,3 +175,87 @@ def get_shop(key: str) -> ShopDefinition:
         raise ValueError(f"Unknown shop '{key}'. Valid shops: {valid}")
 
     return SHOPS[key]
+
+
+ITEM_DISPLAY_NAMES: dict[str, str] = {
+    "FOOD_RATION": "Ration of Food",
+    "FOOD_BISCUIT": "Hard Biscuit",
+    "FOOD_JERKY": "Dried Meat",
+    "FOOD_ALE": "Mug of Ale",
+    "FOOD_WINE": "Bottle of Wine",
+    "POTION_APPLE_JUICE": "Apple Juice",
+    "POTION_CURE_LIGHT": "Potion of Cure Light Wounds",
+    "POTION_HEALING": "Potion of Healing",
+    "POTION_INFRAVISION": "Potion of Infravision",
+    "POTION_GAIN_WIS": "Potion of Wisdom",
+    "POTION_HEROISM": "Potion of Heroism",
+    "POTION_NEUTRALIZE_POISON": "Potion of Neutralize Poison",
+    "POTION_RESTORE_WIS": "Potion of Restore Wisdom",
+    "TORCH": "Wooden Torch",
+    "LANTERN": "Brass Lantern",
+    "PEBBLE_ROUNDED": "Rounded Pebbles",
+    "LEATHER_ARMOR_SOFT": "Soft Leather Armor",
+    "STUDDED_LEATHER_SOFT": "Soft Studded Leather",
+    "RING_MAIL_SOFT": "Soft Ring Mail",
+    "BOOTS_HARD_LEATHER": "Hard Leather Boots",
+    "BOOTS_SOFT_LEATHER": "Soft Leather Boots",
+    "GLOVES_LEATHER": "Leather Gloves",
+    "HELMET_IRON": "Iron Helm",
+    "HELMET_STEEL": "Steel Helm",
+    "LEATHER_CAP_SOFT": "Soft Leather Cap",
+    "SHIELD_WOODEN_SMALL": "Small Wooden Shield",
+    "SHEILD_METAL_SMALL": "Small Metal Shield",
+    "WOVEN_CORD": "Woven Cord",
+    "SCROLL_MAGIC_MISSILE": "Scroll of Magic Missile",
+    "SCROLL_TELEPORT": "Scroll of Teleport",
+    "SCROLL_IDENTIFY": "Scroll of Identify",
+    "SCROLL_HOLY_CHANT": "Scroll of Holy Chant",
+    "SCROLL_HOLY_PRAYER": "Scroll of Holy Prayer",
+    "SCROLL_REMOVE_CURSE": "Scroll of Remove Curse",
+    "WAND_LIGHTNING_BOLT": "Wand of Lightning Bolts",
+    "WAND_FIREBALL": "Wand of Fireballs",
+    "WAND_COLD_BALLS": "Wand of Cold Balls",
+    "STAFF_HEALING": "Staff of Healing",
+    "STAFF_DETECT_INVISIBLE": "Staff of Detect Invisible",
+    "RING_PROTECTION": "Ring of Protection",
+    "RING_INVISIBILITY": "Ring of Invisibility",
+    "AMULET_WISDOM": "Amulet of Wisdom",
+    "ROBE": "Robe",
+    "SHOES_SOFT_LEATHER": "Soft Leather Shoes",
+    "BOOK_CLERIC_BEGINNERS": "Beginner's Handbook of Prayers",
+    "BOOK_CLERIC_CHANTS": "Words of Wisdom",
+    "BOOK_CLERIC_WISDOM": "Chants and Blessings",
+    "ARROW": "Arrows",
+    "BASTARD_SWORD": "Bastard Sword",
+    "BATTLE_AXE": "Battle Axe",
+    "BOLT": "Bolts",
+    "BOW_LONG": "Long Bow",
+    "BOW_SHORT": "Short Bow",
+    "BROADSWORD": "Broadsword",
+    "CLUB_WOODEN": "Wooden Club",
+    "CROSSBOW_LIGHT": "Light Crossbow",
+    "CUTLASS": "Cutlass",
+    "DAGGER_BODKIN": "Bodkin Dagger",
+    "DAGGER_MAIN_GAUCHE": "Main Gauche",
+    "DAGGER_MISERICORDE": "Misericorde",
+    "FLAIL": "Flail",
+    "HALBERD": "Halberd",
+    "LONGSWORD": "Longsword",
+    "MACE": "Mace",
+    "MORNINGSTAR": "Morningstar",
+    "RAPIER": "Rapier",
+    "SLING": "Sling",
+    "SPEAR": "Spear",
+    "TWO_HANDED_SWORD_FLAMBERGE": "Two-Handed Flamberge",
+    "WAR_HAMMER": "War Hammer",
+}
+
+
+def display_item_name(item_id: str) -> str:
+    return ITEM_DISPLAY_NAMES.get(item_id, item_id.replace("_", " ").title())
+
+
+def estimated_price(item_id: str) -> int:
+    # Temporary deterministic placeholder until real item data is wired in.
+    base = sum(ord(char) for char in item_id) % 250
+    return max(5, base + 10)

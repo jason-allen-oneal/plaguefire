@@ -32,9 +32,11 @@ class TelnetKeyParser:
         self.buffer = bytearray()
         self.columns = 80
         self.rows = 24
+        self.size_changed = False
 
     def feed(self, data: bytes) -> list[str]:
         self.buffer.extend(data)
+        self.size_changed = False
         keys: list[str] = []
 
         while self.buffer:
@@ -120,11 +122,11 @@ class TelnetKeyParser:
             columns = int.from_bytes(data[0:2], byteorder="big")
             rows = int.from_bytes(data[2:4], byteorder="big")
 
-            if columns > 0:
-                self.columns = columns
-
-            if rows > 0:
-                self.rows = rows
+            if columns > 0 and rows > 0:
+                if columns != self.columns or rows != self.rows:
+                    self.columns = columns
+                    self.rows = rows
+                    self.size_changed = True
 
         return True
 

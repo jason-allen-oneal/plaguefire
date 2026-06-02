@@ -62,6 +62,10 @@ class TelnetGameHandler(socketserver.BaseRequestHandler):
                 self.client.terminal_width = parser.columns
                 self.client.terminal_height = parser.rows
 
+                if parser.size_changed and not keys:
+                    self.redraw()
+                    continue
+
                 for key in keys:
                     self.client.handle_key(key)
                     self.redraw()
