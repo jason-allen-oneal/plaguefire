@@ -22,6 +22,36 @@ EQUIPMENT_SLOTS = [
 ]
 
 
+EQUIPMENT_SLOT_ALIASES = {
+    "armor_body": "body",
+    "body_armor": "body",
+    "chest": "body",
+    "torso": "body",
+    "armor_head": "head",
+    "helmet": "head",
+    "helm": "head",
+    "armor_hands": "hands",
+    "gloves": "hands",
+    "gauntlets": "hands",
+    "armor_feet": "feet",
+    "boots": "feet",
+    "shoes": "feet",
+    "shield": "offhand",
+    "off_hand": "offhand",
+    "main_hand": "weapon",
+    "weapon_main": "weapon",
+    "misc_light": "light",
+}
+
+
+def normalize_equipment_slot(slot: str | None) -> str | None:
+    if not slot:
+        return None
+
+    normalized = str(slot).strip().lower().replace("-", "_").replace(" ", "_")
+    return EQUIPMENT_SLOT_ALIASES.get(normalized, normalized)
+
+
 @dataclass
 class Player:
     name: str = "Hero"
@@ -144,7 +174,7 @@ class Player:
         explicit_slot = raw.get("equipment_slot") or raw.get("slot")
 
         if explicit_slot:
-            return str(explicit_slot)
+            return normalize_equipment_slot(str(explicit_slot))
 
         item_type = str(raw.get("type", item.type)).lower()
         text = f"{item_id} {item.name}".lower()
@@ -187,8 +217,12 @@ class Player:
         return None
 
     def get_equipped_item(self, slot: str) -> dict[str, Any] | None:
+        wanted_slot = normalize_equipment_slot(slot)
+
         for item in self.inventory:
-            if item.get("equipped_slot") == slot:
+            item_slot = normalize_equipment_slot(item.get("equipped_slot"))
+
+            if item_slot == wanted_slot:
                 return item
 
         return None
@@ -266,7 +300,7 @@ class Player:
         catalog = get_item_catalog()
 
         for item_data in self.inventory:
-            slot = item_data.get("equipped_slot")
+            slot = normalize_equipment_slot(item_data.get("equipped_slot"))
 
             if not slot:
                 continue
