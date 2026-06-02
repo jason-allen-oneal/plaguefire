@@ -4,6 +4,7 @@ from dataclasses import dataclass, field
 
 from plaguefire.core.Action import Action, ActionType, DIRECTION_DELTAS
 from plaguefire.core.CharacterCreation import create_player
+from plaguefire.core.ItemCatalog import get_item_name, get_item_price
 from plaguefire.core.Shop import ShopDefinition, get_shop
 from plaguefire.core.Town import SHOP_BY_TILE, TOWN_LAYOUT, WALKABLE_TILES, starting_position
 from plaguefire.models.Player import Player
@@ -32,6 +33,8 @@ class GameState:
     map_name: str = "Town"
 
     active_shop_key: str | None = None
+    shop_mode: str = "buy"
+    shop_selection_index: int = 0
 
     messages: list[str] = field(
         default_factory=lambda: [
@@ -82,6 +85,42 @@ class GameState:
             self.move(dx, dy)
             return
 
+    def handle_shop_key(self, key: str) -> None:
+        if self.screen != "shop":
+            return
+
+        if key == "ESC":
+            self.leave_shop()
+            return
+
+        if key in {"b", "B"}:
+            self.set_shop_mode("buy")
+            return
+
+        if key in {"s", "S"}:
+            self.set_shop_mode("sell")
+            return
+
+        if key in {"v", "V"}:
+            self.set_shop_mode("services")
+            return
+
+        if key in {"h", "H"}:
+            self.log("Haggling is not implemented yet.")
+            return
+
+        if key == "UP":
+            self.move_shop_selection(-1)
+            return
+
+        if key == "DOWN":
+            self.move_shop_selection(1)
+            return
+
+        if key == "ENTER":
+            self.activate_shop_selection()
+            return
+
     def wait(self) -> None:
         self.turn += 1
         self.player.time += 1
@@ -128,6 +167,8 @@ class GameState:
 
         self.active_shop_key = shop.key
         self.screen = "shop"
+        self.shop_mode = "buy"
+        self.shop_selection_index = 0
         self.log(f"You enter {shop.display_name}.")
 
     def leave_shop(self) -> None:
@@ -136,6 +177,8 @@ class GameState:
             self.log(f"You leave {shop.display_name}.")
 
         self.active_shop_key = None
+        self.shop_mode = "buy"
+        self.shop_selection_index = 0
         self.screen = "game"
 
     def active_shop(self) -> ShopDefinition | None:
@@ -143,6 +186,159 @@ class GameState:
             return None
 
         return get_shop(self.active_shop_key)
+
+    def set_shop_mode(self, mode: str) -> None:
+        if mode not in {"buy", "sell", "services"}:
+            return
+
+        self.shop_mode = mode
+        self.shop_selection_index = 0
+
+        if mode == "buy":
+            self.log("Browsing shop goods.")
+        elif mode == "sell":
+            self.log("Choose an item to sell.")
+        elif mode == "services":
+            self.log("Choose a service.")
+
+    def move_shop_selection(self, delta: int) -> None:
+        count = self.shop_selection_count()
+
+        if count <= 0:
+            self.shop_selection_index = 0
+            return
+
+        self.shop_selection_index = (self.shop_selection_index + delta) % count
+
+    def shop_selection_count(self) -> int:
+        shop = self.active_shop()
+
+        if shop is None:
+            return 0
+
+        if self.shop_mode == "buy":
+            return len(shop.item_ids)
+
+        if self.shop_mode == "sell":
+            return len(self.player.inventory)
+
+        if self.shop_mode == "services":
+            return len(shop.services)
+
+        return 0
+
+    def activate_shop_selection(self) -> None:
+        if self.shop_mode == "buy":
+            self.buy_selected_item()
+            return
+
+        if self.shop_mode == "sell":
+            self.sell_selected_item()
+            return
+
+        if self.shop_mode == "services":
+            self.use_selected_service()
+            return
+
+    def buy_selected_item(self) -> None:
+        shop = self.active_shop()
+
+        if shop is None or not shop.item_ids:
+            self.log("There is nothing to buy.")
+            return
+
+        item_id = shop.item_ids[self.shop_selection_index]
+        price = get_item_price(item_id)
+
+        if price <= 0:
+            self.log(f"{get_item_name(item_id)} is not for sale.")
+            return
+
+        if not self.player.spend_gold(price):
+            self.log(f"You need {price} gold for {get_item_name(item_id)}.")
+            return
+
+        self.player.add_item(item_id, 1)
+        self.log(f"You buy {get_item_name(item_id)} for {price} gold.")
+
+    def sell_selected_item(self) -> None:
+        if not self.player.inventory:
+            self.log("You have nothing to sell.")
+            return
+
+        stack = self.player.inventory[self.shop_selection_index]
+        item_id = stack.get("item_id", "")
+        quantity = int(stack.get("quantity", 1))
+
+        if quantity <= 0:
+            self.log("That item stack is invalid.")
+            return
+
+        sell_price = max(1, get_item_price(item_id) // 2)
+
+        if not self.player.remove_item(item_id, 1):
+            self.log(f"You cannot sell {get_item_name(item_id)}.")
+            return
+
+        self.player.gain_gold(sell_price)
+        self.log(f"You sell {get_item_name(item_id)} for {sell_price} gold.")
+
+        count = self.shop_selection_count()
+
+        if count == 0:
+            self.shop_selection_index = 0
+        else:
+            self.shop_selection_index %= count
+
+    def use_selected_service(self) -> None:
+        shop = self.active_shop()
+
+        if shop is None or not shop.services:
+            self.log("No services are available.")
+            return
+
+        service = shop.services[self.shop_selection_index]
+
+        if not self.player.spend_gold(service.cost):
+            self.log(f"You need {service.cost} gold for {service.name}.")
+            return
+
+        applied = self.apply_service(service.name)
+        self.log(applied or f"You pay {service.cost} gold for {service.name}.")
+
+    def apply_service(self, service_name: str) -> str:
+        normalized = service_name.lower()
+
+        if "healing" in normalized or "rest" in normalized:
+            healed = self.player.heal(self.player.max_hp)
+
+            if "long" in normalized:
+                self.player.mana = self.player.max_mana
+
+            return f"{service_name} restores {healed} HP."
+
+        if "cure poison" in normalized:
+            return "You feel poison leave your body."
+
+        if "remove curse" in normalized:
+            return "The shopkeeper says no curses cling to you."
+
+        if "identify" in normalized:
+            return "Identification is not wired to item state yet."
+
+        if "blessing" in normalized:
+            return "You feel briefly protected."
+
+        if "repair" in normalized:
+            return "Repairs will matter once durability is implemented."
+
+        if "sharpen" in normalized or "reinforce" in normalized or "upgrade" in normalized:
+            return "Item enhancement will matter once equipment is implemented."
+
+        if "round" in normalized:
+            return "Rumor: the stairway has been restless lately."
+
+        return f"You pay for {service_name}."
 
     def log(self, message: str) -> None:
         self.messages.append(message)

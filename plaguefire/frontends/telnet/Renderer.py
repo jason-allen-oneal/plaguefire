@@ -360,50 +360,71 @@ def render_shop(state: GameState, terminal_width: int, terminal_height: int) -> 
         f"{shop.display_name}",
         f"Shopkeeper: {shop.owner_name}",
         f"Gold: {player.gold}",
+        f"Mode: {state.shop_mode.upper()}",
         "",
-        "Goods for sale:",
+        "b buy    s sell    v services    h haggle    Esc leave",
+        "Up/Down select    Enter confirm",
+        "",
     ]
 
-    if not shop.item_ids:
-        body.append("  No items are currently stocked.")
+    if state.shop_mode == "buy":
+        body.extend(render_shop_buy_lines(state))
+    elif state.shop_mode == "sell":
+        body.extend(render_shop_sell_lines(state))
+    elif state.shop_mode == "services":
+        body.extend(render_shop_service_lines(state))
     else:
-        left_column: list[str] = []
-        right_column: list[str] = []
-
-        for index, item_id in enumerate(shop.item_ids, start=1):
-            line = f"{index:>2}. {get_item_name(item_id):<30} {get_item_price(item_id):>4}gp"
-
-            if index % 2 == 1:
-                left_column.append(line)
-            else:
-                right_column.append(line)
-
-        rows = max(len(left_column), len(right_column))
-
-        for row in range(rows):
-            left = left_column[row] if row < len(left_column) else ""
-            right = right_column[row] if row < len(right_column) else ""
-            body.append(f"  {left:<40} {right}")
-
-    body.extend(["", "Services:"])
-
-    if not shop.services:
-        body.append("  No services are currently offered.")
-    else:
-        for index, service in enumerate(shop.services, start=1):
-            body.append(
-                f"  {index}. {service.name:<20} {service.cost:>4}gp  {service.description}"
-            )
-
-    body.extend(
-        [
-            "",
-            "Controls:",
-            "  b buy mode    s sell mode    v services    h haggle",
-            "  Esc leave shop",
-            "",
-            "Shop interaction is display-only for now. Buy/sell comes next.",
-        ]
-    )
+        body.append("Unknown shop mode.")
 
     return frame(shop.display_name.upper(), body, terminal_width, terminal_height)
+
+
+def render_shop_buy_lines(state: GameState) -> list[str]:
+    shop = state.active_shop()
+    lines = ["Goods for sale:"]
+
+    if shop is None or not shop.item_ids:
+        return lines + ["  No items are currently stocked."]
+
+    for index, item_id in enumerate(shop.item_ids):
+        cursor = ">" if index == state.shop_selection_index else " "
+        lines.append(
+            f"{cursor} {index + 1:>2}. {get_item_name(item_id):<32} {get_item_price(item_id):>5}gp"
+        )
+
+    return lines
+
+
+def render_shop_sell_lines(state: GameState) -> list[str]:
+    lines = ["Your inventory:"]
+
+    if not state.player.inventory:
+        return lines + ["  You have nothing to sell."]
+
+    for index, stack in enumerate(state.player.inventory):
+        item_id = stack.get("item_id", "")
+        quantity = int(stack.get("quantity", 1))
+        cursor = ">" if index == state.shop_selection_index else " "
+        sell_price = max(1, get_item_price(item_id) // 2)
+
+        lines.append(
+            f"{cursor} {index + 1:>2}. {quantity}x {get_item_name(item_id):<28} {sell_price:>5}gp"
+        )
+
+    return lines
+
+
+def render_shop_service_lines(state: GameState) -> list[str]:
+    shop = state.active_shop()
+    lines = ["Services:"]
+
+    if shop is None or not shop.services:
+        return lines + ["  No services are currently offered."]
+
+    for index, service in enumerate(shop.services):
+        cursor = ">" if index == state.shop_selection_index else " "
+        lines.append(
+            f"{cursor} {index + 1:>2}. {service.name:<22} {service.cost:>5}gp  {service.description}"
+        )
+
+    return lines
