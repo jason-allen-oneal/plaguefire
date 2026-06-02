@@ -103,6 +103,24 @@ class ClientSession:
             self.go_title()
             return
 
+        if self.game_state.screen == "shop":
+            self.game_state.handle_shop_key(key)
+
+            if not self.game_state.running:
+                save_player(self.username, self.game_state.player)
+                self.running = False
+
+            return
+
+        if self.game_state.screen == "inventory":
+            self.game_state.handle_inventory_key(key)
+
+            if not self.game_state.running:
+                save_player(self.username, self.game_state.player)
+                self.running = False
+
+            return
+
         action = key_to_action(key)
 
         if action is None:

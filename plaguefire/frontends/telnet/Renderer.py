@@ -389,7 +389,7 @@ def render_shop_buy_lines(state: GameState) -> list[str]:
     for index, item_id in enumerate(shop.item_ids):
         cursor = ">" if index == state.shop_selection_index else " "
         lines.append(
-            f"{cursor} {index + 1:>2}. {get_item_name(item_id):<32} {get_item_price(item_id):>5}gp"
+            f"{cursor} {index + 1:>2}. {get_item_name(item_id):<32} {state.buy_price(item_id):>5}gp"
         )
 
     return lines
@@ -405,7 +405,7 @@ def render_shop_sell_lines(state: GameState) -> list[str]:
         item_id = stack.get("item_id", "")
         quantity = int(stack.get("quantity", 1))
         cursor = ">" if index == state.shop_selection_index else " "
-        sell_price = max(1, get_item_price(item_id) // 2)
+        sell_price = state.sell_price(item_id)
 
         lines.append(
             f"{cursor} {index + 1:>2}. {quantity}x {get_item_name(item_id):<28} {sell_price:>5}gp"

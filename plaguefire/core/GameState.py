@@ -36,6 +36,7 @@ class GameState:
     active_shop_key: str | None = None
     shop_mode: str = "buy"
     shop_selection_index: int = 0
+    inventory_selection_index: int = 0
 
     haggle_attempted: set[str] = field(default_factory=set)
     haggle_price_adjustments: dict[str, int] = field(default_factory=dict)
@@ -71,6 +72,7 @@ class GameState:
 
         if action.action_type == ActionType.INVENTORY:
             self.screen = "inventory"
+            self.inventory_selection_index = 0
             return
 
         if action.action_type == ActionType.SPELLS:
@@ -124,6 +126,57 @@ class GameState:
         if key == "ENTER":
             self.activate_shop_selection()
             return
+
+    def handle_inventory_key(self, key: str) -> None:
+        if self.screen != "inventory":
+            return
+
+        if key == "ESC":
+            self.screen = "game"
+            return
+
+        if key == "UP":
+            self.move_inventory_selection(-1)
+            return
+
+        if key == "DOWN":
+            self.move_inventory_selection(1)
+            return
+
+        if key in {"e", "E", "ENTER"}:
+            success, message = self.player.equip_inventory_index(self.inventory_selection_index)
+            self.log(message)
+            return
+
+        if key in {"u", "U"}:
+            success, message = self.player.unequip_inventory_index(self.inventory_selection_index)
+            self.log(message)
+            return
+
+        if key in {"d", "D"}:
+            success, message = self.player.drop_inventory_index(self.inventory_selection_index)
+            self.log(message)
+
+            count = self.inventory_selection_count()
+
+            if count == 0:
+                self.inventory_selection_index = 0
+            else:
+                self.inventory_selection_index %= count
+
+            return
+
+    def inventory_selection_count(self) -> int:
+        return len(self.player.inventory)
+
+    def move_inventory_selection(self, delta: int) -> None:
+        count = self.inventory_selection_count()
+
+        if count <= 0:
+            self.inventory_selection_index = 0
+            return
+
+        self.inventory_selection_index = (self.inventory_selection_index + delta) % count
 
     def wait(self) -> None:
         self.turn += 1
@@ -344,6 +397,11 @@ class GameState:
             return
 
         stack = self.player.inventory[self.shop_selection_index]
+
+        if stack.get("equipped_slot"):
+            self.log("Unequip that item before selling it.")
+            return
+
         item_id = stack.get("item_id", "")
         quantity = int(stack.get("quantity", 1))
 

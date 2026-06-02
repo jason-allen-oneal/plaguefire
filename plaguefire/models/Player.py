@@ -4,7 +4,22 @@ from dataclasses import dataclass, field, asdict
 from typing import Any
 
 from plaguefire.core.CharacterData import STAT_NAMES, XP_THRESHOLDS
+from plaguefire.core.ItemCatalog import get_item_catalog, get_item_name
 from plaguefire.models.Inventory import Inventory
+
+
+EQUIPMENT_SLOTS = [
+    "weapon",
+    "offhand",
+    "body",
+    "head",
+    "hands",
+    "feet",
+    "ring_left",
+    "ring_right",
+    "amulet",
+    "light",
+]
 
 
 @dataclass
@@ -99,22 +114,218 @@ class Player:
     def inventory_model(self) -> Inventory:
         return Inventory.from_any(self.inventory)
 
+    def set_inventory_model(self, inventory: Inventory) -> None:
+        self.inventory = inventory.to_list()
+
     def add_item(self, item_id: str, quantity: int = 1) -> None:
         inventory = self.inventory_model()
         inventory.add_item(item_id, quantity)
-        self.inventory = inventory.to_list()
+        self.set_inventory_model(inventory)
 
     def remove_item(self, item_id: str, quantity: int = 1) -> bool:
         inventory = self.inventory_model()
         removed = inventory.remove_item(item_id, quantity)
 
         if removed:
-            self.inventory = inventory.to_list()
+            self.set_inventory_model(inventory)
 
         return removed
 
     def item_quantity(self, item_id: str) -> int:
         return self.inventory_model().count(item_id)
+
+    def item_slot_for(self, item_id: str) -> str | None:
+        item = get_item_catalog().get(item_id)
+
+        if item is None:
+            return None
+
+        raw = item.raw
+        explicit_slot = raw.get("equipment_slot") or raw.get("slot")
+
+        if explicit_slot:
+            return str(explicit_slot)
+
+        item_type = str(raw.get("type", item.type)).lower()
+        text = f"{item_id} {item.name}".lower()
+
+        if item_type in {"weapon", "melee_weapon", "ranged_weapon"}:
+            return "weapon"
+
+        if any(key in raw for key in ("damage", "damage_dice", "to_hit", "to_damage")):
+            return "weapon"
+
+        if "shield" in text or "sheild" in text:
+            return "offhand"
+
+        if item_type in {"light"} or "torch" in text or "lantern" in text:
+            return "light"
+
+        if "ring" in text:
+            if self.get_equipped_item("ring_left") is None:
+                return "ring_left"
+            return "ring_right"
+
+        if "amulet" in text:
+            return "amulet"
+
+        if item_type in {"armor", "armour"}:
+            if any(word in text for word in ("boot", "shoe")):
+                return "feet"
+
+            if any(word in text for word in ("glove", "gauntlet")):
+                return "hands"
+
+            if any(word in text for word in ("helmet", "helm", "cap", "crown")):
+                return "head"
+
+            return "body"
+
+        if any(word in text for word in ("robe", "mail", "armor", "armour", "cloak")):
+            return "body"
+
+        return None
+
+    def get_equipped_item(self, slot: str) -> dict[str, Any] | None:
+        for item in self.inventory:
+            if item.get("equipped_slot") == slot:
+                return item
+
+        return None
+
+    def equipment_slots(self) -> dict[str, dict[str, Any] | None]:
+        return {slot: self.get_equipped_item(slot) for slot in EQUIPMENT_SLOTS}
+
+    def equip_inventory_index(self, index: int) -> tuple[bool, str]:
+        inventory = self.inventory_model()
+        item = inventory.get_by_index(index)
+
+        if item is None:
+            return False, "No item is selected."
+
+        slot = self.item_slot_for(item.item_id)
+
+        if slot is None:
+            return False, f"{get_item_name(item.item_id)} cannot be equipped."
+
+        equipped = inventory.equip_index(index, slot)
+
+        if equipped is None:
+            return False, f"{get_item_name(item.item_id)} cannot be equipped."
+
+        self.set_inventory_model(inventory)
+        return True, f"You equip {get_item_name(equipped.item_id)} in {slot}."
+
+    def unequip_slot(self, slot: str) -> tuple[bool, str]:
+        inventory = self.inventory_model()
+        item = inventory.equipped_in_slot(slot)
+
+        if item is None:
+            return False, f"Nothing is equipped in {slot}."
+
+        inventory.unequip_slot(slot)
+        self.set_inventory_model(inventory)
+        return True, f"You unequip {get_item_name(item.item_id)}."
+
+    def unequip_inventory_index(self, index: int) -> tuple[bool, str]:
+        inventory = self.inventory_model()
+        item = inventory.get_by_index(index)
+
+        if item is None:
+            return False, "No item is selected."
+
+        if not item.equipped_slot:
+            return False, f"{get_item_name(item.item_id)} is not equipped."
+
+        slot = item.equipped_slot
+        inventory.unequip_slot(slot)
+        self.set_inventory_model(inventory)
+        return True, f"You unequip {get_item_name(item.item_id)}."
+
+    def drop_inventory_index(self, index: int) -> tuple[bool, str]:
+        inventory = self.inventory_model()
+        item = inventory.get_by_index(index)
+
+        if item is None:
+            return False, "No item is selected."
+
+        if item.equipped_slot:
+            return False, "Unequip that item before dropping it."
+
+        dropped = inventory.drop_index(index)
+
+        if dropped is None:
+            return False, "You cannot drop that."
+
+        self.set_inventory_model(inventory)
+        return True, f"You drop {get_item_name(dropped.item_id)}."
+
+    @property
+    def armor_class(self) -> int:
+        armor_class = 0
+        catalog = get_item_catalog()
+
+        for item_data in self.inventory:
+            slot = item_data.get("equipped_slot")
+
+            if not slot:
+                continue
+
+            item = catalog.get(item_data.get("item_id", ""))
+
+            if item is None:
+                continue
+
+            raw = item.raw
+            bonus = (
+                raw.get("defense_bonus")
+                or raw.get("armor_class")
+                or raw.get("ac")
+                or raw.get("to_ac")
+                or raw.get("protection")
+                or 0
+            )
+
+            try:
+                bonus_value = int(bonus)
+            except (TypeError, ValueError):
+                bonus_value = 0
+
+            if bonus_value == 0 and slot in {"body", "head", "hands", "feet", "offhand"}:
+                bonus_value = 1
+
+            armor_class += bonus_value
+
+        return armor_class
+
+    @property
+    def weapon_name(self) -> str:
+        weapon = self.get_equipped_item("weapon")
+
+        if weapon is None:
+            return "Bare Hands"
+
+        return get_item_name(weapon.get("item_id", ""))
+
+    @property
+    def weapon_damage(self) -> str:
+        weapon = self.get_equipped_item("weapon")
+
+        if weapon is None:
+            return "1d2"
+
+        item = get_item_catalog().get(weapon.get("item_id", ""))
+
+        if item is None:
+            return "1d2"
+
+        raw = item.raw
+        damage = raw.get("damage") or raw.get("damage_dice") or raw.get("dice")
+
+        if damage:
+            return str(damage)
+
+        return "1d4"
 
     def is_alive(self) -> bool:
         return self.hp > 0 and self.status > 0
@@ -303,6 +514,7 @@ class Player:
     def to_dict(self) -> dict[str, Any]:
         data = asdict(self)
         data["inventory"] = self.inventory_model().to_list()
+        data["equipment"] = self.equipment_slots()
         data["class"] = self.character_class
         data["known_spells"] = list(self.spells)
         return data
