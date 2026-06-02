@@ -201,6 +201,12 @@ def render_map_area(state: GameState, width: int, height: int) -> list[str]:
                 rendered_row.append("@")
                 continue
 
+            monster = state.monster_at(map_x, map_y)
+
+            if monster is not None and state.is_visible(map_x, map_y):
+                rendered_row.append(monster.glyph)
+                continue
+
             rendered_row.append(tile_for_state(state, map_x, map_y))
 
         lines.append("".join(rendered_row))
