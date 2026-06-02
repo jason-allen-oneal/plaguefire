@@ -28,6 +28,9 @@ class ActionType(Enum):
     CHARACTER = "character"
     INVENTORY = "inventory"
     SPELLS = "spells"
+    ASCEND = "ascend"
+    DESCEND = "descend"
+    SEARCH = "search"
 
 
 @dataclass(frozen=True)
@@ -66,3 +69,15 @@ class Action:
     @classmethod
     def spells(cls) -> "Action":
         return cls(action_type=ActionType.SPELLS)
+
+    @classmethod
+    def ascend(cls) -> "Action":
+        return cls(action_type=ActionType.ASCEND)
+
+    @classmethod
+    def descend(cls) -> "Action":
+        return cls(action_type=ActionType.DESCEND)
+
+    @classmethod
+    def search(cls) -> "Action":
+        return cls(action_type=ActionType.SEARCH)

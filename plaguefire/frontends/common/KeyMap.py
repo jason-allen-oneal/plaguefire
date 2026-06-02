@@ -27,6 +27,12 @@ KEYMAP: dict[str, Action] = {
 
     "s": Action.spells(),
     "S": Action.spells(),
+
+    "<": Action.ascend(),
+    ">": Action.descend(),
+
+    "x": Action.search(),
+    "X": Action.search(),
 }
 
 

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from plaguefire.core.GameState import GameState
+from plaguefire.core.DungeonGeneration import display_tile
 from plaguefire.core.ItemCatalog import get_item_name
 from plaguefire.core.SpellCatalog import get_spell_name
-from plaguefire.core.ItemCatalog import get_item_description, get_item_name, get_item_price
 
 
 RESET = "\x1b[0m"
@@ -20,6 +20,15 @@ MAX_WIDTH = 220
 MAX_HEIGHT = 100
 
 STATS_WIDTH = 18
+
+# Moria-style dungeon panel. The dungeon world can be much larger.
+# The renderer only shows this many map cells at once.
+DUNGEON_VIEW_MAX_WIDTH = 100
+DUNGEON_VIEW_MAX_HEIGHT = 32
+
+# Town is a fixed hub map, so it can use more of a large terminal.
+TOWN_VIEW_MAX_WIDTH = 100
+TOWN_VIEW_MAX_HEIGHT = 32
 
 
 def enter_screen() -> str:
@@ -66,32 +75,58 @@ def render_game(state: GameState, terminal_width: int, terminal_height: int) -> 
     width, height = normalize_terminal_size(terminal_width, terminal_height)
 
     message_line = latest_message(state)
-    bottom_line = status_line(state, width, height)
-
     body_height = height - 2
-    map_width = width - STATS_WIDTH - 1
-    map_height = body_height
+
+    available_map_width = max(1, width - STATS_WIDTH - 1)
+    available_map_height = max(1, body_height)
+
+    map_view_width, map_view_height = terminal_map_view_size(
+        state=state,
+        available_width=available_map_width,
+        available_height=available_map_height,
+    )
+
+    stats_lines = render_stats_column(state, body_height)
+    map_lines = render_map_area(state, map_view_width, map_view_height)
 
     lines: list[str] = [
         CLEAR + HOME + message_line[:width].ljust(width),
     ]
 
-    stats_lines = render_stats_column(state, body_height)
-    map_lines = render_map_area(state, map_width, map_height)
-
     for row_index in range(body_height):
         left = stats_lines[row_index] if row_index < len(stats_lines) else ""
-        right = map_lines[row_index] if row_index < len(map_lines) else ""
+        map_line = map_lines[row_index] if row_index < len(map_lines) else ""
+
+        # Important: the dungeon panel is intentionally capped. The rest of the
+        # terminal row is blank space, not more map.
+        right = map_line.ljust(available_map_width)
 
         lines.append(
             left[:STATS_WIDTH].ljust(STATS_WIDTH)
             + " "
-            + right[:map_width].ljust(map_width)
+            + right[:available_map_width]
         )
 
-    lines.append(bottom_line[:width].ljust(width))
+    lines.append(status_line(state, width, map_view_width, map_view_height)[:width].ljust(width))
 
     return "\r\n".join(lines)
+
+
+def terminal_map_view_size(
+    state: GameState,
+    available_width: int,
+    available_height: int,
+) -> tuple[int, int]:
+    # Moria-style behavior:
+    # the map pane fills the available space after the stats column,
+    # top message line, and bottom status line.
+    #
+    # The world map can still be larger than this. Scrolling is handled by
+    # calculate_view_origin(), not by shrinking the visible map pane.
+    return (
+        max(1, available_width),
+        max(1, available_height),
+    )
 
 
 def latest_message(state: GameState) -> str:
@@ -113,8 +148,10 @@ def render_stats_column(state: GameState, height: int) -> list[str]:
         f"MANA: {player.mana:>3}/{player.max_mana:<3}",
         f"HP  : {player.hp:>3}/{player.max_hp:<3}",
         "",
-        f"AC  : {getattr(player, 'armor_class', 0):>6}",
+        f"AC  : {player.armor_class:>6}",
         f"GOLD: {player.gold:>6}",
+        f"Wpn : {player.weapon_name[:10]}",
+        f"Dmg : {player.weapon_damage}",
         "",
     ]
 
@@ -141,45 +178,83 @@ def render_stats_column(state: GameState, height: int) -> list[str]:
 def render_map_area(state: GameState, width: int, height: int) -> list[str]:
     lines: list[str] = []
 
-    for y in range(height):
-        if y >= len(state.map_data):
-            lines.append(" " * width)
-            continue
+    map_width, map_height = map_dimensions(state.map_data)
+    origin_x, origin_y = calculate_view_origin(
+        player_x=state.player_x,
+        player_y=state.player_y,
+        view_width=width,
+        view_height=height,
+        map_width=map_width,
+        map_height=map_height,
+    )
 
-        source_row = state.map_data[y]
+    for screen_y in range(height):
+        map_y = origin_y + screen_y
         rendered_row = []
 
-        for x in range(width):
-            if x >= len(source_row):
-                rendered_row.append(" ")
+        for screen_x in range(width):
+            map_x = origin_x + screen_x
+
+            if map_x == state.player_x and map_y == state.player_y:
+                rendered_row.append("@")
                 continue
 
-            if x == state.player_x and y == state.player_y:
-                rendered_row.append("@")
-            else:
-                rendered_row.append(source_row[x])
+            rendered_row.append(tile_for_render(state.map_data, map_x, map_y))
 
         lines.append("".join(rendered_row))
 
     return lines
 
 
-def status_line(state: GameState, width: int, height: int) -> str:
+def map_dimensions(map_data: list[str]) -> tuple[int, int]:
+    if not map_data:
+        return 0, 0
+
+    return max(len(row) for row in map_data), len(map_data)
+
+
+def calculate_view_origin(
+    player_x: int,
+    player_y: int,
+    view_width: int,
+    view_height: int,
+    map_width: int,
+    map_height: int,
+) -> tuple[int, int]:
+    if view_width <= 0 or view_height <= 0:
+        return 0, 0
+
+    max_origin_x = max(0, map_width - view_width)
+    max_origin_y = max(0, map_height - view_height)
+
+    target_x = player_x - view_width // 2
+    target_y = player_y - view_height // 2
+
+    origin_x = max(0, min(target_x, max_origin_x))
+    origin_y = max(0, min(target_y, max_origin_y))
+
+    return origin_x, origin_y
+
+
+def tile_for_render(map_data: list[str], x: int, y: int) -> str:
+    if y < 0 or y >= len(map_data):
+        return " "
+
+    row = map_data[y]
+
+    if x < 0 or x >= len(row):
+        return " "
+
+    return display_tile(row[x])
+
+
+def status_line(state: GameState, width: int, view_width: int, view_height: int) -> str:
     player = state.player
 
     left = f"Turn {state.turn}"
-    middle = f"Depth {player.depth}"
-
-    map_width = width - STATS_WIDTH - 1
-    map_height = height - 2
-    map_needed_width = max(len(row) for row in state.map_data) if state.map_data else 0
-    map_needed_height = len(state.map_data)
-    right_parts = []
-
-    if map_width < map_needed_width or map_height < map_needed_height:
-        needed_width = map_needed_width + STATS_WIDTH + 1
-        needed_height = map_needed_height + 2
-        right_parts.append(f"Full town needs {needed_width}x{needed_height}")
+    middle = f"{state.map_name} Depth {player.depth}"
+    view = f"View {view_width}x{view_height}"
+    right_parts = [view]
 
     if player.hunger_state:
         right_parts.append(player.hunger_state)
@@ -188,11 +263,8 @@ def status_line(state: GameState, width: int, height: int) -> str:
         right_parts.append("Weak")
 
     right = " ".join(right_parts)
-
-    if not right:
-        return f"{left}  {middle}"
-
     padding = max(1, width - len(left) - len(middle) - len(right) - 4)
+
     return f"{left}  {middle}{' ' * padding}{right}"
 
 
@@ -207,7 +279,6 @@ def frame(title: str, body: list[str], terminal_width: int, terminal_height: int
     bottom = "+" + ("-" * inner_width) + "+"
 
     lines = [CLEAR + HOME + top]
-
     visible_body = body[:inner_height]
 
     for line in visible_body:
@@ -228,6 +299,10 @@ def render_help(terminal_width: int, terminal_height: int) -> str:
         "  Arrow Down   Move south",
         "  Arrow Left   Move west",
         "  Arrow Right  Move east",
+        "",
+        "Stairs:",
+        "  >            Descend while standing on down stairs",
+        "  <            Ascend while standing on up stairs",
         "",
         "Actions:",
         "  . or Space   Wait",
@@ -261,6 +336,8 @@ def render_character(state: GameState, terminal_width: int, terminal_height: int
         f"Gold: {player.gold}",
         f"HP: {player.hp}/{player.max_hp}",
         f"Mana: {player.mana}/{player.max_mana}",
+        f"Armor Class: {player.armor_class}",
+        f"Weapon: {player.weapon_name} ({player.weapon_damage})",
         "",
         "Stats:",
     ]
@@ -273,12 +350,7 @@ def render_character(state: GameState, terminal_width: int, terminal_height: int
         else:
             body.append(f"  {stat}: {value}")
 
-    body.extend(
-        [
-            "",
-            "Abilities:",
-        ]
-    )
+    body.extend(["", "Abilities:"])
 
     for ability, value in sorted(player.abilities.items()):
         body.append(f"  {ability}: {value}")
@@ -297,18 +369,40 @@ def render_character(state: GameState, terminal_width: int, terminal_height: int
 
 
 def render_inventory(state: GameState, terminal_width: int, terminal_height: int) -> str:
-    body: list[str] = []
+    body: list[str] = [
+        "Inventory",
+        "",
+        "Up/Down select    Enter/e equip    u unequip    d drop    Esc return",
+        "",
+    ]
 
     if not state.player.inventory:
         body.append("You are carrying nothing.")
     else:
-        for index, stack in enumerate(state.player.inventory, start=1):
+        for index, stack in enumerate(state.player.inventory):
             item_id = stack.get("item_id", "")
-            quantity = stack.get("quantity", 1)
-            body.append(f"{index:>2}. {quantity}x {get_item_name(item_id)}")
+            quantity = int(stack.get("quantity", 1))
+            equipped_slot = stack.get("equipped_slot")
+            cursor = ">" if index == state.inventory_selection_index else " "
+            equipped = f" [{equipped_slot}]" if equipped_slot else ""
+
+            body.append(
+                f"{cursor} {index + 1:>2}. {quantity}x {get_item_name(item_id)}{equipped}"
+            )
+
+    body.extend(["", "Equipment:"])
+
+    for slot, item in state.player.equipment_slots().items():
+        if item is None:
+            body.append(f"  {slot:<10}: --")
+        else:
+            body.append(f"  {slot:<10}: {get_item_name(item.get('item_id', ''))}")
 
     body.extend(
         [
+            "",
+            f"Armor Class: {state.player.armor_class}",
+            f"Weapon: {state.player.weapon_name} ({state.player.weapon_damage})",
             "",
             "Press Esc to return.",
         ]
@@ -319,24 +413,17 @@ def render_inventory(state: GameState, terminal_width: int, terminal_height: int
 
 def render_spells(state: GameState, terminal_width: int, terminal_height: int) -> str:
     player = state.player
-
     body: list[str] = []
 
     if not player.spells:
         body.append("You know no spells.")
     else:
-        for spell in player.spells:
-            body.append(f"  - {spell}")
+        for spell_id in player.spells:
+            body.append(f"  - {get_spell_name(spell_id)}")
 
-    body.extend(
-        [
-            "",
-            "Press Esc to return.",
-        ]
-    )
+    body.extend(["", "Press Esc to return."])
 
     return frame("SPELLS", body, terminal_width, terminal_height)
-
 
 
 def render_shop(state: GameState, terminal_width: int, terminal_height: int) -> str:
@@ -396,12 +483,13 @@ def render_shop_buy_lines(state: GameState) -> list[str]:
 
 
 def render_shop_sell_lines(state: GameState) -> list[str]:
-    lines = ["Your inventory:"]
+    lines = ["Your unequipped inventory:"]
+    sellable_items = state.sellable_inventory_items()
 
-    if not state.player.inventory:
-        return lines + ["  You have nothing to sell."]
+    if not sellable_items:
+        return lines + ["  You have nothing unequipped to sell."]
 
-    for index, stack in enumerate(state.player.inventory):
+    for index, stack in enumerate(sellable_items):
         item_id = stack.get("item_id", "")
         quantity = int(stack.get("quantity", 1))
         cursor = ">" if index == state.shop_selection_index else " "

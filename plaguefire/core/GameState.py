@@ -5,10 +5,14 @@ from dataclasses import dataclass, field
 
 from plaguefire.core.Action import Action, ActionType, DIRECTION_DELTAS
 from plaguefire.core.CharacterCreation import create_player
+from plaguefire.core.DungeonGeneration import CLOSED_DOOR, CORRIDOR_FLOOR, OPEN_DOOR, ROOM_FLOOR, SECRET_DOOR, DungeonMap, generate_dungeon
 from plaguefire.core.ItemCatalog import get_item_name, get_item_price
 from plaguefire.core.Shop import ShopDefinition, get_shop
 from plaguefire.core.Town import SHOP_BY_TILE, TOWN_LAYOUT, WALKABLE_TILES, starting_position
 from plaguefire.models.Player import Player
+
+
+WALKABLE_GAME_TILES = {ROOM_FLOOR, CORRIDOR_FLOOR, '<', '>', OPEN_DOOR, *SHOP_BY_TILE.keys()}
 
 
 @dataclass
@@ -32,6 +36,7 @@ class GameState:
 
     map_data: list[str] = field(default_factory=lambda: list(TOWN_LAYOUT))
     map_name: str = "Town"
+    dungeon_cache: dict[int, DungeonMap] = field(default_factory=dict)
 
     active_shop_key: str | None = None
     shop_mode: str = "buy"
@@ -47,6 +52,12 @@ class GameState:
             "Shops are marked 1-6. Step onto a shop entrance to enter.",
         ]
     )
+
+    def __post_init__(self) -> None:
+        if self.player.depth <= 0:
+            self.enter_town(reset_position=False)
+        else:
+            self.enter_dungeon_depth(self.player.depth, arrival="upstairs")
 
     def handle_action(self, action: Action) -> None:
         if action.action_type == ActionType.QUIT:
@@ -80,6 +91,18 @@ class GameState:
             return
 
         if self.screen != "game":
+            return
+
+        if action.action_type == ActionType.ASCEND:
+            self.ascend()
+            return
+
+        if action.action_type == ActionType.DESCEND:
+            self.descend()
+            return
+
+        if action.action_type == ActionType.SEARCH:
+            self.search()
             return
 
         if action.action_type == ActionType.WAIT:
@@ -187,6 +210,19 @@ class GameState:
         target_x = self.player_x + dx
         target_y = self.player_y + dy
 
+        target_tile = self.tile_at(target_x, target_y)
+
+        if target_tile == CLOSED_DOOR:
+            self.set_tile(target_x, target_y, OPEN_DOOR)
+            self.turn += 1
+            self.player.time += 1
+            self.log("You open the door.")
+            return
+
+        if target_tile == SECRET_DOOR:
+            self.log("You cannot move there.")
+            return
+
         if not self.is_walkable(target_x, target_y):
             self.log("You cannot move there.")
             return
@@ -203,7 +239,97 @@ class GameState:
             return
 
         if tile == ">":
-            self.log("The stairway descends into the dungeon. Dungeon levels come next.")
+            self.log("There is a staircase leading down here. Press > to descend.")
+            return
+
+        if tile == "<":
+            self.log("There is a staircase leading up here. Press < to ascend.")
+            return
+
+    def descend(self) -> None:
+        if self.tile_at(self.player_x, self.player_y) != ">":
+            self.log("You see no downward staircase here.")
+            return
+
+        next_depth = self.player.depth + 1
+        self.enter_dungeon_depth(next_depth, arrival="upstairs")
+        self.log(f"You descend to dungeon depth {next_depth}.")
+
+    def ascend(self) -> None:
+        if self.tile_at(self.player_x, self.player_y) != "<":
+            self.log("You see no upward staircase here.")
+            return
+
+        if self.player.depth <= 1:
+            self.enter_town(reset_position=True)
+            self.log("You climb back into town.")
+            return
+
+        previous_depth = self.player.depth - 1
+        self.enter_dungeon_depth(previous_depth, arrival="downstairs")
+        self.log(f"You ascend to dungeon depth {previous_depth}.")
+
+    def enter_town(self, reset_position: bool = True) -> None:
+        self.player.depth = 0
+        self.map_name = "Town"
+        self.map_data = list(TOWN_LAYOUT)
+        self.screen = "game"
+        self.active_shop_key = None
+
+        if reset_position:
+            self.player_x, self.player_y = starting_position()
+
+    def enter_dungeon_depth(self, depth: int, arrival: str) -> None:
+        if depth <= 0:
+            self.enter_town(reset_position=True)
+            return
+
+        if depth not in self.dungeon_cache:
+            self.dungeon_cache[depth] = generate_dungeon(depth)
+
+        dungeon = self.dungeon_cache[depth]
+
+        self.player.depth = depth
+        self.map_name = f"Dungeon {depth}"
+        self.map_data = list(dungeon.tiles)
+        self.screen = "game"
+        self.active_shop_key = None
+
+        if arrival == "downstairs":
+            self.player_x, self.player_y = dungeon.downstairs
+        else:
+            self.player_x, self.player_y = dungeon.upstairs
+
+    def set_tile(self, x: int, y: int, tile: str) -> None:
+        if y < 0 or y >= len(self.map_data):
+            return
+
+        row = self.map_data[y]
+
+        if x < 0 or x >= len(row):
+            return
+
+        self.map_data[y] = row[:x] + tile + row[x + 1:]
+
+    def search(self) -> None:
+        found = 0
+
+        for y in range(self.player_y - 1, self.player_y + 2):
+            for x in range(self.player_x - 1, self.player_x + 2):
+                if x == self.player_x and y == self.player_y:
+                    continue
+
+                if self.tile_at(x, y) == SECRET_DOOR:
+                    self.set_tile(x, y, CLOSED_DOOR)
+                    found += 1
+
+        self.turn += 1
+        self.player.time += 1
+
+        if found:
+            self.log("You found a secret door.")
+        else:
+            self.log("You search but find nothing.")
 
     def tile_at(self, x: int, y: int) -> str:
         if y < 0 or y >= len(self.map_data):
@@ -217,7 +343,7 @@ class GameState:
         return row[x]
 
     def is_walkable(self, x: int, y: int) -> bool:
-        return self.tile_at(x, y) in WALKABLE_TILES
+        return self.tile_at(x, y) in WALKABLE_GAME_TILES
 
     def enter_shop(self, shop_key: str) -> None:
         shop = get_shop(shop_key)
@@ -271,6 +397,13 @@ class GameState:
 
         self.shop_selection_index = (self.shop_selection_index + delta) % count
 
+    def sellable_inventory_items(self) -> list[dict]:
+        return [
+            item
+            for item in self.player.inventory
+            if not item.get("equipped_slot")
+        ]
+
     def shop_selection_count(self) -> int:
         shop = self.active_shop()
 
@@ -281,7 +414,7 @@ class GameState:
             return len(shop.item_ids)
 
         if self.shop_mode == "sell":
-            return len(self.player.inventory)
+            return len(self.sellable_inventory_items())
 
         if self.shop_mode == "services":
             return len(shop.services)
@@ -314,10 +447,12 @@ class GameState:
             return shop.item_ids[self.shop_selection_index]
 
         if self.shop_mode == "sell":
-            if not self.player.inventory:
+            sellable_items = self.sellable_inventory_items()
+
+            if not sellable_items:
                 return None
 
-            stack = self.player.inventory[self.shop_selection_index]
+            stack = sellable_items[self.shop_selection_index]
             return stack.get("item_id", "")
 
         return None
@@ -392,16 +527,13 @@ class GameState:
         self.log(f"You buy {get_item_name(item_id)} for {price} gold.")
 
     def sell_selected_item(self) -> None:
-        if not self.player.inventory:
-            self.log("You have nothing to sell.")
+        sellable_items = self.sellable_inventory_items()
+
+        if not sellable_items:
+            self.log("You have nothing unequipped to sell.")
             return
 
-        stack = self.player.inventory[self.shop_selection_index]
-
-        if stack.get("equipped_slot"):
-            self.log("Unequip that item before selling it.")
-            return
-
+        stack = sellable_items[self.shop_selection_index]
         item_id = stack.get("item_id", "")
         quantity = int(stack.get("quantity", 1))
 
