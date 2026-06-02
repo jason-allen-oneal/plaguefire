@@ -172,7 +172,7 @@ def render_class_select(session: ClientSession) -> str:
     classes = session.class_options()
 
     for index, character_class in enumerate(classes):
-        body.append(selector_line(character_class, index == session.creation_class_index))
+        body.append(selector_line(character_class, character_class == session.selected_class()))
 
     body.extend(
         [

@@ -37,7 +37,7 @@ class ClientSession:
     creation_name: str = ""
     creation_sex_index: int = 0
     creation_race_index: int = 0
-    creation_class_index: int = 0
+    creation_class_name: str = "Warrior"
     creation_seed: int = field(default_factory=lambda: randint(1, 999999))
 
     def handle_key(self, key: str) -> None:
@@ -211,16 +211,16 @@ class ClientSession:
 
         if key in {"UP", "LEFT"}:
             self.creation_race_index = (self.creation_race_index - 1) % len(races)
-            self.clamp_class_index()
+            self.ensure_selected_class_is_allowed()
             return
 
         if key in {"DOWN", "RIGHT"}:
             self.creation_race_index = (self.creation_race_index + 1) % len(races)
-            self.clamp_class_index()
+            self.ensure_selected_class_is_allowed()
             return
 
         if key == "ENTER":
-            self.clamp_class_index()
+            self.ensure_selected_class_is_allowed()
             self.screen = "character_class_select"
             return
 
@@ -231,12 +231,17 @@ class ClientSession:
             self.screen = "character_race_select"
             return
 
+        current_class = self.selected_class()
+        current_index = classes.index(current_class) if current_class in classes else 0
+
         if key in {"UP", "LEFT"}:
-            self.creation_class_index = (self.creation_class_index - 1) % len(classes)
+            next_index = (current_index - 1) % len(classes)
+            self.creation_class_name = classes[next_index]
             return
 
         if key in {"DOWN", "RIGHT"}:
-            self.creation_class_index = (self.creation_class_index + 1) % len(classes)
+            next_index = (current_index + 1) % len(classes)
+            self.creation_class_name = classes[next_index]
             return
 
         if key == "ENTER":
@@ -272,7 +277,7 @@ class ClientSession:
         self.creation_name = ""
         self.creation_sex_index = 0
         self.creation_race_index = 0
-        self.creation_class_index = 0
+        self.creation_class_name = "Warrior"
         self.creation_seed = randint(1, 999999)
         self.input_buffer = ""
         self.message = ""
@@ -345,17 +350,21 @@ class ClientSession:
 
     def selected_class(self) -> str:
         classes = self.class_options()
-        self.creation_class_index %= len(classes)
-        return classes[self.creation_class_index]
 
-    def clamp_class_index(self) -> None:
+        if self.creation_class_name in classes:
+            return self.creation_class_name
+
+        return classes[0]
+
+    def ensure_selected_class_is_allowed(self) -> None:
         classes = self.class_options()
 
         if not classes:
-            self.creation_class_index = 0
+            self.creation_class_name = "Warrior"
             return
 
-        self.creation_class_index %= len(classes)
+        if self.creation_class_name not in classes:
+            self.creation_class_name = classes[0]
 
     def preview_player(self):
         return create_player(
