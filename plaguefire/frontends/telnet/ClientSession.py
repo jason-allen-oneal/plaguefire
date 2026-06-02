@@ -32,6 +32,9 @@ class ClientSession:
     input_buffer: str = ""
     message: str = ""
 
+    terminal_width: int = 80
+    terminal_height: int = 24
+
     characters: list[CharacterSlot] = field(default_factory=list)
     game_state: GameState | None = None
 

@@ -9,6 +9,8 @@ WILL = 251
 SB = 250
 SE = 240
 
+NAWS = 31
+
 ESC = 27
 BACKSPACE = 127
 CTRL_C = 3
@@ -28,6 +30,8 @@ ARROW_SEQUENCES = {
 class TelnetKeyParser:
     def __init__(self):
         self.buffer = bytearray()
+        self.columns = 80
+        self.rows = 24
 
     def feed(self, data: bytes) -> list[str]:
         self.buffer.extend(data)
@@ -85,13 +89,7 @@ class TelnetKeyParser:
         command = self.buffer[1]
 
         if command == SB:
-            end = self.buffer.find(bytes([IAC, SE]))
-
-            if end == -1:
-                return False
-
-            del self.buffer[:end + 2]
-            return True
+            return self._consume_subnegotiation()
 
         if command in {DO, DONT, WILL, WONT}:
             if len(self.buffer) < 3:
@@ -101,6 +99,33 @@ class TelnetKeyParser:
             return True
 
         del self.buffer[:2]
+        return True
+
+    def _consume_subnegotiation(self) -> bool:
+        end = self.buffer.find(bytes([IAC, SE]))
+
+        if end == -1:
+            return False
+
+        payload = bytes(self.buffer[2:end])
+        del self.buffer[:end + 2]
+
+        if not payload:
+            return True
+
+        option = payload[0]
+        data = payload[1:]
+
+        if option == NAWS and len(data) >= 4:
+            columns = int.from_bytes(data[0:2], byteorder="big")
+            rows = int.from_bytes(data[2:4], byteorder="big")
+
+            if columns > 0:
+                self.columns = columns
+
+            if rows > 0:
+                self.rows = rows
+
         return True
 
     def _consume_escape_sequence(self) -> str | None:

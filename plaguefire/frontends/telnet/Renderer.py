@@ -20,34 +20,67 @@ def exit_screen() -> str:
     return RESET + SHOW_CURSOR + NORMAL_SCREEN
 
 
-def render(state: GameState) -> str:
+def render(state: GameState, terminal_width: int = 80, terminal_height: int = 24) -> str:
     if state.screen == "help":
-        return render_help()
+        return render_help(terminal_width, terminal_height)
 
     if state.screen == "character":
-        return render_character(state)
+        return render_character(state, terminal_width, terminal_height)
 
     if state.screen == "inventory":
-        return render_inventory()
+        return render_inventory(terminal_width, terminal_height)
 
     if state.screen == "spells":
-        return render_spells(state)
+        return render_spells(state, terminal_width, terminal_height)
 
-    return render_game(state)
+    return render_game(state, terminal_width, terminal_height)
 
 
-def render_game(state: GameState) -> str:
+def safe_size(width: int, height: int) -> tuple[int, int]:
+    width = max(60, min(width, 200))
+    height = max(20, min(height, 80))
+    return width, height
+
+
+def frame(title: str, body: list[str], terminal_width: int, terminal_height: int) -> str:
+    width, height = safe_size(terminal_width, terminal_height)
+
+    inner_width = width - 2
+    inner_height = height - 2
+
+    title_text = f" {title} "
+    top = "+" + title_text.center(inner_width, "-") + "+"
+    bottom = "+" + ("-" * inner_width) + "+"
+
+    visible_body = body[:inner_height]
+
+    lines = [CLEAR + HOME + top]
+
+    for line in visible_body:
+        clipped = line[:inner_width]
+        lines.append("|" + clipped.ljust(inner_width) + "|")
+
+    while len(lines) < height - 1:
+        lines.append("|" + (" " * inner_width) + "|")
+
+    lines.append(bottom)
+
+    return "\r\n".join(lines)
+
+
+def render_game(state: GameState, terminal_width: int, terminal_height: int) -> str:
     player = state.player
+    width, height = safe_size(terminal_width, terminal_height)
 
-    lines = [
-        CLEAR + HOME,
-        "PLAGUEFIRE",
+    body: list[str] = [
         f"HP {player.hp}/{player.max_hp}  Mana {player.mana}/{player.max_mana}  "
         f"Lv {player.level}  Gold {player.gold}  Turn {state.turn}",
         "",
     ]
 
-    for y, row in enumerate(DUNGEON_MAP):
+    map_area_height = max(5, height - 10)
+
+    for y, row in enumerate(DUNGEON_MAP[:map_area_height]):
         rendered_row = []
 
         for x, tile in enumerate(row):
@@ -56,9 +89,9 @@ def render_game(state: GameState) -> str:
             else:
                 rendered_row.append(tile)
 
-        lines.append("".join(rendered_row))
+        body.append("".join(rendered_row))
 
-    lines.extend(
+    body.extend(
         [
             "",
             "Keys: arrows move | . wait | c character | i inventory | s spells | ? help | q quit",
@@ -68,42 +101,38 @@ def render_game(state: GameState) -> str:
     )
 
     for message in state.messages[-5:]:
-        lines.append(f"  {message}")
+        body.append(f"  {message}")
 
-    return "\r\n".join(lines)
+    return frame("PLAGUEFIRE", body, width, height)
 
 
-def render_help() -> str:
-    lines = [
-        CLEAR + HOME,
-        "HELP",
+def render_help(terminal_width: int, terminal_height: int) -> str:
+    body = [
+        "Movement:",
+        "  Arrow Up     Move north",
+        "  Arrow Down   Move south",
+        "  Arrow Left   Move west",
+        "  Arrow Right  Move east",
         "",
-        "Arrow Up     Move north",
-        "Arrow Down   Move south",
-        "Arrow Left   Move west",
-        "Arrow Right  Move east",
-        "",
-        ". or Space   Wait",
-        "c            Character sheet",
-        "i            Inventory",
-        "s            Spells",
-        "?            Help",
-        "Esc          Return to game",
-        "q            Quit",
+        "Actions:",
+        "  . or Space   Wait",
+        "  c            Character sheet",
+        "  i            Inventory",
+        "  s            Spells",
+        "  ?            Help",
+        "  Esc          Return to game",
+        "  q            Quit",
         "",
         "Press Esc to return.",
     ]
 
-    return "\r\n".join(lines)
+    return frame("HELP", body, terminal_width, terminal_height)
 
 
-def render_character(state: GameState) -> str:
+def render_character(state: GameState, terminal_width: int, terminal_height: int) -> str:
     player = state.player
 
-    lines = [
-        CLEAR + HOME,
-        "CHARACTER",
-        "",
+    body = [
         f"Name: {player.name}",
         f"Race: {player.race}",
         f"Class: {player.character_class}",
@@ -125,11 +154,11 @@ def render_character(state: GameState) -> str:
         percentile = player.stat_percentiles.get(stat, 0)
 
         if value >= 18 and percentile:
-            lines.append(f"  {stat}: {value}/{percentile}")
+            body.append(f"  {stat}: {value}/{percentile}")
         else:
-            lines.append(f"  {stat}: {value}")
+            body.append(f"  {stat}: {value}")
 
-    lines.extend(
+    body.extend(
         [
             "",
             "History:",
@@ -139,42 +168,35 @@ def render_character(state: GameState) -> str:
         ]
     )
 
-    return "\r\n".join(lines)
+    return frame("CHARACTER", body, terminal_width, terminal_height)
 
 
-def render_inventory() -> str:
-    lines = [
-        CLEAR + HOME,
-        "INVENTORY",
-        "",
+def render_inventory(terminal_width: int, terminal_height: int) -> str:
+    body = [
         "Inventory is not implemented yet.",
         "",
         "Press Esc to return.",
     ]
 
-    return "\r\n".join(lines)
+    return frame("INVENTORY", body, terminal_width, terminal_height)
 
 
-def render_spells(state: GameState) -> str:
+def render_spells(state: GameState, terminal_width: int, terminal_height: int) -> str:
     player = state.player
 
-    lines = [
-        CLEAR + HOME,
-        "SPELLS",
-        "",
-    ]
+    body: list[str] = []
 
     if not player.spells:
-        lines.append("You know no spells.")
+        body.append("You know no spells.")
     else:
         for spell in player.spells:
-            lines.append(f"  - {spell}")
+            body.append(f"  - {spell}")
 
-    lines.extend(
+    body.extend(
         [
             "",
             "Press Esc to return.",
         ]
     )
 
-    return "\r\n".join(lines)
+    return frame("SPELLS", body, terminal_width, terminal_height)

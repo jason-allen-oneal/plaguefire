@@ -6,7 +6,7 @@ from plaguefire.frontends.telnet.Renderer import CLEAR, HOME, render as render_g
 
 def render_client(session: ClientSession) -> str:
     if session.screen == "game" and session.game_state is not None:
-        return render_game(session.game_state)
+        return render_game(session.game_state, session.terminal_width, session.terminal_height)
 
     if session.screen == "username_input":
         return render_username_input(session)
