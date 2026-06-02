@@ -6,7 +6,7 @@ from random import randint
 from plaguefire.core.CharacterCreation import create_player, get_allowed_classes, list_races
 from plaguefire.core.CharacterData import MAX_STARTER_SPELLS, SEX_OPTIONS
 from plaguefire.core.GameState import GameState
-from plaguefire.core.SaveStore import CharacterSlot, list_characters, load_player, save_player
+from plaguefire.core.SaveStore import CharacterSlot, list_characters, load_game, save_game, save_player
 from plaguefire.core.SpellCatalog import starter_spells_for_class
 from plaguefire.frontends.common.KeyMap import key_to_action
 
@@ -127,9 +127,9 @@ class ClientSession:
             return
 
         self.game_state.handle_action(action)
+        save_game(self.username, self.game_state)
 
         if not self.game_state.running:
-            save_player(self.username, self.game_state.player)
             self.running = False
 
     def handle_title_key(self, key: str) -> None:
@@ -168,8 +168,8 @@ class ClientSession:
                 return
 
             slot = self.characters[index]
-            player = load_player(self.username, slot.slug)
-            self.start_game(player)
+            game_state = load_game(self.username, slot.slug)
+            self.start_game_state(game_state)
             return
 
     def handle_text_input(self, key: str, submit, cancel, max_length: int) -> None:
@@ -378,8 +378,9 @@ class ClientSession:
             seed=self.creation_seed,
         )
 
-        save_player(self.username, player)
         self.start_game(player)
+        if self.game_state is not None:
+            save_game(self.username, self.game_state)
 
     def refresh_character_list(self) -> None:
         self.characters = list_characters(self.username)
@@ -391,6 +392,11 @@ class ClientSession:
 
     def start_game(self, player) -> None:
         self.game_state = GameState(player=player)
+        self.screen = "game"
+        self.message = ""
+
+    def start_game_state(self, game_state: GameState) -> None:
+        self.game_state = game_state
         self.screen = "game"
         self.message = ""
 

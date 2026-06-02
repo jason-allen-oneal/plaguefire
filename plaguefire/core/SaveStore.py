@@ -5,13 +5,14 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 from random import randint
+from typing import Any
 
 from plaguefire.core.CharacterCreation import create_player
 from plaguefire.models.Player import Player
 
 
 SAVE_ROOT = Path("saves")
-SAVE_VERSION = 1
+SAVE_VERSION = 2
 
 
 @dataclass(frozen=True)
@@ -54,12 +55,15 @@ def list_characters(username: str) -> list[CharacterSlot]:
     return slots
 
 
-def save_player(username: str, player: Player) -> Path:
+def character_save_path(username: str, player_name: str) -> Path:
     directory = user_save_dir(username)
     directory.mkdir(parents=True, exist_ok=True)
 
-    slug = slugify(player.name)
-    path = directory / f"{slug}.json"
+    return directory / f"{slugify(player_name)}.json"
+
+
+def save_player(username: str, player: Player) -> Path:
+    path = character_save_path(username, player.name)
 
     data = {
         "version": SAVE_VERSION,
@@ -70,11 +74,36 @@ def save_player(username: str, player: Player) -> Path:
     return path
 
 
+def save_game(username: str, game_state) -> Path:
+    path = character_save_path(username, game_state.player.name)
+
+    data = {
+        "version": SAVE_VERSION,
+        "player": game_state.player.to_dict(),
+        "game": game_state.to_dict(),
+    }
+
+    path.write_text(json.dumps(data, indent=2), encoding="utf-8")
+    return path
+
+
 def load_player(username: str, slug: str) -> Player:
     path = user_save_dir(username) / f"{slugify(slug)}.json"
-
     data = json.loads(path.read_text(encoding="utf-8"))
+
     return Player.from_dict(data["player"])
+
+
+def load_game(username: str, slug: str):
+    from plaguefire.core.GameState import GameState
+
+    path = user_save_dir(username) / f"{slugify(slug)}.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+
+    if "game" in data:
+        return GameState.from_dict(data["game"])
+
+    return GameState(player=Player.from_dict(data["player"]))
 
 
 def create_default_character(username: str, name: str) -> Player:
@@ -88,3 +117,8 @@ def create_default_character(username: str, name: str) -> Player:
 
     save_player(username, player)
     return player
+
+
+def load_raw_save(username: str, slug: str) -> dict[str, Any]:
+    path = user_save_dir(username) / f"{slugify(slug)}.json"
+    return json.loads(path.read_text(encoding="utf-8"))

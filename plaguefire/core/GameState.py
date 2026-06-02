@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import random
 from dataclasses import dataclass, field
+from typing import Any
 
 from plaguefire.core.Action import Action, ActionType, DIRECTION_DELTAS
 from plaguefire.core.CharacterCreation import create_player
 from plaguefire.core.Fov import compute_fov
 from plaguefire.core.Entities import Monster, random_monster_for_depth
-from plaguefire.core.DungeonGeneration import CLOSED_DOOR, CORRIDOR_FLOOR, OPEN_DOOR, ROOM_FLOOR, SECRET_DOOR, DungeonMap, generate_dungeon
+from plaguefire.core.DungeonGeneration import CLOSED_DOOR, CORRIDOR_FLOOR, OPEN_DOOR, ROOM_FLOOR, SECRET_DOOR, DungeonMap, Room, generate_dungeon
 from plaguefire.core.ItemCatalog import get_item_name, get_item_price
 from plaguefire.core.Shop import ShopDefinition, get_shop
 from plaguefire.core.Town import SHOP_BY_TILE, TOWN_LAYOUT, WALKABLE_TILES, starting_position
@@ -963,6 +964,89 @@ class GameState:
 
         return f"You pay for {service_name}."
 
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "player": self.player.to_dict(),
+            "player_x": self.player_x,
+            "player_y": self.player_y,
+            "turn": self.turn,
+            "running": self.running,
+            "screen": self.screen,
+            "map_data": list(self.map_data),
+            "map_name": self.map_name,
+            "dungeon_cache": {
+                str(depth): dungeon_to_dict(dungeon)
+                for depth, dungeon in self.dungeon_cache.items()
+            },
+            "active_shop_key": self.active_shop_key,
+            "shop_mode": self.shop_mode,
+            "shop_selection_index": self.shop_selection_index,
+            "inventory_selection_index": self.inventory_selection_index,
+            "haggle_attempted": sorted(self.haggle_attempted),
+            "haggle_price_adjustments": dict(self.haggle_price_adjustments),
+            "messages": list(self.messages),
+            "explored_by_depth": {
+                str(depth): positions_to_list(positions)
+                for depth, positions in self.explored_by_depth.items()
+            },
+            "fov_radius": self.fov_radius,
+            "search_mode_enabled": self.search_mode_enabled,
+            "monsters_by_depth": {
+                str(depth): [monster.to_dict() for monster in monsters]
+                for depth, monsters in self.monsters_by_depth.items()
+            },
+        }
+
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> "GameState":
+        player = Player.from_dict(data.get("player", {}))
+        state = cls(player=player)
+
+        state.player_x = int(data.get("player_x", state.player_x))
+        state.player_y = int(data.get("player_y", state.player_y))
+        state.turn = int(data.get("turn", 0))
+        state.running = bool(data.get("running", True))
+        state.screen = str(data.get("screen", "game"))
+        state.map_data = list(data.get("map_data", state.map_data))
+        state.map_name = str(data.get("map_name", state.map_name))
+
+        state.dungeon_cache = {
+            int(depth): dungeon_from_dict(dungeon_data)
+            for depth, dungeon_data in dict(data.get("dungeon_cache", {})).items()
+        }
+
+        state.active_shop_key = data.get("active_shop_key")
+        state.shop_mode = str(data.get("shop_mode", "buy"))
+        state.shop_selection_index = int(data.get("shop_selection_index", 0))
+        state.inventory_selection_index = int(data.get("inventory_selection_index", 0))
+
+        state.haggle_attempted = set(data.get("haggle_attempted", []))
+        state.haggle_price_adjustments = dict(data.get("haggle_price_adjustments", {}))
+        state.messages = list(data.get("messages", state.messages))[-12:]
+
+        state.explored_by_depth = {
+            int(depth): positions_from_list(positions)
+            for depth, positions in dict(data.get("explored_by_depth", {})).items()
+        }
+
+        state.fov_radius = int(data.get("fov_radius", state.fov_radius))
+        state.search_mode_enabled = bool(data.get("search_mode_enabled", False))
+
+        from plaguefire.core.Entities import Monster
+
+        state.monsters_by_depth = {
+            int(depth): [
+                Monster.from_dict(monster_data)
+                for monster_data in monsters
+            ]
+            for depth, monsters in dict(data.get("monsters_by_depth", {})).items()
+        }
+
+        # Recompute current visibility, but keep explored memory loaded above.
+        state.refresh_fov()
+
+        return state
+
     def log(self, message: str) -> None:
         self.messages.append(message)
         self.messages = self.messages[-12:]
@@ -977,3 +1061,64 @@ def sign(value: int) -> int:
         return 1
 
     return 0
+
+
+
+def dungeon_to_dict(dungeon: DungeonMap) -> dict[str, Any]:
+    return {
+        "depth": dungeon.depth,
+        "tiles": list(dungeon.tiles),
+        "upstairs": list(dungeon.upstairs),
+        "downstairs": list(dungeon.downstairs),
+        "rooms": [
+            {
+                "x": room.x,
+                "y": room.y,
+                "width": room.width,
+                "height": room.height,
+            }
+            for room in dungeon.rooms
+        ],
+    }
+
+
+def dungeon_from_dict(data: dict[str, Any]) -> DungeonMap:
+    rooms = tuple(
+        Room(
+            x=int(room.get("x", 0)),
+            y=int(room.get("y", 0)),
+            width=int(room.get("width", 1)),
+            height=int(room.get("height", 1)),
+        )
+        for room in data.get("rooms", [])
+    )
+
+    upstairs = tuple(data.get("upstairs", [0, 0]))
+    downstairs = tuple(data.get("downstairs", [0, 0]))
+
+    return DungeonMap(
+        depth=int(data.get("depth", 1)),
+        tiles=list(data.get("tiles", [])),
+        upstairs=(int(upstairs[0]), int(upstairs[1])),
+        downstairs=(int(downstairs[0]), int(downstairs[1])),
+        rooms=rooms,
+    )
+
+
+def positions_to_list(positions: set[tuple[int, int]]) -> list[list[int]]:
+    return [
+        [int(x), int(y)]
+        for x, y in sorted(positions)
+    ]
+
+
+def positions_from_list(values) -> set[tuple[int, int]]:
+    positions: set[tuple[int, int]] = set()
+
+    for value in values:
+        if not isinstance(value, (list, tuple)) or len(value) != 2:
+            continue
+
+        positions.add((int(value[0]), int(value[1])))
+
+    return positions
