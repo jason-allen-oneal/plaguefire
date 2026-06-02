@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass, field
 
 from plaguefire.core.Action import Action, ActionType, DIRECTION_DELTAS
@@ -35,6 +36,9 @@ class GameState:
     active_shop_key: str | None = None
     shop_mode: str = "buy"
     shop_selection_index: int = 0
+
+    haggle_attempted: set[str] = field(default_factory=set)
+    haggle_price_adjustments: dict[str, int] = field(default_factory=dict)
 
     messages: list[str] = field(
         default_factory=lambda: [
@@ -106,7 +110,7 @@ class GameState:
             return
 
         if key in {"h", "H"}:
-            self.log("Haggling is not implemented yet.")
+            self.attempt_haggle()
             return
 
         if key == "UP":
@@ -169,6 +173,8 @@ class GameState:
         self.screen = "shop"
         self.shop_mode = "buy"
         self.shop_selection_index = 0
+        self.haggle_attempted.clear()
+        self.haggle_price_adjustments.clear()
         self.log(f"You enter {shop.display_name}.")
 
     def leave_shop(self) -> None:
@@ -179,6 +185,8 @@ class GameState:
         self.active_shop_key = None
         self.shop_mode = "buy"
         self.shop_selection_index = 0
+        self.haggle_attempted.clear()
+        self.haggle_price_adjustments.clear()
         self.screen = "game"
 
     def active_shop(self) -> ShopDefinition | None:
@@ -240,6 +248,75 @@ class GameState:
             self.use_selected_service()
             return
 
+    def selected_shop_item_id(self) -> str | None:
+        shop = self.active_shop()
+
+        if shop is None:
+            return None
+
+        if self.shop_mode == "buy":
+            if not shop.item_ids:
+                return None
+
+            return shop.item_ids[self.shop_selection_index]
+
+        if self.shop_mode == "sell":
+            if not self.player.inventory:
+                return None
+
+            stack = self.player.inventory[self.shop_selection_index]
+            return stack.get("item_id", "")
+
+        return None
+
+    def current_shop_selection_key(self) -> str | None:
+        item_id = self.selected_shop_item_id()
+
+        if not item_id or not self.active_shop_key:
+            return None
+
+        return f"{self.active_shop_key}:{self.shop_mode}:{item_id}"
+
+    def buy_price(self, item_id: str) -> int:
+        base_price = get_item_price(item_id)
+
+        if base_price <= 0:
+            return 0
+
+        key = f"{self.active_shop_key}:buy:{item_id}"
+        adjustment = self.haggle_price_adjustments.get(key, 100)
+
+        adjusted_price = max(1, round(base_price * adjustment / 100))
+
+        if adjustment > 100:
+            return max(base_price + 1, adjusted_price)
+
+        if adjustment < 100:
+            return max(1, min(base_price - 1, adjusted_price))
+
+        return base_price
+
+    def sell_price(self, item_id: str) -> int:
+        base_price = get_item_price(item_id)
+
+        if base_price <= 0:
+            return 1
+
+        base_sell_price = max(1, base_price // 2)
+
+        key = f"{self.active_shop_key}:sell:{item_id}"
+        adjustment = self.haggle_price_adjustments.get(key, 100)
+
+        adjusted_price = max(1, round(base_sell_price * adjustment / 100))
+
+        if adjustment > 100:
+            return max(base_sell_price + 1, adjusted_price)
+
+        if adjustment < 100:
+            return max(1, min(base_sell_price - 1, adjusted_price))
+
+        return base_sell_price
+
     def buy_selected_item(self) -> None:
         shop = self.active_shop()
 
@@ -248,7 +325,7 @@ class GameState:
             return
 
         item_id = shop.item_ids[self.shop_selection_index]
-        price = get_item_price(item_id)
+        price = self.buy_price(item_id)
 
         if price <= 0:
             self.log(f"{get_item_name(item_id)} is not for sale.")
@@ -274,7 +351,7 @@ class GameState:
             self.log("That item stack is invalid.")
             return
 
-        sell_price = max(1, get_item_price(item_id) // 2)
+        sell_price = self.sell_price(item_id)
 
         if not self.player.remove_item(item_id, 1):
             self.log(f"You cannot sell {get_item_name(item_id)}.")
@@ -305,6 +382,57 @@ class GameState:
 
         applied = self.apply_service(service.name)
         self.log(applied or f"You pay {service.cost} gold for {service.name}.")
+
+    def attempt_haggle(self) -> None:
+        if self.shop_mode == "services":
+            self.log("The shopkeeper will not haggle over services.")
+            return
+
+        item_id = self.selected_shop_item_id()
+
+        if not item_id:
+            self.log("There is nothing here to haggle over.")
+            return
+
+        selection_key = self.current_shop_selection_key()
+
+        if selection_key is None:
+            self.log("There is nothing here to haggle over.")
+            return
+
+        if selection_key in self.haggle_attempted:
+            self.log("You have already haggled over that.")
+            return
+
+        self.haggle_attempted.add(selection_key)
+
+        chance = self.haggle_success_chance()
+        roll = random.randint(1, 100)
+        item_name = get_item_name(item_id)
+
+        if roll <= chance:
+            if self.shop_mode == "buy":
+                self.haggle_price_adjustments[selection_key] = 85
+                self.log(f"You haggle successfully. {item_name} is cheaper.")
+            else:
+                self.haggle_price_adjustments[selection_key] = 125
+                self.log(f"You haggle successfully. {item_name} will sell for more.")
+            return
+
+        if self.shop_mode == "buy":
+            self.haggle_price_adjustments[selection_key] = 110
+            self.log(f"You fail to haggle. {item_name} becomes more expensive.")
+        else:
+            self.haggle_price_adjustments[selection_key] = 90
+            self.log(f"You fail to haggle. {item_name} will sell for less.")
+
+    def haggle_success_chance(self) -> int:
+        charisma_modifier = self.player.get_modifier("CHA")
+        social_modifier = int((self.player.social - 50) / 10)
+
+        chance = 45 + charisma_modifier * 5 + social_modifier * 3
+
+        return max(10, min(90, chance))
 
     def apply_service(self, service_name: str) -> str:
         normalized = service_name.lower()
