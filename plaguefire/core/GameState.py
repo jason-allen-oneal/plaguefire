@@ -73,6 +73,10 @@ class GameState:
             self.log("The plaguefire fades.")
             return
 
+        if self.screen == "game_over":
+            self.log("Your story has ended. Press q to quit.")
+            return
+
         if action.action_type == ActionType.BACK:
             if self.screen == "shop":
                 self.leave_shop()
@@ -409,10 +413,12 @@ class GameState:
         died = self.player.take_damage(damage)
 
         if died:
-            self.log(f"The {monster.name} hits you for {damage} damage. You die.")
-            self.running = False
-        else:
             self.log(f"The {monster.name} hits you for {damage} damage.")
+            self.log("You die.")
+            self.screen = "game_over"
+            return
+
+        self.log(f"The {monster.name} hits you for {damage} damage.")
 
     def move_monster_toward_player(self, monster: Monster) -> None:
         dx = sign(self.player_x - monster.x)
@@ -959,7 +965,7 @@ class GameState:
 
     def log(self, message: str) -> None:
         self.messages.append(message)
-        self.messages = self.messages[-5:]
+        self.messages = self.messages[-12:]
 
 
 

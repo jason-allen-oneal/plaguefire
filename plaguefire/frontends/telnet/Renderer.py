@@ -20,6 +20,7 @@ MAX_WIDTH = 220
 MAX_HEIGHT = 100
 
 STATS_WIDTH = 18
+MESSAGE_LOG_HEIGHT = 4
 
 # Moria-style dungeon panel. The dungeon world can be much larger.
 # The renderer only shows this many map cells at once.
@@ -68,14 +69,17 @@ def render(state: GameState, terminal_width: int = 80, terminal_height: int = 24
     if state.screen == "shop":
         return render_shop(state, terminal_width, terminal_height)
 
+    if state.screen == "game_over":
+        return render_game_over(state, terminal_width, terminal_height)
+
     return render_game(state, terminal_width, terminal_height)
 
 
 def render_game(state: GameState, terminal_width: int, terminal_height: int) -> str:
     width, height = normalize_terminal_size(terminal_width, terminal_height)
 
-    message_line = latest_message(state)
-    body_height = height - 2
+    message_height = min(MESSAGE_LOG_HEIGHT, max(1, height - 5))
+    body_height = max(1, height - message_height - 1)
 
     available_map_width = max(1, width - STATS_WIDTH - 1)
     available_map_height = max(1, body_height)
@@ -89,16 +93,15 @@ def render_game(state: GameState, terminal_width: int, terminal_height: int) -> 
     stats_lines = render_stats_column(state, body_height)
     map_lines = render_map_area(state, map_view_width, map_view_height)
 
-    lines: list[str] = [
-        CLEAR + HOME + message_line[:width].ljust(width),
-    ]
+    lines: list[str] = []
+
+    for index, message in enumerate(render_message_log(state, width, message_height)):
+        prefix = CLEAR + HOME if index == 0 else ""
+        lines.append(prefix + message)
 
     for row_index in range(body_height):
         left = stats_lines[row_index] if row_index < len(stats_lines) else ""
         map_line = map_lines[row_index] if row_index < len(map_lines) else ""
-
-        # Important: the dungeon panel is intentionally capped. The rest of the
-        # terminal row is blank space, not more map.
         right = map_line.ljust(available_map_width)
 
         lines.append(
@@ -110,7 +113,6 @@ def render_game(state: GameState, terminal_width: int, terminal_height: int) -> 
     lines.append(status_line(state, width, map_view_width, map_view_height)[:width].ljust(width))
 
     return "\r\n".join(lines)
-
 
 def terminal_map_view_size(
     state: GameState,
@@ -127,6 +129,20 @@ def terminal_map_view_size(
         max(1, available_width),
         max(1, available_height),
     )
+
+
+def render_message_log(state: GameState, width: int, height: int) -> list[str]:
+    messages = state.messages[-height:]
+
+    lines = [
+        message[:width].ljust(width)
+        for message in messages
+    ]
+
+    while len(lines) < height:
+        lines.insert(0, " " * width)
+
+    return lines
 
 
 def latest_message(state: GameState) -> str:
@@ -310,6 +326,64 @@ def frame(title: str, body: list[str], terminal_width: int, terminal_height: int
     lines.append(bottom)
 
     return "\r\n".join(lines)
+
+
+def render_game_over(state: GameState, terminal_width: int, terminal_height: int) -> str:
+    player = state.player
+
+    width, height = normalize_terminal_size(terminal_width, terminal_height)
+
+    epitaph = [
+        " _____________________ ",
+        "/                     \\",
+        "|       REST IN       |",
+        "|        PEACE        |",
+        "|                     |",
+        f"| {player.name[:19].center(19)} |",
+        "|                     |",
+        f"| {'the ' + player.race[:14]:^19} |",
+        f"| {player.character_class[:19].center(19)} |",
+        "|                     |",
+        f"| {'Level ' + str(player.level):^19} |",
+        f"| {'Depth ' + str(player.depth):^19} |",
+        f"| {'Gold ' + str(player.gold):^19} |",
+        "|                     |",
+        "|   slain in the      |",
+        "|   depths below      |",
+        "\\_____________________/",
+        "         |||||         ",
+        "         |||||         ",
+    ]
+
+    body: list[str] = []
+
+    top_padding = max(0, (height - len(epitaph) - 8) // 2)
+
+    for _ in range(top_padding):
+        body.append("")
+
+    for line in epitaph:
+        body.append(line.center(max(25, width - 4)))
+
+    body.extend(
+        [
+            "",
+            "Final messages:".center(max(25, width - 4)),
+            "",
+        ]
+    )
+
+    for message in state.messages[-5:]:
+        body.append(message.center(max(25, width - 4)))
+
+    body.extend(
+        [
+            "",
+            "Press q to quit.".center(max(25, width - 4)),
+        ]
+    )
+
+    return frame("GAME OVER", body, terminal_width, terminal_height)
 
 
 def render_help(terminal_width: int, terminal_height: int) -> str:
