@@ -3,6 +3,7 @@ from pathlib import Path
 import plaguefire.core.SaveStore as save_store
 from plaguefire.core.DungeonGeneration import CLOSED_DOOR, OPEN_DOOR
 from plaguefire.core.Entities import Monster
+from plaguefire.core.GroundItems import create_ground_gold
 from plaguefire.core.GameState import GameState
 from plaguefire.core.SaveStore import load_game, load_player, save_game, save_player
 from plaguefire.core.Town import find_tile
@@ -41,6 +42,7 @@ def test_save_game_round_trips_dungeon_state(monkeypatch, tmp_path):
     dungeon = state.dungeon_cache[state.player.depth]
     mx, my = dungeon.upstairs[0] + 1, dungeon.upstairs[1]
     state.monsters_by_depth[state.player.depth] = [make_monster(mx, my, state.player.depth)]
+    state.add_ground_item(create_ground_gold(mx, my, state.player.depth, 9))
 
     state.set_tile(mx, my, OPEN_DOOR)
     state.explored_by_depth[state.player.depth].add((mx, my))
@@ -59,6 +61,8 @@ def test_save_game_round_trips_dungeon_state(monkeypatch, tmp_path):
     assert (mx, my) in restored.explored_by_depth[restored.player.depth]
     assert restored.monster_at(mx, my) is not None
     assert restored.monster_at(mx, my).name == "Persisted Rat"
+    assert restored.ground_items_at(mx, my)
+    assert restored.ground_items_at(mx, my)[0].gold_amount == 9
 
 
 def test_load_game_supports_old_player_only_save(monkeypatch, tmp_path):

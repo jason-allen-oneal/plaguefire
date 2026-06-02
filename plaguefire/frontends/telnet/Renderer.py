@@ -223,6 +223,12 @@ def render_map_area(state: GameState, width: int, height: int) -> list[str]:
                 rendered_row.append(monster.glyph)
                 continue
 
+            ground_glyph = state.ground_item_glyph_at(map_x, map_y)
+
+            if ground_glyph is not None and state.is_visible(map_x, map_y):
+                rendered_row.append(ground_glyph)
+                continue
+
             rendered_row.append(tile_for_state(state, map_x, map_y))
 
         lines.append("".join(rendered_row))
@@ -397,6 +403,7 @@ def render_help(terminal_width: int, terminal_height: int) -> str:
         "  >              Go down stairs",
         "  s              Search once",
         "  S              Toggle search mode",
+        "  g or ,         Pick up item",
         "",
         "Character and inventory:",
         "  i              Inventory",

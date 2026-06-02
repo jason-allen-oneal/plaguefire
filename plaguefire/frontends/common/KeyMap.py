@@ -46,6 +46,10 @@ KEYMAP: dict[str, Action] = {
     "s": Action.search(),
     "S": Action.search_mode(),
 
+    "g": Action.pickup(),
+    "G": Action.pickup(),
+    ",": Action.pickup(),
+
 }
 
 

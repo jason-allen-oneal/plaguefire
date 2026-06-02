@@ -23,6 +23,7 @@ class Monster:
     max_hp: int
     attack_damage: int
     xp_value: int
+    definition_id: str | None = None
     awake: bool = True
     tags: list[str] = field(default_factory=list)
 
@@ -54,6 +55,7 @@ class Monster:
             "max_hp": self.max_hp,
             "attack_damage": self.attack_damage,
             "xp_value": self.xp_value,
+            "definition_id": self.definition_id,
             "awake": self.awake,
             "tags": list(self.tags),
         }
@@ -71,6 +73,7 @@ class Monster:
             max_hp=int(data.get("max_hp", data.get("hp", 1))),
             attack_damage=int(data.get("attack_damage", 1)),
             xp_value=int(data.get("xp_value", 1)),
+            definition_id=data.get("definition_id"),
             awake=bool(data.get("awake", True)),
             tags=list(data.get("tags", [])),
         )
@@ -265,6 +268,7 @@ def create_monster(definition: MonsterDefinition, x: int, y: int, depth: int) ->
         max_hp=definition.hp,
         attack_damage=definition.attack_damage,
         xp_value=definition.xp_value,
+        definition_id=definition.id,
         tags=list(definition.tags),
     )
 

@@ -32,6 +32,7 @@ class ActionType(Enum):
     DESCEND = "descend"
     SEARCH = "search"
     SEARCH_MODE = "search_mode"
+    PICKUP = "pickup"
 
 
 @dataclass(frozen=True)
@@ -86,3 +87,7 @@ class Action:
     @classmethod
     def search_mode(cls) -> "Action":
         return cls(action_type=ActionType.SEARCH_MODE)
+
+    @classmethod
+    def pickup(cls) -> "Action":
+        return cls(action_type=ActionType.PICKUP)

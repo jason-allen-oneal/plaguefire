@@ -7,9 +7,10 @@ from typing import Any
 from plaguefire.core.Action import Action, ActionType, DIRECTION_DELTAS
 from plaguefire.core.CharacterCreation import create_player
 from plaguefire.core.Fov import compute_fov
-from plaguefire.core.Entities import Monster, random_monster_for_depth
+from plaguefire.core.GroundItems import GroundItem, create_ground_gold, create_ground_item
+from plaguefire.core.Entities import Monster, get_monster_catalog, random_monster_for_depth
 from plaguefire.core.DungeonGeneration import CLOSED_DOOR, CORRIDOR_FLOOR, OPEN_DOOR, ROOM_FLOOR, SECRET_DOOR, DungeonMap, Room, generate_dungeon
-from plaguefire.core.ItemCatalog import get_item_name, get_item_price
+from plaguefire.core.ItemCatalog import get_item_catalog, get_item_name, get_item_price
 from plaguefire.core.Shop import ShopDefinition, get_shop
 from plaguefire.core.Town import SHOP_BY_TILE, TOWN_LAYOUT, WALKABLE_TILES, starting_position
 from plaguefire.models.Player import Player
@@ -50,6 +51,7 @@ class GameState:
     explored_by_depth: dict[int, set[tuple[int, int]]] = field(default_factory=dict)
     fov_radius: int = 12
     monsters_by_depth: dict[int, list[Monster]] = field(default_factory=dict)
+    ground_items_by_depth: dict[int, list[GroundItem]] = field(default_factory=dict)
     search_mode_enabled: bool = False
 
     haggle_attempted: set[str] = field(default_factory=set)
@@ -112,6 +114,10 @@ class GameState:
 
         if action.action_type == ActionType.DESCEND:
             self.descend()
+            return
+
+        if action.action_type == ActionType.PICKUP:
+            self.pickup_ground_item()
             return
 
         if action.action_type == ActionType.SEARCH_MODE:
@@ -283,6 +289,186 @@ class GameState:
 
         self.monsters_take_turn()
 
+    def ground_items_on_current_depth(self) -> list[GroundItem]:
+        return self.ground_items_by_depth.setdefault(self.player.depth, [])
+
+    def ground_items_at(self, x: int, y: int) -> list[GroundItem]:
+        return [
+            item
+            for item in self.ground_items_on_current_depth()
+            if item.x == x and item.y == y
+        ]
+
+    def top_ground_item_at(self, x: int, y: int) -> GroundItem | None:
+        items = self.ground_items_at(x, y)
+
+        if not items:
+            return None
+
+        return items[0]
+
+    def add_ground_item(self, item: GroundItem) -> None:
+        self.ground_items_by_depth.setdefault(item.depth, []).append(item)
+
+    def remove_ground_item(self, ground_item: GroundItem) -> None:
+        items = self.ground_items_by_depth.setdefault(ground_item.depth, [])
+        self.ground_items_by_depth[ground_item.depth] = [
+            item
+            for item in items
+            if item.ground_item_id != ground_item.ground_item_id
+        ]
+
+    def pickup_ground_item(self) -> None:
+        ground_item = self.top_ground_item_at(self.player_x, self.player_y)
+
+        self.turn += 1
+        self.player.time += 1
+
+        if ground_item is None:
+            self.log("There is nothing here to pick up.")
+            self.monsters_take_turn()
+            self.refresh_fov()
+            return
+
+        if ground_item.is_gold:
+            self.player.gain_gold(ground_item.gold_amount)
+            self.remove_ground_item(ground_item)
+            self.log(f"You pick up {ground_item.gold_amount} gold.")
+            self.monsters_take_turn()
+            self.refresh_fov()
+            return
+
+        if ground_item.item_id is None:
+            self.remove_ground_item(ground_item)
+            self.log("You discard an unrecognizable object.")
+            self.monsters_take_turn()
+            self.refresh_fov()
+            return
+
+        self.player.add_item(ground_item.item_id, ground_item.quantity)
+        self.remove_ground_item(ground_item)
+
+        if ground_item.quantity == 1:
+            self.log(f"You pick up {get_item_name(ground_item.item_id)}.")
+        else:
+            self.log(f"You pick up {ground_item.quantity}x {get_item_name(ground_item.item_id)}.")
+
+        self.monsters_take_turn()
+        self.refresh_fov()
+
+    def ground_item_glyph_at(self, x: int, y: int) -> str | None:
+        ground_item = self.top_ground_item_at(x, y)
+
+        if ground_item is None:
+            return None
+
+        if ground_item.is_gold:
+            return "$"
+
+        return item_glyph(ground_item.item_id or "")
+
+    def create_monster_drops(self, monster: Monster) -> None:
+        definition = None
+
+        if monster.definition_id:
+            definition = get_monster_catalog().monsters.get(monster.definition_id)
+
+        dropped = False
+
+        if definition is not None:
+            dropped = self.create_legacy_drops(monster, definition.raw)
+
+        if not dropped:
+            self.create_fallback_monster_drop(monster)
+
+    def create_legacy_drops(self, monster: Monster, raw: dict) -> bool:
+        drops = raw.get("drops")
+
+        if not drops:
+            return False
+
+        dropped = False
+
+        if isinstance(drops, dict):
+            drops = [drops]
+
+        if not isinstance(drops, list):
+            return False
+
+        for drop in drops:
+            if isinstance(drop, str):
+                if self.try_drop_item(monster, drop, quantity=1, chance=35):
+                    dropped = True
+                continue
+
+            if not isinstance(drop, dict):
+                continue
+
+            chance = int(drop.get("chance", drop.get("probability", drop.get("drop_chance", 100))))
+
+            if random.randint(1, 100) > max(1, min(100, chance)):
+                continue
+
+            gold_amount = self.drop_gold_amount(drop)
+
+            if gold_amount > 0:
+                self.add_ground_item(create_ground_gold(monster.x, monster.y, self.player.depth, gold_amount))
+                dropped = True
+                continue
+
+            item_id = first_present_text(drop, "item_id", "item", "id", "key")
+
+            if item_id and self.valid_item_id(item_id):
+                quantity = int(drop.get("quantity", drop.get("count", 1)))
+                self.add_ground_item(create_ground_item(monster.x, monster.y, self.player.depth, item_id, quantity))
+                dropped = True
+
+        return dropped
+
+    def create_fallback_monster_drop(self, monster: Monster) -> None:
+        # Keep the first combat reward loop simple. Most kills drop nothing,
+        # some drop gold. Real item drops come from legacy data when present.
+        if random.randint(1, 100) > 35:
+            return
+
+        amount = max(1, monster.xp_value + random.randint(0, max(1, monster.xp_value)))
+        self.add_ground_item(create_ground_gold(monster.x, monster.y, self.player.depth, amount))
+
+    def try_drop_item(self, monster: Monster, item_id: str, quantity: int, chance: int) -> bool:
+        if not self.valid_item_id(item_id):
+            return False
+
+        if random.randint(1, 100) > max(1, min(100, chance)):
+            return False
+
+        self.add_ground_item(create_ground_item(monster.x, monster.y, self.player.depth, item_id, quantity))
+        return True
+
+    def valid_item_id(self, item_id: str) -> bool:
+        try:
+            return get_item_catalog().get(item_id) is not None
+        except Exception:
+            return False
+
+    def drop_gold_amount(self, drop: dict) -> int:
+        for key in ("gold", "gold_amount", "amount"):
+            if key in drop:
+                try:
+                    return max(0, int(drop[key]))
+                except (TypeError, ValueError):
+                    return 0
+
+        min_gold = drop.get("gold_min", drop.get("min_gold"))
+        max_gold = drop.get("gold_max", drop.get("max_gold"))
+
+        if min_gold is None or max_gold is None:
+            return 0
+
+        try:
+            return random.randint(int(min_gold), int(max_gold))
+        except (TypeError, ValueError):
+            return 0
+
     def monsters_on_current_depth(self) -> list[Monster]:
         return self.monsters_by_depth.setdefault(self.player.depth, [])
 
@@ -367,6 +553,7 @@ class GameState:
 
         if killed:
             self.player.gain_xp(monster.xp_value)
+            self.create_monster_drops(monster)
             self.log(f"You kill the {monster.name}.")
             self.remove_dead_monsters()
         else:
@@ -1006,6 +1193,10 @@ class GameState:
                 str(depth): [monster.to_dict() for monster in monsters]
                 for depth, monsters in self.monsters_by_depth.items()
             },
+            "ground_items_by_depth": {
+                str(depth): [item.to_dict() for item in items]
+                for depth, items in self.ground_items_by_depth.items()
+            },
         }
 
     @classmethod
@@ -1051,6 +1242,14 @@ class GameState:
                 for monster_data in monsters
             ]
             for depth, monsters in dict(data.get("monsters_by_depth", {})).items()
+        }
+
+        state.ground_items_by_depth = {
+            int(depth): [
+                GroundItem.from_dict(item_data)
+                for item_data in items
+            ]
+            for depth, items in dict(data.get("ground_items_by_depth", {})).items()
         }
 
         # Recompute current visibility, but keep explored memory loaded above.
@@ -1133,3 +1332,46 @@ def positions_from_list(values) -> set[tuple[int, int]]:
         positions.add((int(value[0]), int(value[1])))
 
     return positions
+
+
+
+def item_glyph(item_id: str) -> str:
+    upper = item_id.upper()
+
+    if "GOLD" in upper:
+        return "$"
+
+    if "POTION" in upper or "FLASK" in upper:
+        return "!"
+
+    if "SCROLL" in upper or "BOOK" in upper:
+        return "?"
+
+    if any(word in upper for word in ("SWORD", "DAGGER", "MACE", "AXE", "BOW", "ARROW", "BOLT")):
+        return ")"
+
+    if any(word in upper for word in ("ARMOR", "ARMOUR", "MAIL", "SHIELD", "HELM", "BOOT", "GLOVE")):
+        return "]"
+
+    if any(word in upper for word in ("FOOD", "RATION", "MUSHROOM")):
+        return ","
+
+    if any(word in upper for word in ("TORCH", "LANTERN", "LIGHT")):
+        return "~"
+
+    return "*"
+
+
+def first_present_text(data: dict, *keys: str) -> str | None:
+    for key in keys:
+        value = data.get(key)
+
+        if value is None:
+            continue
+
+        text = str(value).strip()
+
+        if text:
+            return text
+
+    return None
