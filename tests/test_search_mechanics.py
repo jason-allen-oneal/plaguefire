@@ -6,8 +6,8 @@ from plaguefire.core.GameState import GameState
 from plaguefire.frontends.common.KeyMap import key_to_action
 
 
-def test_x_key_maps_to_search_action():
-    action = key_to_action("x")
+def test_s_key_maps_to_search_action():
+    action = key_to_action("s")
 
     assert action is not None
     assert action.action_type == ActionType.SEARCH

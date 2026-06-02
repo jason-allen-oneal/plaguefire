@@ -47,6 +47,7 @@ class GameState:
     visible_tiles: set[tuple[int, int]] = field(default_factory=set)
     explored_by_depth: dict[int, set[tuple[int, int]]] = field(default_factory=dict)
     fov_radius: int = 12
+    search_mode_enabled: bool = False
 
     haggle_attempted: set[str] = field(default_factory=set)
     haggle_price_adjustments: dict[str, int] = field(default_factory=dict)
@@ -104,6 +105,10 @@ class GameState:
 
         if action.action_type == ActionType.DESCEND:
             self.descend()
+            return
+
+        if action.action_type == ActionType.SEARCH_MODE:
+            self.toggle_search_mode()
             return
 
         if action.action_type == ActionType.SEARCH:
@@ -238,6 +243,7 @@ class GameState:
         self.turn += 1
         self.player.time += 1
         self.refresh_fov()
+        self.auto_search_after_move()
 
         tile = self.tile_at(target_x, target_y)
 
@@ -320,14 +326,15 @@ class GameState:
 
         self.map_data[y] = row[:x] + tile + row[x + 1:]
 
-    def search(self) -> None:
+    def search(self, *, silent_if_nothing: bool = False) -> None:
         secret_doors = self.adjacent_secret_door_positions()
 
         self.turn += 1
         self.player.time += 1
 
         if not secret_doors:
-            self.log("You search carefully, but find nothing.")
+            if not silent_if_nothing:
+                self.log("You search carefully, but find nothing.")
             return
 
         chance = self.search_success_chance()
@@ -338,7 +345,8 @@ class GameState:
                 found.append((x, y))
 
         if not found:
-            self.log("You search carefully, but find nothing.")
+            if not silent_if_nothing:
+                self.log("You search carefully, but find nothing.")
             return
 
         for x, y in found:
@@ -350,6 +358,20 @@ class GameState:
             self.log("You found a secret door.")
         else:
             self.log(f"You found {len(found)} secret doors.")
+
+    def toggle_search_mode(self) -> None:
+        self.search_mode_enabled = not self.search_mode_enabled
+
+        if self.search_mode_enabled:
+            self.log("Search mode enabled.")
+        else:
+            self.log("Search mode disabled.")
+
+    def auto_search_after_move(self) -> None:
+        if not self.search_mode_enabled:
+            return
+
+        self.search(silent_if_nothing=True)
 
     def adjacent_secret_door_positions(self) -> list[tuple[int, int]]:
         positions: list[tuple[int, int]] = []

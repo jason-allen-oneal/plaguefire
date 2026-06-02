@@ -23,16 +23,29 @@ KEYMAP: dict[str, Action] = {
     "C": Action.character(),
 
     "i": Action.inventory(),
+    "{": Action.inventory(),
+    "F": Action.inventory(),
+    "D": Action.inventory(),
+    "d": Action.inventory(),
+    "T": Action.inventory(),
+    "t": Action.inventory(),
+    "W": Action.inventory(),
+    "w": Action.inventory(),
+    "E": Action.inventory(),
+    "e": Action.inventory(),
     "I": Action.inventory(),
 
-    "s": Action.spells(),
-    "S": Action.spells(),
+    "m": Action.spells(),
+    "M": Action.spells(),
+    "p": Action.spells(),
+    "P": Action.spells(),
 
     "<": Action.ascend(),
     ">": Action.descend(),
 
-    "x": Action.search(),
-    "X": Action.search(),
+    "s": Action.search(),
+    "S": Action.search_mode(),
+
 }
 
 
