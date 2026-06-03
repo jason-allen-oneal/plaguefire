@@ -5,7 +5,7 @@ from plaguefire.core.GameState import GameState
 from plaguefire.core.DungeonGeneration import display_tile
 from plaguefire.core.ItemCatalog import get_item_catalog, get_item_description, get_item_name
 from plaguefire.core.SpellCatalog import get_spell_catalog, get_spell_name
-from plaguefire.frontends.telnet.TerminalStyle import BOLD, DIM, FG_BRIGHT_BLACK, FG_BRIGHT_BLUE, FG_BRIGHT_CYAN, FG_BRIGHT_GREEN, FG_BRIGHT_MAGENTA, FG_BRIGHT_RED, FG_BRIGHT_WHITE, FG_BRIGHT_YELLOW, FG_CYAN, FG_GREEN, FG_RED, FG_WHITE, FG_YELLOW, center_visible, color, danger, gold as gold_color, good, ljust_visible, mana as mana_color, muted, section, title, visible_len
+from plaguefire.frontends.telnet.TerminalStyle import BOLD, DIM, FG_BRIGHT_BLACK, FG_BRIGHT_BLUE, FG_BRIGHT_CYAN, FG_BRIGHT_GREEN, FG_BRIGHT_MAGENTA, FG_BRIGHT_RED, FG_BRIGHT_WHITE, FG_BRIGHT_YELLOW, FG_CYAN, FG_GREEN, FG_RED, FG_WHITE, FG_YELLOW, center_visible, color, danger, gold as gold_color, good, ljust_visible, mana as mana_color, muted, section, selected, title, visible_len
 
 
 RESET = "\x1b[0m"
@@ -1047,6 +1047,7 @@ def render_character(state: GameState, terminal_width: int, terminal_height: int
 
     return frame("CHARACTER RECORD", body, terminal_width, terminal_height)
 
+
 def render_inventory(state: GameState, terminal_width: int, terminal_height: int) -> str:
     player = state.player
     body: list[str] = [
@@ -1067,17 +1068,20 @@ def render_inventory(state: GameState, terminal_width: int, terminal_height: int
             item_type = ui_item_type(item_id)[:10]
             status = ui_equipped_status(stack) or ui_item_status(state, item_id)
 
-            body.append(
-                f"{cursor} {index + 1:<2} {name:<28} {item_type:<10} {quantity:<5} {status}"
-            )
+            row = f"{cursor} {index + 1:<2} {name:<28} {item_type:<10} {quantity:<5} {status}"
+
+            if index == state.inventory_selection_index:
+                row = selected(row)
+
+            body.append(row)
 
     body.extend(["", section("Item Details"), "-" * 72])
 
-    selected = ui_selected_inventory_stack(state)
-    if selected is None:
+    selected_stack = ui_selected_inventory_stack(state)
+    if selected_stack is None:
         body.append("No item selected.")
     else:
-        item_id = str(selected.get("item_id", ""))
+        item_id = str(selected_stack.get("item_id", ""))
         shown_name = ui_item_name(state, item_id)
         real_name = ui_item_real_name(item_id)
         description = ui_item_description(item_id)
@@ -1122,7 +1126,12 @@ def render_spells(state: GameState, terminal_width: int, terminal_height: int) -
             fail = ui_spell_fail(spell_id, player.character_class)
             effect = ui_spell_effect(spell_id)[:32]
 
-            body.append(f"{cursor} {index + 1:<2} {name:<24} {mana:<6} {fail:<6} {effect}")
+            row = f"{cursor} {index + 1:<2} {name:<24} {mana:<6} {fail:<6} {effect}"
+
+            if index == selected_index:
+                row = selected(row)
+
+            body.append(row)
 
         selected_spell = player.spells[selected_index]
         body.extend(["", section("Spell Details"), "-" * 72])
@@ -1162,13 +1171,18 @@ def render_ground_items(state: GameState, terminal_width: int, terminal_height: 
             else:
                 notes = ui_item_status(state, item_id)
 
-            body.append(f"{cursor} {index + 1:<2} {name:<28} {quantity:<5} {notes}")
+            row = f"{cursor} {index + 1:<2} {name:<28} {quantity:<5} {notes}"
 
-        selected = stacks[selected_index]
+            if index == selected_index:
+                row = selected(row)
+
+            body.append(row)
+
+        selected_stack = stacks[selected_index]
         body.extend(["", section("Selected"), "-" * 72])
-        body.append(ui_floor_stack_name(state, selected))
+        body.append(ui_floor_stack_name(state, selected_stack))
 
-        item_id = str(selected.get("item_id", ""))
+        item_id = str(selected_stack.get("item_id", ""))
         if item_id != "__gold__":
             description = ui_item_description(item_id)
             if ui_item_status(state, item_id) == "Unknown":
@@ -1180,7 +1194,6 @@ def render_ground_items(state: GameState, terminal_width: int, terminal_height: 
     body.extend(["", "Enter/g Pick Up      Up/Down Select      Esc Back"])
 
     return frame("ITEMS ON GROUND", body, terminal_width, terminal_height)
-
 
 def render_message_log_screen(state: GameState, terminal_width: int, terminal_height: int) -> str:
     width, height = normalize_terminal_size(terminal_width, terminal_height)
