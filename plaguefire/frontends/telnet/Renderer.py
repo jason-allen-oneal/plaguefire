@@ -5,6 +5,7 @@ from plaguefire.core.GameState import GameState
 from plaguefire.core.DungeonGeneration import display_tile
 from plaguefire.core.ItemCatalog import get_item_catalog, get_item_description, get_item_name
 from plaguefire.core.SpellCatalog import get_spell_catalog, get_spell_name
+from plaguefire.frontends.telnet.TerminalStyle import center_visible, ljust_visible, section, title, visible_len
 
 
 RESET = "\x1b[0m"
@@ -39,6 +40,10 @@ def enter_screen() -> str:
 
 def exit_screen() -> str:
     return RESET + SHOW_CURSOR + NORMAL_SCREEN
+
+
+def clear_screen() -> str:
+    return "\x1b[2J\x1b[H"
 
 
 def normalize_terminal_size(width: int, height: int) -> tuple[int, int]:
@@ -391,29 +396,35 @@ def status_line(state: GameState, width: int, view_width: int, view_height: int)
 
     return f"{left}  {middle}{' ' * padding}{right}"
 
-def frame(title: str, body: list[str], terminal_width: int, terminal_height: int) -> str:
+
+def frame(title_text: str, body: list[str], terminal_width: int, terminal_height: int) -> str:
     width, height = normalize_terminal_size(terminal_width, terminal_height)
 
-    inner_width = width - 2
-    inner_height = height - 2
+    inner_width = max(1, width - 2)
+    inner_height = max(1, height - 2)
 
-    title_text = f" {title} "
-    top = "+" + title_text.center(inner_width, "-") + "+"
+    safe_title = f" {title(title_text)} "
+    plain_title_width = visible_len(safe_title)
+    side_width = max(0, inner_width - plain_title_width)
+    left = side_width // 2
+    right = side_width - left
+
+    top = "+" + ("-" * left) + safe_title + ("-" * right) + "+"
     bottom = "+" + ("-" * inner_width) + "+"
 
-    lines = [CLEAR + HOME + top]
+    lines = [top]
+
     visible_body = body[:inner_height]
 
     for line in visible_body:
-        lines.append("|" + line[:inner_width].ljust(inner_width) + "|")
+        lines.append("|" + ljust_visible(str(line), inner_width) + "|")
 
     while len(lines) < height - 1:
         lines.append("|" + (" " * inner_width) + "|")
 
     lines.append(bottom)
 
-    return "\r\n".join(lines)
-
+    return clear_screen() + "\r\n".join(lines)
 
 def overlay_centered_text(line: str, text: str, *, center: int, width: int) -> str:
     """Overlay text into a fixed-width field without changing line length."""
@@ -910,7 +921,7 @@ def render_character(state: GameState, terminal_width: int, terminal_height: int
         f"XP   {player.xp}/{player.next_level_xp:<8} Level {player.level:<8} Depth {depth}",
         f"Age  {player.age:<8} Height {format_height_inches(player.height):<8} Weight {player.weight} lb",
         "",
-        "Stats",
+        section("Stats"),
         "-" * 72,
     ]
 
@@ -933,7 +944,7 @@ def render_character(state: GameState, terminal_width: int, terminal_height: int
     body.append("   ".join(first_row))
     body.append("   ".join(second_row))
 
-    body.extend(["", "Skills", "-" * 72])
+    body.extend(["", section("Skills"), "-" * 72])
 
     important = [
         "fighting",
@@ -956,7 +967,7 @@ def render_character(state: GameState, terminal_width: int, terminal_height: int
         right = skill_chunks[index + 1] if index + 1 < len(skill_chunks) else ""
         body.append(f"{left:<30} {right}")
 
-    body.extend(["", "History", "-" * 72])
+    body.extend(["", section("History"), "-" * 72])
 
     for line in ui_wrap_words(player.history, 72)[:6]:
         body.append(line)
@@ -989,7 +1000,7 @@ def render_inventory(state: GameState, terminal_width: int, terminal_height: int
                 f"{cursor} {index + 1:<2} {name:<28} {item_type:<10} {quantity:<5} {status}"
             )
 
-    body.extend(["", "Item Details", "-" * 72])
+    body.extend(["", section("Item Details"), "-" * 72])
 
     selected = ui_selected_inventory_stack(state)
     if selected is None:
@@ -1043,7 +1054,7 @@ def render_spells(state: GameState, terminal_width: int, terminal_height: int) -
             body.append(f"{cursor} {index + 1:<2} {name:<24} {mana:<6} {fail:<6} {effect}")
 
         selected_spell = player.spells[selected_index]
-        body.extend(["", "Spell Details", "-" * 72])
+        body.extend(["", section("Spell Details"), "-" * 72])
 
         for line in ui_wrap_words(ui_spell_description(selected_spell), 72)[:4]:
             body.append(line)
@@ -1083,7 +1094,7 @@ def render_ground_items(state: GameState, terminal_width: int, terminal_height: 
             body.append(f"{cursor} {index + 1:<2} {name:<28} {quantity:<5} {notes}")
 
         selected = stacks[selected_index]
-        body.extend(["", "Selected", "-" * 72])
+        body.extend(["", section("Selected"), "-" * 72])
         body.append(ui_floor_stack_name(state, selected))
 
         item_id = str(selected.get("item_id", ""))
@@ -1114,7 +1125,7 @@ def render_message_log_screen(state: GameState, terminal_width: int, terminal_he
         visible = messages[-available:]
 
     body: list[str] = [
-        "Recent Events" if offset == 0 else "Older Events",
+        section("Recent Events") if offset == 0 else section("Older Events"),
         "-" * 72,
     ]
 

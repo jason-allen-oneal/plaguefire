@@ -5,6 +5,7 @@ from plaguefire.core.ItemCatalog import get_item_name
 from plaguefire.core.SpellCatalog import get_spell_name
 from plaguefire.frontends.telnet.ClientSession import ClientSession
 from plaguefire.frontends.telnet.Renderer import frame, render as render_game
+from plaguefire.frontends.telnet.TerminalStyle import BOLD, FG_BRIGHT_CYAN, color, section, selected
 
 
 def render_client(session: ClientSession) -> str:
@@ -223,10 +224,20 @@ def creation_panel_width(session: ClientSession) -> int:
     return min(76, max(40, session.terminal_width - 4))
 
 
+
 def creation_line(session: ClientSession, line: str = "") -> str:
     panel_width = creation_panel_width(session)
     inner_width = max(1, session.terminal_width - 4)
-    return line[:panel_width].center(inner_width).rstrip()
+
+    if not line:
+        return ""
+
+    # Character creation screens were too centered. Keep content in a readable
+    # panel with a stable left edge.
+    left_margin = max(2, min(10, (inner_width - panel_width) // 2))
+    content = str(line)[:panel_width]
+
+    return (" " * left_margin + content).rstrip()
 
 
 def creation_record_header(session: ClientSession, step: str) -> list[str]:
@@ -234,22 +245,26 @@ def creation_record_header(session: ClientSession, step: str) -> list[str]:
     character_class = session.selected_class() if session.creation_name else "?"
 
     return [
-        creation_line(session, "CHARACTER RECORD"),
+        creation_line(session, section("CHARACTER RECORD")),
         creation_line(session),
         creation_line(session, f"Name : {session.creation_name or '?'}"),
         creation_line(session, f"Sex  : {session.selected_sex() if session.creation_name else '?'}"),
         creation_line(session, f"Race : {race if session.screen not in {'character_name_input', 'character_sex_select'} else '?'}"),
         creation_line(session, f"Class: {character_class if session.screen in {'character_spell_select', 'character_preview'} else '?'}"),
         creation_line(session),
-        creation_line(session, step),
+        creation_line(session, section(step)),
         creation_line(session),
     ]
 
 
-def creation_choice_row(session: ClientSession, name: str, note: str, selected: bool) -> str:
-    cursor = ">" if selected else " "
-    return creation_line(session, f"{cursor} {name:<12.12} {note}")
+def creation_choice_row(session: ClientSession, name: str, note: str, selected_choice: bool) -> str:
+    cursor = ">" if selected_choice else " "
+    row = f"{cursor} {name:<12.12} {note}"
 
+    if selected_choice:
+        row = selected(row)
+
+    return creation_line(session, row)
 
 def wrap_words(text: str, width: int) -> list[str]:
     words = text.split()
@@ -533,7 +548,7 @@ def render_character_preview(session: ClientSession) -> str:
             creation_line(session, f"HP {player.hp}/{player.max_hp}     Mana {player.mana}/{player.max_mana}     Gold {player.gold}     Social {player.social}"),
             creation_line(session, f"Age {player.age}     Height {format_height(player.height)}     Weight {player.weight} lb"),
             creation_line(session),
-            creation_line(session, "History"),
+            creation_line(session, section("History")),
             creation_line(session, "-" * 72),
         ]
     )
@@ -544,7 +559,7 @@ def render_character_preview(session: ClientSession) -> str:
     body.extend(
         [
             creation_line(session),
-            creation_line(session, "Abilities"),
+            creation_line(session, section("Abilities")),
             creation_line(session, "-" * 72),
         ]
     )
@@ -554,7 +569,7 @@ def render_character_preview(session: ClientSession) -> str:
     body.extend(
         [
             creation_line(session),
-            creation_line(session, "Starting Gear"),
+            creation_line(session, section("Starting Gear")),
             creation_line(session, "-" * 72),
         ]
     )
@@ -564,7 +579,7 @@ def render_character_preview(session: ClientSession) -> str:
     body.extend(
         [
             creation_line(session),
-            creation_line(session, "Known Spells"),
+            creation_line(session, section("Known Spells")),
             creation_line(session, "-" * 72),
         ]
     )
