@@ -1168,7 +1168,7 @@ class GameState:
             "player_x": self.player_x,
             "player_y": self.player_y,
             "turn": self.turn,
-            "running": self.running,
+            "running": True,
             "screen": self.screen,
             "map_data": list(self.map_data),
             "map_name": self.map_name,
@@ -1207,7 +1207,10 @@ class GameState:
         state.player_x = int(data.get("player_x", state.player_x))
         state.player_y = int(data.get("player_y", state.player_y))
         state.turn = int(data.get("turn", 0))
-        state.running = bool(data.get("running", True))
+        # Runtime socket/session state must not be restored from disk.
+        # Saves created after pressing q may contain running=false. Loading
+        # that value causes the Telnet session to close after the first key.
+        state.running = True
         state.screen = str(data.get("screen", "game"))
         state.map_data = list(data.get("map_data", state.map_data))
         state.map_name = str(data.get("map_name", state.map_name))

@@ -80,3 +80,17 @@ def test_load_game_supports_old_player_only_save(monkeypatch, tmp_path):
     assert restored_game.player.name == "OldSave"
     assert restored_game.player.depth == 0
     assert restored_game.map_name == "Town"
+
+
+def test_load_game_resets_runtime_running_flag(monkeypatch, tmp_path):
+    monkeypatch.setattr(save_store, "SAVE_ROOT", tmp_path / "saves")
+
+    state = GameState()
+    state.player.name = "QuitSave"
+    state.running = False
+
+    save_game("tester", state)
+    restored = load_game("tester", "QuitSave")
+
+    assert restored.running is True
+    assert restored.screen == "game"
