@@ -958,47 +958,58 @@ def format_height_inches(inches: int) -> str:
 
 
 
+
+
 def render_help(terminal_width: int, terminal_height: int) -> str:
+    def key_row(key: str, description: str) -> str:
+        return f"  {color(key, BOLD, FG_BRIGHT_GREEN):<22} {description}"
+
+    def plain_key_row(key: str, description: str) -> str:
+        # Plain rows preserve exact substrings expected by UMoria/keymap tests.
+        return f"  {key:<14} {description}"
+
     body = [
-        "Movement:",
+        section("COMMAND REFERENCE"),
+        muted("UMoria-style controls with telnet-friendly aliases."),
+        "",
+        section("Movement and Dungeon"),
         "  Arrow keys / numpad   Move",
         "  . or Space     Wait/rest",
-        "",
-        "Dungeon:",
-        "  <              Go up stairs",
-        "  >              Go down stairs",
-        "  s              Search once",
-        "  S              Toggle search mode",
-        "  D              Disarm adjacent discovered trap",
+        plain_key_row("<", "Go up stairs"),
+        plain_key_row(">", "Go down stairs"),
+        plain_key_row("s", "Search once"),
+        plain_key_row("S", "Toggle search mode"),
+        plain_key_row("D", "Disarm adjacent discovered trap"),
         "  Space          Pick up one item / open pickup screen",
         "",
-        "Magic:",
-        "  m              Cast/view magic",
-        "  p              Cast/view magic",
-        "  Enter/c        Cast selected spell",
+        section("Map Symbols"),
+        "  @ you     ^ discovered trap     $ gold     ! item     * item pile",
         "",
-        "Character and inventory:",
-        "  c              Character record",
-        "  C              Character record",
-        "  i              Inventory",
-        "  e              Equipment/inventory",
-        "  w              Wear/wield",
-        "  W              Wear/wield",
-        "  t              Take off",
-        "  T              Take off",
-        "  d              Drop item",
-        "  E or a         Use selected inventory item",
-        "  u              Unequip selected item",
+        section("Magic"),
+        plain_key_row("m", "Cast/view magic"),
+        plain_key_row("p", "Cast/view magic"),
+        key_row("Enter/c", "Cast selected spell"),
         "",
-        "Logs and system:",
-        "  L              Message log",
-        "  ?              Help",
-        "  Esc            Return/back out",
-        "  q              Quit",
+        section("Character and Inventory"),
+        plain_key_row("c", "Character record"),
+        plain_key_row("C", "Character record"),
+        plain_key_row("i", "Inventory"),
+        plain_key_row("e", "Equipment/inventory"),
+        plain_key_row("w", "Wear/wield"),
+        plain_key_row("W", "Wear/wield"),
+        plain_key_row("t", "Take off"),
+        plain_key_row("T", "Take off"),
+        plain_key_row("d", "Drop item"),
+        key_row("E or a", "Use selected inventory item"),
+        key_row("u", "Unequip selected item"),
         "",
-        "Symbols: @ you   ^ discovered trap   $ gold   ! item   * item pile",
+        section("Logs and System"),
+        plain_key_row("L", "Message log"),
+        plain_key_row("?", "Help"),
+        key_row("Esc", "Return/back out"),
+        key_row("q", "Quit"),
         "",
-        "Press Esc to return.",
+        muted("Press Esc to return."),
     ]
 
     return frame("HELP", body, terminal_width, terminal_height)
