@@ -196,144 +196,311 @@ def character_list_record(slot) -> dict[str, str]:
         "status": status,
     }
 
+RACE_NOTES = {
+    "Human": "Balanced survivors of Greyharbor, Dalehaven, and the old roads",
+    "Half-Elf": "Between two worlds, distrusted and useful in equal measure",
+    "Elf": "Nature-bound magic, untouched by the ley-line collapse",
+    "Halfling": "Small, quiet, lucky, and harder to corner than expected",
+    "Gnome": "Alchemy, mechanisms, locks, lenses, and dangerous ideas",
+    "Dwarf": "Stone, iron, grudges, and mountain law",
+    "Half-Orc": "Feared strength, borderland survival, hard-earned respect",
+    "Half-Troll": "Huge, hated, plague-touched, and difficult to kill",
+}
+
+CLASS_NOTES = {
+    "Warrior": "Steel, armor, direct violence",
+    "Mage": "Fragile, learned, dangerous magic",
+    "Priest": "Mercy, judgment, prayer, survival",
+    "Rogue": "Stealth, locks, knives, hidden doors",
+    "Ranger": "Bows, tracking, wilderness discipline",
+    "Paladin": "Oaths, armor, faith, and force",
+}
+
+STAT_ORDER = ["STR", "INT", "WIS", "DEX", "CON", "CHA"]
+
+
+def creation_panel_width(session: ClientSession) -> int:
+    return min(76, max(40, session.terminal_width - 4))
+
+
+def creation_line(session: ClientSession, line: str = "") -> str:
+    panel_width = creation_panel_width(session)
+    inner_width = max(1, session.terminal_width - 4)
+    return line[:panel_width].center(inner_width).rstrip()
+
+
+def creation_record_header(session: ClientSession, step: str) -> list[str]:
+    race = session.selected_race() if session.creation_name else "?"
+    character_class = session.selected_class() if session.creation_name else "?"
+
+    return [
+        creation_line(session, "CHARACTER RECORD"),
+        creation_line(session),
+        creation_line(session, f"Name : {session.creation_name or '?'}"),
+        creation_line(session, f"Sex  : {session.selected_sex() if session.creation_name else '?'}"),
+        creation_line(session, f"Race : {race if session.screen not in {'character_name_input', 'character_sex_select'} else '?'}"),
+        creation_line(session, f"Class: {character_class if session.screen in {'character_spell_select', 'character_preview'} else '?'}"),
+        creation_line(session),
+        creation_line(session, step),
+        creation_line(session),
+    ]
+
+
+def creation_choice_row(session: ClientSession, name: str, note: str, selected: bool) -> str:
+    cursor = ">" if selected else " "
+    return creation_line(session, f"{cursor} {name:<12.12} {note}")
+
+
+def wrap_words(text: str, width: int) -> list[str]:
+    words = text.split()
+    if not words:
+        return [""]
+
+    lines: list[str] = []
+    current = ""
+
+    for word in words:
+        next_line = word if not current else f"{current} {word}"
+
+        if len(next_line) > width and current:
+            lines.append(current)
+            current = word
+        else:
+            current = next_line
+
+    if current:
+        lines.append(current)
+
+    return lines
+
+
+def format_height(inches: int) -> str:
+    feet = inches // 12
+    remaining = inches % 12
+    return f"{feet}'{remaining}\""
+
+
+def formatted_stat(player, stat: str) -> str:
+    value = player.stats.get(stat, 0)
+    percentile = player.stat_percentiles.get(stat, 0)
+
+    if value >= 18 and percentile:
+        return f"{stat} {value}/{percentile:02d}"
+
+    return f"{stat} {value}"
+
+
+def creation_stat_lines(session: ClientSession, player) -> list[str]:
+    stats = [formatted_stat(player, stat) for stat in STAT_ORDER]
+
+    return [
+        creation_line(session, f"{stats[0]:<12} {stats[1]:<12} {stats[2]:<12}"),
+        creation_line(session, f"{stats[3]:<12} {stats[4]:<12} {stats[5]:<12}"),
+    ]
+
+
+def creation_ability_lines(session: ClientSession, player) -> list[str]:
+    important = [
+        "fighting",
+        "bows",
+        "stealth",
+        "disarming",
+        "magic_device",
+        "searching",
+        "perception",
+        "saving_throw",
+    ]
+
+    chunks: list[str] = []
+
+    for ability in important:
+        if ability not in player.abilities:
+            continue
+
+        label = ability.replace("_", " ").title()
+        chunks.append(f"{label} {player.abilities[ability]}")
+
+    lines: list[str] = []
+
+    for index in range(0, len(chunks), 2):
+        left = chunks[index]
+        right = chunks[index + 1] if index + 1 < len(chunks) else ""
+        lines.append(creation_line(session, f"{left:<28} {right:<28}"))
+
+    return lines
+
+
+def creation_inventory_lines(session: ClientSession, player) -> list[str]:
+    if not player.inventory:
+        return [creation_line(session, "None")]
+
+    lines: list[str] = []
+
+    for stack in player.inventory:
+        item_id = stack.get("item_id", "")
+        quantity = stack.get("quantity", 1)
+        lines.append(creation_line(session, f"{quantity}x {get_item_name(item_id)}"))
+
+    return lines
+
+
+def creation_spell_lines(session: ClientSession, player) -> list[str]:
+    if not player.spells:
+        return [creation_line(session, "None")]
+
+    return [creation_line(session, get_spell_name(spell_id)) for spell_id in player.spells]
+
+
+
 def render_character_name_input(session: ClientSession) -> str:
     body = [
-        "Enter a character name.",
-        "",
-        f"> {session.input_buffer}_",
-        "",
-        "Enter confirms. Esc returns to character list.",
+        creation_line(session, "CHARACTER RECORD"),
+        creation_line(session),
+        creation_line(session, "Name :"),
+        creation_line(session, f"> {session.input_buffer}_"),
+        creation_line(session),
+        creation_line(session, "Enter a name to begin."),
+        creation_line(session),
+        creation_line(session, "Enter Continue        Esc Back"),
     ]
 
     if session.message:
-        body.extend(["", session.message])
+        body.extend([creation_line(session), creation_line(session, session.message)])
 
     return frame("CREATE CHARACTER: NAME", body, session.terminal_width, session.terminal_height)
 
 
 def render_sex_select(session: ClientSession) -> str:
-    body = [
-        f"Name: {session.creation_name}",
-        "",
-        "Choose sex.",
-        "",
-    ]
+    body = creation_record_header(session, "Choose Sex")
 
     for index, option in enumerate(session.sex_options()):
-        body.append(selector_line(option, index == session.creation_sex_index))
+        body.append(creation_choice_row(session, option, "", index == session.creation_sex_index))
 
     body.extend(
         [
-            "",
-            "Up/Down or Left/Right changes selection.",
-            "m/f selects directly.",
-            "Enter continues. Esc goes back.",
+            creation_line(session),
+            creation_line(session, "Up/Down Change        Enter Continue        Esc Back"),
+            creation_line(session, "m Male                f Female"),
         ]
     )
+
+    if session.message:
+        body.extend([creation_line(session), creation_line(session, session.message)])
 
     return frame("CREATE CHARACTER: SEX", body, session.terminal_width, session.terminal_height)
 
 
 def render_race_select(session: ClientSession) -> str:
-    body = [
-        f"Name: {session.creation_name}",
-        f"Sex: {session.selected_sex()}",
-        "",
-        "Choose race.",
-        "",
-    ]
+    body = creation_record_header(session, "Choose Race")
 
     races = session.race_options()
 
+    body.append(creation_line(session, "Race          Notes"))
+    body.append(creation_line(session, "-" * 72))
+
     for index, race in enumerate(races):
-        body.append(selector_line(race, index == session.creation_race_index))
+        body.append(
+            creation_choice_row(
+                session,
+                race,
+                RACE_NOTES.get(race, "No record available"),
+                index == session.creation_race_index,
+            )
+        )
 
     body.extend(
         [
-            "",
-            "Up/Down or Left/Right changes selection.",
-            "Enter continues. Esc goes back.",
+            creation_line(session),
+            creation_line(session, "Up/Down Change Selection        Enter Continue        Esc Back"),
         ]
     )
+
+    if session.message:
+        body.extend([creation_line(session), creation_line(session, session.message)])
 
     return frame("CREATE CHARACTER: RACE", body, session.terminal_width, session.terminal_height)
 
 
 def render_class_select(session: ClientSession) -> str:
-    body = [
-        f"Name: {session.creation_name}",
-        f"Sex: {session.selected_sex()}",
-        f"Race: {session.selected_race()}",
-        "",
-        "Choose class.",
-        "",
-    ]
+    body = creation_record_header(session, "Choose Class")
 
     classes = session.class_options()
 
-    for index, character_class in enumerate(classes):
-        body.append(selector_line(character_class, character_class == session.selected_class()))
+    body.append(creation_line(session, "Class         Notes"))
+    body.append(creation_line(session, "-" * 72))
+
+    for character_class in classes:
+        body.append(
+            creation_choice_row(
+                session,
+                character_class,
+                CLASS_NOTES.get(character_class, "No record available"),
+                character_class == session.selected_class(),
+            )
+        )
 
     body.extend(
         [
-            "",
-            f"Allowed classes are filtered by {session.selected_race()}.",
-            "Up/Down or Left/Right changes selection.",
-            "Enter continues. Esc goes back.",
+            creation_line(session),
+            creation_line(session, f"Allowed classes are filtered by {session.selected_race()}."),
+            creation_line(session, "Up/Down Change Selection        Enter Continue        Esc Back"),
         ]
     )
+
+    if session.message:
+        body.extend([creation_line(session), creation_line(session, session.message)])
 
     return frame("CREATE CHARACTER: CLASS", body, session.terminal_width, session.terminal_height)
 
 
 def render_spell_select(session: ClientSession) -> str:
     spells = session.starter_spell_options()
-
-    body = [
-        f"Name: {session.creation_name}",
-        f"Sex: {session.selected_sex()}",
-        f"Race: {session.selected_race()}",
-        f"Class: {session.selected_class()}",
-        "",
-        "Choose starter spell.",
-        "",
-    ]
+    body = creation_record_header(session, "Choose Starter Spell")
 
     if not spells:
         body.extend(
             [
-                "No starter spells are available for this class.",
-                "",
-                "Enter continues. Esc goes back.",
+                creation_line(session, "No starter spells are available for this class."),
+                creation_line(session),
+                creation_line(session, "Enter Continue        Esc Back"),
             ]
         )
+
+        if session.message:
+            body.extend([creation_line(session), creation_line(session, session.message)])
+
         return frame("CREATE CHARACTER: SPELLS", body, session.terminal_width, session.terminal_height)
 
+    body.append(creation_line(session, "Spell                     Mana   Fail   Selected"))
+    body.append(creation_line(session, "-" * 72))
+
     for index, spell in enumerate(spells):
-        marker = "*" if spell.id in session.creation_selected_spells else " "
         cursor = ">" if index == session.creation_spell_index else " "
+        marker = "*" if spell.id in session.creation_selected_spells else " "
         class_info = spell.class_info(session.selected_class()) or {}
         mana = class_info.get("mana", "?")
         fail = class_info.get("base_failure", "?")
-        body.append(f"{cursor} [{marker}] {spell.name:<24} Mana {mana:<2} Fail {fail}%")
+        body.append(
+            creation_line(
+                session,
+                f"{cursor} {spell.name:<24.24} {str(mana):<6} {str(fail) + '%':<6} [{marker}]",
+            )
+        )
 
     selected_names = [get_spell_name(spell_id) for spell_id in session.creation_selected_spells]
 
     body.extend(
         [
-            "",
-            f"Selected: {', '.join(selected_names) if selected_names else 'None'}",
-            "",
-            "Up/Down changes selection.",
-            "Space toggles spell.",
-            "Enter selects and continues.",
-            "c continues after selecting.",
-            "Esc goes back.",
+            creation_line(session),
+            creation_line(session, f"Selected: {', '.join(selected_names) if selected_names else 'None'}"),
+            creation_line(session),
+            creation_line(session, "Up/Down Change        Space Toggle        Enter Continue"),
+            creation_line(session, "c Continue            Esc Back"),
         ]
     )
 
     if session.message:
-        body.extend(["", session.message])
+        body.extend([creation_line(session), creation_line(session, session.message)])
 
     return frame("CREATE CHARACTER: SPELLS", body, session.terminal_width, session.terminal_height)
 
@@ -343,82 +510,78 @@ def render_character_preview(session: ClientSession) -> str:
         player = session.preview_player()
     except ValueError as error:
         body = [
-            "Character creation error:",
-            str(error),
-            "",
-            "Esc goes back.",
+            creation_line(session, "Character creation error:"),
+            creation_line(session, str(error)),
+            creation_line(session),
+            creation_line(session, "Esc Back"),
         ]
+
         return frame("CREATE CHARACTER: ERROR", body, session.terminal_width, session.terminal_height)
 
     body = [
-        f"Name: {player.name}",
-        f"Sex: {player.sex}",
-        f"Race: {player.race}",
-        f"Class: {player.character_class}",
-        f"Age: {player.age}",
-        f"Height: {player.height}",
-        f"Weight: {player.weight}",
-        "",
-        f"HP: {player.hp}/{player.max_hp}",
-        f"Mana: {player.mana}/{player.max_mana}",
-        f"Gold: {player.gold}",
-        "",
-        "Stats:",
+        creation_line(session, "CHARACTER RECORD"),
+        creation_line(session),
+        creation_line(session, f"{player.name}, {player.sex} {player.race} {player.character_class}"),
+        creation_line(session),
     ]
 
-    for stat, value in player.stats.items():
-        percentile = player.stat_percentiles.get(stat, 0)
-
-        if value >= 18 and percentile:
-            body.append(f"  {stat}: {value}/{percentile}")
-        else:
-            body.append(f"  {stat}: {value}")
+    body.extend(creation_stat_lines(session, player))
 
     body.extend(
         [
-            "",
-            "Abilities:",
+            creation_line(session),
+            creation_line(session, f"HP {player.hp}/{player.max_hp}     Mana {player.mana}/{player.max_mana}     Gold {player.gold}     Social {player.social}"),
+            creation_line(session, f"Age {player.age}     Height {format_height(player.height)}     Weight {player.weight} lb"),
+            creation_line(session),
+            creation_line(session, "History"),
+            creation_line(session, "-" * 72),
         ]
     )
 
-    for ability, value in sorted(player.abilities.items()):
-        body.append(f"  {ability}: {value}")
-
-    body.extend(["", "Starting inventory:"])
-
-    if not player.inventory:
-        body.append("  None")
-    else:
-        for stack in player.inventory:
-            item_id = stack.get("item_id", "")
-            quantity = stack.get("quantity", 1)
-            body.append(f"  {quantity}x {get_item_name(item_id)}")
-
-    body.extend(["", "Known spells:"])
-
-    if not player.spells:
-        body.append("  None")
-    else:
-        for spell_id in player.spells:
-            body.append(f"  {get_spell_name(spell_id)}")
+    for line in wrap_words(player.history, 72):
+        body.append(creation_line(session, line))
 
     body.extend(
         [
-            "",
-            "History:",
-            f"  {player.history}",
-            "",
-            "Enter or c confirms.",
-            "r rerolls stats/profile.",
-            "Esc goes back.",
+            creation_line(session),
+            creation_line(session, "Abilities"),
+            creation_line(session, "-" * 72),
+        ]
+    )
+
+    body.extend(creation_ability_lines(session, player))
+
+    body.extend(
+        [
+            creation_line(session),
+            creation_line(session, "Starting Gear"),
+            creation_line(session, "-" * 72),
+        ]
+    )
+
+    body.extend(creation_inventory_lines(session, player))
+
+    body.extend(
+        [
+            creation_line(session),
+            creation_line(session, "Known Spells"),
+            creation_line(session, "-" * 72),
+        ]
+    )
+
+    body.extend(creation_spell_lines(session, player))
+
+    body.extend(
+        [
+            creation_line(session),
+            creation_line(session, "Enter Confirm        r Reroll        Esc Back"),
         ]
     )
 
     if session.message:
-        body.extend(["", session.message])
+        body.extend([creation_line(session), creation_line(session, session.message)])
 
     return frame("CREATE CHARACTER: PREVIEW", body, session.terminal_width, session.terminal_height)
-
 
 def selector_line(text: str, selected: bool) -> str:
     if selected:
