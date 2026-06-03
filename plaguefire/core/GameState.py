@@ -10,6 +10,7 @@ from plaguefire.core.Fov import compute_fov
 from plaguefire.core.Entities import Monster, random_monster_for_depth
 from plaguefire.core.DungeonGeneration import CLOSED_DOOR, CORRIDOR_FLOOR, OPEN_DOOR, ROOM_FLOOR, SECRET_DOOR, SOLID_ROCK, WALL, DungeonMap, Room, generate_dungeon
 from plaguefire.core.ItemCatalog import get_item_name, get_item_price
+from plaguefire.core.Hunger import apply_hunger_turn, food_value_for_item, is_food_item, restore_hunger
 from plaguefire.core.Shop import ShopDefinition, get_shop
 from plaguefire.core.Town import SHOP_BY_TILE, TOWN_LAYOUT, WALKABLE_TILES, starting_position
 from plaguefire.models.Player import Player
@@ -183,7 +184,13 @@ class GameState:
             self.move_inventory_selection(1)
             return
 
-        if key in {"e", "E", "ENTER"}:
+        if key in {"a", "A", "E"}:
+            success, message = self.use_inventory_index(self.inventory_selection_index)
+            if message:
+                self.log(message)
+            return
+
+        if key in {"e", "ENTER"}:
             success, message = self.player.equip_inventory_index(self.inventory_selection_index)
             self.log(message)
             return
@@ -218,9 +225,52 @@ class GameState:
 
         self.inventory_selection_index = (self.inventory_selection_index + delta) % count
 
+    def advance_turn(self, turns: int = 1) -> bool:
+        turns = max(1, int(turns))
+
+        for _ in range(turns):
+            self.turn += 1
+            self.player.time += 1
+
+            for message in apply_hunger_turn(self.player):
+                self.log(message)
+
+            if not self.player.is_alive():
+                if self.screen != "game_over":
+                    self.log("You die.")
+                self.screen = "game_over"
+                return False
+
+        self.player.tick_cooldowns()
+        return True
+
+    def use_inventory_index(self, index: int) -> tuple[bool, str]:
+        if index < 0 or index >= len(self.player.inventory):
+            return False, "No item is selected."
+
+        stack = self.player.inventory[index]
+        item_id = str(stack.get("item_id", ""))
+
+        if not is_food_item(item_id):
+            return False, f"{get_item_name(item_id)} is not food."
+
+        if not self.player.remove_item(item_id, 1):
+            return False, f"You cannot eat {get_item_name(item_id)}."
+
+        item_name = get_item_name(item_id)
+        messages = restore_hunger(self.player, food_value_for_item(item_id))
+
+        self.log(f"You eat {item_name}.")
+
+        for message in messages:
+            self.log(message)
+
+        self.advance_turn()
+        return True, ""
+
     def wait(self) -> None:
-        self.turn += 1
-        self.player.time += 1
+        if not self.advance_turn():
+            return
 
         if self.player.depth <= 0:
             self.log("You wait as town life moves around you.")
@@ -244,8 +294,8 @@ class GameState:
 
         if target_tile == CLOSED_DOOR:
             self.set_tile(target_x, target_y, OPEN_DOOR)
-            self.turn += 1
-            self.player.time += 1
+            if not self.advance_turn():
+                return
             self.refresh_fov()
             self.log("You open the door.")
             self.monsters_take_turn()
@@ -453,6 +503,9 @@ class GameState:
             self.log("You see no downward staircase here.")
             return
 
+        if not self.advance_turn():
+            return
+
         next_depth = self.player.depth + 1
         self.enter_dungeon_depth(next_depth, arrival="upstairs")
         self.log(f"You descend to dungeon depth {next_depth}.")
@@ -463,8 +516,14 @@ class GameState:
             return
 
         if self.player.depth <= 1:
+            if not self.advance_turn():
+                return
+
             self.enter_town(reset_position=True)
             self.log("You climb back into town.")
+            return
+
+        if not self.advance_turn():
             return
 
         previous_depth = self.player.depth - 1
@@ -521,8 +580,8 @@ class GameState:
     def search(self, *, silent_if_nothing: bool = False) -> None:
         secret_doors = self.adjacent_secret_door_positions()
 
-        self.turn += 1
-        self.player.time += 1
+        if not self.advance_turn():
+            return
 
         if not secret_doors:
             if not silent_if_nothing:
