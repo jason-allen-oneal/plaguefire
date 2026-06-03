@@ -18,6 +18,7 @@ FG_MAGENTA = "\x1b[35m"
 FG_CYAN = "\x1b[36m"
 FG_WHITE = "\x1b[37m"
 
+FG_BRIGHT_BLACK = "\x1b[90m"
 FG_BRIGHT_RED = "\x1b[91m"
 FG_BRIGHT_GREEN = "\x1b[92m"
 FG_BRIGHT_YELLOW = "\x1b[93m"

@@ -5,7 +5,7 @@ from plaguefire.core.GameState import GameState
 from plaguefire.core.DungeonGeneration import display_tile
 from plaguefire.core.ItemCatalog import get_item_catalog, get_item_description, get_item_name
 from plaguefire.core.SpellCatalog import get_spell_catalog, get_spell_name
-from plaguefire.frontends.telnet.TerminalStyle import center_visible, ljust_visible, section, title, visible_len
+from plaguefire.frontends.telnet.TerminalStyle import BOLD, DIM, FG_BRIGHT_BLACK, FG_BRIGHT_BLUE, FG_BRIGHT_CYAN, FG_BRIGHT_GREEN, FG_BRIGHT_MAGENTA, FG_BRIGHT_RED, FG_BRIGHT_WHITE, FG_BRIGHT_YELLOW, FG_CYAN, FG_GREEN, FG_RED, FG_WHITE, FG_YELLOW, center_visible, color, danger, gold as gold_color, good, ljust_visible, mana as mana_color, muted, section, title, visible_len
 
 
 RESET = "\x1b[0m"
@@ -201,6 +201,74 @@ def render_stats_column(state: GameState, height: int) -> list[str]:
     return stat_lines[:height]
 
 
+
+def color_map_glyph(glyph: str) -> str:
+    if glyph == "@":
+        return color(glyph, BOLD, FG_BRIGHT_WHITE)
+
+    if glyph in {"#", "%"}:
+        return color(glyph, FG_BRIGHT_BLACK)
+
+    if glyph == ".":
+        return color(glyph, FG_WHITE)
+
+    if glyph == ":":
+        return color(glyph, DIM, FG_WHITE)
+
+    if glyph in {"+", "'"}:
+        return color(glyph, FG_BRIGHT_YELLOW)
+
+    if glyph in {"<", ">"}:
+        return color(glyph, BOLD, FG_BRIGHT_YELLOW)
+
+    if glyph == "^":
+        return color(glyph, BOLD, FG_BRIGHT_RED)
+
+    if glyph == "$":
+        return color(glyph, BOLD, FG_BRIGHT_YELLOW)
+
+    if glyph == "!":
+        return color(glyph, BOLD, FG_BRIGHT_CYAN)
+
+    if glyph == "*":
+        return color(glyph, BOLD, FG_BRIGHT_MAGENTA)
+
+    if glyph.isalpha():
+        return color(glyph, BOLD, FG_BRIGHT_RED)
+
+    return glyph
+
+
+def color_status_value(label: str, value: str) -> str:
+    label_text = f"{label}:"
+
+    if label.upper() in {"HP"}:
+        return f"{label_text} {danger(value)}"
+
+    if label.upper() in {"MANA"}:
+        return f"{label_text} {mana_color(value)}"
+
+    if label.upper() in {"GOLD"}:
+        return f"{label_text} {gold_color(value)}"
+
+    return f"{label_text} {value}"
+
+
+def color_hunger_state(value: str) -> str:
+    normalized = str(value).lower()
+
+    if normalized in {"weak", "starving"}:
+        return danger(value)
+
+    if normalized == "hungry":
+        return color(value, FG_BRIGHT_YELLOW)
+
+    if normalized in {"satiated", "well_fed", "well fed"}:
+        return good(value)
+
+    return value
+
+
 def trap_glyph_at(state: GameState, x: int, y: int) -> str | None:
     if not hasattr(state, "traps_on_current_depth"):
         return None
@@ -260,7 +328,8 @@ def adjacent_trap_hint(state: GameState) -> str | None:
 
 
 
-def render_map_area(state: GameState, width: int, height: int) -> list[str]:
+
+def render_map_area(state: GameState, width: int, height: int, *, colorize: bool = False) -> list[str]:
     width = max(1, width)
     height = max(1, height)
 
@@ -281,33 +350,34 @@ def render_map_area(state: GameState, width: int, height: int) -> list[str]:
 
         for screen_x in range(width):
             map_x = left + screen_x
+            glyph = ""
 
             if map_x == state.player_x and map_y == state.player_y:
-                rendered_row.append("@")
-                continue
+                glyph = "@"
+            else:
+                monster = state.monster_at(map_x, map_y)
 
-            monster = state.monster_at(map_x, map_y)
+                if monster is not None and state.is_visible(map_x, map_y):
+                    glyph = monster.glyph
+                elif state.is_visible(map_x, map_y):
+                    trap_glyph = trap_glyph_at(state, map_x, map_y)
 
-            if monster is not None and state.is_visible(map_x, map_y):
-                rendered_row.append(monster.glyph)
-                continue
+                    if trap_glyph is not None:
+                        glyph = trap_glyph
+                    else:
+                        floor_glyph = floor_item_glyph_at(state, map_x, map_y)
+                        glyph = floor_glyph if floor_glyph is not None else tile_for_state(state, map_x, map_y)
+                else:
+                    glyph = tile_for_state(state, map_x, map_y)
 
-            if state.is_visible(map_x, map_y):
-                trap_glyph = trap_glyph_at(state, map_x, map_y)
+            rendered_row.append(color_map_glyph(glyph) if colorize else glyph)
 
-                if trap_glyph is not None:
-                    rendered_row.append(trap_glyph)
-                    continue
+        line = "".join(rendered_row)
 
-                floor_glyph = floor_item_glyph_at(state, map_x, map_y)
-
-                if floor_glyph is not None:
-                    rendered_row.append(floor_glyph)
-                    continue
-
-            rendered_row.append(tile_for_state(state, map_x, map_y))
-
-        lines.append("".join(rendered_row).ljust(width))
+        if colorize:
+            lines.append(ljust_visible(line, width))
+        else:
+            lines.append(line.ljust(width))
 
     return lines
 
@@ -366,6 +436,8 @@ def tile_for_render(map_data: list[str], x: int, y: int) -> str:
 
 
 
+
+
 def status_line(state: GameState, width: int, view_width: int, view_height: int) -> str:
     player = state.player
 
@@ -395,7 +467,6 @@ def status_line(state: GameState, width: int, view_width: int, view_height: int)
     padding = max(1, width - len(left) - len(middle) - len(right) - 4)
 
     return f"{left}  {middle}{' ' * padding}{right}"
-
 
 def frame(title_text: str, body: list[str], terminal_width: int, terminal_height: int) -> str:
     width, height = normalize_terminal_size(terminal_width, terminal_height)
