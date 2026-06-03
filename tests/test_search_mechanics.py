@@ -80,13 +80,13 @@ def test_search_success_chance_is_bounded():
     state.player.stats["INT"] = 3
     state.player.stats["WIS"] = 3
 
-    assert 20 <= state.search_success_chance() <= 95
+    assert 10 <= state.search_success_chance() <= 95
 
     state.player.stats["INT"] = 25
     state.player.stats["WIS"] = 25
     state.player.character_class = "Rogue"
 
-    assert 20 <= state.search_success_chance() <= 95
+    assert 10 <= state.search_success_chance() <= 95
 
 
 def test_search_chance_is_reasonable_for_default_character():
@@ -104,3 +104,49 @@ def test_searching_ability_improves_search_chance():
     high = state.search_success_chance()
 
     assert high > low
+
+
+def test_manual_search_is_better_than_search_mode():
+    state = GameState()
+
+    assert state.search_success_chance(passive=False) > state.search_success_chance(passive=True)
+
+
+def test_attributes_affect_secret_door_search_chance():
+    state = GameState()
+
+    state.player.stats["INT"] = 8
+    state.player.stats["WIS"] = 8
+    low = state.search_success_chance()
+
+    state.player.stats["INT"] = 18
+    state.player.stats["WIS"] = 18
+    high = state.search_success_chance()
+
+    assert high > low
+
+
+def test_class_affects_secret_door_search_chance():
+    state = GameState()
+
+    state.player.character_class = "Warrior"
+    warrior = state.search_success_chance()
+
+    state.player.character_class = "Rogue"
+    rogue = state.search_success_chance()
+
+    assert rogue > warrior
+
+
+def test_search_remains_adjacent_only():
+    state = GameState()
+    state.map_data = [
+        "#######",
+        "#@...s#",
+        "#.....#",
+        "#######",
+    ]
+    state.player_x = 1
+    state.player_y = 1
+
+    assert state.adjacent_secret_door_positions() == []

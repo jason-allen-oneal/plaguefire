@@ -529,7 +529,7 @@ class GameState:
                 self.log("You search carefully, but find nothing.")
             return
 
-        chance = self.search_success_chance()
+        chance = self.search_success_chance(passive=silent_if_nothing)
         found: list[tuple[int, int]] = []
 
         for x, y in secret_doors:
@@ -578,43 +578,55 @@ class GameState:
 
         return positions
 
-    def search_success_chance(self) -> int:
-        intelligence = self.player.get_modifier("INT")
-        wisdom = self.player.get_modifier("WIS")
+    def search_success_chance(self, *, passive: bool = False) -> int:
+        intelligence_bonus = self.player.get_modifier("INT")
+        wisdom_bonus = self.player.get_modifier("WIS")
 
         class_bonus = {
             "Rogue": 20,
-            "Ranger": 12,
+            "Ranger": 14,
             "Priest": 8,
             "Mage": 8,
             "Warrior": 5,
+            "Paladin": 5,
         }.get(self.player.character_class, 0)
 
         ability_bonus = self.search_ability_bonus()
+        active_bonus = 10 if not passive else 0
 
-        # Secret doors should be hidden, not miserable.
-        # A normal character should have a fair chance when actively searching.
-        chance = 55 + intelligence * 5 + wisdom * 4 + class_bonus + ability_bonus
+        # Adjacent-only searching needs a fair per-turn chance.
+        # Hidden doors remain hidden because you must be adjacent and the roll
+        # can still fail, but attributes and search skill now matter.
+        chance = (
+            35
+            + active_bonus
+            + intelligence_bonus * 6
+            + wisdom_bonus * 5
+            + class_bonus
+            + ability_bonus
+        )
 
-        return max(20, min(95, chance))
+        return max(10, min(95, chance))
 
     def search_ability_bonus(self) -> int:
-        best = 0
+        searching = self.ability_value("searching", "search", "Searching")
+        perception = self.ability_value("perception", "Perception")
 
-        for key in ("search", "searching", "perception", "Perception", "Searching"):
+        # Old Plaguefire ability values are small ratings like 3.5, not 0-100.
+        # Make them meaningful. Searching is primary; perception helps.
+        return int(searching * 4 + perception * 2)
+
+    def ability_value(self, *keys: str) -> float:
+        for key in keys:
             if key not in self.player.abilities:
                 continue
 
             try:
-                value = float(self.player.abilities[key])
+                return float(self.player.abilities[key])
             except (TypeError, ValueError):
-                continue
+                return 0.0
 
-            # Old Plaguefire ability values are small decimals/ratings.
-            # Make them matter without letting them dominate the whole roll.
-            best = max(best, int(value * 2))
-
-        return best
+        return 0.0
 
     def refresh_fov(self) -> None:
         if self.player.depth <= 0:
