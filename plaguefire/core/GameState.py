@@ -867,7 +867,6 @@ class GameState:
             return
 
         dungeon = self.dungeon_cache.get(depth)
-
         if dungeon is None:
             return
 
@@ -899,7 +898,6 @@ class GameState:
         rng.shuffle(possible_positions)
 
         target_count = monster_target_count(depth, len(possible_positions))
-
         monsters: list[Monster] = []
 
         for x, y in possible_positions[:target_count]:
@@ -907,11 +905,14 @@ class GameState:
             monster.x = x
             monster.y = y
             monster.depth = depth
+            monster.awake = self.monster_starts_awake(monster, rng)
             monsters.append(monster)
 
         self.monsters_by_depth[depth] = monsters
 
     def attack_monster(self, monster: Monster) -> None:
+        monster.awake = True
+
         damage = self.player_attack_damage()
 
         killed = monster.take_damage(damage)
@@ -952,14 +953,104 @@ class GameState:
 
     def monsters_take_turn(self) -> None:
         for monster in list(self.living_monsters_on_current_depth()):
+            if not monster.is_alive:
+                continue
+
+            if not monster.awake:
+                if self.should_wake_monster(monster):
+                    monster.awake = True
+                    self.log(f"The {monster.name} stirs.")
+                    continue
+                else:
+                    continue
+
             if self.is_adjacent(monster.x, monster.y, self.player_x, self.player_y):
                 self.monster_attack_player(monster)
                 continue
 
-            if not self.is_visible(monster.x, monster.y):
+            if self.monster_can_use_ranged_attack(monster):
+                self.monster_ranged_attack_player(monster)
                 continue
 
-            self.move_monster_toward_player(monster)
+            if self.monster_can_sense_player(monster):
+                self.move_monster_toward_player(monster)
+                continue
+
+            self.wander_monster(monster)
+
+    def monster_starts_awake(self, monster: Monster, rng: random.Random) -> bool:
+        tags = self.monster_tag_set(monster)
+
+        if "never_sleep" in tags or "ai:aggressive" in tags or "aggressive" in tags:
+            return True
+
+        if "undead" in tags or "construct" in tags:
+            return rng.randint(1, 100) <= 75
+
+        if "animal" in tags or "beast" in tags:
+            return rng.randint(1, 100) <= 45
+
+        return rng.randint(1, 100) <= 60
+
+    def monster_tag_set(self, monster: Monster) -> set[str]:
+        return {str(tag).lower() for tag in getattr(monster, "tags", [])}
+
+    def monster_distance_to_player(self, monster: Monster) -> int:
+        return abs(monster.x - self.player_x) + abs(monster.y - self.player_y)
+
+    def should_wake_monster(self, monster: Monster) -> bool:
+        distance = self.monster_distance_to_player(monster)
+
+        if distance <= 1:
+            return True
+
+        if self.is_visible(monster.x, monster.y) and distance <= self.monster_awareness_range(monster):
+            return random.randint(1, 100) <= self.monster_wake_chance(monster, distance)
+
+        # Nearby noise can wake things even outside direct sight.
+        if distance <= 3:
+            return random.randint(1, 100) <= 35
+
+        return False
+
+    def monster_wake_chance(self, monster: Monster, distance: int) -> int:
+        tags = self.monster_tag_set(monster)
+        chance = 55 - distance * 5
+
+        if "ai:aggressive" in tags or "aggressive" in tags:
+            chance += 25
+
+        if "animal" in tags or "beast" in tags:
+            chance += 10
+
+        if "undead" in tags:
+            chance += 15
+
+        if "sleepy" in tags or "sluggish" in tags:
+            chance -= 25
+
+        return max(5, min(95, chance))
+
+    def monster_awareness_range(self, monster: Monster) -> int:
+        tags = self.monster_tag_set(monster)
+        awareness = 8
+
+        if "ai:aggressive" in tags or "aggressive" in tags:
+            awareness += 4
+
+        if "ranged" in tags or "caster" in tags or "ai:ranged" in tags or "ai:caster" in tags:
+            awareness += 3
+
+        if "blind" in tags:
+            awareness = 3
+
+        return awareness
+
+    def monster_can_sense_player(self, monster: Monster) -> bool:
+        if self.is_visible(monster.x, monster.y):
+            return True
+
+        return self.monster_distance_to_player(monster) <= max(3, self.monster_awareness_range(monster) // 2)
 
     def monster_attack_player(self, monster: Monster) -> None:
         damage = max(0, monster.attack_damage - max(0, self.player.armor_class // 3))
@@ -974,6 +1065,60 @@ class GameState:
             return
 
         self.log(f"The {monster.name} hits you for {damage} damage.")
+
+    def monster_can_use_ranged_attack(self, monster: Monster) -> bool:
+        tags = self.monster_tag_set(monster)
+
+        if not ({"ranged", "caster", "archer", "ai:ranged", "ai:caster"} & tags):
+            return False
+
+        distance = self.monster_distance_to_player(monster)
+
+        if distance <= 1 or distance > 8:
+            return False
+
+        if not self.monster_has_clear_line_to_player(monster):
+            return False
+
+        # Do not let ranged monsters fire every single turn forever.
+        return random.randint(1, 100) <= 55
+
+    def monster_ranged_attack_player(self, monster: Monster) -> None:
+        damage = max(1, monster.attack_damage // 2)
+
+        tags = self.monster_tag_set(monster)
+        if "caster" in tags or "ai:caster" in tags:
+            message = f"The {monster.name} casts at you for {damage} damage."
+        else:
+            message = f"The {monster.name} shoots you for {damage} damage."
+
+        died = self.player.take_damage(damage)
+        self.log(message)
+
+        if died:
+            self.log("You die.")
+            self.screen = "game_over"
+
+    def monster_has_clear_line_to_player(self, monster: Monster) -> bool:
+        if monster.x != self.player_x and monster.y != self.player_y:
+            return False
+
+        dx = sign(self.player_x - monster.x)
+        dy = sign(self.player_y - monster.y)
+
+        x = monster.x + dx
+        y = monster.y + dy
+
+        while (x, y) != (self.player_x, self.player_y):
+            tile = self.tile_at(x, y)
+
+            if tile in {WALL, SOLID_ROCK, CLOSED_DOOR, SECRET_DOOR}:
+                return False
+
+            x += dx
+            y += dy
+
+        return True
 
     def move_monster_toward_player(self, monster: Monster) -> None:
         dx = sign(self.player_x - monster.x)
@@ -992,12 +1137,64 @@ class GameState:
             if self.monster_at(x, y) is not None:
                 continue
 
+            tile = self.tile_at(x, y)
+
+            if tile == CLOSED_DOOR and self.monster_can_open_doors(monster):
+                self.set_tile(x, y, OPEN_DOOR)
+                self.log(f"The {monster.name} opens a door.")
+                return
+
             if not self.is_walkable(x, y):
                 continue
 
             monster.x = x
             monster.y = y
             return
+
+    def monster_can_open_doors(self, monster: Monster) -> bool:
+        tags = self.monster_tag_set(monster)
+        return "can_open_doors" in tags or "opens_doors" in tags or "ai:smart" in tags
+
+    def wander_monster(self, monster: Monster) -> None:
+        if random.randint(1, 100) > self.monster_wander_chance(monster):
+            return
+
+        rng = random.Random(self.turn * 8191 + monster.x * 131 + monster.y * 17 + len(monster.name))
+        directions = [
+            (-1, -1), (0, -1), (1, -1),
+            (-1, 0),           (1, 0),
+            (-1, 1),  (0, 1),  (1, 1),
+        ]
+        rng.shuffle(directions)
+
+        for dx, dy in directions:
+            x = monster.x + dx
+            y = monster.y + dy
+
+            if (x, y) == (self.player_x, self.player_y):
+                return
+
+            if self.monster_at(x, y) is not None:
+                continue
+
+            if not self.is_walkable(x, y):
+                continue
+
+            monster.x = x
+            monster.y = y
+            return
+
+    def monster_wander_chance(self, monster: Monster) -> int:
+        tags = self.monster_tag_set(monster)
+
+        if "erratic" in tags or "bat" in monster.name.lower():
+            return 75
+
+        if "guard" in tags or "stationary" in tags:
+            return 10
+
+        return 25
+
 
     def is_adjacent(self, x1: int, y1: int, x2: int, y2: int) -> bool:
         return max(abs(x1 - x2), abs(y1 - y2)) == 1
