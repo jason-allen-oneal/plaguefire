@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from plaguefire.core.ItemCatalog import get_item_name
 from plaguefire.core.SpellCatalog import get_spell_name
 from plaguefire.frontends.telnet.ClientSession import ClientSession
@@ -38,22 +39,44 @@ def render_client(session: ClientSession) -> str:
 
 
 def render_title(session: ClientSession) -> str:
-    body = [
-        "A roguelike of ash, hunger, buried gods,",
-        "and things that should have stayed dead.",
-        "",
-        "n   New or existing player",
-        "l   Login by handle",
-        "q   Quit",
-        "",
-        "No passwords are used over Telnet.",
+    logo = [
+        " ██▓███   ██▓    ▄▄▄        ▄████  █    ██ ▓█████   █████▒██▓ ██▀███  ▓█████ ",
+        "▓██░  ██▒▓██▒   ▒████▄     ██▒ ▀█▒ ██  ▓██▒▓█   ▀ ▓██   ▒▓██▒▓██ ▒ ██▒▓█   ▀ ",
+        "▓██░ ██▓▒▒██░   ▒██  ▀█▄  ▒██░▄▄▄░▓██  ▒██░▒███   ▒████ ░▒██▒▓██ ░▄█ ▒▒███   ",
+        "▒██▄█▓▒ ▒▒██░   ░██▄▄▄▄██ ░▓█  ██▓▓▓█  ░██░▒▓█  ▄ ░▓█▒  ░░██░▒██▀▀█▄  ▒▓█  ▄ ",
+        "▒██▒ ░  ░░██████▒▓█   ▓██▒░▒▓███▀▒▒▒█████▓ ░▒████▒░▒█░   ░██░░██▓ ▒██▒░▒████▒",
+        "▒▓▒░ ░  ░░ ▒░▓  ░▒▒   ▓▒█░ ░▒   ▒ ░▒▓▒ ▒ ▒ ░░ ▒░ ░ ▒ ░   ░▓  ░ ▒▓ ░▒▓░░░ ▒░ ░",
+        "░▒ ░     ░ ░ ▒  ░ ▒   ▒▒ ░  ░   ░ ░░▒░ ░ ░  ░ ░  ░ ░      ▒ ░  ░▒ ░ ▒░ ░ ░  ░",
+        "░░         ░ ░    ░   ▒   ░ ░   ░  ░░░ ░ ░    ░    ░ ░    ▒ ░  ░░   ░    ░   ",
+        "             ░  ░     ░  ░      ░    ░        ░  ░        ░     ░        ░  ░",
     ]
 
+    inner_width = max(1, session.terminal_width - 4)
+
+    def center(line: str) -> str:
+        return line.center(inner_width).rstrip()
+
+    if inner_width >= max(len(line) for line in logo):
+        body = [center(line) for line in logo]
+    else:
+        body = [center("P L A G U E F I R E")]
+
+    body.extend(
+        [
+            "",
+            center("The ley lines broke. Stone became glass. Wood became bone."),
+            center("Greyharbor endured, fattened by trade and rotted by hunger."),
+            "",
+            center("Beneath the city, the old fire still remembers."),
+            "",
+            center("n  New Character        l  Load Character        q  Quit"),
+        ]
+    )
+
     if session.message:
-        body.extend(["", session.message])
+        body.extend(["", center(session.message)])
 
     return frame("PLAGUEFIRE", body, session.terminal_width, session.terminal_height)
-
 
 def render_username_input(session: ClientSession) -> str:
     body = [
@@ -71,35 +94,107 @@ def render_username_input(session: ClientSession) -> str:
 
 
 def render_character_list(session: ClientSession) -> str:
-    body = []
+    inner_width = max(1, session.terminal_width - 4)
+
+    def center(line: str = "") -> str:
+        return line.center(inner_width).rstrip()
+
+    body = [
+        center("SELECT CHARACTER"),
+        center(),
+    ]
 
     if not session.characters:
-        body.append("No saved characters.")
+        body.extend(
+            [
+                center("No saved characters found."),
+                center(),
+                center("n  New Character        Esc  Back        q  Quit"),
+            ]
+        )
     else:
-        for index, slot in enumerate(session.characters, start=1):
-            body.append(f"{index}. {slot.name}")
+        body.extend(
+            [
+                center("Name          Race       Class       Level   Location     Status"),
+                center("-" * 72),
+            ]
+        )
 
-    body.extend(
-        [
-            "",
-            "n   Create new character",
-            "r   Refresh list",
-            "1-9 Load character",
-            "Esc Return to title",
-            "q   Quit",
-        ]
-    )
+        for index, slot in enumerate(session.characters[:9], start=1):
+            body.append(center(character_list_row(index, slot)))
+
+        body.extend(
+            [
+                center(),
+                center("Commands:  1-9 Load    n New    Esc Back    q Quit"),
+            ]
+        )
 
     if session.message:
-        body.extend(["", session.message])
+        body.extend([center(), center(session.message)])
 
-    return frame(
-        f"CHARACTERS FOR {session.username}",
-        body,
-        session.terminal_width,
-        session.terminal_height,
+    return frame("LOAD CHARACTER", body, session.terminal_width, session.terminal_height)
+
+
+def character_list_row(index, slot) -> str:
+    record = character_list_record(slot)
+
+    return (
+        f"{index:<2} "
+        f"{record['name']:<12.12}  "
+        f"{record['race']:<9.9}  "
+        f"{record['character_class']:<10.10}  "
+        f"{record['level']:<5.5}  "
+        f"{record['location']:<11.11}  "
+        f"{record['status']}"
     )
 
+
+def character_list_record(slot) -> dict[str, str]:
+    fallback = {
+        "name": slot.name,
+        "race": "Unknown",
+        "character_class": "Unknown",
+        "level": "1",
+        "location": "Unknown",
+        "status": "Alive",
+    }
+
+    try:
+        data = json.loads(slot.path.read_text(encoding="utf-8"))
+    except Exception:
+        return fallback
+
+    game_data = data.get("game", {})
+    player_data = game_data.get("player") or data.get("player", {})
+
+    name = str(player_data.get("name") or slot.name)
+    race = str(player_data.get("race") or "Unknown")
+    character_class = str(player_data.get("character_class") or "Unknown")
+    level = str(player_data.get("level") or 1)
+
+    try:
+        depth = int(player_data.get("depth", 0))
+    except (TypeError, ValueError):
+        depth = 0
+
+    location = "Town" if depth <= 0 else f"Dungeon {depth}"
+
+    try:
+        hp = int(player_data.get("hp", 1))
+    except (TypeError, ValueError):
+        hp = 1
+
+    status = "Dead" if game_data.get("screen") == "game_over" or hp <= 0 else "Alive"
+
+    return {
+        "name": name,
+        "race": race,
+        "character_class": character_class,
+        "level": level,
+        "location": location,
+        "status": status,
+    }
 
 def render_character_name_input(session: ClientSession) -> str:
     body = [
