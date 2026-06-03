@@ -9,6 +9,10 @@ class Direction(Enum):
     SOUTH = "south"
     WEST = "west"
     EAST = "east"
+    NORTHWEST = "northwest"
+    NORTHEAST = "northeast"
+    SOUTHWEST = "southwest"
+    SOUTHEAST = "southeast"
 
 
 DIRECTION_DELTAS: dict[Direction, tuple[int, int]] = {
@@ -16,8 +20,11 @@ DIRECTION_DELTAS: dict[Direction, tuple[int, int]] = {
     Direction.SOUTH: (0, 1),
     Direction.WEST: (-1, 0),
     Direction.EAST: (1, 0),
+    Direction.NORTHWEST: (-1, -1),
+    Direction.NORTHEAST: (1, -1),
+    Direction.SOUTHWEST: (-1, 1),
+    Direction.SOUTHEAST: (1, 1),
 }
-
 
 class ActionType(Enum):
     MOVE = "move"

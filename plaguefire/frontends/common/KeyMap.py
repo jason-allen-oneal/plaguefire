@@ -9,6 +9,17 @@ KEYMAP: dict[str, Action] = {
     "LEFT": Action.move(Direction.WEST),
     "RIGHT": Action.move(Direction.EAST),
 
+    # Original UMoria keypad movement.
+    "7": Action.move(Direction.NORTHWEST),
+    "8": Action.move(Direction.NORTH),
+    "9": Action.move(Direction.NORTHEAST),
+    "4": Action.move(Direction.WEST),
+    "5": Action.wait(),
+    "6": Action.move(Direction.EAST),
+    "1": Action.move(Direction.SOUTHWEST),
+    "2": Action.move(Direction.SOUTH),
+    "3": Action.move(Direction.SOUTHEAST),
+
     ".": Action.wait(),
     "SPACE": Action.wait(),
 

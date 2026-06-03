@@ -114,6 +114,7 @@ def generate_dungeon(
     door_positions.extend(add_extra_connections(grid, rooms, rng))
     add_walls_around_corridors(grid)
     mark_doors(grid, door_positions, rng)
+    mark_secret_connectors_between_carved_areas(grid, rng)
 
     upstairs_room = rooms[0]
     downstairs_room = farthest_room_from(upstairs_room, rooms)
@@ -276,6 +277,76 @@ def mark_doors(
     if actual_doors and not any(grid[y][x] == SECRET_DOOR for x, y in actual_doors):
         x, y = rng.choice(actual_doors)
         grid[y][x] = SECRET_DOOR
+
+
+def mark_secret_connectors_between_carved_areas(
+    grid: list[list[str]],
+    rng: random.Random,
+) -> None:
+    candidates = secret_connector_candidates(grid)
+
+    if not candidates:
+        return
+
+    rng.shuffle(candidates)
+
+    # These are extra "that wall looks suspicious" secret doors. Keep them
+    # limited so the dungeon does not become a hidden-door maze.
+    target = max(1, min(6, len(candidates) // 8))
+
+    placed = 0
+
+    for x, y in candidates:
+        if placed >= target:
+            break
+
+        if has_adjacent_door(grid, x, y):
+            continue
+
+        grid[y][x] = SECRET_DOOR
+        placed += 1
+
+
+def secret_connector_candidates(grid: list[list[str]]) -> list[tuple[int, int]]:
+    candidates: list[tuple[int, int]] = []
+
+    for y in range(1, len(grid) - 1):
+        for x in range(1, len(grid[y]) - 1):
+            if grid[y][x] != WALL:
+                continue
+
+            if is_secret_horizontal_connector(grid, x, y) or is_secret_vertical_connector(grid, x, y):
+                candidates.append((x, y))
+
+    return candidates
+
+
+def is_secret_horizontal_connector(grid: list[list[str]], x: int, y: int) -> bool:
+    left = grid[y][x - 1]
+    right = grid[y][x + 1]
+    up = grid[y - 1][x]
+    down = grid[y + 1][x]
+
+    return (
+        left in FLOOR_TILES
+        and right in FLOOR_TILES
+        and up in {WALL, SOLID_ROCK}
+        and down in {WALL, SOLID_ROCK}
+    )
+
+
+def is_secret_vertical_connector(grid: list[list[str]], x: int, y: int) -> bool:
+    left = grid[y][x - 1]
+    right = grid[y][x + 1]
+    up = grid[y - 1][x]
+    down = grid[y + 1][x]
+
+    return (
+        up in FLOOR_TILES
+        and down in FLOOR_TILES
+        and left in {WALL, SOLID_ROCK}
+        and right in {WALL, SOLID_ROCK}
+    )
 
 
 def has_adjacent_door(grid: list[list[str]], x: int, y: int) -> bool:
