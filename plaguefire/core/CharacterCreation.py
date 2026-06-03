@@ -105,15 +105,9 @@ def stat_modifier(stats: dict[str, int], stat_percentiles: dict[str, int], stat_
 
 
 def generate_history(race_name: str, rng: random.Random) -> dict[str, Any]:
-    table = HISTORY_TABLES.get(race_name) or HISTORY_TABLES["Human"]
-    entry = dict(rng.choice(table))
+    from plaguefire.core.Backstory import generate_backstory
 
-    entry.setdefault("text", "Your early days are unremarkable.")
-    entry.setdefault("social", 50)
-    entry.setdefault("gold", 100)
-
-    return entry
-
+    return generate_backstory(race_name, rng)
 
 def roll_height_weight(race_name: str, sex: str, rng: random.Random) -> tuple[int, int]:
     race_profile = PHYSICAL_PROFILES.get(race_name) or PHYSICAL_PROFILES["Human"]
