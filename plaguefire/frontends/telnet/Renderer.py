@@ -5,7 +5,7 @@ from plaguefire.core.GameState import GameState
 from plaguefire.core.DungeonGeneration import display_tile
 from plaguefire.core.ItemCatalog import get_item_catalog, get_item_description, get_item_name
 from plaguefire.core.SpellCatalog import get_spell_catalog, get_spell_name
-from plaguefire.frontends.telnet.TerminalStyle import BOLD, DIM, FG_BRIGHT_BLACK, FG_BRIGHT_BLUE, FG_BRIGHT_CYAN, FG_BRIGHT_GREEN, FG_BRIGHT_MAGENTA, FG_BRIGHT_RED, FG_BRIGHT_WHITE, FG_BRIGHT_YELLOW, FG_CYAN, FG_GREEN, FG_RED, FG_WHITE, FG_YELLOW, center_visible, color, danger, gold as gold_color, good, ljust_visible, mana as mana_color, muted, section, selected, title, visible_len, visible_slice
+from plaguefire.frontends.telnet.TerminalStyle import BOLD, DIM, FG_BRIGHT_BLACK, FG_BRIGHT_BLUE, FG_BRIGHT_CYAN, FG_BRIGHT_GREEN, FG_BRIGHT_MAGENTA, FG_BRIGHT_RED, FG_BRIGHT_WHITE, FG_BRIGHT_YELLOW, FG_CYAN, FG_GREEN, FG_RED, FG_WHITE, FG_YELLOW, center_visible, color, danger, gold as gold_color, good, ljust_visible, mana as mana_color, muted, section, selected, title, visible_len, visible_slice, warning
 
 
 RESET = "\x1b[0m"
@@ -1236,6 +1236,35 @@ def render_message_log_screen(state: GameState, terminal_width: int, terminal_he
 
 
 
+
+def shop_mode_label(mode: str) -> str:
+    mode_upper = str(mode).upper()
+
+    if mode_upper == "BUY":
+        return color(mode_upper, BOLD, FG_BRIGHT_GREEN)
+
+    if mode_upper == "SELL":
+        return color(mode_upper, BOLD, FG_BRIGHT_YELLOW)
+
+    if mode_upper == "SERVICES":
+        return color(mode_upper, BOLD, FG_BRIGHT_MAGENTA)
+
+    return color(mode_upper, BOLD, FG_BRIGHT_WHITE)
+
+
+def shop_command_hint(text: str) -> str:
+    return color(text, FG_BRIGHT_CYAN)
+
+
+def shop_price(value: int) -> str:
+    return gold_color(f"{value:>5}gp")
+
+
+def shop_selected_row(row: str, is_selected: bool) -> str:
+    return selected(row) if is_selected else row
+
+
+
 def render_shop(state: GameState, terminal_width: int, terminal_height: int) -> str:
     shop = state.active_shop()
 
@@ -1243,7 +1272,7 @@ def render_shop(state: GameState, terminal_width: int, terminal_height: int) -> 
         return frame(
             "SHOP",
             [
-                "No shop is active.",
+                danger("No shop is active."),
                 "",
                 "Press Esc to return.",
             ],
@@ -1254,13 +1283,13 @@ def render_shop(state: GameState, terminal_width: int, terminal_height: int) -> 
     player = state.player
 
     body = [
-        f"{shop.display_name}",
-        f"Shopkeeper: {shop.owner_name}",
-        f"Gold: {player.gold}",
-        f"Mode: {state.shop_mode.upper()}",
+        section(shop.display_name),
+        f"Shopkeeper: {color(shop.owner_name, FG_BRIGHT_WHITE)}",
+        f"Gold: {gold_color(str(player.gold))}",
+        f"Mode: {shop_mode_label(state.shop_mode)}",
         "",
-        "b buy    s sell    v services    h haggle    Esc leave",
-        "Up/Down select    Enter confirm",
+        shop_command_hint("b buy    s sell    v services    h haggle    Esc leave"),
+        shop_command_hint("Up/Down select    Enter confirm"),
         "",
     ]
 
@@ -1271,33 +1300,36 @@ def render_shop(state: GameState, terminal_width: int, terminal_height: int) -> 
     elif state.shop_mode == "services":
         body.extend(render_shop_service_lines(state))
     else:
-        body.append("Unknown shop mode.")
+        body.append(warning("Unknown shop mode."))
 
     return frame(shop.display_name.upper(), body, terminal_width, terminal_height)
 
 
 def render_shop_buy_lines(state: GameState) -> list[str]:
     shop = state.active_shop()
-    lines = ["Goods for sale:"]
+    lines = [section("Goods for sale:")]
 
     if shop is None or not shop.item_ids:
-        return lines + ["  No items are currently stocked."]
+        return lines + [muted("  No items are currently stocked.")]
 
     for index, item_id in enumerate(shop.item_ids):
         cursor = ">" if index == state.shop_selection_index else " "
-        lines.append(
-            f"{cursor} {index + 1:>2}. {state.item_display_name(item_id):<32} {state.buy_price(item_id):>5}gp"
+        row = (
+            f"{cursor} {index + 1:>2}. "
+            f"{state.item_display_name(item_id):<32} "
+            f"{shop_price(state.buy_price(item_id))}"
         )
+        lines.append(shop_selected_row(row, index == state.shop_selection_index))
 
     return lines
 
 
 def render_shop_sell_lines(state: GameState) -> list[str]:
-    lines = ["Your unequipped inventory:"]
+    lines = [section("Your unequipped inventory:")]
     sellable_items = state.sellable_inventory_items()
 
     if not sellable_items:
-        return lines + ["  You have nothing unequipped to sell."]
+        return lines + [muted("  You have nothing unequipped to sell.")]
 
     for index, stack in enumerate(sellable_items):
         item_id = stack.get("item_id", "")
@@ -1305,24 +1337,31 @@ def render_shop_sell_lines(state: GameState) -> list[str]:
         cursor = ">" if index == state.shop_selection_index else " "
         sell_price = state.sell_price(item_id)
 
-        lines.append(
-            f"{cursor} {index + 1:>2}. {quantity}x {state.item_display_name(item_id):<28} {sell_price:>5}gp"
+        row = (
+            f"{cursor} {index + 1:>2}. "
+            f"{quantity}x {state.item_display_name(item_id):<28} "
+            f"{shop_price(sell_price)}"
         )
+        lines.append(shop_selected_row(row, index == state.shop_selection_index))
 
     return lines
 
 
 def render_shop_service_lines(state: GameState) -> list[str]:
     shop = state.active_shop()
-    lines = ["Services:"]
+    lines = [section("Services:")]
 
     if shop is None or not shop.services:
-        return lines + ["  No services are currently offered."]
+        return lines + [muted("  No services are currently offered.")]
 
     for index, service in enumerate(shop.services):
         cursor = ">" if index == state.shop_selection_index else " "
-        lines.append(
-            f"{cursor} {index + 1:>2}. {service.name:<22} {service.cost:>5}gp  {service.description}"
+        row = (
+            f"{cursor} {index + 1:>2}. "
+            f"{service.name:<22} "
+            f"{shop_price(service.cost)}  "
+            f"{muted(service.description)}"
         )
+        lines.append(shop_selected_row(row, index == state.shop_selection_index))
 
     return lines
