@@ -432,8 +432,10 @@ class GameState:
 
         self.player_x = target_x
         self.player_y = target_y
-        self.turn += 1
-        self.player.time += 1
+
+        if not self.advance_turn():
+            return
+
         self.refresh_fov()
         self.auto_search_after_move()
 
@@ -1008,8 +1010,9 @@ class GameState:
         damage = self.player_attack_damage()
 
         killed = monster.take_damage(damage)
-        self.turn += 1
-        self.player.time += 1
+
+        if not self.advance_turn():
+            return
 
         if killed:
             self.player.gain_xp(monster.xp_value)
@@ -1947,6 +1950,8 @@ class GameState:
                 for depth, stacks in self.floor_items_by_depth.items()
             },
             "spell_selection_index": self.spell_selection_index,
+            "ground_item_selection_index": self.ground_item_selection_index,
+            "message_scroll_offset": self.message_scroll_offset,
         }
 
     @classmethod
@@ -2003,6 +2008,8 @@ class GameState:
             for depth, stacks in dict(data.get("floor_items_by_depth", {})).items()
         }
         state.spell_selection_index = int(data.get("spell_selection_index", 0))
+        state.ground_item_selection_index = int(data.get("ground_item_selection_index", 0))
+        state.message_scroll_offset = int(data.get("message_scroll_offset", 0))
 
         # Recompute current visibility, but keep explored memory loaded above.
         state.refresh_fov()

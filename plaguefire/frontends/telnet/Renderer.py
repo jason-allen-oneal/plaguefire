@@ -196,27 +196,86 @@ def render_stats_column(state: GameState, height: int) -> list[str]:
     return stat_lines[:height]
 
 
+def trap_glyph_at(state: GameState, x: int, y: int) -> str | None:
+    if not hasattr(state, "traps_on_current_depth"):
+        return None
+
+    for trap in state.traps_on_current_depth():
+        if not trap.get("active", True):
+            continue
+
+        if not trap.get("discovered", False):
+            continue
+
+        if int(trap.get("x", -1)) == x and int(trap.get("y", -1)) == y:
+            return "^"
+
+    return None
+
+
+def floor_item_glyph_at(state: GameState, x: int, y: int) -> str | None:
+    if not hasattr(state, "floor_items_at"):
+        return None
+
+    stacks = state.floor_items_at(x, y)
+
+    if not stacks:
+        return None
+
+    if len(stacks) > 1:
+        return "*"
+
+    item_id = str(stacks[0].get("item_id", ""))
+
+    if item_id == "__gold__":
+        return "$"
+
+    return "!"
+
+
+def player_ground_hint(state: GameState) -> str | None:
+    if not hasattr(state, "floor_items_at"):
+        return None
+
+    if state.floor_items_at(state.player_x, state.player_y):
+        return "Items:g"
+
+    return None
+
+
+def adjacent_trap_hint(state: GameState) -> str | None:
+    if not hasattr(state, "adjacent_discovered_traps"):
+        return None
+
+    if state.adjacent_discovered_traps():
+        return "Trap:D"
+
+    return None
+
+
+
+
 def render_map_area(state: GameState, width: int, height: int) -> list[str]:
-    state.refresh_fov()
+    width = max(1, width)
+    height = max(1, height)
+
+    map_height = len(state.map_data)
+    map_width = max((len(row) for row in state.map_data), default=0)
+
+    max_left = max(0, map_width - width)
+    max_top = max(0, map_height - height)
+
+    left = max(0, min(max_left, state.player_x - width // 2))
+    top = max(0, min(max_top, state.player_y - height // 2))
 
     lines: list[str] = []
 
-    map_width, map_height = map_dimensions(state.map_data)
-    origin_x, origin_y = calculate_view_origin(
-        player_x=state.player_x,
-        player_y=state.player_y,
-        view_width=width,
-        view_height=height,
-        map_width=map_width,
-        map_height=map_height,
-    )
-
     for screen_y in range(height):
-        map_y = origin_y + screen_y
-        rendered_row = []
+        map_y = top + screen_y
+        rendered_row: list[str] = []
 
         for screen_x in range(width):
-            map_x = origin_x + screen_x
+            map_x = left + screen_x
 
             if map_x == state.player_x and map_y == state.player_y:
                 rendered_row.append("@")
@@ -228,12 +287,24 @@ def render_map_area(state: GameState, width: int, height: int) -> list[str]:
                 rendered_row.append(monster.glyph)
                 continue
 
+            if state.is_visible(map_x, map_y):
+                trap_glyph = trap_glyph_at(state, map_x, map_y)
+
+                if trap_glyph is not None:
+                    rendered_row.append(trap_glyph)
+                    continue
+
+                floor_glyph = floor_item_glyph_at(state, map_x, map_y)
+
+                if floor_glyph is not None:
+                    rendered_row.append(floor_glyph)
+                    continue
+
             rendered_row.append(tile_for_state(state, map_x, map_y))
 
-        lines.append("".join(rendered_row))
+        lines.append("".join(rendered_row).ljust(width))
 
     return lines
-
 
 def tile_for_state(state: GameState, x: int, y: int) -> str:
     if not state.is_explored(x, y):
@@ -289,16 +360,28 @@ def tile_for_render(map_data: list[str], x: int, y: int) -> str:
     return display_tile(row[x])
 
 
+
 def status_line(state: GameState, width: int, view_width: int, view_height: int) -> str:
     player = state.player
 
     left = f"Turn {state.turn}"
     middle = f"{state.map_name} Depth {player.depth}"
-    view = f"View {view_width}x{view_height}"
-    right_parts = [view]
+
+    right_parts = [f"View {view_width}x{view_height}"]
 
     if player.hunger_state:
         right_parts.append(player.hunger_state)
+
+    if getattr(state, "search_mode_enabled", False):
+        right_parts.append("Search")
+
+    ground_hint = player_ground_hint(state)
+    if ground_hint:
+        right_parts.append(ground_hint)
+
+    trap_hint = adjacent_trap_hint(state)
+    if trap_hint:
+        right_parts.append(trap_hint)
 
     if player.hp <= max(1, player.max_hp // 4):
         right_parts.append("Weak")
@@ -307,7 +390,6 @@ def status_line(state: GameState, width: int, view_width: int, view_height: int)
     padding = max(1, width - len(left) - len(middle) - len(right) - 4)
 
     return f"{left}  {middle}{' ' * padding}{right}"
-
 
 def frame(title: str, body: list[str], terminal_width: int, terminal_height: int) -> str:
     width, height = normalize_terminal_size(terminal_width, terminal_height)
@@ -771,51 +853,51 @@ def format_height_inches(inches: int) -> str:
     return f"{feet}'{remainder}\""
 
 
+
 def render_help(terminal_width: int, terminal_height: int) -> str:
     body = [
         "Movement:",
-        "  Arrow keys     Move",
+        "  Arrow keys / numpad   Move",
         "  . or Space     Wait/rest",
         "",
-        "Dungeon navigation:",
+        "Dungeon:",
         "  <              Go up stairs",
         "  >              Go down stairs",
         "  s              Search once",
         "  S              Toggle search mode",
-        "",
-        "Character and inventory:",
-        "  i              Inventory",
-        "  e              Equipment/inventory",
-        "  w              Wear/wield from inventory",
-        "  t              Take off from inventory",
-        "  d              Drop from inventory",
-        "  E              Eat/use inventory",
-        "  F              Fill/use inventory",
-        "  {              Inscribe inventory item",
-        "  C              Character sheet",
+        "  D              Disarm adjacent discovered trap",
+        "  g or ,         Open pickup screen / pick up items",
         "",
         "Magic:",
         "  m              Cast/view magic",
-        "  p              Pray/view prayers",
+        "  p              Cast/view magic",
+        "  Enter/c        Cast selected spell",
         "",
-        "Shops:",
-        "  b              Buy mode",
-        "  s              Sell mode while inside shop",
-        "  v              Services mode",
-        "  h              Haggle",
-        "  Enter          Confirm",
+        "Character and inventory:",
+        "  c              Character record",
+        "  C              Character record",
+        "  i              Inventory",
+        "  e              Equipment/inventory",
+        "  w              Wear/wield",
+        "  W              Wear/wield",
+        "  t              Take off",
+        "  T              Take off",
+        "  d              Drop item",
+        "  E or a         Use selected inventory item",
+        "  u              Unequip selected item",
         "",
-        "System:",
+        "Logs and system:",
+        "  L              Message log",
         "  ?              Help",
         "  Esc            Return/back out",
         "  q              Quit",
+        "",
+        "Symbols: @ you   ^ discovered trap   $ gold   ! item   * item pile",
         "",
         "Press Esc to return.",
     ]
 
     return frame("HELP", body, terminal_width, terminal_height)
-
-
 
 def render_character(state: GameState, terminal_width: int, terminal_height: int) -> str:
     player = state.player
