@@ -29,4 +29,4 @@ def test_cannot_eat_non_food_item():
     state.handle_inventory_key("E")
 
     assert state.player.item_quantity("iron_sword") == 1
-    assert any("is not food" in message for message in state.messages)
+    assert any("cannot be used" in message for message in state.messages)
