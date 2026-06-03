@@ -160,6 +160,11 @@ class ClientSession:
 
             return
 
+        if key == "D" and self.game_state.screen == "game":
+            self.game_state.disarm_adjacent_trap()
+            save_game(self.username, self.game_state)
+            return
+
         action = key_to_action(key)
 
         if action is None:

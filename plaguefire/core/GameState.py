@@ -11,7 +11,7 @@ from plaguefire.core.Entities import Monster, random_monster_for_depth
 from plaguefire.core.DungeonGeneration import CLOSED_DOOR, CORRIDOR_FLOOR, OPEN_DOOR, ROOM_FLOOR, SECRET_DOOR, SOLID_ROCK, WALL, DungeonMap, Room, generate_dungeon, monster_target_count
 from plaguefire.core.ItemCatalog import get_item_name, get_item_price
 from plaguefire.core.Hunger import apply_hunger_turn, food_value_for_item, is_food_item, restore_hunger
-from plaguefire.core.TrapCatalog import random_trap_for_depth, roll_dice, trap_spawn_count
+from plaguefire.core.TrapCatalog import get_trap_catalog, random_trap_for_depth, roll_dice, trap_spawn_count
 from plaguefire.core.Shop import ShopDefinition, get_shop
 from plaguefire.core.Town import SHOP_BY_TILE, TOWN_LAYOUT, WALKABLE_TILES, starting_position
 from plaguefire.models.Player import Player
@@ -479,6 +479,143 @@ class GameState:
         self.refresh_fov()
         self.log("Space folds around you.")
 
+    def adjacent_hidden_trap_positions(self) -> list[tuple[int, int]]:
+        positions: list[tuple[int, int]] = []
+
+        for trap in self.traps_on_current_depth():
+            if not trap.get("active", True):
+                continue
+
+            if trap.get("discovered", False):
+                continue
+
+            x = int(trap.get("x", -1))
+            y = int(trap.get("y", -1))
+
+            if max(abs(x - self.player_x), abs(y - self.player_y)) <= 1:
+                positions.append((x, y))
+
+        return positions
+
+    def adjacent_discovered_traps(self) -> list[dict[str, object]]:
+        traps: list[dict[str, object]] = []
+
+        for trap in self.traps_on_current_depth():
+            if not trap.get("active", True):
+                continue
+
+            if not trap.get("discovered", False):
+                continue
+
+            x = int(trap.get("x", -1))
+            y = int(trap.get("y", -1))
+
+            if max(abs(x - self.player_x), abs(y - self.player_y)) <= 1:
+                traps.append(trap)
+
+        return traps
+
+    def trap_detection_chance(self, trap_id: str, *, passive: bool = False) -> int:
+        trap = get_trap_catalog().get(trap_id)
+        difficulty = trap.detection_difficulty if trap is not None else 50
+
+        disarming = self.ability_value("disarming", "disarm", "Disarming")
+        perception = self.ability_value("perception", "Perception")
+        searching = self.ability_value("searching", "search", "Searching")
+
+        class_bonus = {
+            "Rogue": 24,
+            "Ranger": 14,
+            "Mage": 8,
+            "Priest": 6,
+            "Warrior": 3,
+            "Paladin": 5,
+        }.get(self.player.character_class, 0)
+
+        active_bonus = 15 if not passive else 0
+        stat_bonus = self.player.get_modifier("INT") * 5 + self.player.get_modifier("WIS") * 4
+        ability_bonus = round(disarming * 5 + perception * 4 + searching * 3)
+
+        chance = 45 + active_bonus + class_bonus + stat_bonus + ability_bonus - difficulty
+
+        return max(5, min(95, chance))
+
+    def trap_disarm_chance(self, trap_id: str) -> int:
+        trap = get_trap_catalog().get(trap_id)
+        difficulty = trap.disarm_difficulty if trap is not None else 50
+
+        disarming = self.ability_value("disarming", "disarm", "Disarming")
+        perception = self.ability_value("perception", "Perception")
+
+        class_bonus = {
+            "Rogue": 28,
+            "Ranger": 12,
+            "Mage": 8,
+            "Priest": 4,
+            "Warrior": 2,
+            "Paladin": 5,
+        }.get(self.player.character_class, 0)
+
+        stat_bonus = self.player.get_modifier("DEX") * 6 + self.player.get_modifier("INT") * 4
+        ability_bonus = round(disarming * 7 + perception * 3)
+
+        chance = 45 + class_bonus + stat_bonus + ability_bonus - difficulty
+
+        return max(5, min(95, chance))
+
+    def reveal_nearby_traps(self, *, passive: bool = False) -> int:
+        found = 0
+
+        for x, y in self.adjacent_hidden_trap_positions():
+            trap = self.trap_at(x, y)
+
+            if trap is None:
+                continue
+
+            trap_id = str(trap.get("trap_id", ""))
+
+            if random.randint(1, 100) <= self.trap_detection_chance(trap_id, passive=passive):
+                trap["discovered"] = True
+                found += 1
+
+        return found
+
+    def disarm_adjacent_trap(self) -> None:
+        traps = self.adjacent_discovered_traps()
+
+        if not traps:
+            self.log("You see no nearby trap to disarm.")
+            return
+
+        trap = traps[0]
+        trap_id = str(trap.get("trap_id", ""))
+        definition = get_trap_catalog().get(trap_id)
+        trap_name = definition.name if definition is not None else "trap"
+
+        if not self.advance_turn():
+            return
+
+        if random.randint(1, 100) <= self.trap_disarm_chance(trap_id):
+            trap["active"] = False
+            trap["discovered"] = True
+            self.log(f"You disarm the {trap_name}.")
+            self.monsters_take_turn()
+            self.refresh_fov()
+            return
+
+        self.log(f"You fail to disarm the {trap_name}.")
+
+        # Failed disarm can trigger the trap, but not every failure does.
+        if random.randint(1, 100) <= 50:
+            old_x, old_y = self.player_x, self.player_y
+            self.player_x = int(trap.get("x", self.player_x))
+            self.player_y = int(trap.get("y", self.player_y))
+            self.trigger_trap_at_player()
+            self.player_x, self.player_y = old_x, old_y
+
+        self.monsters_take_turn()
+        self.refresh_fov()
+
     def monsters_on_current_depth(self) -> list[Monster]:
         return self.monsters_by_depth.setdefault(self.player.depth, [])
 
@@ -723,11 +860,16 @@ class GameState:
 
     def search(self, *, silent_if_nothing: bool = False) -> None:
         secret_doors = self.adjacent_secret_door_positions()
+        found_traps = self.reveal_nearby_traps(passive=silent_if_nothing)
 
         if not self.advance_turn():
             return
 
         if not secret_doors:
+            if found_traps:
+                self.log("You found a hidden trap." if found_traps == 1 else f"You found {found_traps} hidden traps.")
+                return
+
             if not silent_if_nothing:
                 self.log("You search carefully, but find nothing.")
             return
@@ -740,6 +882,10 @@ class GameState:
                 found.append((x, y))
 
         if not found:
+            if found_traps:
+                self.log("You found a hidden trap." if found_traps == 1 else f"You found {found_traps} hidden traps.")
+                return
+
             if not silent_if_nothing:
                 self.log("You search carefully, but find nothing.")
             return
