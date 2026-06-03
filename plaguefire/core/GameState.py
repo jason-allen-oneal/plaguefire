@@ -442,6 +442,7 @@ class GameState:
         if self.trigger_trap_at_player():
             return
 
+        self.auto_pickup_gold_at_player()
         self.describe_floor_items_at_player()
 
         tile = self.tile_at(target_x, target_y)
@@ -739,8 +740,54 @@ class GameState:
         self.monsters_take_turn()
         self.refresh_fov()
 
+    def floor_non_gold_items_at_player(self) -> list[dict[str, object]]:
+        return [
+            stack
+            for stack in self.floor_items_at(self.player_x, self.player_y)
+            if str(stack.get("item_id", "")) != GOLD_ITEM_ID
+        ]
+
+    def auto_pickup_gold_at_player(self) -> bool:
+        stacks = [
+            stack
+            for stack in self.floor_items_at(self.player_x, self.player_y)
+            if str(stack.get("item_id", "")) == GOLD_ITEM_ID
+        ]
+
+        if not stacks:
+            return False
+
+        amount = sum(int(stack.get("quantity", 1)) for stack in stacks)
+        self.player.gold += amount
+
+        for stack in stacks:
+            self.floor_items_on_current_depth().remove(stack)
+
+        self.log(f"You pick up {amount} gold.")
+        return True
+
+    def handle_space_pickup_key(self) -> bool:
+        self.auto_pickup_gold_at_player()
+
+        stacks = self.floor_non_gold_items_at_player()
+
+        if not stacks:
+            return False
+
+        if len(stacks) == 1:
+            all_stacks_here = self.floor_items_at(self.player_x, self.player_y)
+            index = all_stacks_here.index(stacks[0])
+            self.pickup_floor_item_index(index)
+            return True
+
+        self.ground_item_selection_index = 0
+        self.screen = "ground_items"
+        return True
+
     def open_ground_items_screen(self) -> None:
-        if not self.floor_items_at(self.player_x, self.player_y):
+        self.auto_pickup_gold_at_player()
+
+        if not self.floor_non_gold_items_at_player():
             self.log("There is nothing here to pick up.")
             return
 
@@ -751,7 +798,7 @@ class GameState:
         if self.screen != "ground_items":
             return
 
-        stacks = self.floor_items_at(self.player_x, self.player_y)
+        stacks = self.floor_non_gold_items_at_player()
 
         if key == "ESC":
             self.screen = "game"
@@ -770,8 +817,10 @@ class GameState:
             self.ground_item_selection_index = (self.ground_item_selection_index + 1) % len(stacks)
             return
 
-        if key in {"ENTER", "g", ","}:
-            self.pickup_floor_item_index(self.ground_item_selection_index)
+        if key in {"ENTER", "SPACE"}:
+            all_stacks_here = self.floor_items_at(self.player_x, self.player_y)
+            stack = stacks[self.ground_item_selection_index % len(stacks)]
+            self.pickup_floor_item_index(all_stacks_here.index(stack))
             return
 
     def pickup_floor_item_index(self, index: int) -> None:

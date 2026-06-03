@@ -186,10 +186,10 @@ class ClientSession:
             save_game(self.username, self.game_state)
             return
 
-        if key in {"g", ","} and self.game_state.screen == "game":
-            self.game_state.open_ground_items_screen()
-            save_game(self.username, self.game_state)
-            return
+        if key == "SPACE" and self.game_state.screen == "game":
+            if self.game_state.handle_space_pickup_key():
+                save_game(self.username, self.game_state)
+                return
 
         if key == "L" and self.game_state.screen == "game":
             self.game_state.open_message_log_screen()

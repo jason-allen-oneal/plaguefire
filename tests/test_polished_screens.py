@@ -54,9 +54,9 @@ def test_ground_items_screen_shows_stacks_and_selected_detail():
     output = render(state, 100, 35)
 
     assert "ITEMS ON GROUND" in output
-    assert "34 gold" in output
+    assert "34 gold" not in output
     assert "Selected" in output
-    assert "Enter/g Pick Up" in output
+    assert "Space/Enter Pick Up" in output
 
 
 def test_message_log_screen_shows_recent_events():

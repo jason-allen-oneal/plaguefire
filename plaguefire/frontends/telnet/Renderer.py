@@ -959,7 +959,7 @@ def render_help(terminal_width: int, terminal_height: int) -> str:
         "  s              Search once",
         "  S              Toggle search mode",
         "  D              Disarm adjacent discovered trap",
-        "  g or ,         Open pickup screen / pick up items",
+        "  Space          Pick up one item / open pickup screen",
         "",
         "Magic:",
         "  m              Cast/view magic",
@@ -1156,7 +1156,16 @@ def render_spells(state: GameState, terminal_width: int, terminal_height: int) -
 
 
 def render_ground_items(state: GameState, terminal_width: int, terminal_height: int) -> str:
-    stacks = state.floor_items_at(state.player_x, state.player_y) if hasattr(state, "floor_items_at") else []
+    if hasattr(state, "floor_non_gold_items_at_player"):
+        stacks = state.floor_non_gold_items_at_player()
+    elif hasattr(state, "floor_items_at"):
+        stacks = [
+            stack
+            for stack in state.floor_items_at(state.player_x, state.player_y)
+            if str(stack.get("item_id", "")) != "__gold__"
+        ]
+    else:
+        stacks = []
     selected_index = int(getattr(state, "ground_item_selection_index", 0))
 
     body: list[str] = [
@@ -1202,7 +1211,7 @@ def render_ground_items(state: GameState, terminal_width: int, terminal_height: 
                 for line in ui_wrap_words(description, 72)[:3]:
                     body.append(line)
 
-    body.extend(["", "Enter/g Pick Up      Up/Down Select      Esc Back"])
+    body.extend(["", "Space/Enter Pick Up      Up/Down Select      Esc Back"])
 
     return frame("ITEMS ON GROUND", body, terminal_width, terminal_height)
 

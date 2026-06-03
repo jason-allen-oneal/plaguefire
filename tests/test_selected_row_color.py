@@ -55,7 +55,8 @@ def test_ground_item_selected_row_is_colored_but_text_remains_readable():
 
     assert "\x1b[" in output
     assert "> 1" in plain
-    assert "12 gold" in plain
+    assert "Potion" in plain
+    assert "12 gold" not in plain
 
 
 def test_character_creation_selected_choice_row_is_colored():

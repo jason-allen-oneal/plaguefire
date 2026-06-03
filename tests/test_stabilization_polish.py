@@ -146,7 +146,7 @@ def test_help_lists_new_keys_and_symbols():
 
     assert "D" in output
     assert "Disarm" in output
-    assert "g or ," in output
+    assert "Space" in output
     assert "Message log" in output
     assert "^ discovered trap" in output
     assert "$ gold" in output
