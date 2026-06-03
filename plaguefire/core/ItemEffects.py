@@ -263,6 +263,10 @@ def apply_effect(state, effect: list[Any], *, source_name: str = "item") -> None
         state.log("Power rolls outward from you.")
         return
 
+    if effect_type == "identify":
+        state.identify_first_unknown_item()
+        return
+
     if effect_type in {
         "curse_armor",
         "curse_weapon",

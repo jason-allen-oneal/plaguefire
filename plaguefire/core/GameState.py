@@ -10,7 +10,9 @@ from plaguefire.core.Fov import compute_fov
 from plaguefire.core.Entities import Monster, random_monster_for_depth
 from plaguefire.core.DungeonGeneration import CLOSED_DOOR, CORRIDOR_FLOOR, OPEN_DOOR, ROOM_FLOOR, SECRET_DOOR, SOLID_ROCK, WALL, DungeonMap, Room, generate_dungeon, monster_target_count
 from plaguefire.core.ItemCatalog import get_item_name, get_item_price
+from plaguefire.core.ItemEffects import is_usable_item, use_item_effect
 from plaguefire.core.Hunger import apply_hunger_turn, food_value_for_item, is_food_item, restore_hunger
+from plaguefire.core.Identification import canonical_item_id, display_item_name, is_identifiable_item
 from plaguefire.core.TrapCatalog import get_trap_catalog, random_trap_for_depth, roll_dice, trap_spawn_count
 from plaguefire.core.Shop import ShopDefinition, get_shop
 from plaguefire.core.Town import SHOP_BY_TILE, TOWN_LAYOUT, WALKABLE_TILES, starting_position
@@ -53,6 +55,7 @@ class GameState:
     fov_radius: int = 12
     monsters_by_depth: dict[int, list[Monster]] = field(default_factory=dict)
     traps_by_depth: dict[int, list[dict[str, object]]] = field(default_factory=dict)
+    identified_items: set[str] = field(default_factory=set)
     search_mode_enabled: bool = False
 
     haggle_attempted: set[str] = field(default_factory=set)
@@ -215,6 +218,38 @@ class GameState:
 
             return
 
+    def item_display_name(self, item_id: str) -> str:
+        return display_item_name(item_id, self.identified_items)
+
+    def identify_item(self, item_id: str) -> bool:
+        canonical = canonical_item_id(item_id)
+
+        if not is_identifiable_item(canonical):
+            return False
+
+        if canonical in self.identified_items:
+            return False
+
+        self.identified_items.add(canonical)
+        return True
+
+    def identify_first_unknown_item(self) -> bool:
+        for stack in self.player.inventory:
+            item_id = canonical_item_id(str(stack.get("item_id", "")))
+
+            if not is_identifiable_item(item_id):
+                continue
+
+            if item_id in self.identified_items:
+                continue
+
+            self.identified_items.add(item_id)
+            self.log(f"You identify {get_item_name(item_id)}.")
+            return True
+
+        self.log("You have nothing unknown to identify.")
+        return False
+
     def inventory_selection_count(self) -> int:
         return len(self.player.inventory)
 
@@ -252,23 +287,26 @@ class GameState:
 
         stack = self.player.inventory[index]
         item_id = str(stack.get("item_id", ""))
+        item_name = get_item_name(item_id)
 
-        if not is_food_item(item_id):
-            return False, f"{get_item_name(item_id)} is not food."
+        if not is_usable_item(item_id):
+            return False, f"{item_name} cannot be used."
 
         if not self.player.remove_item(item_id, 1):
-            return False, f"You cannot eat {get_item_name(item_id)}."
+            return False, f"You cannot use {item_name}."
 
-        item_name = get_item_name(item_id)
-        messages = restore_hunger(self.player, food_value_for_item(item_id))
+        success, message = use_item_effect(self, item_id)
 
-        self.log(f"You eat {item_name}.")
+        if not success:
+            self.player.add_item(item_id, 1)
+            return False, message or f"{item_name} cannot be used."
 
-        for message in messages:
-            self.log(message)
+        self.identify_item(item_id)
 
-        self.advance_turn()
-        return True, ""
+        if not self.advance_turn():
+            return True, ""
+
+        return True, message
 
     def wait(self) -> None:
         if not self.advance_turn():
@@ -1423,6 +1461,11 @@ class GameState:
                 str(depth): [monster.to_dict() for monster in monsters]
                 for depth, monsters in self.monsters_by_depth.items()
             },
+            "traps_by_depth": {
+                str(depth): [dict(trap) for trap in traps]
+                for depth, traps in self.traps_by_depth.items()
+            },
+            "identified_items": sorted(self.identified_items),
         }
 
     @classmethod
@@ -1433,33 +1476,27 @@ class GameState:
         state.player_x = int(data.get("player_x", state.player_x))
         state.player_y = int(data.get("player_y", state.player_y))
         state.turn = int(data.get("turn", 0))
+
         # Runtime socket/session state must not be restored from disk.
-        # Saves created after pressing q may contain running=false. Loading
-        # that value causes the Telnet session to close after the first key.
         state.running = True
         state.screen = str(data.get("screen", "game"))
         state.map_data = list(data.get("map_data", state.map_data))
         state.map_name = str(data.get("map_name", state.map_name))
-
         state.dungeon_cache = {
             int(depth): dungeon_from_dict(dungeon_data)
             for depth, dungeon_data in dict(data.get("dungeon_cache", {})).items()
         }
-
         state.active_shop_key = data.get("active_shop_key")
         state.shop_mode = str(data.get("shop_mode", "buy"))
         state.shop_selection_index = int(data.get("shop_selection_index", 0))
         state.inventory_selection_index = int(data.get("inventory_selection_index", 0))
-
         state.haggle_attempted = set(data.get("haggle_attempted", []))
         state.haggle_price_adjustments = dict(data.get("haggle_price_adjustments", {}))
         state.messages = list(data.get("messages", state.messages))[-12:]
-
         state.explored_by_depth = {
             int(depth): positions_from_list(positions)
             for depth, positions in dict(data.get("explored_by_depth", {})).items()
         }
-
         state.fov_radius = int(data.get("fov_radius", state.fov_radius))
         state.search_mode_enabled = bool(data.get("search_mode_enabled", False))
 
@@ -1472,10 +1509,17 @@ class GameState:
             ]
             for depth, monsters in dict(data.get("monsters_by_depth", {})).items()
         }
+        state.traps_by_depth = {
+            int(depth): [dict(trap) for trap in traps]
+            for depth, traps in dict(data.get("traps_by_depth", {})).items()
+        }
+        state.identified_items = {
+            canonical_item_id(str(item_id))
+            for item_id in data.get("identified_items", [])
+        }
 
         # Recompute current visibility, but keep explored memory loaded above.
         state.refresh_fov()
-
         return state
 
     def log(self, message: str) -> None:

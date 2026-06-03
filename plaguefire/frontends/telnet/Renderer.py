@@ -677,7 +677,7 @@ def render_inventory(state: GameState, terminal_width: int, terminal_height: int
             equipped = f" [{equipped_slot}]" if equipped_slot else ""
 
             body.append(
-                f"{cursor} {index + 1:>2}. {quantity}x {get_item_name(item_id)}{equipped}"
+                f"{cursor} {index + 1:>2}. {quantity}x {state.item_display_name(item_id)}{equipped}"
             )
 
     body.extend(["", "Equipment:"])
@@ -686,7 +686,7 @@ def render_inventory(state: GameState, terminal_width: int, terminal_height: int
         if item is None:
             body.append(f"  {slot:<10}: --")
         else:
-            body.append(f"  {slot:<10}: {get_item_name(item.get('item_id', ''))}")
+            body.append(f"  {slot:<10}: {state.item_display_name(item.get('item_id', ''))}")
 
     body.extend(
         [
@@ -766,7 +766,7 @@ def render_shop_buy_lines(state: GameState) -> list[str]:
     for index, item_id in enumerate(shop.item_ids):
         cursor = ">" if index == state.shop_selection_index else " "
         lines.append(
-            f"{cursor} {index + 1:>2}. {get_item_name(item_id):<32} {state.buy_price(item_id):>5}gp"
+            f"{cursor} {index + 1:>2}. {state.item_display_name(item_id):<32} {state.buy_price(item_id):>5}gp"
         )
 
     return lines
@@ -786,7 +786,7 @@ def render_shop_sell_lines(state: GameState) -> list[str]:
         sell_price = state.sell_price(item_id)
 
         lines.append(
-            f"{cursor} {index + 1:>2}. {quantity}x {get_item_name(item_id):<28} {sell_price:>5}gp"
+            f"{cursor} {index + 1:>2}. {quantity}x {state.item_display_name(item_id):<28} {sell_price:>5}gp"
         )
 
     return lines
