@@ -60,6 +60,8 @@ class GameState:
     identified_items: set[str] = field(default_factory=set)
     floor_items_by_depth: dict[int, list[dict[str, object]]] = field(default_factory=dict)
     spell_selection_index: int = 0
+    ground_item_selection_index: int = 0
+    message_scroll_offset: int = 0
     search_mode_enabled: bool = False
 
     haggle_attempted: set[str] = field(default_factory=set)
@@ -734,6 +736,96 @@ class GameState:
 
         self.monsters_take_turn()
         self.refresh_fov()
+
+    def open_ground_items_screen(self) -> None:
+        if not self.floor_items_at(self.player_x, self.player_y):
+            self.log("There is nothing here to pick up.")
+            return
+
+        self.ground_item_selection_index = 0
+        self.screen = "ground_items"
+
+    def handle_ground_items_key(self, key: str) -> None:
+        if self.screen != "ground_items":
+            return
+
+        stacks = self.floor_items_at(self.player_x, self.player_y)
+
+        if key == "ESC":
+            self.screen = "game"
+            return
+
+        if not stacks:
+            self.screen = "game"
+            self.log("There is nothing here.")
+            return
+
+        if key == "UP":
+            self.ground_item_selection_index = (self.ground_item_selection_index - 1) % len(stacks)
+            return
+
+        if key == "DOWN":
+            self.ground_item_selection_index = (self.ground_item_selection_index + 1) % len(stacks)
+            return
+
+        if key in {"ENTER", "g", ","}:
+            self.pickup_floor_item_index(self.ground_item_selection_index)
+            return
+
+    def pickup_floor_item_index(self, index: int) -> None:
+        stacks = self.floor_items_at(self.player_x, self.player_y)
+
+        if not stacks:
+            self.screen = "game"
+            self.log("There is nothing here to pick up.")
+            return
+
+        index = max(0, min(index, len(stacks) - 1))
+        stack = stacks[index]
+        item_id = str(stack.get("item_id", ""))
+        quantity = int(stack.get("quantity", 1))
+
+        if item_id == GOLD_ITEM_ID:
+            self.player.gold += quantity
+            self.log(f"You pick up {quantity} gold.")
+        else:
+            self.player.add_item(item_id, quantity)
+            self.log(f"You pick up {describe_floor_stack(stack)}.")
+
+        self.floor_items_on_current_depth().remove(stack)
+
+        remaining = self.floor_items_at(self.player_x, self.player_y)
+        if remaining:
+            self.ground_item_selection_index %= len(remaining)
+        else:
+            self.ground_item_selection_index = 0
+            self.screen = "game"
+
+        if not self.advance_turn():
+            return
+
+        self.monsters_take_turn()
+        self.refresh_fov()
+
+    def open_message_log_screen(self) -> None:
+        self.message_scroll_offset = 0
+        self.screen = "message_log"
+
+    def handle_message_log_key(self, key: str) -> None:
+        if self.screen != "message_log":
+            return
+
+        if key == "ESC":
+            self.screen = "game"
+            return
+
+        if key == "UP":
+            self.message_scroll_offset = min(len(self.messages), self.message_scroll_offset + 1)
+            return
+
+        if key == "DOWN":
+            self.message_scroll_offset = max(0, self.message_scroll_offset - 1)
+            return
 
     def floor_items_on_current_depth(self) -> list[dict[str, object]]:
         return self.floor_items_by_depth.setdefault(self.player.depth, [])

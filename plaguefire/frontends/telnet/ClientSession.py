@@ -170,6 +170,16 @@ class ClientSession:
 
             return
 
+        if self.game_state.screen == "ground_items":
+            self.game_state.handle_ground_items_key(key)
+            save_game(self.username, self.game_state)
+            return
+
+        if self.game_state.screen == "message_log":
+            self.game_state.handle_message_log_key(key)
+            save_game(self.username, self.game_state)
+            return
+
 
         if key == "D" and self.game_state.screen == "game":
             self.game_state.disarm_adjacent_trap()
@@ -177,7 +187,12 @@ class ClientSession:
             return
 
         if key in {"g", ","} and self.game_state.screen == "game":
-            self.game_state.pickup_current_floor_item()
+            self.game_state.open_ground_items_screen()
+            save_game(self.username, self.game_state)
+            return
+
+        if key == "L" and self.game_state.screen == "game":
+            self.game_state.open_message_log_screen()
             save_game(self.username, self.game_state)
             return
 

@@ -3,8 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from plaguefire.core.GameState import GameState
 from plaguefire.core.DungeonGeneration import display_tile
-from plaguefire.core.ItemCatalog import get_item_name
-from plaguefire.core.SpellCatalog import get_spell_name
+from plaguefire.core.ItemCatalog import get_item_catalog, get_item_description, get_item_name
+from plaguefire.core.SpellCatalog import get_spell_catalog, get_spell_name
 
 
 RESET = "\x1b[0m"
@@ -66,6 +66,10 @@ def render(state: GameState, terminal_width: int = 80, terminal_height: int = 24
 
     if state.screen == "spells":
         return render_spells(state, terminal_width, terminal_height)
+    if state.screen == "ground_items":
+        return render_ground_items(state, terminal_width, terminal_height)
+    if state.screen == "message_log":
+        return render_message_log_screen(state, terminal_width, terminal_height)
 
     if state.screen == "shop":
         return render_shop(state, terminal_width, terminal_height)
@@ -564,6 +568,209 @@ def render_game_over(state: GameState, terminal_width: int, terminal_height: int
     return frame("GAME OVER", body, width, height)
 
 
+def ui_wrap_words(text: str, width: int) -> list[str]:
+    words = str(text).split()
+
+    if not words:
+        return [""]
+
+    lines: list[str] = []
+    current = ""
+
+    for word in words:
+        candidate = word if not current else f"{current} {word}"
+
+        if len(candidate) > width and current:
+            lines.append(current)
+            current = word
+        else:
+            current = candidate
+
+    if current:
+        lines.append(current)
+
+    return lines
+
+
+def pretty_label(value: str) -> str:
+    return str(value).replace("_", " ").replace("-", " ").title()
+
+
+def item_catalog_entry(item_id: str):
+    catalog = get_item_catalog()
+
+    item = catalog.get(item_id)
+    if item is not None:
+        return item
+
+    upper = str(item_id).upper()
+    item = catalog.get(upper)
+    if item is not None:
+        return item
+
+    lowered = str(item_id).lower()
+    for candidate in catalog.items:
+        if candidate.lower() == lowered:
+            return catalog.get(candidate)
+
+    return None
+
+
+def ui_item_name(state: GameState, item_id: str) -> str:
+    if hasattr(state, "item_display_name"):
+        return state.item_display_name(item_id)
+
+    return get_item_name(item_id)
+
+
+def ui_item_real_name(item_id: str) -> str:
+    item = item_catalog_entry(item_id)
+    return item.name if item is not None else get_item_name(item_id)
+
+
+def ui_item_type(item_id: str) -> str:
+    item = item_catalog_entry(item_id)
+
+    if item is None:
+        return "Item"
+
+    item_type = str(item.raw.get("type", item.type))
+    return pretty_label(item_type)[:12]
+
+
+def ui_item_description(item_id: str) -> str:
+    item = item_catalog_entry(item_id)
+
+    if item is None:
+        return ""
+
+    return str(item.description or item.raw.get("description", ""))
+
+
+def ui_item_status(state: GameState, item_id: str) -> str:
+    shown = ui_item_name(state, item_id)
+    real = ui_item_real_name(item_id)
+
+    if shown != real:
+        return "Unknown"
+
+    return "Known"
+
+
+def ui_selected_inventory_stack(state: GameState):
+    if not state.player.inventory:
+        return None
+
+    index = max(0, min(state.inventory_selection_index, len(state.player.inventory) - 1))
+    return state.player.inventory[index]
+
+
+def ui_equipped_status(stack: dict) -> str:
+    slot = stack.get("equipped_slot")
+
+    if slot:
+        return f"Equipped: {slot}"
+
+    return ""
+
+
+def ui_spell_entry(spell_id: str):
+    return get_spell_catalog().get(spell_id)
+
+
+def ui_spell_class_info(spell_id: str, class_name: str) -> dict:
+    spell = ui_spell_entry(spell_id)
+
+    if spell is None:
+        return {}
+
+    info = spell.class_info(class_name)
+
+    if isinstance(info, dict):
+        return info
+
+    return {}
+
+
+def ui_spell_mana(spell_id: str, class_name: str) -> str:
+    info = ui_spell_class_info(spell_id, class_name)
+    return str(info.get("mana", "?"))
+
+
+def ui_spell_fail(spell_id: str, class_name: str) -> str:
+    info = ui_spell_class_info(spell_id, class_name)
+    value = info.get("base_failure", "?")
+    return f"{value}%" if value != "?" else "?"
+
+
+def ui_spell_effect(spell_id: str) -> str:
+    spell = ui_spell_entry(spell_id)
+
+    if spell is None:
+        return "Unknown effect"
+
+    raw = spell.raw
+    effect_type = str(raw.get("effect_type", "")).lower()
+    target = str(raw.get("effect_target", "")).lower()
+
+    if effect_type == "heal":
+        return "Restores hit points"
+
+    if effect_type == "attack":
+        return "Damages nearest visible enemy"
+
+    if effect_type == "detect":
+        if target:
+            return f"Detects {target}"
+        return "Detection magic"
+
+    if effect_type == "teleport":
+        return "Teleportation"
+
+    if effect_type == "light":
+        return "Lights the area"
+
+    if effect_type == "utility":
+        return spell.description or "Utility magic"
+
+    if effect_type == "buff":
+        return "Temporary protection"
+
+    if effect_type == "cleanse":
+        return "Cleanses harmful effects"
+
+    if effect_type == "terrain":
+        return "Alters terrain"
+
+    return spell.description or "Spell effect"
+
+
+def ui_spell_description(spell_id: str) -> str:
+    spell = ui_spell_entry(spell_id)
+
+    if spell is None:
+        return ""
+
+    return spell.description or ui_spell_effect(spell_id)
+
+
+def ui_floor_stack_name(state: GameState, stack: dict) -> str:
+    item_id = str(stack.get("item_id", ""))
+    quantity = int(stack.get("quantity", 1))
+
+    if item_id == "__gold__":
+        return f"{quantity} gold"
+
+    name = ui_item_name(state, item_id)
+    return f"{quantity}x {name}" if quantity != 1 else name
+
+
+def format_height_inches(inches: int) -> str:
+    feet = int(inches) // 12
+    remainder = int(inches) % 12
+    return f"{feet}'{remainder}\""
+
+
 def render_help(terminal_width: int, terminal_height: int) -> str:
     body = [
         "Movement:",
@@ -609,92 +816,121 @@ def render_help(terminal_width: int, terminal_height: int) -> str:
     return frame("HELP", body, terminal_width, terminal_height)
 
 
+
 def render_character(state: GameState, terminal_width: int, terminal_height: int) -> str:
     player = state.player
+    depth = "Town" if player.depth <= 0 else f"Dungeon {player.depth}"
 
-    body = [
-        f"Name: {player.name}",
-        f"Race: {player.race}",
-        f"Class: {player.character_class}",
-        f"Sex: {player.sex}",
-        f"Age: {player.age}",
-        f"Height: {player.height}",
-        f"Weight: {player.weight}",
+    body: list[str] = [
+        f"{player.name}, {player.sex} {player.race} {player.character_class}".strip(),
         "",
-        f"Level: {player.level}",
-        f"XP: {player.xp}/{player.next_level_xp}",
-        f"Gold: {player.gold}",
-        f"HP: {player.hp}/{player.max_hp}",
-        f"Mana: {player.mana}/{player.max_mana}",
-        f"Armor Class: {player.armor_class}",
-        f"Weapon: {player.weapon_name} ({player.weapon_damage})",
+        f"HP   {player.hp}/{player.max_hp:<8} Mana  {player.mana}/{player.max_mana:<8} Food  {pretty_label(player.hunger_state):<12} Gold  {player.gold}",
+        f"XP   {player.xp}/{player.next_level_xp:<8} Level {player.level:<8} Depth {depth}",
+        f"Age  {player.age:<8} Height {format_height_inches(player.height):<8} Weight {player.weight} lb",
         "",
-        "Stats:",
+        "Stats",
+        "-" * 72,
     ]
 
-    for stat, value in player.stats.items():
+    stat_names = ["STR", "INT", "WIS", "DEX", "CON", "CHA"]
+    first_row = []
+    second_row = []
+
+    for stat in stat_names[:3]:
+        value = player.stats.get(stat, 10)
         percentile = player.stat_percentiles.get(stat, 0)
+        text_value = f"{value}/{percentile:02d}" if value >= 18 and percentile else str(value)
+        first_row.append(f"{stat} {text_value:<8}")
 
-        if value >= 18 and percentile:
-            body.append(f"  {stat}: {value}/{percentile}")
-        else:
-            body.append(f"  {stat}: {value}")
+    for stat in stat_names[3:]:
+        value = player.stats.get(stat, 10)
+        percentile = player.stat_percentiles.get(stat, 0)
+        text_value = f"{value}/{percentile:02d}" if value >= 18 and percentile else str(value)
+        second_row.append(f"{stat} {text_value:<8}")
 
-    body.extend(["", "Abilities:"])
+    body.append("   ".join(first_row))
+    body.append("   ".join(second_row))
 
-    for ability, value in sorted(player.abilities.items()):
-        body.append(f"  {ability}: {value}")
+    body.extend(["", "Skills", "-" * 72])
 
-    body.extend(
-        [
-            "",
-            "History:",
-            f"  {player.history}",
-            "",
-            "Press Esc to return.",
-        ]
-    )
+    important = [
+        "fighting",
+        "bows",
+        "stealth",
+        "disarming",
+        "searching",
+        "perception",
+        "saving_throw",
+        "magic_device",
+    ]
+    skill_chunks = []
 
-    return frame("CHARACTER", body, terminal_width, terminal_height)
+    for skill in important:
+        if skill in player.abilities:
+            skill_chunks.append(f"{pretty_label(skill):<14} {player.abilities[skill]}")
 
+    for index in range(0, len(skill_chunks), 2):
+        left = skill_chunks[index]
+        right = skill_chunks[index + 1] if index + 1 < len(skill_chunks) else ""
+        body.append(f"{left:<30} {right}")
+
+    body.extend(["", "History", "-" * 72])
+
+    for line in ui_wrap_words(player.history, 72)[:6]:
+        body.append(line)
+
+    body.extend(["", "Esc Back"])
+
+    return frame("CHARACTER RECORD", body, terminal_width, terminal_height)
 
 def render_inventory(state: GameState, terminal_width: int, terminal_height: int) -> str:
+    player = state.player
     body: list[str] = [
-        "Inventory",
+        f"Burden: {pretty_label(player.encumbrance_level):<14} Gold: {player.gold:<8} Food: {pretty_label(player.hunger_state)}",
         "",
-        "Up/Down select    Enter/e equip    u unequip    d drop    Esc return",
-        "",
+        "#   Item                          Type        Qty   Status",
+        "-" * 72,
     ]
 
-    if not state.player.inventory:
+    if not player.inventory:
         body.append("You are carrying nothing.")
     else:
-        for index, stack in enumerate(state.player.inventory):
-            item_id = stack.get("item_id", "")
+        for index, stack in enumerate(player.inventory):
+            item_id = str(stack.get("item_id", ""))
             quantity = int(stack.get("quantity", 1))
-            equipped_slot = stack.get("equipped_slot")
             cursor = ">" if index == state.inventory_selection_index else " "
-            equipped = f" [{equipped_slot}]" if equipped_slot else ""
+            name = ui_item_name(state, item_id)[:28]
+            item_type = ui_item_type(item_id)[:10]
+            status = ui_equipped_status(stack) or ui_item_status(state, item_id)
 
             body.append(
-                f"{cursor} {index + 1:>2}. {quantity}x {state.item_display_name(item_id)}{equipped}"
+                f"{cursor} {index + 1:<2} {name:<28} {item_type:<10} {quantity:<5} {status}"
             )
 
-    body.extend(["", "Equipment:"])
+    body.extend(["", "Item Details", "-" * 72])
 
-    for slot, item in state.player.equipment_slots().items():
-        if item is None:
-            body.append(f"  {slot:<10}: --")
-        else:
-            body.append(f"  {slot:<10}: {state.item_display_name(item.get('item_id', ''))}")
+    selected = ui_selected_inventory_stack(state)
+    if selected is None:
+        body.append("No item selected.")
+    else:
+        item_id = str(selected.get("item_id", ""))
+        shown_name = ui_item_name(state, item_id)
+        real_name = ui_item_real_name(item_id)
+        description = ui_item_description(item_id)
+
+        body.append(shown_name)
+
+        if shown_name != real_name:
+            body.append("You do not know what this item does.")
+
+        if description:
+            for line in ui_wrap_words(description, 72)[:3]:
+                body.append(line)
 
     body.extend(
         [
             "",
-            f"Armor Class: {state.player.armor_class}",
-            f"Weapon: {state.player.weapon_name} ({state.player.weapon_damage})",
-            "",
-            "Press Esc to return.",
+            "Enter/e Equip      E/a Use      d Drop      u Unequip      Esc Back",
         ]
     )
 
@@ -703,17 +939,113 @@ def render_inventory(state: GameState, terminal_width: int, terminal_height: int
 
 def render_spells(state: GameState, terminal_width: int, terminal_height: int) -> str:
     player = state.player
-    body: list[str] = []
+    body: list[str] = [
+        f"Class: {player.character_class:<12} Mana: {player.mana}/{player.max_mana:<8} Failure modified by INT/WIS",
+        "",
+        "#   Spell                    Mana   Fail   Effect",
+        "-" * 72,
+    ]
 
     if not player.spells:
         body.append("You know no spells.")
     else:
-        for spell_id in player.spells:
-            body.append(f"  - {get_spell_name(spell_id)}")
+        selected_index = int(getattr(state, "spell_selection_index", 0)) % len(player.spells)
 
-    body.extend(["", "Press Esc to return."])
+        for index, spell_id in enumerate(player.spells):
+            cursor = ">" if index == selected_index else " "
+            name = get_spell_name(spell_id)[:24]
+            mana = ui_spell_mana(spell_id, player.character_class)
+            fail = ui_spell_fail(spell_id, player.character_class)
+            effect = ui_spell_effect(spell_id)[:32]
 
-    return frame("SPELLS", body, terminal_width, terminal_height)
+            body.append(f"{cursor} {index + 1:<2} {name:<24} {mana:<6} {fail:<6} {effect}")
+
+        selected_spell = player.spells[selected_index]
+        body.extend(["", "Spell Details", "-" * 72])
+
+        for line in ui_wrap_words(ui_spell_description(selected_spell), 72)[:4]:
+            body.append(line)
+
+    body.extend(["", "Enter/c Cast       Up/Down Select       Esc Back"])
+
+    return frame("SPELLBOOK", body, terminal_width, terminal_height)
+
+
+def render_ground_items(state: GameState, terminal_width: int, terminal_height: int) -> str:
+    stacks = state.floor_items_at(state.player_x, state.player_y) if hasattr(state, "floor_items_at") else []
+    selected_index = int(getattr(state, "ground_item_selection_index", 0))
+
+    body: list[str] = [
+        "You stand over old stone marked by ash and boot tracks.",
+        "",
+        "#   Item                          Qty   Notes",
+        "-" * 72,
+    ]
+
+    if not stacks:
+        body.append("There is nothing here.")
+    else:
+        selected_index %= len(stacks)
+
+        for index, stack in enumerate(stacks):
+            item_id = str(stack.get("item_id", ""))
+            quantity = int(stack.get("quantity", 1))
+            cursor = ">" if index == selected_index else " "
+            name = ui_floor_stack_name(state, stack)[:28]
+
+            if item_id == "__gold__":
+                notes = "Currency"
+            else:
+                notes = ui_item_status(state, item_id)
+
+            body.append(f"{cursor} {index + 1:<2} {name:<28} {quantity:<5} {notes}")
+
+        selected = stacks[selected_index]
+        body.extend(["", "Selected", "-" * 72])
+        body.append(ui_floor_stack_name(state, selected))
+
+        item_id = str(selected.get("item_id", ""))
+        if item_id != "__gold__":
+            description = ui_item_description(item_id)
+            if ui_item_status(state, item_id) == "Unknown":
+                body.append("You do not know what this item does.")
+            elif description:
+                for line in ui_wrap_words(description, 72)[:3]:
+                    body.append(line)
+
+    body.extend(["", "Enter/g Pick Up      Up/Down Select      Esc Back"])
+
+    return frame("ITEMS ON GROUND", body, terminal_width, terminal_height)
+
+
+def render_message_log_screen(state: GameState, terminal_width: int, terminal_height: int) -> str:
+    width, height = normalize_terminal_size(terminal_width, terminal_height)
+    available = max(5, height - 8)
+    offset = max(0, int(getattr(state, "message_scroll_offset", 0)))
+    messages = list(state.messages)
+
+    if offset:
+        end = max(0, len(messages) - offset)
+        start = max(0, end - available)
+        visible = messages[start:end]
+    else:
+        visible = messages[-available:]
+
+    body: list[str] = [
+        "Recent Events" if offset == 0 else "Older Events",
+        "-" * 72,
+    ]
+
+    if not visible:
+        body.append("No messages.")
+    else:
+        for message in visible:
+            body.append(str(message)[:72])
+
+    body.extend(["", "Up/Down Scroll        Esc Back"])
+
+    return frame("MESSAGE LOG", body, width, height)
+
 
 
 def render_shop(state: GameState, terminal_width: int, terminal_height: int) -> str:
