@@ -446,11 +446,12 @@ def tile_for_render(map_data: list[str], x: int, y: int) -> str:
 
 
 
+
 def status_line(state: GameState, width: int, view_width: int, view_height: int) -> str:
     player = state.player
 
-    left = f"Turn {state.turn}"
-    middle = f"{state.map_name} Depth {player.depth}"
+    left = f"Turn {state.turn}  {state.map_name} Depth {player.depth}"
+    center = "Press ? for help"
 
     right_parts = [f"View {view_width}x{view_height}"]
 
@@ -472,9 +473,19 @@ def status_line(state: GameState, width: int, view_width: int, view_height: int)
         right_parts.append("Weak")
 
     right = " ".join(right_parts)
-    padding = max(1, width - len(left) - len(middle) - len(right) - 4)
 
-    return f"{left}  {middle}{' ' * padding}{right}"
+    minimum_width = len(left) + len(center) + len(right) + 4
+
+    if width >= minimum_width:
+        available = width - len(left) - len(center) - len(right)
+        left_gap = max(2, available // 2)
+        right_gap = max(2, available - left_gap)
+        line = f"{left}{' ' * left_gap}{center}{' ' * right_gap}{right}"
+    else:
+        available = max(1, width - len(left) - len(right))
+        line = f"{left}{' ' * available}{right}"
+
+    return line[:width].ljust(width)
 
 def frame(title_text: str, body: list[str], terminal_width: int, terminal_height: int) -> str:
     width, height = normalize_terminal_size(terminal_width, terminal_height)
