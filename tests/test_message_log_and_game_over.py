@@ -72,8 +72,6 @@ def test_game_over_screen_renders():
     output = render(state, 100, 30)
 
     assert "GAME OVER" in output
-    assert "REST IN" in output
-    assert "PEACE" in output
     assert "Final messages:" in output
     assert "You die." in output
     assert "r resurrect in town" in output
@@ -95,9 +93,7 @@ def test_game_over_screen_contains_gravestone():
 
     output = render(state, 100, 30)
 
-    assert "REST IN" in output
-    assert "PEACE" in output
-    assert "Morgath" in output
-    assert "Level 3" in output
-    assert "Depth 2" in output
-    assert "Gold 145" in output
+    assert "MORGATH" in output
+    assert "LEVEL 3" in output
+    assert "DUNGEON 2" in output
+    assert "GOLD 145" in output

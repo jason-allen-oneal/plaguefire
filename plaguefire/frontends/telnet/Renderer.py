@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from plaguefire.core.GameState import GameState
 from plaguefire.core.DungeonGeneration import display_tile
 from plaguefire.core.ItemCatalog import get_item_name
@@ -328,63 +329,240 @@ def frame(title: str, body: list[str], terminal_width: int, terminal_height: int
     return "\r\n".join(lines)
 
 
-def render_game_over(state: GameState, terminal_width: int, terminal_height: int) -> str:
+def overlay_centered_text(line: str, text: str, *, center: int, width: int) -> str:
+    """Overlay text into a fixed-width field without changing line length."""
+    if width <= 0:
+        return line
+
+    original_width = len(line)
+    padded = line.ljust(max(original_width, center + width))
+
+    value = text[:width].center(width)
+    start = max(0, center - width // 2)
+    end = start + width
+
+    return padded[:start] + value + padded[end:original_width]
+
+
+def grave_record_lines(state) -> list[str]:
     player = state.player
+    depth = getattr(player, "depth", 0)
 
-    width, height = normalize_terminal_size(terminal_width, terminal_height)
+    location = "Town" if depth <= 0 else f"Dungeon {depth}"
 
-    epitaph = [
-        " _____________________ ",
-        "/                     \\",
-        "|       REST IN       |",
-        "|        PEACE        |",
-        "|                     |",
-        f"| {player.name[:19].center(19)} |",
-        "|                     |",
-        f"| {'the ' + player.race[:14]:^19} |",
-        f"| {player.character_class[:19].center(19)} |",
-        "|                     |",
-        f"| {'Level ' + str(player.level):^19} |",
-        f"| {'Depth ' + str(player.depth):^19} |",
-        f"| {'Gold ' + str(player.gold):^19} |",
-        "|                     |",
-        "|   slain in the      |",
-        "|   depths below      |",
-        "\\_____________________/",
-        "         |||||         ",
-        "         |||||         ",
+    return [
+        str(player.name).upper(),
+        f"{player.race.upper()} {player.character_class.upper()}",
+        f"LEVEL {player.level}",
+        location.upper(),
+        f"XP {player.experience}   GOLD {player.gold}",
+        "THE OLD FIRE CLAIMED YOU",
     ]
+
+
+def inscribe_grave_art(
+    art: list[str],
+    inscription: list[str],
+    *,
+    start_row: int,
+    center: int,
+    width: int,
+) -> list[str]:
+    result = list(art)
+
+    for offset, line in enumerate(inscription):
+        row = start_row + offset
+
+        if 0 <= row < len(result):
+            result[row] = overlay_centered_text(
+                result[row],
+                line,
+                center=center,
+                width=width,
+            )
+
+    return result
+
+
+
+def load_game_over_art() -> list[str]:
+    art_path = Path(__file__).resolve().parents[2] / "data" / "game_over_rip.txt"
+
+    try:
+        lines = art_path.read_text(encoding="utf-8").splitlines()
+    except FileNotFoundError:
+        return [
+            " _____________________ ",
+            "/                     \\",
+            "|       R  I  P       |",
+            "|                     |",
+            "|                     |",
+            "|                     |",
+            "\\_____________________/",
+        ]
+
+    return trim_text_art(lines)
+
+
+def trim_text_art(lines: list[str]) -> list[str]:
+    if not lines:
+        return []
+
+    rows = [index for index, line in enumerate(lines) if line.strip(" ⠀")]
+    if not rows:
+        return []
+
+    cropped = lines[min(rows): max(rows) + 1]
+    width = max(len(line) for line in cropped)
+    padded = [line.ljust(width) for line in cropped]
+
+    cols = [
+        index
+        for index in range(width)
+        if any(line[index] not in {" ", "⠀"} for line in padded)
+    ]
+
+    if not cols:
+        return [line.rstrip() for line in cropped]
+
+    left = min(cols)
+    right = max(cols) + 1
+
+    return [line[left:right].rstrip() for line in padded]
+
+
+def scale_text_art(lines: list[str], max_width: int, max_height: int) -> list[str]:
+    if not lines:
+        return []
+
+    source_height = len(lines)
+    source_width = max(len(line) for line in lines)
+
+    if source_height <= 0 or source_width <= 0:
+        return []
+
+    padded = [line.ljust(source_width) for line in lines]
+
+    scale = min(max_width / source_width, max_height / source_height, 1.0)
+    target_width = max(1, int(source_width * scale))
+    target_height = max(1, int(source_height * scale))
+
+    result: list[str] = []
+
+    for y in range(target_height):
+        source_y = min(source_height - 1, int(y / scale))
+        chars: list[str] = []
+
+        for x in range(target_width):
+            source_x = min(source_width - 1, int(x / scale))
+            chars.append(padded[source_y][source_x])
+
+        result.append("".join(chars).rstrip())
+
+    return result
+
+
+def overlay_centered_field(line: str, text: str, *, center: int, width: int) -> str:
+    original_width = len(line)
+
+    if original_width <= 0 or width <= 0:
+        return line
+
+    field_width = min(width, original_width)
+    start = max(0, min(original_width - field_width, center - field_width // 2))
+    end = start + field_width
+
+    value = text[:field_width].center(field_width)
+
+    padded = line.ljust(original_width)
+    return padded[:start] + value + padded[end:]
+
+
+def game_over_record_lines(state: GameState) -> list[str]:
+    player = state.player
+    depth = int(getattr(player, "depth", 0))
+    location = "TOWN" if depth <= 0 else f"DUNGEON {depth}"
+    xp = int(getattr(player, "xp", getattr(player, "experience", 0)))
+
+    return [
+        str(player.name).upper(),
+        f"{str(player.race).upper()} {str(player.character_class).upper()}",
+        f"LEVEL {player.level}",
+        location,
+        f"XP {xp}   GOLD {player.gold}",
+        "THE OLD FIRE CLAIMED YOU",
+    ]
+
+
+def inscribe_game_over_art(art: list[str], state: GameState) -> list[str]:
+    if not art:
+        return []
+
+    art_width = max(len(line) for line in art)
+    padded = [line.ljust(art_width) for line in art]
+
+    record = game_over_record_lines(state)
+    longest_record = max(len(line) for line in record)
+
+    # The exact RIP monument has its blank inscription body slightly below
+    # the large RIP letters. After scaling, half height is the safest anchor.
+    start_row = max(0, min(len(padded) - 1, int(len(padded) * 0.52)))
+
+    # Use the center of the scaled monument, not a magic left-side offset.
+    center = art_width // 2
+
+    # Keep enough room for long names without changing the line length.
+    field_width = min(
+        max(1, art_width - 4),
+        max(36, longest_record + 4, int(art_width * 0.55)),
+    )
+
+    for offset, record_line in enumerate(record):
+        row = start_row + offset
+
+        if row >= len(padded):
+            break
+
+        padded[row] = overlay_centered_field(
+            padded[row],
+            record_line,
+            center=center,
+            width=field_width,
+        )
+
+    return [line.rstrip() for line in padded]
+
+
+def render_game_over(state: GameState, terminal_width: int, terminal_height: int) -> str:
+    width, height = normalize_terminal_size(terminal_width, terminal_height)
+    inner_width = max(1, width - 4)
+
+    controls = [
+        "r resurrect in town    d delete character",
+        "m main menu            q quit",
+    ]
+
+    messages = state.messages[-4:]
+    message_lines = ["", "Final messages:"] + [f"  {message}" for message in messages]
+
+    reserved_height = len(controls) + len(message_lines) + 5
+    available_art_height = max(8, height - reserved_height)
+    available_art_width = max(20, inner_width)
+
+    art = load_game_over_art()
+    art = scale_text_art(art, available_art_width, available_art_height)
+    art = inscribe_game_over_art(art, state)
 
     body: list[str] = []
 
-    top_padding = max(0, (height - len(epitaph) - 8) // 2)
+    for line in art:
+        body.append(line.center(inner_width).rstrip())
 
-    for _ in range(top_padding):
-        body.append("")
+    body.extend(message_lines)
+    body.extend(["", *controls])
 
-    for line in epitaph:
-        body.append(line.center(max(25, width - 4)))
+    return frame("GAME OVER", body, width, height)
 
-    body.extend(
-        [
-            "",
-            "Final messages:".center(max(25, width - 4)),
-            "",
-        ]
-    )
-
-    for message in state.messages[-5:]:
-        body.append(message.center(max(25, width - 4)))
-
-    body.extend(
-        [
-            "",
-            "r resurrect in town    d delete character",
-            "m main menu            q quit",
-        ]
-    )
-
-    return frame("GAME OVER", body, terminal_width, terminal_height)
 
 def render_help(terminal_width: int, terminal_height: int) -> str:
     body = [
