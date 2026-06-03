@@ -8,7 +8,7 @@ from plaguefire.core.Action import Action, ActionType, DIRECTION_DELTAS
 from plaguefire.core.CharacterCreation import create_player
 from plaguefire.core.Fov import compute_fov
 from plaguefire.core.Entities import Monster, random_monster_for_depth
-from plaguefire.core.DungeonGeneration import CLOSED_DOOR, CORRIDOR_FLOOR, OPEN_DOOR, ROOM_FLOOR, SECRET_DOOR, DungeonMap, Room, generate_dungeon
+from plaguefire.core.DungeonGeneration import CLOSED_DOOR, CORRIDOR_FLOOR, OPEN_DOOR, ROOM_FLOOR, SECRET_DOOR, SOLID_ROCK, WALL, DungeonMap, Room, generate_dungeon
 from plaguefire.core.ItemCatalog import get_item_name, get_item_price
 from plaguefire.core.Shop import ShopDefinition, get_shop
 from plaguefire.core.Town import SHOP_BY_TILE, TOWN_LAYOUT, WALKABLE_TILES, starting_position
@@ -573,10 +573,57 @@ class GameState:
                 if x == self.player_x and y == self.player_y:
                     continue
 
-                if self.tile_at(x, y) == SECRET_DOOR:
+                if self.is_searchable_secret_door_candidate(x, y):
                     positions.append((x, y))
 
         return positions
+
+    def is_searchable_secret_door_candidate(self, x: int, y: int) -> bool:
+        tile = self.tile_at(x, y)
+
+        if tile == SECRET_DOOR:
+            return True
+
+        if tile != WALL:
+            return False
+
+        return (
+            self.is_horizontal_secret_wall_connector(x, y)
+            or self.is_vertical_secret_wall_connector(x, y)
+        )
+
+    def is_horizontal_secret_wall_connector(self, x: int, y: int) -> bool:
+        left = self.tile_at(x - 1, y)
+        right = self.tile_at(x + 1, y)
+        up = self.tile_at(x, y - 1)
+        down = self.tile_at(x, y + 1)
+
+        return (
+            self.is_secret_connector_floor(left)
+            and self.is_secret_connector_floor(right)
+            and self.is_secret_connector_blocker(up)
+            and self.is_secret_connector_blocker(down)
+        )
+
+    def is_vertical_secret_wall_connector(self, x: int, y: int) -> bool:
+        left = self.tile_at(x - 1, y)
+        right = self.tile_at(x + 1, y)
+        up = self.tile_at(x, y - 1)
+        down = self.tile_at(x, y + 1)
+
+        return (
+            self.is_secret_connector_floor(up)
+            and self.is_secret_connector_floor(down)
+            and self.is_secret_connector_blocker(left)
+            and self.is_secret_connector_blocker(right)
+        )
+
+    def is_secret_connector_floor(self, tile: str) -> bool:
+        return tile in {ROOM_FLOOR, CORRIDOR_FLOOR, OPEN_DOOR, "<", ">"}
+
+    def is_secret_connector_blocker(self, tile: str) -> bool:
+        return tile in {WALL, SOLID_ROCK, CLOSED_DOOR, SECRET_DOOR}
+
 
     def search_success_chance(self, *, passive: bool = False) -> int:
         intelligence_bonus = self.player.get_modifier("INT")

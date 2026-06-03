@@ -150,3 +150,50 @@ def test_search_remains_adjacent_only():
     state.player_y = 1
 
     assert state.adjacent_secret_door_positions() == []
+
+
+def test_search_can_find_wall_connector_between_corridor_and_room():
+    state = GameState()
+    state.player.depth = 1
+    state.map_data = [
+        "###########",
+        ":::::.#...#",
+        "###########",
+    ]
+    state.player_x = 5
+    state.player_y = 1
+
+    assert state.tile_at(6, 1) == "#"
+    assert (6, 1) in state.adjacent_secret_door_positions()
+
+
+def test_search_reveals_wall_connector_between_corridor_and_room():
+    state = GameState()
+    state.player.depth = 1
+    state.map_data = [
+        "###########",
+        ":::::.#...#",
+        "###########",
+    ]
+    state.player_x = 5
+    state.player_y = 1
+
+    with patch("plaguefire.core.GameState.random.randint", return_value=1):
+        state.handle_action(Action.search())
+
+    assert state.tile_at(6, 1) == CLOSED_DOOR
+    assert "secret door" in state.messages[-1]
+
+
+def test_search_does_not_reveal_plain_solid_wall():
+    state = GameState()
+    state.player.depth = 1
+    state.map_data = [
+        "###########",
+        "#....@####",
+        "###########",
+    ]
+    state.player_x = 5
+    state.player_y = 1
+
+    assert state.adjacent_secret_door_positions() == []
