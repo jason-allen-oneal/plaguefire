@@ -11,6 +11,7 @@ from plaguefire.core.Entities import Monster, random_monster_for_depth
 from plaguefire.core.DungeonGeneration import CLOSED_DOOR, CORRIDOR_FLOOR, OPEN_DOOR, ROOM_FLOOR, SECRET_DOOR, SOLID_ROCK, WALL, DungeonMap, Room, generate_dungeon, monster_target_count
 from plaguefire.core.ItemCatalog import get_item_name, get_item_price
 from plaguefire.core.Hunger import apply_hunger_turn, food_value_for_item, is_food_item, restore_hunger
+from plaguefire.core.TrapCatalog import random_trap_for_depth, roll_dice, trap_spawn_count
 from plaguefire.core.Shop import ShopDefinition, get_shop
 from plaguefire.core.Town import SHOP_BY_TILE, TOWN_LAYOUT, WALKABLE_TILES, starting_position
 from plaguefire.models.Player import Player
@@ -51,6 +52,7 @@ class GameState:
     explored_by_depth: dict[int, set[tuple[int, int]]] = field(default_factory=dict)
     fov_radius: int = 12
     monsters_by_depth: dict[int, list[Monster]] = field(default_factory=dict)
+    traps_by_depth: dict[int, list[dict[str, object]]] = field(default_factory=dict)
     search_mode_enabled: bool = False
 
     haggle_attempted: set[str] = field(default_factory=set)
@@ -316,6 +318,9 @@ class GameState:
         self.refresh_fov()
         self.auto_search_after_move()
 
+        if self.trigger_trap_at_player():
+            return
+
         tile = self.tile_at(target_x, target_y)
 
         if tile in SHOP_BY_TILE:
@@ -332,6 +337,147 @@ class GameState:
             return
 
         self.monsters_take_turn()
+
+    def traps_on_current_depth(self) -> list[dict[str, object]]:
+        return self.traps_by_depth.setdefault(self.player.depth, [])
+
+    def trap_at(self, x: int, y: int) -> dict[str, object] | None:
+        for trap in self.traps_on_current_depth():
+            if not trap.get("active", True):
+                continue
+
+            if int(trap.get("x", -1)) == x and int(trap.get("y", -1)) == y:
+                return trap
+
+        return None
+
+    def spawn_traps_for_depth(self, depth: int) -> None:
+        if depth <= 0:
+            return
+
+        if depth in self.traps_by_depth and self.traps_by_depth[depth]:
+            return
+
+        dungeon = self.dungeon_cache.get(depth)
+        if dungeon is None:
+            return
+
+        rng = random.Random(depth * 65537 + 911)
+        possible_positions: list[tuple[int, int]] = []
+
+        for y, row in enumerate(dungeon.tiles):
+            for x, tile in enumerate(row):
+                if tile not in {ROOM_FLOOR, CORRIDOR_FLOOR}:
+                    continue
+
+                if (x, y) in {dungeon.upstairs, dungeon.downstairs}:
+                    continue
+
+                if max(abs(x - dungeon.upstairs[0]), abs(y - dungeon.upstairs[1])) <= 6:
+                    continue
+
+                possible_positions.append((x, y))
+
+        rng.shuffle(possible_positions)
+
+        traps: list[dict[str, object]] = []
+        target_count = trap_spawn_count(depth, len(possible_positions))
+
+        for x, y in possible_positions[:target_count]:
+            definition = random_trap_for_depth(depth, rng)
+            traps.append(
+                {
+                    "trap_id": definition.id,
+                    "x": x,
+                    "y": y,
+                    "depth": depth,
+                    "active": True,
+                    "discovered": False,
+                }
+            )
+
+        self.traps_by_depth[depth] = traps
+
+    def trigger_trap_at_player(self) -> bool:
+        trap = self.trap_at(self.player_x, self.player_y)
+
+        if trap is None:
+            return False
+
+        trap["discovered"] = True
+
+        trap_id = str(trap.get("trap_id", ""))
+        definition = random_trap_for_depth(self.player.depth, random.Random(0))
+        catalog_rng = random.Random(self.player.depth * 31337 + self.player_x * 31 + self.player_y)
+
+        from plaguefire.core.TrapCatalog import get_trap_catalog
+
+        definition = get_trap_catalog().get(trap_id, definition)
+
+        if catalog_rng.randint(1, 100) > definition.trigger_chance:
+            self.log(f"You avoid a {definition.name}.")
+            return False
+
+        self.log(f"You trigger a {definition.name}.")
+
+        effect = definition.effect
+        effect_type = str(effect[0]) if effect else ""
+
+        if effect_type == "damage":
+            damage = roll_dice(str(effect[1]), catalog_rng) if len(effect) > 1 else 1
+            self.apply_trap_damage(damage)
+        elif effect_type == "damage_status":
+            damage = roll_dice(str(effect[1]), catalog_rng) if len(effect) > 1 else 1
+            self.apply_trap_damage(damage)
+            if len(effect) > 2:
+                self.log(f"You are {effect[2]}.")
+        elif effect_type == "area_damage":
+            damage = roll_dice(str(effect[1]), catalog_rng) if len(effect) > 1 else 1
+            self.apply_trap_damage(damage)
+        elif effect_type == "teleport":
+            self.teleport_player_from_trap(catalog_rng)
+            return True
+        elif effect_type == "drop_level":
+            levels = int(effect[1]) if len(effect) > 1 else 1
+            self.log("The floor gives way beneath you.")
+            self.enter_dungeon_depth(self.player.depth + max(1, levels), arrival="upstairs")
+            return True
+        elif effect_type == "immobilize":
+            self.log("A trap tangles your movement.")
+        elif effect_type == "alarm":
+            self.log("A shrill alarm echoes through the dungeon.")
+        else:
+            self.log("The trap sputters and dies.")
+
+        if definition.single_use:
+            trap["active"] = False
+
+        return self.screen == "game_over"
+
+    def apply_trap_damage(self, damage: int) -> None:
+        damage = max(1, int(damage))
+        died = self.player.take_damage(damage)
+        self.log(f"The trap hits you for {damage} damage.")
+
+        if died:
+            self.log("You die.")
+            self.screen = "game_over"
+
+    def teleport_player_from_trap(self, rng: random.Random) -> None:
+        positions: list[tuple[int, int]] = []
+
+        for y, row in enumerate(self.map_data):
+            for x, tile in enumerate(row):
+                if tile in WALKABLE_GAME_TILES and self.monster_at(x, y) is None:
+                    positions.append((x, y))
+
+        if not positions:
+            self.log("The teleport fizzles.")
+            return
+
+        self.player_x, self.player_y = rng.choice(positions)
+        self.refresh_fov()
+        self.log("Space folds around you.")
 
     def monsters_on_current_depth(self) -> list[Monster]:
         return self.monsters_by_depth.setdefault(self.player.depth, [])
@@ -561,6 +707,7 @@ class GameState:
             self.player_x, self.player_y = dungeon.upstairs
 
         self.spawn_monsters_for_depth(depth)
+        self.spawn_traps_for_depth(depth)
         self.refresh_fov()
 
     def set_tile(self, x: int, y: int, tile: str) -> None:
