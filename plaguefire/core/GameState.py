@@ -8,7 +8,7 @@ from plaguefire.core.Action import Action, ActionType, DIRECTION_DELTAS
 from plaguefire.core.CharacterCreation import create_player
 from plaguefire.core.Fov import compute_fov
 from plaguefire.core.Entities import Monster, random_monster_for_depth
-from plaguefire.core.DungeonGeneration import CLOSED_DOOR, CORRIDOR_FLOOR, OPEN_DOOR, ROOM_FLOOR, SECRET_DOOR, SOLID_ROCK, WALL, DungeonMap, Room, generate_dungeon
+from plaguefire.core.DungeonGeneration import CLOSED_DOOR, CORRIDOR_FLOOR, OPEN_DOOR, ROOM_FLOOR, SECRET_DOOR, SOLID_ROCK, WALL, DungeonMap, Room, generate_dungeon, monster_target_count
 from plaguefire.core.ItemCatalog import get_item_name, get_item_price
 from plaguefire.core.Hunger import apply_hunger_turn, food_value_for_item, is_food_item, restore_hunger
 from plaguefire.core.Shop import ShopDefinition, get_shop
@@ -392,10 +392,7 @@ class GameState:
 
         rng.shuffle(possible_positions)
 
-        target_count = min(
-            len(possible_positions),
-            max(4, min(18, 5 + depth * 2)),
-        )
+        target_count = monster_target_count(depth, len(possible_positions))
 
         monsters: list[Monster] = []
 

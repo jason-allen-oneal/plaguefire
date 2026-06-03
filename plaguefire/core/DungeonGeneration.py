@@ -8,6 +8,15 @@ from dataclasses import dataclass
 DUNGEON_WIDTH = 180
 DUNGEON_HEIGHT = 66
 
+MIN_MAP_WIDTH = 180
+MIN_MAP_HEIGHT = 66
+MAX_MAP_WIDTH = 300
+MAX_MAP_HEIGHT = 120
+
+LARGE_DUNGEON_THRESHOLD = 100
+MAX_LARGE_MAP_WIDTH = 500
+MAX_LARGE_MAP_HEIGHT = 200
+
 SOLID_ROCK = " "
 WALL = "#"
 ROOM_FLOOR = "."
@@ -68,31 +77,109 @@ class DungeonMap:
     rooms: tuple[Room, ...]
 
 
+@dataclass(frozen=True)
+class DungeonProfile:
+    depth: int
+    width: int
+    height: int
+    target_rooms: int
+    room_min_width: int
+    room_max_width: int
+    room_min_height: int
+    room_max_height: int
+    extra_connection_attempts: int
+
+
+def dungeon_profile(depth: int) -> DungeonProfile:
+    depth = max(1, int(depth))
+
+    if depth >= LARGE_DUNGEON_THRESHOLD:
+        large_depth = min(100, depth - LARGE_DUNGEON_THRESHOLD)
+        width = MAX_MAP_WIDTH + round((MAX_LARGE_MAP_WIDTH - MAX_MAP_WIDTH) * large_depth / 100)
+        height = MAX_MAP_HEIGHT + round((MAX_LARGE_MAP_HEIGHT - MAX_MAP_HEIGHT) * large_depth / 100)
+    else:
+        width = min(MAX_MAP_WIDTH, MIN_MAP_WIDTH + (depth - 1) * 3)
+        height = min(MAX_MAP_HEIGHT, MIN_MAP_HEIGHT + (depth - 1) * 1)
+
+    area_factor = max(0, (width * height - MIN_MAP_WIDTH * MIN_MAP_HEIGHT) // 3000)
+
+    target_rooms = min(
+        90,
+        16 + depth // 2 + area_factor,
+    )
+
+    room_max_width = min(28, 20 + depth // 20)
+    room_max_height = min(15, 11 + depth // 25)
+
+    extra_connections = min(
+        18,
+        max(2, target_rooms // 6 + depth // 20),
+    )
+
+    return DungeonProfile(
+        depth=depth,
+        width=width,
+        height=height,
+        target_rooms=target_rooms,
+        room_min_width=9,
+        room_max_width=room_max_width,
+        room_min_height=6,
+        room_max_height=room_max_height,
+        extra_connection_attempts=extra_connections,
+    )
+
+
+def monster_target_count(depth: int, floor_count: int) -> int:
+    if floor_count <= 0:
+        return 0
+
+    depth = max(1, int(depth))
+    target = 5 + depth * 2 + depth // 5
+
+    if depth >= 25:
+        target += (depth - 25) // 2
+
+    if depth >= LARGE_DUNGEON_THRESHOLD:
+        target += 20 + (depth - LARGE_DUNGEON_THRESHOLD) // 2
+
+    return min(floor_count, max(4, min(90, target)))
+
+
 def generate_dungeon(
     depth: int,
-    width: int = DUNGEON_WIDTH,
-    height: int = DUNGEON_HEIGHT,
+    width: int | None = None,
+    height: int | None = None,
     seed: int | None = None,
 ) -> DungeonMap:
+    profile = dungeon_profile(depth)
+
+    width = int(width if width is not None else profile.width)
+    height = int(height if height is not None else profile.height)
+
     rng = random.Random(seed if seed is not None else depth * 7919 + 1337)
 
     grid = [[SOLID_ROCK for _ in range(width)] for _ in range(height)]
     rooms: list[Room] = []
     door_positions: list[tuple[int, int]] = []
 
-    target_rooms = min(34, 16 + depth // 2)
-    max_attempts = 900
+    target_rooms = max(1, min(profile.target_rooms, (width * height) // 420))
+    max_attempts = max(900, target_rooms * 90)
+
+    min_room_width = min(profile.room_min_width, max(4, width - 8))
+    max_room_width = min(profile.room_max_width, max(min_room_width, width - 8))
+    min_room_height = min(profile.room_min_height, max(4, height - 8))
+    max_room_height = min(profile.room_max_height, max(min_room_height, height - 8))
 
     for _ in range(max_attempts):
         if len(rooms) >= target_rooms:
             break
 
         # These dimensions include the room wall boundary.
-        room_width = rng.randint(9, 20)
-        room_height = rng.randint(6, 11)
+        room_width = rng.randint(min_room_width, max_room_width)
+        room_height = rng.randint(min_room_height, max_room_height)
 
-        x = rng.randint(3, width - room_width - 4)
-        y = rng.randint(3, height - room_height - 4)
+        x = rng.randint(3, max(3, width - room_width - 4))
+        y = rng.randint(3, max(3, height - room_height - 4))
 
         room = Room(x=x, y=y, width=room_width, height=room_height)
 
@@ -111,7 +198,15 @@ def generate_dungeon(
         carve_room(grid, fallback)
         rooms.append(fallback)
 
-    door_positions.extend(add_extra_connections(grid, rooms, rng))
+    door_positions.extend(
+        add_extra_connections(
+            grid,
+            rooms,
+            rng,
+            attempts=profile.extra_connection_attempts,
+        )
+    )
+
     add_walls_around_corridors(grid)
     mark_doors(grid, door_positions, rng)
     mark_secret_connectors_between_carved_areas(grid, rng)
@@ -138,7 +233,6 @@ def generate_dungeon(
         downstairs=downstairs,
         rooms=tuple(rooms),
     )
-
 
 def carve_room(grid: list[list[str]], room: Room) -> None:
     for y in range(room.y, room.y2 + 1):
@@ -198,12 +292,13 @@ def add_extra_connections(
     grid: list[list[str]],
     rooms: list[Room],
     rng: random.Random,
+    attempts: int | None = None,
 ) -> list[tuple[int, int]]:
     if len(rooms) < 5:
         return []
 
     door_positions: list[tuple[int, int]] = []
-    attempts = max(1, len(rooms) // 8)
+    attempts = max(1, attempts if attempts is not None else len(rooms) // 8)
 
     for _ in range(attempts):
         first = rng.choice(rooms)
@@ -215,7 +310,6 @@ def add_extra_connections(
         door_positions.extend(connect_rooms(grid, first, second, rng))
 
     return door_positions
-
 
 def carve_horizontal_tunnel(grid: list[list[str]], x1: int, x2: int, y: int) -> None:
     for x in range(min(x1, x2), max(x1, x2) + 1):
