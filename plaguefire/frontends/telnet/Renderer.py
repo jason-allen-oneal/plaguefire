@@ -5,7 +5,7 @@ from plaguefire.core.GameState import GameState
 from plaguefire.core.DungeonGeneration import display_tile
 from plaguefire.core.ItemCatalog import get_item_catalog, get_item_description, get_item_name
 from plaguefire.core.SpellCatalog import get_spell_catalog, get_spell_name
-from plaguefire.frontends.telnet.TerminalStyle import BOLD, DIM, FG_BRIGHT_BLACK, FG_BRIGHT_BLUE, FG_BRIGHT_CYAN, FG_BRIGHT_GREEN, FG_BRIGHT_MAGENTA, FG_BRIGHT_RED, FG_BRIGHT_WHITE, FG_BRIGHT_YELLOW, FG_CYAN, FG_GREEN, FG_RED, FG_WHITE, FG_YELLOW, center_visible, color, danger, gold as gold_color, good, ljust_visible, mana as mana_color, muted, section, selected, title, visible_len
+from plaguefire.frontends.telnet.TerminalStyle import BOLD, DIM, FG_BRIGHT_BLACK, FG_BRIGHT_BLUE, FG_BRIGHT_CYAN, FG_BRIGHT_GREEN, FG_BRIGHT_MAGENTA, FG_BRIGHT_RED, FG_BRIGHT_WHITE, FG_BRIGHT_YELLOW, FG_CYAN, FG_GREEN, FG_RED, FG_WHITE, FG_YELLOW, center_visible, color, danger, gold as gold_color, good, ljust_visible, mana as mana_color, muted, section, selected, title, visible_len, visible_slice
 
 
 RESET = "\x1b[0m"
@@ -85,6 +85,7 @@ def render(state: GameState, terminal_width: int = 80, terminal_height: int = 24
     return render_game(state, terminal_width, terminal_height)
 
 
+
 def render_game(state: GameState, terminal_width: int, terminal_height: int) -> str:
     width, height = normalize_terminal_size(terminal_width, terminal_height)
 
@@ -101,7 +102,7 @@ def render_game(state: GameState, terminal_width: int, terminal_height: int) -> 
     )
 
     stats_lines = render_stats_column(state, body_height)
-    map_lines = render_map_area(state, map_view_width, map_view_height)
+    map_lines = render_map_area(state, map_view_width, map_view_height, colorize=True)
 
     lines: list[str] = []
 
@@ -112,13 +113,11 @@ def render_game(state: GameState, terminal_width: int, terminal_height: int) -> 
     for row_index in range(body_height):
         left = stats_lines[row_index] if row_index < len(stats_lines) else ""
         map_line = map_lines[row_index] if row_index < len(map_lines) else ""
-        right = map_line.ljust(available_map_width)
 
-        lines.append(
-            left[:STATS_WIDTH].ljust(STATS_WIDTH)
-            + " "
-            + right[:available_map_width]
-        )
+        left = ljust_visible(left, STATS_WIDTH)
+        right = ljust_visible(map_line, available_map_width)
+
+        lines.append(left + " " + right)
 
     lines.append(status_line(state, width, map_view_width, map_view_height)[:width].ljust(width))
 
@@ -162,22 +161,29 @@ def latest_message(state: GameState) -> str:
     return state.messages[-1]
 
 
+
 def render_stats_column(state: GameState, height: int) -> list[str]:
     player = state.player
 
+    def stat_line(label: str, value: str) -> str:
+        return f"{color(label, BOLD, FG_BRIGHT_CYAN)} {value}"
+
+    hp_value = f"{player.hp:>3}/{player.max_hp:<3}"
+    hp_value = danger(hp_value) if player.hp <= max(1, player.max_hp // 4) else good(hp_value)
+
     stat_lines = [
-        f"{player.race[:10]}",
-        f"{player.character_class[:10]}",
+        color(f"{player.race[:10]}", FG_BRIGHT_GREEN),
+        color(f"{player.character_class[:10]}", FG_BRIGHT_CYAN),
         "",
-        f"LEV : {player.level:>6}",
-        f"EXP : {player.xp:>6}",
-        f"MANA: {player.mana:>3}/{player.max_mana:<3}",
-        f"HP  : {player.hp:>3}/{player.max_hp:<3}",
+        stat_line("LEV :", color(f"{player.level:>6}", FG_BRIGHT_WHITE)),
+        stat_line("EXP :", color(f"{player.xp:>6}", FG_BRIGHT_WHITE)),
+        stat_line("MANA:", mana_color(f"{player.mana:>3}/{player.max_mana:<3}")),
+        stat_line("HP  :", hp_value),
         "",
-        f"AC  : {player.armor_class:>6}",
-        f"GOLD: {player.gold:>6}",
-        f"Wpn : {player.weapon_name[:10]}",
-        f"Dmg : {player.weapon_damage}",
+        stat_line("AC  :", color(f"{player.armor_class:>6}", FG_BRIGHT_WHITE)),
+        stat_line("GOLD:", gold_color(f"{player.gold:>6}")),
+        stat_line("Wpn :", color(player.weapon_name[:10], FG_BRIGHT_WHITE)),
+        stat_line("Dmg :", color(player.weapon_damage, FG_BRIGHT_WHITE)),
         "",
     ]
 
@@ -186,25 +192,28 @@ def render_stats_column(state: GameState, height: int) -> list[str]:
         percentile = player.stat_percentiles.get(stat, 0)
 
         if value >= 18 and percentile:
-            stat_lines.append(f"{stat} : {value:>2}/{percentile:<2}")
+            rendered_value = f"{value:>2}/{percentile:<2}"
         else:
-            stat_lines.append(f"{stat} : {value:>6}")
+            rendered_value = f"{value:>6}"
+
+        stat_lines.append(stat_line(f"{stat} :", color(rendered_value, FG_BRIGHT_YELLOW)))
 
     stat_lines.extend(
         [
             "",
-            f"Depth: {player.depth}",
-            f"Food : {player.hunger_state}",
+            stat_line("Depth:", color(str(player.depth), FG_BRIGHT_GREEN)),
+            stat_line("Food :", color(player.hunger_state, FG_BRIGHT_GREEN)),
         ]
     )
 
     return stat_lines[:height]
 
-
-
 def color_map_glyph(glyph: str) -> str:
     if glyph == "@":
-        return color(glyph, BOLD, FG_BRIGHT_WHITE)
+        return color(glyph, BOLD, FG_BRIGHT_YELLOW)
+
+    if glyph in {"1", "2", "3", "4", "5", "6"}:
+        return color(glyph, BOLD, FG_BRIGHT_CYAN)
 
     if glyph in {"#", "%"}:
         return color(glyph, FG_BRIGHT_BLACK)
@@ -216,7 +225,7 @@ def color_map_glyph(glyph: str) -> str:
         return color(glyph, DIM, FG_WHITE)
 
     if glyph in {"+", "'"}:
-        return color(glyph, FG_BRIGHT_YELLOW)
+        return color(glyph, FG_YELLOW)
 
     if glyph in {"<", ">"}:
         return color(glyph, BOLD, FG_BRIGHT_YELLOW)
@@ -237,7 +246,6 @@ def color_map_glyph(glyph: str) -> str:
         return color(glyph, BOLD, FG_BRIGHT_RED)
 
     return glyph
-
 
 def color_status_value(label: str, value: str) -> str:
     label_text = f"{label}:"
@@ -474,13 +482,16 @@ def frame(title_text: str, body: list[str], terminal_width: int, terminal_height
     inner_width = max(1, width - 2)
     inner_height = max(1, height - 2)
 
-    safe_title = f" {title(title_text)} "
-    plain_title_width = visible_len(safe_title)
-    side_width = max(0, inner_width - plain_title_width)
-    left = side_width // 2
-    right = side_width - left
+    if title_text.strip():
+        safe_title = f" {title(title_text)} "
+        plain_title_width = visible_len(safe_title)
+        side_width = max(0, inner_width - plain_title_width)
+        left = side_width // 2
+        right = side_width - left
+        top = "+" + ("-" * left) + safe_title + ("-" * right) + "+"
+    else:
+        top = "+" + ("-" * inner_width) + "+"
 
-    top = "+" + ("-" * left) + safe_title + ("-" * right) + "+"
     bottom = "+" + ("-" * inner_width) + "+"
 
     lines = [top]
