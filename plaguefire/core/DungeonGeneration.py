@@ -352,7 +352,7 @@ def mark_doors(
     unique_positions = list(dict.fromkeys(door_positions))
     rng.shuffle(unique_positions)
 
-    actual_doors: list[tuple[int, int]] = []
+    candidates: list[tuple[int, int]] = []
 
     for x, y in unique_positions:
         if not in_bounds(grid, x, y):
@@ -364,13 +364,123 @@ def mark_doors(
         if has_adjacent_door(grid, x, y):
             continue
 
-        grid[y][x] = SECRET_DOOR if rng.randint(1, 7) == 1 else CLOSED_DOOR
-        actual_doors.append((x, y))
+        candidates.append((x, y))
 
-    # Guarantee at least one secret door when the level has several doors.
-    if actual_doors and not any(grid[y][x] == SECRET_DOOR for x, y in actual_doors):
-        x, y = rng.choice(actual_doors)
+    if not candidates:
+        return
+
+    target_count = door_target_count(len(candidates))
+    actual_doors = rng.sample(candidates, k=target_count)
+    actual_door_set = set(actual_doors)
+
+    for x, y in candidates:
+        if (x, y) in actual_door_set:
+            grid[y][x] = CLOSED_DOOR
+        elif grid[y][x] == WALL:
+            # Door candidates are connection points. If we choose not to make
+            # one a door, keep the map connected by opening the passage.
+            grid[y][x] = CORRIDOR_FLOOR
+
+    secret_count = secret_door_target_count(len(actual_doors))
+
+    if secret_count <= 0:
+        return
+
+    for x, y in rng.sample(actual_doors, k=secret_count):
         grid[y][x] = SECRET_DOOR
+
+
+def door_target_count(candidate_count: int) -> int:
+    if candidate_count <= 0:
+        return 0
+
+    # The room-connection algorithm can produce two candidates per connection.
+    # Turning all of them into doors makes every level look over-gated.
+    target = round(candidate_count * 0.35)
+
+    if candidate_count <= 12:
+        target = min(candidate_count, max(4, target))
+    else:
+        target = min(candidate_count, max(8, target))
+
+    return min(64, target)
+
+
+def secret_door_target_count(door_count: int) -> int:
+    if door_count <= 0:
+        return 0
+
+    # Keep secret doors meaningful. They should be encountered, not sprayed
+    # across every connection.
+    target = max(1, round(door_count * 0.08))
+
+    if door_count >= 8:
+        target = max(target, 2)
+
+    return min(8, target, door_count)
+
+
+
+
+
+def secret_connector_target_count(candidate_count: int) -> int:
+    if candidate_count <= 0:
+        return 0
+
+    if candidate_count < 40:
+        return 1
+
+    return min(2, max(1, candidate_count // 40))
+
+
+def secret_connector_candidates(grid: list[list[str]]) -> list[tuple[int, int]]:
+    candidates: list[tuple[int, int]] = []
+
+    for y in range(1, len(grid) - 1):
+        for x in range(1, len(grid[y]) - 1):
+            if grid[y][x] != WALL:
+                continue
+
+            if is_horizontal_secret_connector(grid, x, y) or is_vertical_secret_connector(grid, x, y):
+                candidates.append((x, y))
+
+    return candidates
+
+
+def is_horizontal_secret_connector(grid: list[list[str]], x: int, y: int) -> bool:
+    left = grid[y][x - 1]
+    right = grid[y][x + 1]
+    up = grid[y - 1][x]
+    down = grid[y + 1][x]
+
+    return (
+        is_secret_connector_floor(left)
+        and is_secret_connector_floor(right)
+        and is_secret_connector_blocker(up)
+        and is_secret_connector_blocker(down)
+    )
+
+
+def is_vertical_secret_connector(grid: list[list[str]], x: int, y: int) -> bool:
+    left = grid[y][x - 1]
+    right = grid[y][x + 1]
+    up = grid[y - 1][x]
+    down = grid[y + 1][x]
+
+    return (
+        is_secret_connector_floor(up)
+        and is_secret_connector_floor(down)
+        and is_secret_connector_blocker(left)
+        and is_secret_connector_blocker(right)
+    )
+
+
+def is_secret_connector_floor(tile: str) -> bool:
+    return tile in {ROOM_FLOOR, CORRIDOR_FLOOR, OPEN_DOOR, UPSTAIRS, DOWNSTAIRS}
+
+
+def is_secret_connector_blocker(tile: str) -> bool:
+    return tile in {WALL, SOLID_ROCK, CLOSED_DOOR, SECRET_DOOR}
 
 
 def mark_secret_connectors_between_carved_areas(
@@ -378,15 +488,12 @@ def mark_secret_connectors_between_carved_areas(
     rng: random.Random,
 ) -> None:
     candidates = secret_connector_candidates(grid)
-
-    if not candidates:
-        return
-
     rng.shuffle(candidates)
 
-    # These are extra "that wall looks suspicious" secret doors. Keep them
-    # limited so the dungeon does not become a hidden-door maze.
-    target = max(1, min(6, len(candidates) // 8))
+    target = secret_connector_target_count(len(candidates))
+
+    if target <= 0:
+        return
 
     placed = 0
 
@@ -399,49 +506,6 @@ def mark_secret_connectors_between_carved_areas(
 
         grid[y][x] = SECRET_DOOR
         placed += 1
-
-
-def secret_connector_candidates(grid: list[list[str]]) -> list[tuple[int, int]]:
-    candidates: list[tuple[int, int]] = []
-
-    for y in range(1, len(grid) - 1):
-        for x in range(1, len(grid[y]) - 1):
-            if grid[y][x] != WALL:
-                continue
-
-            if is_secret_horizontal_connector(grid, x, y) or is_secret_vertical_connector(grid, x, y):
-                candidates.append((x, y))
-
-    return candidates
-
-
-def is_secret_horizontal_connector(grid: list[list[str]], x: int, y: int) -> bool:
-    left = grid[y][x - 1]
-    right = grid[y][x + 1]
-    up = grid[y - 1][x]
-    down = grid[y + 1][x]
-
-    return (
-        left in FLOOR_TILES
-        and right in FLOOR_TILES
-        and up in {WALL, SOLID_ROCK}
-        and down in {WALL, SOLID_ROCK}
-    )
-
-
-def is_secret_vertical_connector(grid: list[list[str]], x: int, y: int) -> bool:
-    left = grid[y][x - 1]
-    right = grid[y][x + 1]
-    up = grid[y - 1][x]
-    down = grid[y + 1][x]
-
-    return (
-        up in FLOOR_TILES
-        and down in FLOOR_TILES
-        and left in {WALL, SOLID_ROCK}
-        and right in {WALL, SOLID_ROCK}
-    )
-
 
 def has_adjacent_door(grid: list[list[str]], x: int, y: int) -> bool:
     for nx, ny in neighbors_8(x, y):
