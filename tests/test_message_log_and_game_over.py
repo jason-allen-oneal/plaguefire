@@ -76,7 +76,10 @@ def test_game_over_screen_renders():
     assert "PEACE" in output
     assert "Final messages:" in output
     assert "You die." in output
-    assert "Press q to quit." in output
+    assert "r resurrect in town" in output
+    assert "d delete character" in output
+    assert "m main menu" in output
+    assert "q quit" in output
 
 
 def test_game_over_screen_contains_gravestone():

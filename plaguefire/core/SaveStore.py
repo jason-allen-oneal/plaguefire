@@ -119,6 +119,16 @@ def create_default_character(username: str, name: str) -> Player:
     return player
 
 
+def delete_character(username: str, slug: str) -> bool:
+    path = user_save_dir(username) / f"{slugify(slug)}.json"
+
+    if not path.exists():
+        return False
+
+    path.unlink()
+    return True
+
+
 def load_raw_save(username: str, slug: str) -> dict[str, Any]:
     path = user_save_dir(username) / f"{slugify(slug)}.json"
     return json.loads(path.read_text(encoding="utf-8"))

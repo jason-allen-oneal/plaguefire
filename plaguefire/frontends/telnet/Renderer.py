@@ -379,12 +379,12 @@ def render_game_over(state: GameState, terminal_width: int, terminal_height: int
     body.extend(
         [
             "",
-            "Press q to quit.".center(max(25, width - 4)),
+            "r resurrect in town    d delete character",
+            "m main menu            q quit",
         ]
     )
 
     return frame("GAME OVER", body, terminal_width, terminal_height)
-
 
 def render_help(terminal_width: int, terminal_height: int) -> str:
     body = [

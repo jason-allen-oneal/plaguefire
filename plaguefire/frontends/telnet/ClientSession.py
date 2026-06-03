@@ -6,7 +6,7 @@ from random import randint
 from plaguefire.core.CharacterCreation import create_player, get_allowed_classes, list_races
 from plaguefire.core.CharacterData import MAX_STARTER_SPELLS, SEX_OPTIONS
 from plaguefire.core.GameState import GameState
-from plaguefire.core.SaveStore import CharacterSlot, list_characters, load_game, save_game, save_player
+from plaguefire.core.SaveStore import CharacterSlot, delete_character, list_characters, load_game, save_game, save_player
 from plaguefire.core.SpellCatalog import starter_spells_for_class
 from plaguefire.frontends.common.KeyMap import key_to_action
 
@@ -98,7 +98,46 @@ class ClientSession:
             self.handle_preview_key(key)
             return
 
+    def handle_game_over_key(self, key: str) -> None:
+        if self.game_state is None:
+            return
+
+        normalized = key.lower()
+
+        if normalized == "q":
+            save_game(self.username, self.game_state)
+            self.running = False
+            return
+
+        if normalized == "m":
+            save_game(self.username, self.game_state)
+            self.game_state = None
+            self.screen = "title"
+            self.message = "Returned to the main menu."
+            self.characters = list_characters(self.username) if self.username else []
+            return
+
+        if normalized == "d":
+            player_name = self.game_state.player.name
+            delete_character(self.username, player_name)
+            self.game_state = None
+            self.screen = "title"
+            self.message = f"Deleted {player_name}."
+            self.characters = list_characters(self.username) if self.username else []
+            return
+
+        if normalized == "r":
+            self.game_state.resurrect_to_town()
+            save_game(self.username, self.game_state)
+            return
+
+        self.game_state.log("Death offers: r resurrect, d delete, m menu, q quit.")
+
     def handle_game_key(self, key: str) -> None:
+        if self.game_state is not None and self.game_state.screen == "game_over":
+            self.handle_game_over_key(key)
+            return
+
         if self.game_state is None:
             self.go_title()
             return

@@ -1034,6 +1034,15 @@ class GameState:
 
         return f"You pay for {service_name}."
 
+    def resurrect_to_town(self) -> None:
+        self.running = True
+        self.screen = "game"
+        self.player.hp = max(1, self.player.max_hp)
+        self.player.mana = self.player.max_mana
+        self.player.depth = 0
+        self.enter_town(reset_position=True)
+        self.log("You awaken in town, pulled back from death.")
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "player": self.player.to_dict(),
