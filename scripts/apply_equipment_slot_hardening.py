@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+from pathlib import Path
+
+
+INVENTORY = Path("plaguefire/models/Inventory.py")
+
+INVENTORY.write_text(
+'''from __future__ import annotations
+
 from dataclasses import dataclass, field
 from typing import Any
 from uuid import uuid4
@@ -370,3 +378,6 @@ class Inventory:
 
         inventory.enforce_single_equipped_per_slot()
         return inventory
+''',
+encoding="utf-8",
+)
