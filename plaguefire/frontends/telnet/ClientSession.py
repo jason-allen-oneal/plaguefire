@@ -160,8 +160,24 @@ class ClientSession:
 
             return
 
+        if self.game_state.screen == "spells":
+            self.game_state.handle_spell_key(key)
+            save_game(self.username, self.game_state)
+
+            if not self.game_state.running:
+                save_player(self.username, self.game_state.player)
+                self.running = False
+
+            return
+
+
         if key == "D" and self.game_state.screen == "game":
             self.game_state.disarm_adjacent_trap()
+            save_game(self.username, self.game_state)
+            return
+
+        if key in {"g", ","} and self.game_state.screen == "game":
+            self.game_state.pickup_current_floor_item()
             save_game(self.username, self.game_state)
             return
 

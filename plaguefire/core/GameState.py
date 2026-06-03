@@ -10,10 +10,12 @@ from plaguefire.core.Fov import compute_fov
 from plaguefire.core.Entities import Monster, random_monster_for_depth
 from plaguefire.core.DungeonGeneration import CLOSED_DOOR, CORRIDOR_FLOOR, OPEN_DOOR, ROOM_FLOOR, SECRET_DOOR, SOLID_ROCK, WALL, DungeonMap, Room, generate_dungeon, monster_target_count
 from plaguefire.core.ItemCatalog import get_item_name, get_item_price
+from plaguefire.core.FloorItems import GOLD_ITEM_ID, describe_floor_stack, floor_loot_spawn_count, make_gold_stack, make_item_stack, monster_gold_drop, monster_item_drop, random_gold_amount, random_loot_item
 from plaguefire.core.ItemEffects import is_usable_item, use_item_effect
 from plaguefire.core.Hunger import apply_hunger_turn, food_value_for_item, is_food_item, restore_hunger
 from plaguefire.core.Identification import canonical_item_id, display_item_name, is_identifiable_item
 from plaguefire.core.TrapCatalog import get_trap_catalog, random_trap_for_depth, roll_dice, trap_spawn_count
+from plaguefire.core.SpellEffects import apply_spell_effect, get_spell, spell_failure_chance, spell_mana_cost
 from plaguefire.core.Shop import ShopDefinition, get_shop
 from plaguefire.core.Town import SHOP_BY_TILE, TOWN_LAYOUT, WALKABLE_TILES, starting_position
 from plaguefire.models.Player import Player
@@ -56,6 +58,8 @@ class GameState:
     monsters_by_depth: dict[int, list[Monster]] = field(default_factory=dict)
     traps_by_depth: dict[int, list[dict[str, object]]] = field(default_factory=dict)
     identified_items: set[str] = field(default_factory=set)
+    floor_items_by_depth: dict[int, list[dict[str, object]]] = field(default_factory=dict)
+    spell_selection_index: int = 0
     search_mode_enabled: bool = False
 
     haggle_attempted: set[str] = field(default_factory=set)
@@ -172,6 +176,81 @@ class GameState:
         if key == "ENTER":
             self.activate_shop_selection()
             return
+
+    def handle_spell_key(self, key: str) -> None:
+        if self.screen != "spells":
+            return
+
+        if key == "ESC":
+            self.screen = "game"
+            return
+
+        if key == "UP":
+            self.move_spell_selection(-1)
+            return
+
+        if key == "DOWN":
+            self.move_spell_selection(1)
+            return
+
+        if key in {"ENTER", "c", "C"}:
+            self.cast_selected_spell()
+            return
+
+    def spell_selection_count(self) -> int:
+        return len(self.player.spells)
+
+    def move_spell_selection(self, delta: int) -> None:
+        count = self.spell_selection_count()
+
+        if count <= 0:
+            self.spell_selection_index = 0
+            return
+
+        self.spell_selection_index = (self.spell_selection_index + delta) % count
+
+    def selected_spell_id(self) -> str | None:
+        if not self.player.spells:
+            return None
+
+        self.spell_selection_index %= len(self.player.spells)
+        return str(self.player.spells[self.spell_selection_index])
+
+    def cast_selected_spell(self) -> None:
+        spell_id = self.selected_spell_id()
+
+        if spell_id is None:
+            self.log("You do not know any spells.")
+            return
+
+        spell = get_spell(spell_id)
+
+        if spell is None:
+            self.log("You cannot remember that spell.")
+            return
+
+        mana_cost = spell_mana_cost(spell, self.player.character_class)
+
+        if self.player.mana < mana_cost:
+            self.log("You do not have enough mana.")
+            return
+
+        self.player.mana = max(0, self.player.mana - mana_cost)
+
+        if not self.advance_turn():
+            return
+
+        failure = spell_failure_chance(spell, self.player.character_class, self.player)
+
+        if random.randint(1, 100) <= failure:
+            self.log("You failed to cast the spell.")
+            self.monsters_take_turn()
+            self.refresh_fov()
+            return
+
+        apply_spell_effect(self, spell_id)
+        self.monsters_take_turn()
+        self.refresh_fov()
 
     def handle_inventory_key(self, key: str) -> None:
         if self.screen != "inventory":
@@ -358,6 +437,8 @@ class GameState:
 
         if self.trigger_trap_at_player():
             return
+
+        self.describe_floor_items_at_player()
 
         tile = self.tile_at(target_x, target_y)
 
@@ -654,6 +735,110 @@ class GameState:
         self.monsters_take_turn()
         self.refresh_fov()
 
+    def floor_items_on_current_depth(self) -> list[dict[str, object]]:
+        return self.floor_items_by_depth.setdefault(self.player.depth, [])
+
+    def floor_items_at(self, x: int, y: int) -> list[dict[str, object]]:
+        return [
+            stack
+            for stack in self.floor_items_on_current_depth()
+            if int(stack.get("x", -1)) == x and int(stack.get("y", -1)) == y
+        ]
+
+    def describe_floor_items_at_player(self) -> None:
+        stacks = self.floor_items_at(self.player_x, self.player_y)
+
+        if not stacks:
+            return
+
+        if len(stacks) == 1:
+            self.log(f"You see {describe_floor_stack(stacks[0])} here.")
+            return
+
+        self.log(f"You see {len(stacks)} things here.")
+
+    def spawn_floor_items_for_depth(self, depth: int) -> None:
+        if depth <= 0:
+            return
+
+        if depth in self.floor_items_by_depth and self.floor_items_by_depth[depth]:
+            return
+
+        dungeon = self.dungeon_cache.get(depth)
+        if dungeon is None:
+            return
+
+        rng = random.Random(depth * 424243 + 71)
+        possible_positions: list[tuple[int, int]] = []
+
+        for y, row in enumerate(dungeon.tiles):
+            for x, tile in enumerate(row):
+                if tile not in {ROOM_FLOOR, CORRIDOR_FLOOR}:
+                    continue
+
+                if (x, y) in {dungeon.upstairs, dungeon.downstairs}:
+                    continue
+
+                if max(abs(x - dungeon.upstairs[0]), abs(y - dungeon.upstairs[1])) <= 5:
+                    continue
+
+                possible_positions.append((x, y))
+
+        rng.shuffle(possible_positions)
+
+        stacks: list[dict[str, object]] = []
+        target = floor_loot_spawn_count(depth, len(possible_positions))
+
+        for x, y in possible_positions[:target]:
+            if rng.randint(1, 100) <= 45:
+                stacks.append(make_gold_stack(random_gold_amount(depth, rng), x, y, depth))
+            else:
+                stacks.append(make_item_stack(random_loot_item(depth, rng), 1, x, y, depth))
+
+        self.floor_items_by_depth[depth] = stacks
+
+    def pickup_current_floor_item(self) -> None:
+        stacks = self.floor_items_at(self.player_x, self.player_y)
+
+        if not stacks:
+            self.log("There is nothing here to pick up.")
+            return
+
+        stack = stacks[0]
+        item_id = str(stack.get("item_id", ""))
+        quantity = int(stack.get("quantity", 1))
+
+        if item_id == GOLD_ITEM_ID:
+            self.player.gold += quantity
+            self.log(f"You pick up {quantity} gold.")
+        else:
+            self.player.add_item(item_id, quantity)
+            self.log(f"You pick up {describe_floor_stack(stack)}.")
+
+        self.floor_items_on_current_depth().remove(stack)
+
+        if not self.advance_turn():
+            return
+
+        self.monsters_take_turn()
+        self.refresh_fov()
+
+    def drop_monster_loot(self, monster: Monster) -> None:
+        rng = random.Random(self.player.depth * 991 + monster.x * 37 + monster.y * 17 + self.turn)
+        depth = self.player.depth
+
+        gold = monster_gold_drop(depth, rng)
+        if gold:
+            self.floor_items_on_current_depth().append(
+                make_gold_stack(gold, monster.x, monster.y, depth)
+            )
+
+        item_id = monster_item_drop(depth, rng)
+        if item_id is not None:
+            self.floor_items_on_current_depth().append(
+                make_item_stack(item_id, 1, monster.x, monster.y, depth)
+            )
+
     def monsters_on_current_depth(self) -> list[Monster]:
         return self.monsters_by_depth.setdefault(self.player.depth, [])
 
@@ -736,6 +921,7 @@ class GameState:
         if killed:
             self.player.gain_xp(monster.xp_value)
             self.log(f"You kill the {monster.name}.")
+            self.drop_monster_loot(monster)
             self.remove_dead_monsters()
         else:
             self.log(f"You hit the {monster.name} for {damage} damage.")
@@ -883,6 +1069,7 @@ class GameState:
 
         self.spawn_monsters_for_depth(depth)
         self.spawn_traps_for_depth(depth)
+        self.spawn_floor_items_for_depth(depth)
         self.refresh_fov()
 
     def set_tile(self, x: int, y: int, tile: str) -> None:
@@ -1466,6 +1653,11 @@ class GameState:
                 for depth, traps in self.traps_by_depth.items()
             },
             "identified_items": sorted(self.identified_items),
+            "floor_items_by_depth": {
+                str(depth): [dict(stack) for stack in stacks]
+                for depth, stacks in self.floor_items_by_depth.items()
+            },
+            "spell_selection_index": self.spell_selection_index,
         }
 
     @classmethod
@@ -1517,6 +1709,11 @@ class GameState:
             canonical_item_id(str(item_id))
             for item_id in data.get("identified_items", [])
         }
+        state.floor_items_by_depth = {
+            int(depth): [dict(stack) for stack in stacks]
+            for depth, stacks in dict(data.get("floor_items_by_depth", {})).items()
+        }
+        state.spell_selection_index = int(data.get("spell_selection_index", 0))
 
         # Recompute current visibility, but keep explored memory loaded above.
         state.refresh_fov()
